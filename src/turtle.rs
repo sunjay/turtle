@@ -1,6 +1,9 @@
 use std::env;
 
+use screen::{Screen, Settings};
 use speed::Speed;
+use point::Point;
+use ideoutput::IDEOutput;
 
 /// This type represents any distance value
 pub type Distance = i32;
@@ -17,22 +20,25 @@ enum OutputMode {
 
 /// A turtle with a pen attached to its tail
 pub struct Turtle {
-    mode: OutputMode,
+    screen: Box<Screen>,
     speed: Speed,
+    position: Point,
+    settings: Settings,
 }
 
 impl Turtle {
     /// Initialize a new Turtle instance
     pub fn new() -> Turtle {
-        // Attempt to automatically detect if this is running within the Turtle IDE
-        let mode = match env::args().any(|a| a == "--turtle-ide-print-mode") {
-            false => OutputMode::Draw,
-            true => OutputMode::Print,
+        let screen: Box<Screen> = match env::args().any(|a| a == "--turtle-ide-print-mode") {
+            false => unimplemented!(),
+            true => Box::new(IDEOutput::new()),
         };
-
         Turtle {
-            mode,
+            // Attempt to automatically detect if this is running within the Turtle IDE
+            screen: screen,
             speed: "normal".into(),
+            position: Point {x: 0, y: 0},
+            settings: Settings::default(),
         }
     }
 
