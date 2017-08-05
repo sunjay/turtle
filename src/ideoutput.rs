@@ -1,4 +1,4 @@
-use screen::{Screen, Settings};
+use screen::{Screen, Pen};
 use speed::Speed;
 use point::Point;
 
@@ -11,7 +11,7 @@ impl IDEOutput {
 }
 
 impl Screen for IDEOutput {
-    fn draw_line(&mut self, start: Point, end: Point, duration: Speed, settings: Settings) {
+    fn draw_line(&mut self, start: Point, end: Point, duration: Speed, pen: Pen) {
         unimplemented!();
     }
 }

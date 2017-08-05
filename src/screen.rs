@@ -6,16 +6,14 @@ pub enum Color {
     White,
 }
 
-pub struct Settings {
+pub struct Pen {
     color: Color,
-    background: Color,
 }
 
-impl Default for Settings {
+impl Default for Pen {
     fn default() -> Self {
-        Settings {
+        Pen {
             color: Color::Black,
-            background: Color::White,
         }
     }
 }
@@ -25,5 +23,5 @@ impl Default for Settings {
 /// Each `Turtle` instance sends its commands using an instance
 /// of this trait.
 pub trait Screen {
-    fn draw_line(&mut self, start: Point, end: Point, duration: Speed, settings: Settings);
+    fn draw_line(&mut self, start: Point, end: Point, duration: Speed, pen: Pen);
 }

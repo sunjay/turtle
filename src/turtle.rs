@@ -1,6 +1,6 @@
 use std::env;
 
-use screen::{Screen, Settings};
+use screen::{Screen, Pen};
 use speed::Speed;
 use point::Point;
 use ideoutput::IDEOutput;
@@ -23,7 +23,7 @@ pub struct Turtle {
     screen: Box<Screen>,
     speed: Speed,
     position: Point,
-    settings: Settings,
+    settings: Pen,
 }
 
 impl Turtle {
@@ -38,7 +38,7 @@ impl Turtle {
             screen: screen,
             speed: "normal".into(),
             position: Point {x: 0, y: 0},
-            settings: Settings::default(),
+            settings: Pen::default(),
         }
     }
 
