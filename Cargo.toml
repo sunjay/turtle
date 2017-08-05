@@ -1,6 +1,13 @@
 [package]
 name = "turtleide"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
+description = "Drawing library for Turtle IDE"
+repository = "https://github.com/sunjay/turtleide"
+readme = "README.md"
+keywords = ["turtle", "turtleide", "teaching", "learning", "beginners"]
+# crates.io/category_slugs
+categories = ["rendering", "rendering::graphics-api", "rendering::engine", "games", "gui"]
+license = "MIT"
 
 [dependencies]
