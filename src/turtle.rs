@@ -8,16 +8,6 @@ use ideoutput::IDEOutput;
 /// This type represents any distance value
 pub type Distance = i32;
 
-enum OutputMode {
-    /// Actually spawn a window and draw the turtle.
-    /// For when the program is running from a terminal.
-    Draw,
-    /// Only print the drawing commands, but don't spawn
-    /// any windows or anything.
-    /// For when the program is running in the Turtle IDE
-    Print,
-}
-
 /// A turtle with a pen attached to its tail
 pub struct Turtle {
     screen: Box<Screen>,
