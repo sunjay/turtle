@@ -1,13 +1,14 @@
 use std::time::Duration;
 
 use point::Point;
-use speed::Speed;
 
+#[derive(Serialize, Deserialize)]
 pub enum Color {
     Black,
     White,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Pen {
     color: Color,
 }

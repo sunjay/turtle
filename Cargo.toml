@@ -11,3 +11,6 @@ categories = ["rendering", "rendering::graphics-api", "rendering::engine", "game
 license = "MIT"
 
 [dependencies]
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
