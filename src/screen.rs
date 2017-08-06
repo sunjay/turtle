@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use point::Point;
 use speed::Speed;
 
@@ -23,5 +25,5 @@ impl Default for Pen {
 /// Each `Turtle` instance sends its commands using an instance
 /// of this trait.
 pub trait Screen {
-    fn draw_line(&mut self, start: Point, end: Point, duration: Speed, pen: Pen);
+    fn draw_line(&mut self, start: Point, end: Point, duration: Duration, pen: Pen);
 }
