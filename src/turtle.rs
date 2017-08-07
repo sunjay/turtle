@@ -4,6 +4,9 @@ use screen::{Screen, Pen};
 use speed::Speed;
 use point::Point;
 use ideoutput::IDEOutput;
+use angle::AngleUnit;
+
+pub use angle::Angle;
 
 /// This type represents any distance value
 pub type Distance = i32;
@@ -78,11 +81,31 @@ impl Turtle {
         self.speed = speed;
     }
 
+    /// Change the angle unit to degrees.
+    pub fn use_degrees(&mut self) {
+        unimplemented!();
+    }
+
+    /// Change the angle unit to radians.
+    pub fn use_radians(&mut self) {
+        unimplemented!();
+    }
+
     /// Move the turtle forward by the given amount of `distance`.
     ///
     /// `distance` is given in "pixels" which are like really small turtle steps.
     /// `distance` can be negative in which case the turtle can move backward
     /// using this method.
     pub fn forward(&mut self, distance: Distance) {
+        unimplemented!();
+    }
+
+    /// Rotate the turtle right by the given angle.
+    ///
+    /// Units are by default degrees, but can be set using the methods
+    /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
+    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
+    pub fn right(&mut self, angle: Angle) {
+        unimplemented!();
     }
 }

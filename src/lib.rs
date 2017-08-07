@@ -9,6 +9,7 @@ mod speed;
 mod screen;
 mod point;
 mod ideoutput;
+mod angle;
 
 pub use turtle::*;
 pub use speed::*;
