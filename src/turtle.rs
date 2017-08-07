@@ -4,19 +4,20 @@ use screen::{Screen, Pen};
 use speed::Speed;
 use point::Point;
 use ideoutput::IDEOutput;
-use angle::AngleUnit;
+use angle::Direction;
 
 pub use angle::Angle;
 
 /// This type represents any distance value
-pub type Distance = i32;
+pub type Distance = f64;
 
 /// A turtle with a pen attached to its tail
 pub struct Turtle {
     screen: Box<Screen>,
     speed: Speed,
     position: Point,
-    settings: Pen,
+    direction: Direction,
+    pen: Pen,
 }
 
 impl Turtle {
@@ -30,14 +31,25 @@ impl Turtle {
             // Attempt to automatically detect if this is running within the Turtle IDE
             screen: screen,
             speed: "normal".into(),
-            position: Point {x: 0, y: 0},
-            settings: Pen::default(),
+            position: Point::origin(),
+            direction: Direction::zero_degrees(),
+            pen: Pen::default(),
         }
     }
 
     /// Returns the current speed of the turtle
-    fn speed(&self) -> Speed {
+    pub fn speed(&self) -> Speed {
         self.speed
+    }
+
+    /// Return the turtle's current location (x, y)
+    pub fn position(&self) -> Point {
+        self.position
+    }
+
+    /// Return the turtle's current heading
+    pub fn heading(&self) -> Angle {
+        self.direction.raw_angle()
     }
 
     /// Set the turtle's speed to the given setting.
@@ -83,12 +95,12 @@ impl Turtle {
 
     /// Change the angle unit to degrees.
     pub fn use_degrees(&mut self) {
-        unimplemented!();
+        self.direction = self.direction.into_degrees();
     }
 
     /// Change the angle unit to radians.
     pub fn use_radians(&mut self) {
-        unimplemented!();
+        self.direction = self.direction.into_radians();
     }
 
     /// Move the turtle forward by the given amount of `distance`.
@@ -97,7 +109,18 @@ impl Turtle {
     /// `distance` can be negative in which case the turtle can move backward
     /// using this method.
     pub fn forward(&mut self, distance: Distance) {
-        unimplemented!();
+        let start = self.position;
+        self.position = self.position.translate(self.direction, distance);
+        self.screen.draw_line(start, self.position, self.speed, self.pen);
+    }
+
+    /// Move the turtle backward by the given amount of `distance`.
+    ///
+    /// `distance` is given in "pixels" which are like really small turtle steps.
+    /// `distance` can be negative in which case the turtle can move forwards
+    /// using this method.
+    pub fn backward(&mut self, distance: Distance) {
+        self.forward(-distance);
     }
 
     /// Rotate the turtle right by the given angle.
@@ -106,6 +129,15 @@ impl Turtle {
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
     /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
     pub fn right(&mut self, angle: Angle) {
-        unimplemented!();
+        self.direction.rotate_clockwise(angle);
+    }
+
+    /// Rotate the turtle left by the given angle.
+    ///
+    /// Units are by default degrees, but can be set using the methods
+    /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
+    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
+    pub fn left(&mut self, angle: Angle) {
+        self.direction.rotate_counterclockwise(angle);
     }
 }

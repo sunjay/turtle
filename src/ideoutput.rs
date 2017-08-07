@@ -1,10 +1,10 @@
 use std::io;
-use std::time::Duration;
 
 use serde_json;
 
 use screen::{Screen, Pen};
 use point::Point;
+use speed::Speed;
 
 #[derive(Serialize, Deserialize)]
 pub enum IDEResponse {
@@ -16,7 +16,7 @@ pub enum IDEMessage {
     DrawLine {
         start: Point,
         end: Point,
-        duration: Duration,
+        speed: Speed,
         pen: Pen,
     },
 }
@@ -30,7 +30,7 @@ impl IDEOutput {
 
     pub fn send(&self, message: IDEMessage) {
         let message = serde_json::to_string(&message).unwrap();
-        println!("{}", message);
+        eprintln!("{}", message);
         self.wait_for_completion();
     }
 
@@ -50,9 +50,9 @@ impl Screen for IDEOutput {
         &mut self,
         start: Point,
         end: Point,
-        duration: Duration,
+        speed: Speed,
         pen: Pen,
     ) {
-        self.send(IDEMessage::DrawLine {start, end, duration, pen});
+        self.send(IDEMessage::DrawLine {start, end, speed, pen});
     }
 }

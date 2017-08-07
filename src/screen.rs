@@ -1,14 +1,13 @@
-use std::time::Duration;
-
 use point::Point;
+use speed::Speed;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Color {
     Black,
     White,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Pen {
     color: Color,
 }
@@ -26,5 +25,5 @@ impl Default for Pen {
 /// Each `Turtle` instance sends its commands using an instance
 /// of this trait.
 pub trait Screen {
-    fn draw_line(&mut self, start: Point, end: Point, duration: Duration, pen: Pen);
+    fn draw_line(&mut self, start: Point, end: Point, speed: Speed, pen: Pen);
 }
