@@ -13,11 +13,18 @@ pub type Distance = f64;
 
 /// A turtle with a pen attached to its tail
 pub struct Turtle {
+    /// The current screen being drawn to
     screen: Box<Screen>,
+    /// How fast the turtle will move during animation
     speed: Speed,
+    /// Current position of the turtle
     position: Point,
+    /// Direction of travel
     direction: Direction,
+    /// Pen settings
     pen: Pen,
+    /// Whether the pen is down or not
+    drawing_enabled: bool,
 }
 
 impl Turtle {
@@ -34,6 +41,7 @@ impl Turtle {
             position: Point::origin(),
             direction: Direction::zero_degrees(),
             pen: Pen::default(),
+            drawing_enabled: true,
         }
     }
 
@@ -50,6 +58,16 @@ impl Turtle {
     /// Return the turtle's current heading
     pub fn heading(&self) -> Angle {
         self.direction.raw_angle()
+    }
+
+    /// Pull the pen down so that the turtle draws while moving
+    pub fn pen_down(&mut self) {
+        self.drawing_enabled = true;
+    }
+
+    /// Pick the pen up so that the turtle does not draw while moving
+    pub fn pen_up(&mut self) {
+        self.drawing_enabled = false;
     }
 
     /// Set the turtle's speed to the given setting.
@@ -111,7 +129,9 @@ impl Turtle {
     pub fn forward(&mut self, distance: Distance) {
         let start = self.position;
         self.position = self.position.translate(self.direction, distance);
-        self.screen.draw_line(start, self.position, self.speed, self.pen);
+        if self.drawing_enabled {
+            self.screen.draw_line(start, self.position, self.speed, self.pen);
+        }
     }
 
     /// Move the turtle backward by the given amount of `distance`.
