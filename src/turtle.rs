@@ -3,7 +3,6 @@ use std::env;
 use screen::{Screen, Pen};
 use speed::Speed;
 use point::Point;
-use ideoutput::IDEOutput;
 use angle::Direction;
 
 pub use angle::Angle;
@@ -14,7 +13,7 @@ pub type Distance = f64;
 /// A turtle with a pen attached to its tail
 pub struct Turtle {
     /// The current screen being drawn to
-    screen: Box<Screen>,
+    screen: Screen,
     /// How fast the turtle will move during animation
     speed: Speed,
     /// Current position of the turtle
@@ -30,13 +29,9 @@ pub struct Turtle {
 impl Turtle {
     /// Initialize a new Turtle instance
     pub fn new() -> Turtle {
-        let screen: Box<Screen> = match env::args().any(|a| a == "--turtle-ide-print-mode") {
-            false => unimplemented!(),
-            true => Box::new(IDEOutput::new()),
-        };
         Turtle {
             // Attempt to automatically detect if this is running within the Turtle IDE
-            screen: screen,
+            screen: Screen::default(),
             speed: "normal".into(),
             position: Point::origin(),
             direction: Direction::zero_degrees(),
@@ -130,7 +125,7 @@ impl Turtle {
         let start = self.position;
         self.position = self.position.translate(self.direction, distance);
         if self.drawing_enabled {
-            self.screen.draw_line(start, self.position, self.speed, self.pen);
+            self.screen.draw_line(start, self.position, self.speed, &self.pen);
         }
     }
 

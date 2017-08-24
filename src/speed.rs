@@ -2,7 +2,7 @@
 /// for use with the turtle.
 ///
 /// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
-#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq)]
 pub enum Speed {
     One,
     Two,

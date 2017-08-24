@@ -1,13 +1,13 @@
 use point::Point;
 use speed::Speed;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
     Black,
     White,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Pen {
     color: Color,
 }
@@ -20,10 +20,16 @@ impl Default for Pen {
     }
 }
 
-/// This trait represents an output device for the turtle.
-///
-/// Each `Turtle` instance sends its commands using an instance
-/// of this trait.
-pub trait Screen {
-    fn draw_line(&mut self, start: Point, end: Point, speed: Speed, pen: Pen);
+pub struct Screen;
+
+impl Default for Screen {
+    fn default() -> Self {
+        Screen
+    }
+}
+
+impl Screen {
+    pub fn draw_line(&mut self, start: Point, end: Point, speed: Speed, pen: &Pen) -> Point {
+        unimplemented!();
+    }
 }
