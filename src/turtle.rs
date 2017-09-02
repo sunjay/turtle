@@ -123,10 +123,16 @@ impl Turtle {
     /// using this method.
     pub fn forward(&mut self, distance: Distance) {
         let start = self.position;
-        self.position = self.position.translate(self.direction, distance);
-        if self.drawing_enabled {
-            self.screen.draw_line(start, self.position, self.speed, &self.pen);
-        }
+        let end = self.position.translate(self.direction, distance);
+
+        let pen = if self.drawing_enabled {
+            self.pen
+        } else {
+            self.pen.as_transparent()
+        };
+        self.screen.draw_line(start, end, self.speed, &pen);
+
+        self.position = end;
     }
 
     /// Move the turtle backward by the given amount of `distance`.

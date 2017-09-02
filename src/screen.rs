@@ -3,6 +3,8 @@ use speed::Speed;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
+    /// Used for when the pen is up
+    Transparent,
     Black,
     White,
 }
@@ -10,6 +12,15 @@ pub enum Color {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Pen {
     color: Color,
+}
+
+impl Pen {
+    pub fn as_transparent(&self) -> Pen {
+        Pen {
+            color: Color::Transparent,
+            ..*self
+        }
+    }
 }
 
 impl Default for Pen {
