@@ -73,10 +73,10 @@ impl Turtle {
     /// # extern crate turtleide;
     /// # fn main() {
     /// # let mut turtle = turtleide::Turtle::new();
-    /// turtle.set_speed("normal".into());
-    /// turtle.set_speed("fast".into());
-    /// turtle.set_speed(2.into());
-    /// turtle.set_speed(10.into());
+    /// turtle.set_speed("normal");
+    /// turtle.set_speed("fast");
+    /// turtle.set_speed(2);
+    /// turtle.set_speed(10);
     /// # }
     /// ```
     ///
@@ -98,12 +98,12 @@ impl Turtle {
     ///
     /// Using this type is an excellent way to learn about conversion
     /// traits `From` and `Into`. Rather than instantiating `Speed`
-    /// directly using `Speed::Six`, you usually use `6.into()`. This is the
+    /// directly using `Speed::Six`, you usually use just `6`. This is the
     /// same as using `Speed::from(6)` but much more compact. This works because
     /// any type that implements the `From` trait gets a matching implementation
     /// of the `Into` trait.
-    pub fn set_speed(&mut self, speed: Speed) {
-        self.speed = speed;
+    pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
+        self.speed = speed.into();
     }
 
     /// Change the angle unit to degrees.
