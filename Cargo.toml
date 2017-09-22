@@ -11,3 +11,4 @@ categories = ["rendering", "rendering::graphics-api", "rendering::engine", "game
 license = "MIT"
 
 [dependencies]
+piston_window = "*"

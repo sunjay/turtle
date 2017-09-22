@@ -11,6 +11,7 @@ pub enum Color {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Pen {
+    turtle_visible: bool,
     color: Color,
 }
 
@@ -26,6 +27,7 @@ impl Pen {
 impl Default for Pen {
     fn default() -> Self {
         Pen {
+            turtle_visible: true,
             color: Color::Black,
         }
     }
