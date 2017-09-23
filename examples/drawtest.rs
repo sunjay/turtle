@@ -66,6 +66,16 @@ mod canvas {
         }
     }
 
+    trait AsMillis {
+        fn as_millis(&self) -> u64;
+    }
+
+    impl AsMillis for Duration {
+        fn as_millis(&self) -> u64 {
+            self.as_secs() * 1000 + (self.subsec_nanos() / 1_000_000) as u64
+        }
+    }
+
     trait LinearInterpolation {
         /// Interpolate between self and the given target
         ///
@@ -129,7 +139,7 @@ mod canvas {
         /// Returns the size of the line represented by this path
         fn len(&self) -> f64 {
             let (x1, y1) = self.start;
-            let (x2, y2) = self.start;
+            let (x2, y2) = self.end;
             ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt()
         }
 
@@ -210,7 +220,6 @@ mod canvas {
                         color: Color::Black,
                     },
                 };
-                let center = (200., 200.);
 
                 while let Some(e) = window.next() {
                     match drawing_rx.try_recv() {
@@ -221,8 +230,8 @@ mod canvas {
                                         unreachable!("The main thread did not wait for the animation to complete before sending another command")
                                     }
                                     if distance != 0. {
-                                        let current_x = center.0 + turtle.position.0;
-                                        let current_y = center.1 + turtle.position.1;
+                                        let current_x = turtle.position.0;
+                                        let current_y = turtle.position.1;
                                         let x = distance * turtle.heading.cos();
                                         let y = distance * turtle.heading.sin();
                                         println!("move forward {:?}", (x, y));
@@ -262,17 +271,25 @@ mod canvas {
                     window.draw_2d(&e, |c, g| {
                         clear([1.0; 4], g);
 
+                        let view = c.get_view_size();
+                        let width = view[0] as f64;
+                        let height = view[1] as f64;
+                        let center = (width * 0.5, height * 0.5);
+
                         let mut animation_complete = false;
                         if let Some(Animation {ref kind, ref speed, ref start}) = animation {
-                            let elapsed = start.elapsed();
+                            let elapsed = start.elapsed().as_millis();
+                            println!("elapsed = {}", elapsed);
 
                             match *kind {
                                 AnimationKind::Move {ref path} => {
                                     let speed = speed.to_absolute();
                                     let length = path.len();
-                                    let total_time = Duration::from_millis((length * 1000. / speed) as u64);
+                                    println!("{:?}", (speed, length));
+                                    let total_time = length / speed * 1000.; // ms
+                                    println!("total_time = {}", total_time);
 
-                                    let progress = elapsed.as_secs() as f64 / total_time.as_secs() as f64;
+                                    let progress = elapsed as f64 / total_time;
                                     if progress > 1.0 {
                                         paths.push(path.clone());
                                         animation_complete = true;
@@ -283,11 +300,17 @@ mod canvas {
                                         turtle.position = current;
                                         println!("turtle.position = {:?}", turtle.position);
 
-                                        let Pen {thickness, color, ..} = path.pen;
+                                        let Pen {thickness, color, enabled} = path.pen;
                                         let start = path.start;
-                                        line(color.into(), thickness,
-                                        [start.0, start.1, current.0, current.1],
-                                        c.transform, g);
+
+                                        if enabled {
+                                            line(color.into(), thickness,
+                                            [
+                                            center.0 + start.0, center.1 + start.1,
+                                            center.0 + current.0, center.1 + current.1
+                                            ],
+                                            c.transform, g);
+                                        }
                                     }
                                 },
                                 AnimationKind::Rotation {target_angle, clockwise} => {
@@ -312,6 +335,8 @@ mod canvas {
                                 [start.0, start.1, end.0, end.1],
                                 c.transform, g);
                         }
+
+                        // TODO: Draw the turtle
                     });
                 }
             });
