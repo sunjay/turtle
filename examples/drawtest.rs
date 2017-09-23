@@ -1,5 +1,3 @@
-#![allow(unused_variables, unused_mut, dead_code)]
-
 extern crate piston_window;
 
 extern crate turtleide;
@@ -9,17 +7,14 @@ use canvas::{TurtleCanvas, Command, Radians};
 fn main() {
     let canvas = TurtleCanvas::new();
 
-    for i in 0..361 {
-        println!("1");
+    for _ in 0..361 {
         canvas.apply(Command::Move {
             distance: 10.,
         });
-        println!("2");
         canvas.apply(Command::Rotate {
             angle: Radians(1f64.to_radians()),
             clockwise: true,
         });
-        println!("3");
         //canvas.apply(Command::Pen {
         //    enabled: i % 2 == 0,
         //});
@@ -66,6 +61,22 @@ mod canvas {
         }
     }
 
+    trait ToCanvasCoordinates : Copy {
+        fn to_canvas_coords(self, center: [f64; 2]) -> Self;
+    }
+
+    impl ToCanvasCoordinates for [f64; 2] {
+        /// Transforms the given local coordinate into a point that can be drawn on the canvas.
+        ///
+        /// Takes into account the direction of the axis and center when converting
+        /// `local` from cartesian coordinates.
+        ///
+        /// Origin in window is the top left corner and the y-axis goes down instead of up.
+        fn to_canvas_coords(self, center: [f64; 2]) -> [f64; 2] {
+            [center[0] + self[0], center[1] - self[1]]
+        }
+    }
+
     trait AsMillis {
         fn as_millis(&self) -> u64;
     }
@@ -73,30 +84,6 @@ mod canvas {
     impl AsMillis for Duration {
         fn as_millis(&self) -> u64 {
             self.as_secs() * 1000 + (self.subsec_nanos() / 1_000_000) as u64
-        }
-    }
-
-    trait LinearInterpolation {
-        /// Interpolate between self and the given target
-        ///
-        /// t must be between 0.0 and 1.0
-        fn interpolate(self, target: Self, t: f64) -> Self;
-    }
-
-    impl LinearInterpolation for f64 {
-        fn interpolate(self, target: Self, t: f64) -> Self {
-            (target - self) * t
-        }
-    }
-
-    impl LinearInterpolation for (f64, f64) {
-        fn interpolate(self, target: Self, t: f64) -> Self {
-            let (x1, y1) = self;
-            let (x2, y2) = target;
-
-            let x = x1.interpolate(x2, t);
-            let y = y1 + (x - x1) * (y2 - y1) / (x2 - x1);
-            (x, y)
         }
     }
 
@@ -130,29 +117,15 @@ mod canvas {
 
     #[derive(Debug, Clone)]
     struct Path {
-        start: (f64, f64),
-        end: (f64, f64),
+        start: [f64; 2],
+        end: [f64; 2],
         pen: Pen,
-    }
-
-    impl Path {
-        /// Returns the size of the line represented by this path
-        fn len(&self) -> f64 {
-            let (x1, y1) = self.start;
-            let (x2, y2) = self.end;
-            ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt()
-        }
-
-        /// Linearly interpolate between the points in this path
-        fn interpolate(&self, t: f64) -> (f64, f64) {
-            self.start.interpolate(self.end, t)
-        }
     }
 
     type Response = Result<(), ()>;
 
     struct TurtleState {
-        pub position: (f64, f64),
+        pub position: [f64; 2],
         pub heading: Radians,
         pub speed: Speed,
     }
@@ -230,16 +203,14 @@ mod canvas {
                                         unreachable!("The main thread did not wait for the animation to complete before sending another command")
                                     }
                                     if distance != 0. {
-                                        let current_x = turtle.position.0;
-                                        let current_y = turtle.position.1;
+                                        let start = turtle.position;
                                         let x = distance * turtle.heading.cos();
                                         let y = distance * turtle.heading.sin();
-                                        println!("move forward {:?}", (x, y));
                                         animation = Some(Animation {
                                             kind: AnimationKind::Move {
                                                 path: Path {
-                                                    start: (current_x, current_y),
-                                                    end: (current_x + x, current_y + y),
+                                                    start: start,
+                                                    end: math::add(start, [x, y]),
                                                     pen: drawing.pen.clone(),
                                                 },
                                             },
@@ -274,43 +245,50 @@ mod canvas {
                         let view = c.get_view_size();
                         let width = view[0] as f64;
                         let height = view[1] as f64;
-                        let center = (width * 0.5, height * 0.5);
+                        let center = [width * 0.5, height * 0.5];
 
                         let mut animation_complete = false;
                         if let Some(Animation {ref kind, ref speed, ref start}) = animation {
-                            let elapsed = start.elapsed().as_millis();
-                            println!("elapsed = {}", elapsed);
+                            let elapsed = start.elapsed().as_millis() as f64;
 
                             match *kind {
                                 AnimationKind::Move {ref path} => {
-                                    let speed = speed.to_absolute();
-                                    let length = path.len();
-                                    println!("{:?}", (speed, length));
-                                    let total_time = length / speed * 1000.; // ms
-                                    println!("total_time = {}", total_time);
+                                    // This code finds the point on the line between start and
+                                    // end that we are supposed to be at right now using some
+                                    // vector math.
+                                    //
+                                    // The basic idea is to find the vector that represents the
+                                    // line between start and end, normalize it into a direction,
+                                    // and then scale that vector to be the size that it should be
+                                    // at the elapsed time based on the speed.
+                                    let &Path {start, end, ref pen} = path;
+                                    let speed = speed.to_absolute(); // px per second
+                                    let path_line = math::sub(start, end);
+                                    let path_length = math::square_len(path_line).sqrt();
+                                    let direction = math::mul_scalar(path_line, path_length);
+                                    // (px / sec) * (sec / 1000ms) * ms => px
+                                    let offset = math::mul_scalar(direction, speed / 1000. * elapsed);
+                                    let offset_length = math::square_len(offset).sqrt();
 
-                                    let progress = elapsed as f64 / total_time;
-                                    if progress > 1.0 {
+                                    let current = if offset_length >= path_length {
                                         paths.push(path.clone());
                                         animation_complete = true;
+                                        end
                                     }
                                     else {
-                                        println!("progress = {}", progress);
-                                        let current = path.interpolate(progress);
-                                        turtle.position = current;
-                                        println!("turtle.position = {:?}", turtle.position);
+                                        math::add(start, offset)
+                                    };
 
-                                        let Pen {thickness, color, enabled} = path.pen;
-                                        let start = path.start;
+                                    turtle.position = current;
 
-                                        if enabled {
-                                            line(color.into(), thickness,
-                                            [
-                                            center.0 + start.0, center.1 + start.1,
-                                            center.0 + current.0, center.1 + current.1
-                                            ],
+                                    let &Pen {thickness, color, enabled} = pen;
+                                    if enabled {
+                                        let start = start.to_canvas_coords(center);
+                                        let current = current.to_canvas_coords(center);
+
+                                        line(color.into(), thickness,
+                                            [start[0], start[1], current[0], current[1]],
                                             c.transform, g);
-                                        }
                                     }
                                 },
                                 AnimationKind::Rotation {target_angle, clockwise} => {
@@ -331,8 +309,11 @@ mod canvas {
                             }
 
                             let Path {start, end, ref pen} = *path;
+                            let start = start.to_canvas_coords(center);
+                            let end = end.to_canvas_coords(center);
+
                             line(pen.color.into(), pen.thickness,
-                                [start.0, start.1, end.0, end.1],
+                                [start[0], start[1], end[0], end[1]],
                                 c.transform, g);
                         }
 
