@@ -1,3 +1,6 @@
+use std::f64;
+use std::f64::consts::PI;
+
 /// This type represents and enforces the various speeds allowed
 /// for use with the turtle.
 ///
@@ -15,6 +18,55 @@ pub enum Speed {
     Nine,
     Ten,
     Instant,
+}
+
+impl Speed {
+    /// Converts a speed to its value as pixels per second
+    pub fn to_absolute(self) -> f64 {
+        use self::Speed::*;
+        // Arbitrary values that can be tweaked
+        // Just make sure to keep invariants like Five > Three, etc.
+        match self {
+            One => 10.,
+            Two => 20.,
+            Three => 30.,
+            Four => 40.,
+            Five => 50.,
+            Six => 60.,
+            Seven => 70.,
+            Eight => 80.,
+            Nine => 90.,
+            Ten => 100.,
+            Instant => f64::INFINITY,
+        }
+    }
+
+    /// Converts a speed to its value as radians per second
+    //TODO: Return Radians
+    pub fn to_rotation(self) -> f64 {
+        use self::Speed::*;
+        // Arbitrary values that can be tweaked
+        // Just make sure to keep invariants like Five > Three, etc.
+        match self {
+            One => PI / 16.,
+            Two => PI / 14.,
+            Three => PI / 12.,
+            Four => PI / 10.,
+            Five =>  PI / 8.,
+            Six => PI / 6.,
+            Seven => PI / 4.,
+            Eight => PI / 3.,
+            Nine => PI / 2.,
+            Ten => PI / 1.,
+            Instant => f64::INFINITY,
+        }
+    }
+}
+
+impl Default for Speed {
+    fn default() -> Self {
+        Speed::Five
+    }
 }
 
 impl<'a> From<&'a str> for Speed {
