@@ -29,7 +29,8 @@ mod canvas {
     use std::process;
     use std::time::{Instant, Duration};
     use std::sync::mpsc::{self, TryRecvError};
-    use std::ops::{Add, Mul};
+    use std::ops::{Add, Sub, Mul, Div, Rem};
+    use std::f64::consts::PI;
 
     use piston_window::*;
 
@@ -56,11 +57,35 @@ mod canvas {
         }
     }
 
+    impl Sub for Radians {
+        type Output = Self;
+
+        fn sub(self, other: Self) -> Self {
+            Radians(self.0 - other.0)
+        }
+    }
+
     impl Mul<f64> for Radians {
         type Output = Self;
 
         fn mul(self, other: f64) -> Self {
             Radians(self.0 * other)
+        }
+    }
+
+    impl Div<f64> for Radians {
+        type Output = Self;
+
+        fn div(self, other: f64) -> Self {
+            Radians(self.0 / other)
+        }
+    }
+
+    impl Rem<f64> for Radians {
+        type Output = Self;
+
+        fn rem(self, other: f64) -> Self {
+            Radians(self.0 % other)
         }
     }
 
@@ -299,8 +324,22 @@ mod canvas {
                                 },
                                 AnimationKind::Rotation {target_angle, clockwise} => {
                                     // TODO: Use the returned value in Radians and impl Div for Radians
-                                    let speed = speed.to_rotation();
-                                    animation_complete = true;
+                                    let speed = Radians(speed.to_rotation());
+
+                                    let heading = turtle.heading;
+                                    let current = (heading + speed / 1000. * elapsed) % (2.*PI);
+                                    let current = if current > (target_angle % (2.*PI)) {
+                                        animation_complete = true;
+                                        target_angle
+                                    }
+                                    else {
+                                        let current = if clockwise {
+                                            Radians(2.*PI) - current
+                                        } else { current };
+
+                                        current
+                                    };
+                                    turtle.heading = current;
                                 },
                             }
                         }
