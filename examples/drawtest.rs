@@ -7,10 +7,13 @@ use canvas::{TurtleCanvas, Command, Radians};
 fn main() {
     let canvas = TurtleCanvas::new();
 
+    let dashed = false;
     for i in 0..361 {
-        canvas.apply(Command::Pen {
-            enabled: i % 2 == 0,
-        });
+        if dashed {
+            canvas.apply(Command::Pen {
+                enabled: i % 2 == 0,
+            });
+        }
         canvas.apply(Command::Move {
             distance: 10.,
         });
