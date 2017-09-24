@@ -140,7 +140,7 @@ mod canvas {
             TurtleState {
                 position: Default::default(),
                 heading: Radians(90f64.to_radians()),
-                speed: Speed::Five,
+                speed: Speed::Instant,
             }
         }
     }
