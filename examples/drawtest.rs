@@ -7,7 +7,10 @@ use canvas::{TurtleCanvas, Command, Radians};
 fn main() {
     let canvas = TurtleCanvas::new();
 
-    for _ in 0..361 {
+    for i in 0..361 {
+        canvas.apply(Command::Pen {
+            enabled: i % 2 == 0,
+        });
         canvas.apply(Command::Move {
             distance: 10.,
         });
@@ -15,9 +18,6 @@ fn main() {
             angle: Radians(1f64.to_radians()),
             clockwise: true,
         });
-        //canvas.apply(Command::Pen {
-        //    enabled: i % 2 == 0,
-        //});
     }
 }
 
@@ -197,20 +197,20 @@ mod canvas {
                 while let Some(e) = window.next() {
                     match drawing_rx.try_recv() {
                         Ok(command) => {
+                            if animation.is_some() {
+                                unreachable!("The main thread did not wait for the animation to complete before sending another command")
+                            }
                             match command {
                                 Command::Move {distance} => {
-                                    if animation.is_some() {
-                                        unreachable!("The main thread did not wait for the animation to complete before sending another command")
-                                    }
                                     if distance != 0. {
                                         let start = turtle.position;
                                         let x = distance * turtle.heading.cos();
                                         let y = distance * turtle.heading.sin();
+                                        let end = math::add(start, [x, y]);
                                         animation = Some(Animation {
                                             kind: AnimationKind::Move {
                                                 path: Path {
-                                                    start: start,
-                                                    end: math::add(start, [x, y]),
+                                                    start, end,
                                                     pen: drawing.pen.clone(),
                                                 },
                                             },
@@ -220,9 +220,6 @@ mod canvas {
                                     }
                                 },
                                 Command::Rotate {angle, clockwise} => {
-                                    if animation.is_some() {
-                                        unreachable!("The main thread did not wait for the animation to complete before sending another command")
-                                    }
                                     animation = Some(Animation {
                                         kind: AnimationKind::Rotation {
                                             target_angle: turtle.heading + angle,
@@ -232,7 +229,10 @@ mod canvas {
                                         start: Instant::now(),
                                     });
                                 },
-                                Command::Pen {enabled} => unimplemented!(),
+                                Command::Pen {enabled} => {
+                                    drawing.pen.enabled = enabled;
+                                    main_tx.send(Ok(())).unwrap();
+                                },
                             }
                         },
                         Err(TryRecvError::Empty) => {}, // Do nothing
