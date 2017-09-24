@@ -271,7 +271,7 @@ mod canvas {
                                     let path_line = math::sub(start, end);
                                     let path_length = math::square_len(path_line).sqrt();
                                     let direction = math::mul_scalar(path_line, 1./path_length);
-                                    debug_assert_eq!(math::square_len(direction).sqrt(), 1.);
+                                    debug_assert_eq!((math::square_len(direction).sqrt() * 1000.).round(), 1000.);
                                     // (px / sec) * (sec / 1000ms) * ms => px
                                     let offset = math::mul_scalar(direction, speed / 1000. * elapsed);
                                     let offset_length = math::square_len(offset).sqrt();
