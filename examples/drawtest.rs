@@ -106,6 +106,7 @@ mod canvas {
     #[derive(Debug, Clone, Copy)]
     pub enum Color {
         Black,
+        White,
         Transparent,
     }
 
@@ -113,6 +114,7 @@ mod canvas {
         fn from(color: Color) -> Self {
             match color {
                 Color::Black => [0., 0., 0., 255.],
+                Color::White => [255., 255., 255., 255.],
                 Color::Transparent => [0., 0., 0., 0.],
             }
         }
@@ -320,7 +322,31 @@ mod canvas {
                                 c.transform, g);
                         }
 
-                        // TODO: Draw the turtle
+                        // Draw the turtle's shell
+                        let cos = turtle.heading.cos();
+                        let sin = turtle.heading.sin();
+                        let turtle_x = turtle.position[0];
+                        let turtle_y = turtle.position[1];
+                        let shell: Vec<_> = [
+                            [0., 15.],
+                            [10., 0.],
+                            [0., -15.],
+                        ].into_iter().map(|pt| {
+                            // Rotate each point by the heading and add the current turtle position
+                            let x = cos * pt[0] - sin * pt[1] + turtle_x;
+                            let y = sin * pt[0] + cos * pt[1] + turtle_y;
+                            [x, y].to_canvas_coords(center)
+                        }).collect();
+
+                        polygon(Color::White.into(), &shell, c.transform, g);
+                        for i in 0..shell.len() {
+                            let start = shell[i];
+                            let end = shell[(i + 1) % shell.len()];
+
+                            line(Color::Black.into(), 1.,
+                                [start[0], start[1], end[0], end[1]],
+                                c.transform, g);
+                        }
                     });
                 }
             });
