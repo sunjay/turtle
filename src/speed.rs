@@ -63,12 +63,6 @@ impl Speed {
     }
 }
 
-impl Default for Speed {
-    fn default() -> Self {
-        Speed::Five
-    }
-}
-
 impl<'a> From<&'a str> for Speed {
     fn from(s: &'a str) -> Self {
         use Speed::*;
