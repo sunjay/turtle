@@ -29,7 +29,7 @@ mod canvas {
     use std::process;
     use std::time::{Instant, Duration};
     use std::sync::mpsc::{self, TryRecvError};
-    use std::ops::{Add, Sub, Mul, Div, Rem};
+    use std::ops::{Add, Sub, Mul, Div, Rem, Neg};
     use std::f64::consts::PI;
 
     use piston_window::*;
@@ -86,6 +86,14 @@ mod canvas {
 
         fn rem(self, other: f64) -> Self {
             Radians(self.0 % other)
+        }
+    }
+
+    impl Neg for Radians {
+        type Output = Self;
+
+        fn neg(self) -> Self {
+            Radians(-self.0)
         }
     }
 
@@ -250,14 +258,23 @@ mod canvas {
                                     }
                                 },
                                 Command::Rotate {angle, clockwise} => {
-                                    animation = Some(Animation {
-                                        kind: AnimationKind::Rotation {
-                                            target_angle: turtle.heading + angle,
-                                            clockwise,
-                                        },
-                                        speed: turtle.speed,
-                                        start: Instant::now(),
-                                    });
+                                    if angle != Radians(0.) {
+                                        let target_angle = turtle.heading + if clockwise {
+                                            -angle
+                                        }
+                                        else {
+                                            angle
+                                        };
+                                        assert!(target_angle != turtle.heading);
+                                        animation = Some(Animation {
+                                            kind: AnimationKind::Rotation {
+                                                target_angle,
+                                                clockwise,
+                                            },
+                                            speed: turtle.speed,
+                                            start: Instant::now(),
+                                        });
+                                    }
                                 },
                                 Command::Pen {enabled} => {
                                     drawing.pen.enabled = enabled;
@@ -325,10 +342,11 @@ mod canvas {
                                 AnimationKind::Rotation {target_angle, clockwise} => {
                                     // TODO: Use the returned value in Radians and impl Div for Radians
                                     let speed = Radians(speed.to_rotation());
+                                    let target_angle = target_angle % (2.*PI);
 
                                     let heading = turtle.heading;
                                     let current = (heading + speed / 1000. * elapsed) % (2.*PI);
-                                    let current = if speed.0.is_infinite() || current > (target_angle % (2.*PI)) {
+                                    let current = if speed.0.is_infinite() || current > target_angle {
                                         animation_complete = true;
                                         target_angle
                                     }
