@@ -28,7 +28,7 @@ mod canvas {
     use std::thread;
     use std::process;
     use std::time::{Instant, Duration};
-    use std::sync::{Mutex, MutexGuard, Arc, TryLockError};
+    use std::sync::mpsc::{self, TryRecvError};
     use std::ops::{Add, Sub, Mul, Div, Rem, Neg};
     use std::f64::consts::PI;
 
@@ -208,14 +208,15 @@ mod canvas {
 
     pub struct TurtleCanvas {
         thread_handle: Option<thread::JoinHandle<()>>,
-        command: Arc<Mutex<Option<Command>>>,
+        transmitter: mpsc::Sender<Command>,
+        receiver: mpsc::Receiver<Response>,
     }
 
     impl TurtleCanvas {
         pub fn new() -> TurtleCanvas {
-            let command = Arc::new(Mutex::new(None));
+            let (drawing_tx, drawing_rx) = mpsc::channel();
+            let (main_tx, main_rx) = mpsc::channel();
 
-            let command_queue = command.clone();
             let handle = thread::spawn(move || {
                 let mut window: PistonWindow = WindowSettings::new(
                     "Turtle IDE", [800, 600]
@@ -230,73 +231,59 @@ mod canvas {
                         color: Color::Black,
                     },
                 };
-                // Keeps the lock until the animation is complete
-                let mut lock: Option<MutexGuard<_>> = None;
-                let mut pending_command: Option<Command> = None;
 
                 while let Some(e) = window.next() {
-                    match command_queue.try_lock() {
-                        Ok(mut command_lock) => {
-                            pending_command = command_lock.take();
-                            if pending_command.is_some() {
-                                // Start the animation and block until it is complete
-                                println!("acquired", );
-                                lock = Some(command_lock);
+                    match drawing_rx.try_recv() {
+                        Ok(command) => {
+                            if animation.is_some() {
+                                unreachable!("The main thread did not wait for the animation to complete before sending another command")
+                            }
+                            match command {
+                                Command::Move {distance} => {
+                                    if distance != 0. {
+                                        let start = turtle.position;
+                                        let x = distance * turtle.heading.cos();
+                                        let y = distance * turtle.heading.sin();
+                                        let end = math::add(start, [x, y]);
+                                        animation = Some(Animation {
+                                            kind: AnimationKind::Move {
+                                                path: Path {
+                                                    start, end,
+                                                    pen: drawing.pen.clone(),
+                                                },
+                                            },
+                                            speed: turtle.speed,
+                                            start: Instant::now(),
+                                        });
+                                    }
+                                },
+                                Command::Rotate {angle, clockwise} => {
+                                    if angle != Radians(0.) {
+                                        let target_angle = turtle.heading + if clockwise {
+                                            -angle
+                                        }
+                                        else {
+                                            angle
+                                        };
+                                        assert!(target_angle != turtle.heading);
+                                        animation = Some(Animation {
+                                            kind: AnimationKind::Rotation {
+                                                target_angle,
+                                                clockwise,
+                                            },
+                                            speed: turtle.speed,
+                                            start: Instant::now(),
+                                        });
+                                    }
+                                },
+                                Command::Pen {enabled} => {
+                                    drawing.pen.enabled = enabled;
+                                    main_tx.send(Ok(())).unwrap();
+                                },
                             }
                         },
-                        Ok(_) |
-                        Err(TryLockError::WouldBlock) => {}, // Do nothing
-                        Err(TryLockError::Poisoned(..)) => break, // Quit
-                    }
-
-                    if let Some(command) = pending_command.take() {
-                        if animation.is_some() {
-                            unreachable!("The main thread did not wait for the animation to complete before sending another command")
-                        }
-                        match command {
-                            Command::Move {distance} => {
-                                if distance != 0. {
-                                    let start = turtle.position;
-                                    let x = distance * turtle.heading.cos();
-                                    let y = distance * turtle.heading.sin();
-                                    let end = math::add(start, [x, y]);
-                                    animation = Some(Animation {
-                                        kind: AnimationKind::Move {
-                                            path: Path {
-                                                start, end,
-                                                pen: drawing.pen.clone(),
-                                            },
-                                        },
-                                        speed: turtle.speed,
-                                        start: Instant::now(),
-                                    });
-                                }
-                            },
-                            Command::Rotate {angle, clockwise} => {
-                                if angle != Radians(0.) {
-                                    let target_angle = turtle.heading + if clockwise {
-                                        -angle
-                                    }
-                                    else {
-                                        angle
-                                    };
-                                    assert!(target_angle != turtle.heading);
-                                    animation = Some(Animation {
-                                        kind: AnimationKind::Rotation {
-                                            target_angle,
-                                            clockwise,
-                                        },
-                                        speed: turtle.speed,
-                                        start: Instant::now(),
-                                    });
-                                }
-                            },
-                            Command::Pen {enabled} => {
-                                drawing.pen.enabled = enabled;
-                                println!("released", );
-                                lock.take();
-                            },
-                        }
+                        Err(TryRecvError::Empty) => {}, // Do nothing
+                        Err(TryRecvError::Disconnected) => break, // Quit
                     }
 
                     window.draw_2d(&e, |c, g| {
@@ -377,8 +364,7 @@ mod canvas {
                         }
                         if animation_complete {
                             animation = None;
-                            println!("released", );
-                            lock.take();
+                            main_tx.send(Ok(())).unwrap();
                         }
 
                         for path in &paths {
@@ -426,20 +412,25 @@ mod canvas {
 
             Self {
                 thread_handle: Some(handle),
-                command,
+                transmitter: drawing_tx,
+                receiver: main_rx,
             }
         }
 
         pub fn apply(&self, command: Command) {
-            self.command.lock().map(|mut cmd| {
-                println!("{:?}", cmd.is_some());
-                *cmd = Some(command);
-                println!("placed command", );
-            }).map_err(|_| {
-                // The connection has been closed so the window was closed
-                // or an error occurred on that thread
-                process::exit(0);
+            let result = self.transmitter.send(command).map_err(|_| ());
+            let result = result.and_then(|_| {
+                // Wait for the drawing animation to complete
+                self.receiver.recv().map_err(|_| ())
             });
+            match result {
+                Ok(_) => {},
+                Err(_) => {
+                    // The connection has been closed so the window was closed
+                    // or an error occurred on that thread
+                    process::exit(0);
+                },
+            }
         }
     }
 
