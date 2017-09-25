@@ -58,7 +58,7 @@ impl Speed {
             Eight => PI / 3.,
             Nine => PI / 2.,
             Ten => PI / 1.,
-            Instant => f64::MAX,
+            Instant => f64::INFINITY,
         }
     }
 }

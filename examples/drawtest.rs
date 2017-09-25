@@ -15,7 +15,7 @@ fn main() {
             });
         }
         canvas.apply(Command::Move {
-            distance: 10.,
+            distance: 2.,
         });
         canvas.apply(Command::Rotate {
             angle: Radians(1f64.to_radians()),
@@ -328,7 +328,7 @@ mod canvas {
 
                                     let heading = turtle.heading;
                                     let current = (heading + speed / 1000. * elapsed) % (2.*PI);
-                                    let current = if current > (target_angle % (2.*PI)) {
+                                    let current = if speed.0.is_infinite() || current > (target_angle % (2.*PI)) {
                                         animation_complete = true;
                                         target_angle
                                     }
@@ -339,6 +339,7 @@ mod canvas {
 
                                         current
                                     };
+                                    assert!(!current.0.is_nan(), "heading became NaN");
                                     turtle.heading = current;
                                 },
                             }
