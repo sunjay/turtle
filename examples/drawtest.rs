@@ -318,7 +318,7 @@ mod canvas {
                                     let offset = math::mul_scalar(direction, speed / 1000. * elapsed);
                                     let offset_length = math::square_len(offset).sqrt();
 
-                                    let current = if offset_length >= path_length {
+                                    let current = if speed.is_infinite() || offset_length >= path_length {
                                         paths.push(path.clone());
                                         animation_complete = true;
                                         end
