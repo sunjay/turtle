@@ -1,8 +1,10 @@
 use std::f64;
 use std::f64::consts::PI;
 
-/// This type represents and enforces the various speeds allowed
-/// for use with the turtle.
+use radians::Radians;
+use {Distance};
+
+/// Represents the various supported speeds that the turtle can move at
 ///
 /// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
 #[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq)]
@@ -22,7 +24,7 @@ pub enum Speed {
 
 impl Speed {
     /// Converts a speed to its value as pixels per second
-    pub fn to_absolute(self) -> f64 {
+    pub fn to_absolute(self) -> Distance {
         use self::Speed::*;
         // Arbitrary values that can be tweaked
         // Just make sure to keep invariants like Five > Three, etc.
@@ -42,12 +44,11 @@ impl Speed {
     }
 
     /// Converts a speed to its value as radians per second
-    //TODO: Return Radians
-    pub fn to_rotation(self) -> f64 {
+    pub fn to_rotation(self) -> Radians {
         use self::Speed::*;
         // Arbitrary values that can be tweaked
         // Just make sure to keep invariants like Five > Three, etc.
-        match self {
+        Radians::from_radians_value(match self {
             One => PI / 16.,
             Two => PI / 14.,
             Three => PI / 12.,
@@ -59,7 +60,7 @@ impl Speed {
             Nine => PI / 2.,
             Ten => PI / 1.,
             Instant => f64::INFINITY,
-        }
+        })
     }
 }
 

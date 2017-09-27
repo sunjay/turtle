@@ -1,68 +1,108 @@
-use std::env;
-
-use screen::{Screen, Pen};
 use speed::Speed;
-use point::Point;
-use angle::Direction;
+use radians::Radians;
+use turtle_window::{TurtleWindow, Command};
 
-pub use angle::Angle;
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum AngleUnit {
+    Degrees,
+    Radians,
+}
 
-/// This type represents any distance value
+impl AngleUnit {
+    fn to_radians(&self, angle: Angle) -> Radians {
+        match *self {
+            AngleUnit::Degrees => Radians::from_degrees_value(angle),
+            AngleUnit::Radians => Radians::from_radians_value(angle),
+        }
+    }
+}
+
+/// A point in 2D space: [x, y]
+///
+/// ```rust
+/// # extern crate turtleide;
+/// # use turtleide::Point;
+/// # fn main() {
+/// let p: Point = [100., 120.];
+/// // get x coordinate
+/// let x = p[0];
+/// assert_eq!(x, 100.);
+/// // get y coordinate
+/// let y = p[1];
+/// assert_eq!(y, 120.);
+/// # }
+pub type Point = [f64; 2];
+
+/// Any distance value
 pub type Distance = f64;
+
+/// An angle value without a unit
+///
+/// The unit of the angle represented by this value depends on what
+/// unit the Turtle was set to when this angle was retrieved
+pub type Angle = f64;
 
 /// A turtle with a pen attached to its tail
 pub struct Turtle {
-    /// The current screen being drawn to
-    screen: Screen,
-    /// How fast the turtle will move during animation
-    speed: Speed,
-    /// Current position of the turtle
-    position: Point,
-    /// Direction of travel
-    direction: Direction,
-    /// Pen settings
-    pen: Pen,
-    /// Whether the pen is down or not
-    drawing_enabled: bool,
+    window: TurtleWindow,
+    angle_unit: AngleUnit,
 }
 
 impl Turtle {
     /// Initialize a new Turtle instance
     pub fn new() -> Turtle {
         Turtle {
-            // Attempt to automatically detect if this is running within the Turtle IDE
-            screen: Screen::default(),
-            speed: "normal".into(),
-            position: Point::origin(),
-            direction: Direction::zero_degrees(),
-            pen: Pen::default(),
-            drawing_enabled: true,
+            window: TurtleWindow::new(),
+            angle_unit: AngleUnit::Degrees,
         }
     }
 
     /// Returns the current speed of the turtle
     pub fn speed(&self) -> Speed {
-        self.speed
+        //TODO: Read from rendering thread
+        unimplemented!();
     }
 
-    /// Return the turtle's current location (x, y)
+    /// Returns the turtle's current location (x, y)
     pub fn position(&self) -> Point {
-        self.position
+        //TODO: Read from rendering thread
+        unimplemented!();
     }
 
-    /// Return the turtle's current heading
+    /// Returns the turtle's current heading
     pub fn heading(&self) -> Angle {
-        self.direction.raw_angle()
+        //TODO: Read from rendering thread
+        unimplemented!();
+    }
+
+    /// Returns true if Angle values will be interpreted as degrees
+    pub fn is_using_degrees(&self) -> bool {
+        self.angle_unit == AngleUnit::Degrees
+    }
+
+    /// Returns true if Angle values will be interpreted as radians
+    pub fn is_using_radians(&self) -> bool {
+        self.angle_unit == AngleUnit::Radians
+    }
+
+    /// Return true if pen is down, false if it’s up.
+    pub fn is_pen_down(&self) -> bool {
+        //TODO: Read from rendering thread
+        unimplemented!();
     }
 
     /// Pull the pen down so that the turtle draws while moving
     pub fn pen_down(&mut self) {
-        self.drawing_enabled = true;
+        self.window.apply(Command::EnablePen {
+            enabled: true,
+        });
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
     pub fn pen_up(&mut self) {
-        self.drawing_enabled = false;
+        self.window.apply(Command::EnablePen {
+            enabled: false,
+        });
     }
 
     /// Set the turtle's speed to the given setting.
@@ -103,17 +143,19 @@ impl Turtle {
     /// any type that implements the `From` trait gets a matching implementation
     /// of the `Into` trait.
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-        self.speed = speed.into();
+        //TODO: Send proper command
+        //use speed.into();
+        unimplemented!();
     }
 
     /// Change the angle unit to degrees.
     pub fn use_degrees(&mut self) {
-        self.direction = self.direction.into_degrees();
+        self.angle_unit = AngleUnit::Degrees;
     }
 
     /// Change the angle unit to radians.
     pub fn use_radians(&mut self) {
-        self.direction = self.direction.into_radians();
+        self.angle_unit = AngleUnit::Radians;
     }
 
     /// Move the turtle forward by the given amount of `distance`.
@@ -122,17 +164,9 @@ impl Turtle {
     /// `distance` can be negative in which case the turtle can move backward
     /// using this method.
     pub fn forward(&mut self, distance: Distance) {
-        let start = self.position;
-        let end = self.position.translate(self.direction, distance);
-
-        let pen = if self.drawing_enabled {
-            self.pen
-        } else {
-            self.pen.as_transparent()
-        };
-        self.screen.draw_line(start, end, self.speed, &pen);
-
-        self.position = end;
+        self.window.apply(Command::MoveForward {
+            distance,
+        });
     }
 
     /// Move the turtle backward by the given amount of `distance`.
@@ -141,24 +175,33 @@ impl Turtle {
     /// `distance` can be negative in which case the turtle can move forwards
     /// using this method.
     pub fn backward(&mut self, distance: Distance) {
-        self.forward(-distance);
+        // Moving backwards is essentially moving forwards with a negative distance
+        self.window.apply(Command::MoveForward {
+            distance: -distance,
+        });
     }
 
-    /// Rotate the turtle right by the given angle.
+    /// Rotate the turtle right (clockwise) by the given angle.
     ///
     /// Units are by default degrees, but can be set using the methods
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
     /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
     pub fn right(&mut self, angle: Angle) {
-        self.direction.rotate_clockwise(angle);
+        self.window.apply(Command::Rotate {
+            angle: self.angle_unit.to_radians(angle),
+            clockwise: true,
+        });
     }
 
-    /// Rotate the turtle left by the given angle.
+    /// Rotate the turtle left (counterclockwise) by the given angle.
     ///
     /// Units are by default degrees, but can be set using the methods
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
     /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
     pub fn left(&mut self, angle: Angle) {
-        self.direction.rotate_counterclockwise(angle);
+        self.window.apply(Command::Rotate {
+            angle: self.angle_unit.to_radians(angle),
+            clockwise: false,
+        });
     }
 }
