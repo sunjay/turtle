@@ -59,20 +59,17 @@ impl Turtle {
 
     /// Returns the current speed of the turtle
     pub fn speed(&self) -> Speed {
-        //TODO: Read from rendering thread
-        unimplemented!();
+        self.window.turtle().speed
     }
 
     /// Returns the turtle's current location (x, y)
     pub fn position(&self) -> Point {
-        //TODO: Read from rendering thread
-        unimplemented!();
+        self.window.turtle().position
     }
 
     /// Returns the turtle's current heading
     pub fn heading(&self) -> Angle {
-        //TODO: Read from rendering thread
-        unimplemented!();
+        self.window.turtle().heading.value()
     }
 
     /// Returns true if Angle values will be interpreted as degrees
@@ -87,20 +84,17 @@ impl Turtle {
 
     /// Return true if pen is down, false if it’s up.
     pub fn is_pen_down(&self) -> bool {
-        //TODO: Read from rendering thread
-        unimplemented!();
+        self.window.drawing().pen.enabled
     }
 
     /// Pull the pen down so that the turtle draws while moving
     pub fn pen_down(&mut self) {
-        //TODO: Write to shared data from rendering thread
-        unimplemented!();
+        self.window.drawing_mut().pen.enabled = true;
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
     pub fn pen_up(&mut self) {
-        //TODO: Write to shared data from rendering thread
-        unimplemented!();
+        self.window.drawing_mut().pen.enabled = false;
     }
 
     /// Set the turtle's speed to the given setting.
@@ -141,9 +135,7 @@ impl Turtle {
     /// any type that implements the `From` trait gets a matching implementation
     /// of the `Into` trait.
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-        //TODO: Send proper command
-        //use speed.into();
-        unimplemented!();
+        self.window.turtle_mut().speed = speed.into();
     }
 
     /// Change the angle unit to degrees.
