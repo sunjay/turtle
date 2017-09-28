@@ -13,13 +13,21 @@ fn main() {
     turtle.right(180.0);
     turtle.pen_down();
 
+    turtle.hide();
     for i in 1..12 {
         turtle.set_speed(i);
-        turtle.right(2.0 * 360.0);
+        circle(&mut turtle);
 
         turtle.pen_up();
         turtle.set_speed("fastest");
         turtle.forward(60.0);
         turtle.pen_down();
+    }
+}
+
+fn circle(turtle: &mut Turtle) {
+    for _ in 0..180 {
+        turtle.forward(1.0);
+        turtle.left(2.0);
     }
 }
