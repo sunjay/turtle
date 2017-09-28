@@ -3,7 +3,7 @@ use std::time::Instant;
 use interpolation::lerp;
 
 use radians::{self, Radians, TWO_PI};
-use drawing_thread::{TurtleState, Path};
+use renderer::{TurtleState, Path};
 use extensions::AsMillis;
 
 pub enum Animation {

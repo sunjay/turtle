@@ -1,7 +1,7 @@
 use speed::Speed;
 use radians::Radians;
 use turtle_window::TurtleWindow;
-use drawing_thread::Command;
+use renderer::Command;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {

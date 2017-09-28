@@ -55,15 +55,15 @@ struct DrawingState {
     pub background: Color,
 }
 
-pub struct DrawingThread {
+pub struct Renderer {
     paths: Vec<Path>,
     animation: Option<Animation>,
     turtle: TurtleState,
     drawing: DrawingState,
 }
 
-impl DrawingThread {
-    pub fn new() -> DrawingThread {
+impl Renderer {
+    pub fn new() -> Renderer {
         Self {
             paths: Vec::new(),
             animation: None,
@@ -83,9 +83,9 @@ impl DrawingThread {
         }
     }
 
-    pub fn run(&mut self, window: &mut PistonWindow, drawing_rx: mpsc::Receiver<Command>, main_tx: mpsc::Sender<Response>) {
+    pub fn run(&mut self, window: &mut PistonWindow, renderer_rx: mpsc::Receiver<Command>, main_tx: mpsc::Sender<Response>) {
         while let Some(e) = window.next() {
-            match drawing_rx.try_recv() {
+            match renderer_rx.try_recv() {
                 Ok(command) => self.handle_command(command),
                 Err(TryRecvError::Empty) => {}, // Do nothing
                 Err(TryRecvError::Disconnected) => break, // Quit

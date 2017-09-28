@@ -9,7 +9,7 @@ mod color;
 mod radians;
 mod animation;
 mod extensions;
-mod drawing_thread;
+mod renderer;
 
 pub use turtle::{Turtle, Point, Distance, Angle};
 pub use speed::{Speed};

@@ -7,7 +7,7 @@ use piston_window::{
     WindowSettings,
 };
 
-use drawing_thread::{DrawingThread, Command, Response};
+use renderer::{Renderer, Command, Response};
 
 pub struct TurtleWindow {
     thread_handle: Option<thread::JoinHandle<()>>,
@@ -17,7 +17,7 @@ pub struct TurtleWindow {
 
 impl TurtleWindow {
     pub fn new() -> TurtleWindow {
-        let (drawing_tx, drawing_rx) = mpsc::channel();
+        let (renderer_tx, renderer_rx) = mpsc::channel();
         let (main_tx, main_rx) = mpsc::channel();
 
         let handle = thread::spawn(move || {
@@ -25,12 +25,12 @@ impl TurtleWindow {
                 "Turtle", [800, 600]
             ).exit_on_esc(true).build().unwrap();
 
-            DrawingThread::new().run(&mut window, drawing_rx, main_tx);
+            Renderer::new().run(&mut window, renderer_rx, main_tx);
         });
 
         Self {
             thread_handle: Some(handle),
-            transmitter: drawing_tx,
+            transmitter: renderer_tx,
             receiver: main_rx,
         }
     }
