@@ -30,15 +30,15 @@ impl Speed {
         // Just make sure to keep invariants like Five > Three, etc.
         match self {
             One => 10.,
-            Two => 20.,
-            Three => 30.,
-            Four => 40.,
-            Five => 50.,
-            Six => 60.,
-            Seven => 70.,
-            Eight => 80.,
-            Nine => 90.,
-            Ten => 100.,
+            Two => 50.,
+            Three => 100.,
+            Four => 150.,
+            Five => 200.,
+            Six => 250.,
+            Seven => 300.,
+            Eight => 350.,
+            Nine => 400.,
+            Ten => 500.,
             Instant => f64::INFINITY,
         }
     }
@@ -49,16 +49,16 @@ impl Speed {
         // Arbitrary values that can be tweaked
         // Just make sure to keep invariants like Five > Three, etc.
         Radians::from_radians_value(match self {
-            One => PI / 16.,
-            Two => PI / 14.,
-            Three => PI / 12.,
-            Four => PI / 10.,
-            Five =>  PI / 8.,
-            Six => PI / 6.,
-            Seven => PI / 4.,
-            Eight => PI / 3.,
-            Nine => PI / 2.,
-            Ten => PI / 1.,
+            One => 0.3 * PI,
+            Two => 0.6 * PI,
+            Three => 0.9 * PI,
+            Four => 1.2 * PI,
+            Five =>  1.5 * PI,
+            Six => 1.8 * PI,
+            Seven => 2.1 * PI,
+            Eight => 2.4 * PI,
+            Nine => 2.7 * PI,
+            Ten => 3.0 * PI,
             Instant => f64::INFINITY,
         })
     }
