@@ -1,6 +1,6 @@
-extern crate turtleide;
+extern crate turtle;
 
-use turtleide::Turtle;
+use turtle::Turtle;
 
 fn main() {
     let mut turtle = Turtle::new();

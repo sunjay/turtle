@@ -16,9 +16,9 @@ any picture you want just by moving the turtle across the screen.
 As a simple example, you can draw a circle with only the following code:
 
 ```rust
-extern crate turtleide;
+extern crate turtle;
 
-use turtleide::Turtle;
+use turtle::Turtle;
 
 fn main() {
     let mut turtle = Turtle::new();

@@ -20,8 +20,8 @@ impl AngleUnit {
 /// A point in 2D space: [x, y]
 ///
 /// ```rust
-/// # extern crate turtleide;
-/// # use turtleide::Point;
+/// # extern crate turtle;
+/// # use turtle::Point;
 /// # fn main() {
 /// let p: Point = [100., 120.];
 /// // get x coordinate
@@ -110,9 +110,9 @@ impl Turtle {
     /// Usually this method is used as shown below:
     ///
     /// ```rust,no_run
-    /// # extern crate turtleide;
+    /// # extern crate turtle;
     /// # fn main() {
-    /// # let mut turtle = turtleide::Turtle::new();
+    /// # let mut turtle = turtle::Turtle::new();
     /// turtle.set_speed("normal");
     /// turtle.set_speed("fast");
     /// turtle.set_speed(2);

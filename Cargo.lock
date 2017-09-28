@@ -1,5 +1,5 @@
 [root]
-name = "turtleide"
+name = "turtle"
 version = "0.0.0"
 dependencies = [
  "piston_window 0.70.0 (registry+https://github.com/rust-lang/crates.io-index)",

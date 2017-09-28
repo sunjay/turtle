@@ -1,11 +1,11 @@
 [package]
-name = "turtleide"
+name = "turtle"
 version = "0.0.0"
 authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
-description = "Drawing library for Turtle IDE"
-repository = "https://github.com/sunjay/turtleide"
+description = "Turtle Graphics in Rust"
+repository = "https://github.com/sunjay/turtle"
 readme = "README.md"
-keywords = ["turtle", "turtleide", "teaching", "learning", "beginners"]
+keywords = ["turtle", "turtle", "drawing", "teaching", "learning", "beginners"]
 # crates.io/category_slugs
 categories = ["rendering", "rendering::graphics-api", "rendering::engine", "games", "gui"]
 license = "MIT"
