@@ -12,7 +12,7 @@ use piston_window::{
 
 use turtle_window::ReadOnly;
 use extensions::ToCanvasCoordinates;
-use {Point, Color};
+use {Point, color};
 use state::{Path, Pen,TurtleState};
 
 pub struct Renderer {
@@ -103,12 +103,12 @@ impl Renderer {
         }).collect();
 
         // Draw the turtle shell with its background first, then its border
-        polygon(Color::White.into(), &shell, c.transform, g);
+        polygon(color::WHITE.into(), &shell, c.transform, g);
         for i in 0..shell.len() {
             let start = shell[i];
             let end = shell[(i + 1) % shell.len()];
 
-            line(Color::Black.into(), 1.,
+            line(color::BLACK.into(), 1.,
             [start[0], start[1], end[0], end[1]],
             c.transform, g);
         }

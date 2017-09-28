@@ -1,6 +1,7 @@
 use speed::Speed;
 use radians::Radians;
 use turtle_window::TurtleWindow;
+use color::Color;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -92,6 +93,11 @@ impl Turtle {
         self.window.drawing().pen.enabled
     }
 
+    /// Returns the color of the pen
+    pub fn pen_color(&self) -> Color {
+        self.window.drawing().pen.color
+    }
+
     /// Pull the pen down so that the turtle draws while moving
     pub fn pen_down(&mut self) {
         self.window.drawing_mut().pen.enabled = true;
@@ -100,6 +106,12 @@ impl Turtle {
     /// Pick the pen up so that the turtle does not draw while moving
     pub fn pen_up(&mut self) {
         self.window.drawing_mut().pen.enabled = false;
+    }
+
+    /// Sets the color of the pen to any valid color
+    //TODO: Document this more like set_speed
+    pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
+        self.window.drawing_mut().pen.color = color.into();
     }
 
     /// Set the turtle's speed to the given setting.

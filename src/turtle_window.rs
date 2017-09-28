@@ -14,7 +14,7 @@ use renderer::Renderer;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path, Pen};
 use radians::{self, Radians};
-use {Speed, Color, Distance};
+use {Speed, color, Distance};
 
 /// Types that will be shared with another thread
 pub type Shared<T> = Arc<RwLock<T>>;
@@ -73,9 +73,9 @@ impl TurtleWindow {
                 pen: Pen {
                     enabled: true,
                     thickness: 1.,
-                    color: Color::Black,
+                    color: color::BLACK,
                 },
-                background: Color::White,
+                background: color::WHITE,
             })),
             temporary_path: Arc::new(RwLock::new(None)),
         };
