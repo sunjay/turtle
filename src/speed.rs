@@ -49,10 +49,10 @@ impl Speed {
         // Arbitrary values that can be tweaked
         // Just make sure to keep invariants like Five > Three, etc.
         Radians::from_radians_value(match self {
-            One => 0.3 * PI,
-            Two => 0.6 * PI,
-            Three => 0.9 * PI,
-            Four => 1.2 * PI,
+            One => 0.7 * PI,
+            Two => 0.9 * PI,
+            Three => 1.1 * PI,
+            Four => 1.3 * PI,
             Five =>  1.5 * PI,
             Six => 1.8 * PI,
             Seven => 2.1 * PI,
