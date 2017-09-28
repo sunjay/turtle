@@ -29,15 +29,15 @@ impl Speed {
         // Arbitrary values that can be tweaked
         // Just make sure to keep invariants like Five > Three, etc.
         match self {
-            One => 10.,
-            Two => 50.,
-            Three => 100.,
-            Four => 150.,
-            Five => 200.,
-            Six => 250.,
-            Seven => 300.,
-            Eight => 350.,
-            Nine => 400.,
+            One => 50.,
+            Two => 100.,
+            Three => 150.,
+            Four => 200.,
+            Five => 250.,
+            Six => 300.,
+            Seven => 350.,
+            Eight => 400.,
+            Nine => 450.,
             Ten => 500.,
             Instant => f64::INFINITY,
         }
