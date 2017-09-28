@@ -28,4 +28,6 @@ fn main() {
         turtle.left(90.0);
         turtle.pen_down();
     }
+
+    turtle.hide();
 }

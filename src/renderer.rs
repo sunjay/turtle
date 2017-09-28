@@ -82,7 +82,11 @@ impl Renderer {
     fn render_shell(&self, c: context::Context, g: &mut G2d, center: Point, state: &ReadOnly) {
         // Calculate all the points on the shell by rotating the shell shape by the turtle's
         // heading and moving it to the turtle's position
-        let TurtleState {position, heading, ..} = *state.turtle();
+        let TurtleState {position, heading, visible, ..} = *state.turtle();
+        if !visible {
+            return;
+        }
+
         let cos = heading.cos();
         let sin = heading.sin();
         let turtle_x = position[0];

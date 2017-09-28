@@ -67,6 +67,7 @@ impl TurtleWindow {
                 position: [0., 0.],
                 heading: Radians::from_degrees_value(90.),
                 speed: Speed::Five,
+                visible: true,
             })),
             drawing: Arc::new(RwLock::new(DrawingState {
                 pen: Pen {
@@ -134,7 +135,7 @@ impl TurtleWindow {
             return;
         }
 
-        let TurtleState {position: start, heading, speed} = *self.turtle();
+        let TurtleState {position: start, heading, speed, ..} = *self.turtle();
         let x = distance * heading.cos();
         let y = distance * heading.sin();
         let end = math::add(start, [x, y]);

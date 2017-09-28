@@ -72,6 +72,11 @@ impl Turtle {
         self.window.turtle().heading.value()
     }
 
+    /// Returns true if the turtle is visible
+    pub fn is_visible(&self) -> bool {
+        self.window.turtle().visible
+    }
+
     /// Returns true if Angle values will be interpreted as degrees
     pub fn is_using_degrees(&self) -> bool {
         self.angle_unit == AngleUnit::Degrees
@@ -136,6 +141,18 @@ impl Turtle {
     /// of the `Into` trait.
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
         self.window.turtle_mut().speed = speed.into();
+    }
+
+    /// Makes the turtle invisible. The shell will not be shown, but drawings will continue.
+    ///
+    /// Useful for some complex drawings.
+    pub fn hide(&mut self) {
+        self.window.turtle_mut().visible = false;
+    }
+
+    /// Makes the turtle visible.
+    pub fn show(&mut self) {
+        self.window.turtle_mut().visible = true;
     }
 
     /// Change the angle unit to degrees.

@@ -12,6 +12,7 @@ pub struct TurtleState {
     pub position: Point,
     pub heading: Radians,
     pub speed: Speed,
+    pub visible: bool,
 }
 
 #[derive(Debug, Clone)]
