@@ -1,6 +1,8 @@
 use std::f64::consts::PI;
 use std::ops::{Add, Sub, Mul, Div, Rem, Neg};
 
+use interpolation::Spatial;
+
 pub const TWO_PI: Radians = Radians(2.*PI);
 pub const ZERO: Radians = Radians(0.);
 
@@ -25,6 +27,11 @@ impl Radians {
         Radians(degrees.to_radians())
     }
 
+    /// Returns the raw value stored in radians
+    pub fn value(&self) -> f64 {
+        self.0
+    }
+
     /// Computes the cosine of this radians value
     #[inline(always)]
     pub fn cos(self) -> f64 {
@@ -47,6 +54,25 @@ impl Radians {
     #[inline(always)]
     pub fn is_nan(self) -> bool {
         self.0.is_infinite()
+    }
+}
+
+impl Spatial for Radians {
+    type Scalar = f64;
+
+    #[inline(always)]
+    fn add(&self, other: &Self) -> Self {
+        *self + *other
+    }
+
+    #[inline(always)]
+    fn sub(&self, other: &Self) -> Self {
+        *self - *other
+    }
+
+    #[inline(always)]
+    fn scale(&self, other: &Self::Scalar) -> Self {
+        *self * *other
     }
 }
 

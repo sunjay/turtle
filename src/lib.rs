@@ -1,4 +1,5 @@
 extern crate piston_window;
+extern crate interpolation;
 
 mod turtle_window;
 
@@ -6,6 +7,7 @@ mod turtle;
 mod speed;
 mod color;
 mod radians;
+mod animation;
 mod extensions;
 mod drawing_thread;
 

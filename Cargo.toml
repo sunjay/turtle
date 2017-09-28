@@ -12,3 +12,4 @@ license = "MIT"
 
 [dependencies]
 piston_window = "*"
+interpolation = "*"

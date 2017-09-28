@@ -94,16 +94,14 @@ impl Turtle {
 
     /// Pull the pen down so that the turtle draws while moving
     pub fn pen_down(&mut self) {
-        self.window.apply(Command::EnablePen {
-            enabled: true,
-        });
+        //TODO: Write to shared data from rendering thread
+        unimplemented!();
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
     pub fn pen_up(&mut self) {
-        self.window.apply(Command::EnablePen {
-            enabled: false,
-        });
+        //TODO: Write to shared data from rendering thread
+        unimplemented!();
     }
 
     /// Set the turtle's speed to the given setting.

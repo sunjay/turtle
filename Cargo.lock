@@ -2,6 +2,7 @@
 name = "turtle"
 version = "0.0.0"
 dependencies = [
+ "interpolation 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston_window 0.70.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
