@@ -108,7 +108,7 @@ impl TurtleWindow {
     }
 
     /// Provides mutable access to the turtle state
-    pub fn turtle_mut(&self) -> MutableRef<TurtleState> {
+    pub fn turtle_mut(&mut self) -> MutableRef<TurtleState> {
         self.turtle.write().expect("bug: Lock was poisoned")
     }
 
@@ -118,11 +118,11 @@ impl TurtleWindow {
     }
 
     /// Provides mutable access to the drawing
-    pub fn drawing_mut(&self) -> MutableRef<DrawingState> {
+    pub fn drawing_mut(&mut self) -> MutableRef<DrawingState> {
         self.drawing.write().expect("bug: Lock was poisoned")
     }
 
-    fn set_temporary_path(&self, path: Option<Path>) {
+    fn set_temporary_path(&mut self, path: Option<Path>) {
         let mut temp = self.temporary_path.write().expect("bug: Lock was poisoned");
         *temp = path;
     }
@@ -130,7 +130,7 @@ impl TurtleWindow {
     /// Move the turtle forward by the given distance. To move backwards, use a negative distance.
     ///
     /// The turtle's motion will be animated based on the speed
-    pub fn forward(&self, distance: Distance) {
+    pub fn forward(&mut self, distance: Distance) {
         if distance == 0. {
             return;
         }
@@ -157,7 +157,7 @@ impl TurtleWindow {
     }
 
     /// Rotate the turtle in place by the given angle in the given direction of rotation
-    pub fn rotate(&self, angle: Radians, clockwise: bool) {
+    pub fn rotate(&mut self, angle: Radians, clockwise: bool) {
         if angle == radians::ZERO {
             return;
         }
@@ -178,7 +178,7 @@ impl TurtleWindow {
         self.play_animation(animation);
     }
 
-    fn play_animation<A: Animation>(&self, animation: A) {
+    fn play_animation<A: Animation>(&mut self, animation: A) {
         let mut fps = FpsClock::new(60);
         loop {
             // We want to keep the lock for as little time as possible
