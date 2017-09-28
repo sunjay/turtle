@@ -1,3 +1,4 @@
+use std::process;
 use std::sync::mpsc::{self, TryRecvError};
 
 use piston_window::{
@@ -58,6 +59,9 @@ impl Renderer {
                 self.render_shell(c, g, center, &state);
             });
         }
+
+        // Quit immediately when the window is closed
+        process::exit(0);
     }
 
     /// Render a path assuming that its pen is enabled
