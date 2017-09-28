@@ -3,47 +3,14 @@ use std::time::Instant;
 use interpolation::lerp;
 
 use radians::{self, Radians, TWO_PI};
-use renderer::{TurtleState, Path};
+use state::{TurtleState, Path};
 use extensions::AsMillis;
 
-pub enum Animation {
-    /// Animate the turtle moving from a start point to an end point
-    /// while keeping its heading the same throughout (in a straight line)
-    Move {
-        /// path.start and path.end are used in lerp
-        path: Path,
-        ‎/// timer since the start of the animation
-        ///
-        ‎/// used with total_millis to calculate t in lerp
-        ‎timer: Instant,
-        ‎/// the total time the animation is meant to take based on the speed and length from
-        /// start to finish
-        ///
-        ‎/// if this is zero, we'll jump to the end
-        ‎total_millis: f64,
-    },
-
-    /// Rotate the turtle in place by the given angle in the direction specified
-    Rotate {
-        /// turtle.heading when the animation was started
-        start: Radians,
-        ‎/// The total angle to move by.
-        ///
-        ‎/// Linearly interpolated based on the elapsed time to get the delta that should be added
-        /// to start to get the current heading in the animation
-        ‎delta_angle: Radians,
-        /// The direction of rotation
-        ‎clockwise: bool,
-        ‎/// timer since the start of the animation
-        ///
-        ‎/// used with total_millis to calculate t in lerp
-        ‎timer: Instant,
-        ‎/// the total time the animation is meant to take based on the speed and length from
-        /// start to finish
-        ///
-        ‎/// if this is zero, we'll jump to the end
-        ‎total_millis: f64,
-    },
+pub trait Animation {
+    /// Advance the animation forward.
+    ///
+    /// The animation will use the timer it stores to calculate the current state it should be at.
+    fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus;
 }
 
 pub enum AnimationStatus {
@@ -73,52 +40,95 @@ fn rotate(angle: Radians, rotation: Radians, clockwise: bool) -> Radians {
     }
 }
 
-impl Animation {
+/// Animate the turtle moving from a start point to an end point
+/// while keeping its heading the same throughout (in a straight line)
+pub struct MoveAnimation {
+    /// path.start and path.end are used in lerp
+    pub path: Path,
+    /// timer since the start of the animation
+    ///
+    /// used with total_millis to calculate t in lerp
+    pub timer: Instant,
+    /// the total time the animation is meant to take based on the speed and length from
+    /// start to finish
+    ///
+    /// if this is zero, we'll jump to the end
+    pub total_millis: f64,
+}
+
+impl Animation for MoveAnimation {
     /// Advance the animation forward.
     ///
     /// The animation will use the timer it stores to calculate the current state it should be at.
-    pub fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
-        use self::Animation::*;
+    fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
         use self::AnimationStatus::*;
 
-        match *self {
-            Move {ref path, timer, total_millis} => {
-                let elapsed = timer.elapsed().as_millis() as f64;
-                if elapsed >= total_millis {
-                    turtle.position = path.end;
-                    Complete(Some(path.clone()))
-                }
-                else {
-                    // t is the total progress made in the animation so far
-                    let t = elapsed / total_millis;
-                    turtle.position = lerp(&path.start, &path.end, &t);
+        let MoveAnimation {ref path, ref timer, total_millis} = *self;
+        let elapsed = timer.elapsed().as_millis() as f64;
+        if elapsed >= total_millis {
+            turtle.position = path.end;
+            Complete(Some(path.clone()))
+        }
+        else {
+            // t is the total progress made in the animation so far
+            let t = elapsed / total_millis;
+            turtle.position = lerp(&path.start, &path.end, &t);
 
-                    Running(Some(Path {
-                        start: path.start,
-                        end: turtle.position,
-                        pen: path.pen.clone(),
-                    }))
-                }
-            },
-            Rotate {start, delta_angle, clockwise, timer, total_millis} => {
-                let elapsed = timer.elapsed().as_millis() as f64;
+            Running(Some(Path {
+                start: path.start,
+                end: turtle.position,
+                pen: path.pen.clone(),
+            }))
+        }
+    }
+}
 
-                if elapsed >= total_millis {
-                    turtle.heading = rotate(start, delta_angle, clockwise) % TWO_PI;
+/// Rotate the turtle in place by the given angle in the direction specified
+pub struct RotateAnimation {
+    /// turtle.heading when the animation was started
+    pub start: Radians,
+    /// The total angle to move by.
+    ///
+    /// Linearly interpolated based on the elapsed time to get the delta that should be added
+    /// to start to get the current heading in the animation
+    pub delta_angle: Radians,
+    /// The direction of rotation
+    pub clockwise: bool,
+    /// timer since the start of the animation
+    ///
+    /// used with total_millis to calculate t in lerp
+    pub timer: Instant,
+    /// the total time the animation is meant to take based on the speed and length from
+    /// start to finish
+    ///
+    /// if this is zero, we'll jump to the end
+    pub total_millis: f64,
+}
 
-                    Complete(None)
-                }
-                else {
-                    // t is the total progress made in the animation so far
-                    let t = elapsed / total_millis;
-                    // Only rotate as much as the animation has proceeded so far
-                    let angle = lerp(&radians::ZERO, &delta_angle, &t);
-                    turtle.heading = rotate(start, angle, clockwise) % TWO_PI;
-                    assert!(!turtle.heading.is_nan(), "bug: heading became NaN");
+impl Animation for RotateAnimation {
+    /// Advance the animation forward.
+    ///
+    /// The animation will use the timer it stores to calculate the current state it should be at.
+    fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
+        use self::AnimationStatus::*;
 
-                    Running(None)
-                }
-            }
+        let RotateAnimation {start, delta_angle, clockwise, ref timer, total_millis} = *self;
+        let elapsed = timer.elapsed().as_millis() as f64;
+
+        if elapsed >= total_millis {
+            turtle.heading = rotate(start, delta_angle, clockwise) % TWO_PI;
+
+            Complete(None)
+        }
+        else {
+            // t is the total progress made in the animation so far
+            let t = elapsed / total_millis;
+            // Only rotate as much as the animation has proceeded so far
+            let angle = lerp(&radians::ZERO, &delta_angle, &t);
+            turtle.heading = rotate(start, angle, clockwise) % TWO_PI;
+            assert!(!turtle.heading.is_nan(), "bug: heading became NaN");
+
+            Running(None)
         }
     }
 }

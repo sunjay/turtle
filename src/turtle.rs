@@ -1,7 +1,6 @@
 use speed::Speed;
 use radians::Radians;
 use turtle_window::TurtleWindow;
-use renderer::Command;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -163,9 +162,7 @@ impl Turtle {
     /// `distance` can be negative in which case the turtle can move backward
     /// using this method.
     pub fn forward(&mut self, distance: Distance) {
-        self.window.apply(Command::MoveForward {
-            distance,
-        });
+        self.window.forward(distance);
     }
 
     /// Move the turtle backward by the given amount of `distance`.
@@ -175,9 +172,7 @@ impl Turtle {
     /// using this method.
     pub fn backward(&mut self, distance: Distance) {
         // Moving backwards is essentially moving forwards with a negative distance
-        self.window.apply(Command::MoveForward {
-            distance: -distance,
-        });
+        self.window.forward(-distance);
     }
 
     /// Rotate the turtle right (clockwise) by the given angle.
@@ -186,10 +181,8 @@ impl Turtle {
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
     /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
     pub fn right(&mut self, angle: Angle) {
-        self.window.apply(Command::Rotate {
-            angle: self.angle_unit.to_radians(angle),
-            clockwise: true,
-        });
+        let angle = self.angle_unit.to_radians(angle);
+        self.window.rotate(angle, true);
     }
 
     /// Rotate the turtle left (counterclockwise) by the given angle.
@@ -198,9 +191,7 @@ impl Turtle {
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
     /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
     pub fn left(&mut self, angle: Angle) {
-        self.window.apply(Command::Rotate {
-            angle: self.angle_unit.to_radians(angle),
-            clockwise: false,
-        });
+        let angle = self.angle_unit.to_radians(angle);
+        self.window.rotate(angle, false);
     }
 }
