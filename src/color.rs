@@ -32,6 +32,27 @@
 //! For your convenience, there are two static variables [COLORS](static.COLORS.html) and
 //! [COLOR_NAMES](static.COLOR_NAMES.html) which contain the values of all supported color names
 //! and each of their names as strings.
+//!
+//! ## Common Colors
+//! Here are some common colors that you may want to use:
+//!
+//! * `"transparent"`
+//! * `"black"`
+//! * `"white"`
+//! * `"grey"`
+//! * `"sky blue"`
+//! * `"yellow"`
+//! * `"magenta"`
+//! * `"light green"`
+//! * `"orange"`
+//! * `"teal"`
+//! * `"light blue"`
+//! * `"red"`
+//! * `"brown"`
+//! * `"pink"`
+//! * `"blue"`
+//! * `"green"`
+//! * `"purple"`
 
 use piston_window::types;
 use rand::{Rand, Rng};
@@ -103,6 +124,7 @@ color_consts! {
     "blue", BLUE, (3.0, 67.0, 223.0, 1.0);
     "green", GREEN, (21.0, 176.0, 26.0, 1.0);
     "purple", PURPLE, (126.0, 30.0, 156.0, 1.0);
+
     "cloudy blue", CLOUDY_BLUE, (172.0, 194.0, 217.0, 1.0);
     "dark pastel green", DARK_PASTEL_GREEN, (86.0, 174.0, 87.0, 1.0);
     "dust", DUST, (178.0, 153.0, 110.0, 1.0);
