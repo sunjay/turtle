@@ -93,9 +93,18 @@ impl Turtle {
         self.window.drawing().pen.enabled
     }
 
+    /// Returns the size (thickness) of the pen
+    pub fn pen_size(&self) -> f64 {
+        self.window.drawing().pen.thickness
+    }
+
     /// Returns the color of the pen
     pub fn pen_color(&self) -> Color {
         self.window.drawing().pen.color
+    }
+
+    pub fn background_color(&self) -> Color {
+        self.window.drawing().background
     }
 
     /// Pull the pen down so that the turtle draws while moving
@@ -108,10 +117,22 @@ impl Turtle {
         self.window.drawing_mut().pen.enabled = false;
     }
 
-    /// Sets the color of the pen to any valid color
+    /// Sets the thickness of the pen to the given size
+    //TODO: Document this more like set_speed
+    pub fn set_pen_size(&mut self, thickness: f64) {
+        self.window.drawing_mut().pen.thickness = thickness;
+    }
+
+    /// Sets the color of the pen to the given color
     //TODO: Document this more like set_speed
     pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().pen.color = color.into();
+    }
+
+    /// Sets the color of the background to the given color
+    //TODO: Document this more like set_speed
+    pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
+        self.window.drawing_mut().background = color.into();
     }
 
     /// Set the turtle's speed to the given setting.
