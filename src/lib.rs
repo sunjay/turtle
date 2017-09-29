@@ -1,6 +1,7 @@
 extern crate piston_window;
 extern crate interpolation;
 extern crate fps_clock;
+extern crate rand;
 
 mod turtle_window;
 

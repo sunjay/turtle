@@ -34,6 +34,7 @@
 //! and each of their names as strings.
 
 use piston_window::types;
+use rand::{Rand, Rng};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
@@ -41,6 +42,12 @@ pub struct Color {
     green: f64,
     blue: f64,
     alpha: f64,
+}
+
+impl Rand for Color {
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        unimplemented!();
+    }
 }
 
 impl From<Color> for types::Color {
