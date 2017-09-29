@@ -69,17 +69,22 @@ impl Color {
 impl Rand for Color {
     fn rand<R: Rng>(rng: &mut R) -> Self {
         Self {
-            red: rng.gen(),
-            green: rng.gen(),
-            blue: rng.gen(),
-            alpha: rng.gen(),
+            red: rng.gen::<f64>() * 255.0,
+            green: rng.gen::<f64>() * 255.0,
+            blue: rng.gen::<f64>() * 255.0,
+            alpha: rng.gen::<f64>(),
         }
     }
 }
 
 impl From<Color> for types::Color {
     fn from(color: Color) -> Self {
-        [color.red as f32, color.green as f32, color.blue as f32, color.alpha as f32]
+        [
+            color.red as f32 / 255.0,
+            color.green as f32 / 255.0,
+            color.blue as f32 / 255.0,
+            color.alpha as f32,
+        ]
     }
 }
 
