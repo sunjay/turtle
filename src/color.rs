@@ -48,10 +48,10 @@ use rand::{Rand, Rng};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
-    red: f64,
-    green: f64,
-    blue: f64,
-    alpha: f64,
+    pub red: f64,
+    pub green: f64,
+    pub blue: f64,
+    pub alpha: f64,
 }
 
 impl Rand for Color {
