@@ -1,6 +1,8 @@
 use std::f64;
 use std::f64::consts::PI;
 
+use rand::{Rand, Rng};
+
 use radians::Radians;
 use {Distance};
 
@@ -61,6 +63,12 @@ impl Speed {
             Ten => 3.0 * PI,
             Instant => f64::INFINITY,
         })
+    }
+}
+
+impl Rand for Speed {
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        (rng.gen::<i32>() % 10).into()
     }
 }
 

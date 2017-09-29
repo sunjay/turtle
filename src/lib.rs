@@ -3,6 +3,9 @@ extern crate interpolation;
 extern crate fps_clock;
 extern crate rand;
 
+// Re-exported for the convenience of library users
+pub use rand::*;
+
 mod turtle_window;
 
 mod turtle;

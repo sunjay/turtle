@@ -56,7 +56,12 @@ pub struct Color {
 
 impl Rand for Color {
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        unimplemented!();
+        Self {
+            red: rng.gen(),
+            green: rng.gen(),
+            blue: rng.gen(),
+            alpha: rng.gen(),
+        }
     }
 }
 
