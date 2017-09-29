@@ -54,6 +54,18 @@ pub struct Color {
     pub alpha: f64,
 }
 
+impl Color {
+    pub fn visible(mut self) -> Color {
+        self.alpha = 1.0;
+        self
+    }
+
+    pub fn invisible(mut self) -> Color {
+        self.alpha = 0.0;
+        self
+    }
+}
+
 impl Rand for Color {
     fn rand<R: Rng>(rng: &mut R) -> Self {
         Self {
