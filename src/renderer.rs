@@ -53,7 +53,9 @@ impl Renderer {
                 }
 
                 if let Some(ref path) = *state.temporary_path() {
-                    self.render_path(c, g, center, path);
+                    if path.pen.enabled {
+                        self.render_path(c, g, center, path);
+                    }
                 }
 
                 self.render_shell(c, g, center, &state);
