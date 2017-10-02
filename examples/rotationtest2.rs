@@ -7,7 +7,7 @@ fn main() {
     let mut turtle = Turtle::new();
 
     turtle.pen_up();
-    turtle.set_speed("fastest");
+    turtle.set_speed("instant");
     turtle.left(90.0);
     turtle.forward(300.0);
     turtle.right(180.0);
@@ -19,7 +19,7 @@ fn main() {
         circle(&mut turtle);
 
         turtle.pen_up();
-        turtle.set_speed("fastest");
+        turtle.set_speed("instant");
         turtle.forward(60.0);
         turtle.pen_down();
     }

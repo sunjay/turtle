@@ -12,7 +12,7 @@ fn main() {
     let step = 2.0;
     let height_factor = 2.0;
 
-    turtle.set_speed("fastest");
+    turtle.set_speed("instant");
     turtle.pen_up();
     turtle.right(90.0);
     turtle.backward(width / 2.0);

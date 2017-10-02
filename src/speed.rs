@@ -83,7 +83,7 @@ impl<'a> From<&'a str> for Speed {
             "fast" => Eight,
             "fastest" => Ten,
             "instant" => Instant,
-            _ => panic!("Invalid speed specified, use one of the words: 'slowest', 'slow', 'normal', 'fast', 'fastest'"),
+            _ => panic!("Invalid speed specified, use one of the words: 'slowest', 'slow', 'normal', 'fast', 'fastest', 'instant'"),
         }
     }
 }
