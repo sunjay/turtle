@@ -156,8 +156,9 @@ impl Turtle {
     /// * "slowest" => Speed::One
     /// * "slow" => Speed::Three
     /// * "normal" => Speed::Six
-    /// * "fast" => Speed::Ten
-    /// * "fastest" => Speed::Instant
+    /// * "fast" => Speed::Eight
+    /// * "fastest" => Speed::Ten
+    /// * "instant" => Speed::Instant
     /// * anything else will cause the program to `panic!` at runtime
     ///
     /// Speeds from 1 to 10 enforce increasingly faster animation of
