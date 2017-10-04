@@ -179,7 +179,11 @@ impl TurtleWindow {
     }
 
     fn play_animation<A: Animation>(&mut self, animation: A) {
-        let mut fps = FpsClock::new(60);
+        // We only limit the framerate at all to be respectful of the user's CPU. If the framerate
+        // is too small, every small movement (say forward(1) or right(1)) will take too long.
+        // We use a huge framerate so we can sleep occasionally for longer animations but still
+        // finish smaller ones in a reasonable amount of time.
+        let mut fps = FpsClock::new(600);
         loop {
             // We want to keep the lock for as little time as possible
             let status = {
