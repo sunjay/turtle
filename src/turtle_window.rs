@@ -193,7 +193,7 @@ impl TurtleWindow {
                         self.set_temporary_path(None);
                         match self.paths_channel.send(path) {
                             Ok(_) => {},
-                            /// The channel is closed which means the window was closed
+                            // The channel is closed which means the window was closed
                             Err(_) => {
                                 // quit immediately
                                 process::exit(0);
