@@ -3,9 +3,10 @@ name = "turtle"
 version = "0.0.0"
 authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
 description = "Turtle Graphics in Rust"
+homepage = "http://turtle.rs"
 repository = "https://github.com/sunjay/turtle"
 readme = "README.md"
-keywords = ["turtle", "turtle", "drawing", "teaching", "learning", "beginners"]
+keywords = ["turtle", "graphics", "drawing", "teaching", "learning", "beginners"]
 # crates.io/category_slugs
 categories = ["rendering", "rendering::graphics-api", "rendering::engine", "games", "gui"]
 license = "MIT"
