@@ -1,10 +1,11 @@
-use std::f64::consts::PI;
+use std::f64::consts::PI as fPI;
 use std::ops::{Add, Sub, Mul, Div, Rem, Neg};
 
 use interpolation::Spatial;
 
-pub const TWO_PI: Radians = Radians(2.*PI);
-pub const ZERO: Radians = Radians(0.);
+pub const PI: Radians = Radians(fPI);
+pub const TWO_PI: Radians = Radians(2.*fPI);
+pub const ZERO: Radians = Radians(0.0);
 
 /// Represents an angle in radians.
 ///
@@ -62,6 +63,18 @@ impl Radians {
     pub fn is_nan(self) -> bool {
         self.0.is_infinite()
     }
+
+    /// See [`std::f64::signum()`](https://doc.rust-lang.org/std/primitive.f64.html#method.signum)
+    #[inline(always)]
+    pub fn signum(self) -> f64 {
+        self.0.signum()
+    }
+
+    /// See [`std::f64::abs()`](https://doc.rust-lang.org/std/primitive.f64.html#method.abs)
+    #[inline(always)]
+    pub fn abs(self) -> Self {
+        Radians(self.0.abs())
+    }
 }
 
 impl Spatial for Radians {
@@ -112,6 +125,14 @@ impl Mul<f64> for Radians {
 
     fn mul(self, other: f64) -> Self {
         Radians(self.0 * other)
+    }
+}
+
+impl Mul<Radians> for f64 {
+    type Output = Radians;
+
+    fn mul(self, other: Radians) -> Radians {
+        Radians(self * other.0)
     }
 }
 

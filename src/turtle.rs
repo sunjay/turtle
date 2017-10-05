@@ -1,4 +1,4 @@
-use radians::Radians;
+use radians::{self, Radians};
 use turtle_window::TurtleWindow;
 use {Speed, Color, Event};
 
@@ -246,6 +246,42 @@ impl Turtle {
     /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
+        self.window.rotate(angle, false);
+    }
+
+    /// Rotates the turtle to face the given coordinates.
+    /// Coordinates are relative to the center of the window.
+    ///
+    /// If the coordinates are the same as the turtle's current position, no rotation takes place.
+    /// Always rotates the least amount necessary in order to face the given point.
+    ///
+    /// ## UNSTABLE
+    /// This feature is currently unstable and completely buggy. Do not use it until it is fixed.
+    pub fn turn_towards(&mut self, target: Point) {
+        let target_x = target[0];
+        let target_y = target[1];
+
+        let position = self.position();
+        let x = position[0];
+        let y = position[1];
+
+        if (target_x - x).abs() < 0.1 && (target_y - y).abs() < 0.1 {
+            return;
+        }
+
+        let heading = self.window.turtle().heading;
+
+        let angle = (target_y - y).atan2(target_x - x);
+        let angle = Radians::from_radians_value(angle);
+        let angle = (angle - heading) % radians::TWO_PI;
+        // Try to rotate as little as possible
+        let angle = if angle.abs() > radians::PI {
+            // Using signum to deal with negative angles properly
+            angle.signum()*(radians::TWO_PI - angle.abs())
+        }
+        else {
+            angle
+        };
         self.window.rotate(angle, false);
     }
 
