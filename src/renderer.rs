@@ -12,8 +12,9 @@ use piston_window::{
 
 use turtle_window::ReadOnly;
 use extensions::ToCanvasCoordinates;
-use {Point, color};
 use state::{Path, Pen,TurtleState};
+use event::from_piston_event;
+use {Point, Event, color};
 
 pub struct Renderer {
     paths: Vec<Path>,
@@ -26,9 +27,23 @@ impl Renderer {
         }
     }
 
-    pub fn run(&mut self, window: &mut PistonWindow, paths_rx: mpsc::Receiver<Path>, state: ReadOnly) {
+    pub fn run(
+        &mut self,
+        window: &mut PistonWindow,
+        paths_rx: mpsc::Receiver<Path>,
+        events_tx: mpsc::Sender<Event>,
+        state: ReadOnly,
+    ) {
         'renderloop:
         while let Some(e) = window.next() {
+            if let Some(event) = from_piston_event(&e) {
+                match events_tx.send(event) {
+                    Ok(_) => {},
+                    // Quit
+                    Err(_) => break,
+                }
+            }
+
             loop {
                 match paths_rx.try_recv() {
                     Ok(path) => if path.pen.enabled {

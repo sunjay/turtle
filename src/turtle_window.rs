@@ -1,7 +1,8 @@
 use std::thread;
 use std::process;
 use std::time::Instant;
-use std::sync::{mpsc, Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::sync::mpsc::{self, TryRecvError};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use fps_clock::FpsClock;
 use piston_window::{
@@ -14,7 +15,7 @@ use renderer::Renderer;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path, Pen};
 use radians::{self, Radians};
-use {Speed, color, Distance};
+use {Speed, Distance, Event, color};
 
 /// Types that will be shared with another thread
 pub type Shared<T> = Arc<RwLock<T>>;
@@ -49,6 +50,8 @@ pub struct TurtleWindow {
     /// Channel for sending completed paths so they can be stored and re-rendered
     /// in the rendering thread
     paths_channel: mpsc::Sender<Path>,
+    /// Channel for receiving events from the rendering thread
+    events_channel: mpsc::Receiver<Event>,
 
     turtle: Shared<TurtleState>,
     drawing: Shared<DrawingState>,
@@ -59,10 +62,12 @@ pub struct TurtleWindow {
 impl TurtleWindow {
     pub fn new() -> TurtleWindow {
         let (paths_tx, paths_rx) = mpsc::channel();
+        let (events_tx, events_rx) = mpsc::channel();
 
         let mut turtle_window = Self {
             thread_handle: None,
             paths_channel: paths_tx,
+            events_channel: events_rx,
             turtle: Arc::new(RwLock::new(TurtleState {
                 position: [0., 0.],
                 heading: Radians::from_degrees_value(90.),
@@ -86,7 +91,7 @@ impl TurtleWindow {
                 "Turtle", [800, 600]
             ).exit_on_esc(true).build().unwrap();
 
-            Renderer::new().run(&mut window, paths_rx, read_only);
+            Renderer::new().run(&mut window, paths_rx, events_tx, read_only);
         });
 
         turtle_window.thread_handle = Some(handle);
@@ -125,6 +130,16 @@ impl TurtleWindow {
     fn set_temporary_path(&mut self, path: Option<Path>) {
         let mut temp = self.temporary_path.write().expect("bug: Lock was poisoned");
         *temp = path;
+    }
+
+    /// See [`Turtle::poll_event()`](struct.Turtle.html#method.poll_event).
+    pub fn poll_event(&mut self) -> Option<Event> {
+        match self.events_channel.try_recv() {
+            Ok(event) => Some(event),
+            Err(TryRecvError::Empty) => None, // Do nothing
+            // The window has been closed
+            Err(TryRecvError::Disconnected) => process::exit(0), // Quit
+        }
     }
 
     /// Move the turtle forward by the given distance. To move backwards, use a negative distance.

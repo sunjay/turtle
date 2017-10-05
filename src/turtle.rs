@@ -1,7 +1,6 @@
-use speed::Speed;
 use radians::Radians;
 use turtle_window::TurtleWindow;
-use color::Color;
+use {Speed, Color, Event};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -236,5 +235,11 @@ impl Turtle {
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
         self.window.rotate(angle, false);
+    }
+
+    /// Returns the next event (if any).
+    //TODO: Example of usage with an event loop
+    pub fn poll_event(&mut self) -> Option<Event> {
+        self.window.poll_event()
     }
 }
