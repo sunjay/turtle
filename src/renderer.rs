@@ -11,7 +11,7 @@ use piston_window::{
 };
 
 use turtle_window::ReadOnly;
-use extensions::ToCanvasCoordinates;
+use extensions::ConvertScreenCoordinates;
 use state::{Path, Pen,TurtleState};
 use event::from_piston_event;
 use {Point, Event, color};
@@ -34,9 +34,11 @@ impl Renderer {
         events_tx: mpsc::Sender<Event>,
         state: ReadOnly,
     ) {
+        let mut center = [0.0, 0.0];
+
         'renderloop:
         while let Some(e) = window.next() {
-            if let Some(event) = from_piston_event(&e) {
+            if let Some(event) = from_piston_event(&e, |pt| pt.to_local_coords(center)) {
                 match events_tx.send(event) {
                     Ok(_) => {},
                     // Quit
@@ -61,7 +63,7 @@ impl Renderer {
                 let view = c.get_view_size();
                 let width = view[0] as f64;
                 let height = view[1] as f64;
-                let center = [width * 0.5, height * 0.5];
+                center = [width * 0.5, height * 0.5];
 
                 for path in &self.paths {
                     self.render_path(c, g, center, path);
@@ -87,8 +89,8 @@ impl Renderer {
         let &Pen {thickness, color, enabled} = pen;
         debug_assert!(enabled, "bug: attempt to render path when pen was not enabled");
 
-        let start = start.to_canvas_coords(center);
-        let end = end.to_canvas_coords(center);
+        let start = start.to_screen_coords(center);
+        let end = end.to_screen_coords(center);
 
         line(color.into(), thickness,
             [start[0], start[1], end[0], end[1]],
@@ -116,7 +118,7 @@ impl Renderer {
             // Rotate each point by the heading and add the current turtle position
             let x = cos * pt[0] - sin * pt[1] + turtle_x;
             let y = sin * pt[0] + cos * pt[1] + turtle_y;
-            [x, y].to_canvas_coords(center)
+            [x, y].to_screen_coords(center)
         }).collect();
 
         // Draw the turtle shell with its background first, then its border

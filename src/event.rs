@@ -13,6 +13,8 @@ pub use piston_window::{
     TouchArgs as Touch,
 };
 
+use {Point};
+
 /// Possible events returned from [`poll_event()`](struct.Turtle.html#method.poll_event).
 ///
 /// See that method's documentation for more information about how to use events.
@@ -38,7 +40,7 @@ pub enum Event {
     /// Sent when the mouse is moving. Only sent when the mouse is over the window.
     /// `x` and `y` represent the new coordinates of where the mouse is currently.
     ///
-    /// Coordinates are relative to the top-left corner of the window
+    /// Coordinates are relative to the center of the window.
     MouseMove {x: f64, y: f64},
     /// Sent when the mouse is scrolled. Only sent when the mouse is over the window.
     /// `x` and `y` are in scroll ticks.
@@ -63,7 +65,8 @@ pub enum Event {
 }
 
 /// Attempts to convert a piston Event to our event type
-pub(crate) fn from_piston_event(event: &PistonEvent) -> Option<Event> {
+pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> Option<Event>
+    where F: FnOnce(Point) -> Point {
     use self::Event::*;
 
     let input_event = match *event {
@@ -85,7 +88,10 @@ pub(crate) fn from_piston_event(event: &PistonEvent) -> Option<Event> {
             },
         },
         Input::Move(motion) => match motion {
-            Motion::MouseCursor(x, y) => MouseMove {x, y},
+            Motion::MouseCursor(x, y) => {
+                let local = to_local_coords([x, y]);
+                MouseMove {x: local[0], y: local[1]}
+            },
             // Ignored in favor of MouseCursor
             Motion::MouseRelative(..) => return None,
             Motion::MouseScroll(x, y) => MouseScroll {x, y},
