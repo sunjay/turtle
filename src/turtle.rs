@@ -1,6 +1,6 @@
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
-use {Speed, Color, Event};
+use {Speed, Color, Event, MouseButton};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -289,5 +289,17 @@ impl Turtle {
     //TODO: Example of usage with an event loop
     pub fn poll_event(&mut self) -> Option<Event> {
         self.window.poll_event()
+    }
+
+    /// Convenience function that waits for a click to occur before returning.
+    ///
+    /// Useful for when you want your program to wait for the user to click before continuing so
+    /// that it doesn't start right away.
+    pub fn wait_for_click(&mut self) {
+        loop {
+            if let Some(Event::MouseButtonReleased(MouseButton::Left)) = self.poll_event() {
+                break;
+            }
+        }
     }
 }
