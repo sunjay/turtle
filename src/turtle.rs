@@ -146,44 +146,61 @@ impl Turtle {
         self.window.drawing_mut().background = color.into();
     }
 
-    /// Set the turtle's speed to the given setting.
+    /// Set the turtle's movement speed to the given setting. This speed affects the animation of
+    /// the turtle's movement and rotation.
     ///
-    /// Usually this method is used as shown below:
+    /// This method's types make it so that it can be called in a number of different ways:
     ///
     /// ```rust,no_run
     /// # extern crate turtle;
+    /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = turtle::Turtle::new();
+    /// # let mut turtle = Turtle::new();
     /// turtle.set_speed("normal");
     /// turtle.set_speed("fast");
     /// turtle.set_speed(2);
     /// turtle.set_speed(10);
+    /// // Directly using a Speed variant works, but the methods above are usually more convenient.
+    /// turtle.set_speed(Speed::Six);
     /// # }
     /// ```
     ///
     /// If input is a number greater than 10 or smaller than 1,
-    /// speed is set to 0 (Speed::Instant). Strings are converted as follows:
+    /// speed is set to 0 (`Speed::Instant`). Strings are converted as follows:
     ///
-    /// * "slowest" => Speed::One
-    /// * "slow" => Speed::Three
-    /// * "normal" => Speed::Six
-    /// * "fast" => Speed::Eight
-    /// * "fastest" => Speed::Ten
-    /// * "instant" => Speed::Instant
-    /// * anything else will cause the program to `panic!` at runtime
+    /// | String      | Value          |
+    /// | ----------- | -------------- |
+    /// | `"slowest"` | `Speed::One`     |
+    /// | `"slow"`    | `Speed::Three`   |
+    /// | `"normal"`  | `Speed::Six`     |
+    /// | `"fast"`    | `Speed::Eight`   |
+    /// | `"fastest"` | `Speed::Ten`     |
+    /// | `"instant"` | `Speed::Instant` |
     ///
-    /// Speeds from 1 to 10 enforce increasingly faster animation of
-    /// line drawing and turtle turning.
+    /// Anything else will cause the program to `panic!` at runtime.
     ///
-    /// Note: speed = 0 means that no animation takes place. forward/back
-    /// makes turtle jump and likewise left/right make the turtle turn instantly.
+    /// ## Moving Instantly
     ///
-    /// Using this type is an excellent way to learn about conversion
-    /// traits `From` and `Into`. Rather than instantiating `Speed`
-    /// directly using `Speed::Six`, you usually use just `6`. This is the
-    /// same as using `Speed::from(6)` but much more compact. This works because
-    /// any type that implements the `From` trait gets a matching implementation
-    /// of the `Into` trait.
+    /// A speed of zero (`Speed::Instant`) results in no animation. The turtle moves instantly
+    /// and turns instantly. This is very useful for moving the turtle from its "home" position
+    /// before you start drawing. By setting the speed to instant, you don't have to wait for
+    /// the turtle to move into position.
+    ///
+    /// ## Learning About Conversion Traits
+    ///
+    /// Using this method is an excellent way to learn about conversion
+    /// traits `From` and `Into`. This method takes a *generic type* as its speed parameter. That type
+    /// is specified to implement the `Into` trait for the type `Speed`. That means that *any* type
+    /// that can be converted into a `Speed` can be passed to this method.
+    ///
+    /// We have implemented that trait for several types like strings and 32-bit integers so that
+    /// those values can be passed into this method.
+    /// Rather than calling this function and passing `Speed::Six` directly, you can use just `6`.
+    /// Rust will then allow us to call `.into()` as provided by the `Into<Speed>` trait to get the
+    /// corresponding `Speed` value.
+    ///
+    /// You can pass in strings, 32-bit integers, and even `Speed` enum variants because they all
+    /// implement the `Into<Speed>` trait.
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
         self.window.turtle_mut().speed = speed.into();
     }
