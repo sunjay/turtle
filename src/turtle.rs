@@ -1,6 +1,7 @@
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
-use {Speed, Color, Event, MouseButton};
+use event::MouseButton;
+use {Speed, Color, Event};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {

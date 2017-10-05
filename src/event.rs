@@ -1,3 +1,7 @@
+//! Event handling (mouse, keyboard, controller, touch screen, etc.)
+//!
+//! See [`Event`](enum.Event.html) for more information.
+
 use piston_window::{
     Event as PistonEvent,
     Input, ButtonArgs,
@@ -15,8 +19,9 @@ pub use piston_window::{
 
 use {Point};
 
-/// Possible events returned from [`poll_event()`](struct.Turtle.html#method.poll_event).
+/// Possible events returned from [`Turtle::poll_event()`](../struct.Turtle.html#method.poll_event).
 ///
+/// Events are used to make programs more interactive.
 /// See that method's documentation for more information about how to use events.
 ///
 /// This type is meant to provide a simplified model of piston_window's `Event` type.

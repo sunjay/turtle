@@ -1,7 +1,7 @@
 extern crate turtle;
 
 use turtle::Turtle;
-use turtle::Key::{Left, Right};
+use turtle::event::Key::{Left, Right};
 use turtle::Event::KeyPressed;
 
 fn main() {
