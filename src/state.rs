@@ -8,6 +8,7 @@ pub struct Pen {
     pub color: Color,
 }
 
+#[derive(Debug, Clone)]
 pub struct TurtleState {
     pub position: Point,
     pub heading: Radians,
@@ -22,6 +23,7 @@ pub struct Path {
     pub pen: Pen,
 }
 
+#[derive(Debug, Clone)]
 pub struct DrawingState {
     pub pen: Pen,
     pub background: Color,
