@@ -15,6 +15,13 @@ impl AngleUnit {
             AngleUnit::Radians => Radians::from_radians_value(angle),
         }
     }
+
+    fn to_angle(&self, angle: Radians) -> Angle {
+        match *self {
+            AngleUnit::Degrees => angle.to_degrees(),
+            AngleUnit::Radians => angle.to_radians(),
+        }
+    }
 }
 
 /// A point in 2D space: [x, y]
@@ -68,8 +75,13 @@ impl Turtle {
     }
 
     /// Returns the turtle's current heading
+    ///
+    /// Units are by default degrees, but can be set using the methods
+    /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
+    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
     pub fn heading(&self) -> Angle {
-        self.window.turtle().heading.value()
+        let heading = self.window.turtle().heading;
+        self.angle_unit.to_angle(heading)
     }
 
     /// Returns true if the turtle is visible

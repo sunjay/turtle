@@ -28,8 +28,15 @@ impl Radians {
     }
 
     /// Returns the raw value stored in radians
-    pub fn value(&self) -> f64 {
+    #[inline(always)]
+    pub fn to_radians(&self) -> f64 {
         self.0
+    }
+
+    /// Returns the raw value stored in degrees
+    #[inline(always)]
+    pub fn to_degrees(&self) -> f64 {
+        self.0.to_degrees()
     }
 
     /// Computes the cosine of this radians value

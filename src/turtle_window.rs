@@ -180,7 +180,7 @@ impl TurtleWindow {
         let TurtleState {heading, speed, ..} = *self.turtle();
         let speed = speed.to_rotation(); // radians per second
         let total_millis = angle / speed * 1000.;
-        let total_millis = total_millis.value();
+        let total_millis = total_millis.to_radians();
 
         let animation = RotateAnimation {
             start: heading,
