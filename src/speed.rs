@@ -56,11 +56,11 @@ impl Speed {
             Three => 1.1 * PI,
             Four => 1.3 * PI,
             Five =>  1.5 * PI,
-            Six => 1.8 * PI,
-            Seven => 2.1 * PI,
-            Eight => 2.4 * PI,
-            Nine => 2.7 * PI,
-            Ten => 3.0 * PI,
+            Six => 2.0 * PI,
+            Seven => 2.5 * PI,
+            Eight => 3.0 * PI,
+            Nine => 3.5 * PI,
+            Ten => 6.0 * PI,
             Instant => f64::INFINITY,
         })
     }
