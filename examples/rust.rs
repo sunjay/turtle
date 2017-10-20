@@ -1,3 +1,10 @@
+//! This example draws a crude version of the Rust logo.
+//! The version is "crude" because it's all very approximate with plenty of guesswork.
+//! If you can come up with a way to do this so that it exactly matches the logo, please
+//! do submit it!
+//! In any case, this is an excellent example of creatively using fills and some other
+//! techniques to create a fairly complex drawing.
+
 extern crate turtle;
 
 use turtle::Turtle;
@@ -10,7 +17,7 @@ fn main() {
 
     turtle.begin_fill();
     turtle.pen_up();
-    turtle.forward(150.0);
+    turtle.forward(130.0);
     turtle.pen_down();
 
     gear(&mut turtle);
@@ -22,6 +29,8 @@ fn main() {
     turtle.pen_down();
 
     inner_gear(&mut turtle);
+
+    letter(&mut turtle);
 
     turtle.hide();
 }
@@ -109,4 +118,24 @@ fn inner_tooth_circle(turtle: &mut Turtle) {
     }
     turtle.end_fill();
     turtle.set_fill_color("black");
+}
+
+fn letter(turtle: &mut Turtle) {
+    turtle.pen_up();
+    turtle.right(180.0);
+    turtle.pen_down();
+    for _ in 0..(360/5 - 7)/2 {
+        turtle.forward(3.41);
+        turtle.left(2.0);
+    }
+    // Trick for making the turtle face to the right
+    let heading = turtle.heading();
+    turtle.right(heading);
+
+    turtle.set_pen_size(10.0);
+    turtle.forward(180.0);
+    turtle.backward(90.0);
+
+    turtle.right(90.0);
+    turtle.forward(100.0);
 }
