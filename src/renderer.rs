@@ -98,7 +98,9 @@ impl Renderer {
                 if let Some(&(ref border, ref poly)) = self.fill_polygon.as_ref() {
                     self.render_polygon(c, g, center, poly);
                     for path in border {
-                        self.render_path(c, g, center, path);
+                        if path.pen.enabled {
+                            self.render_path(c, g, center, path);
+                        }
                     }
                 }
                 //TODO: Render the temporary_path as part of the polygon when fill_polygon.is_some()
@@ -148,7 +150,9 @@ impl Renderer {
             EndFill => if let Some((border, poly)) = self.fill_polygon.take() {
                 // Always add the border over the filled polygon so the border is drawn on top
                 self.drawings.push(Drawing::Polygon(poly));
-                self.drawings.extend(border.into_iter().map(Drawing::Path));
+                self.drawings.extend(border.into_iter().filter_map(|p| if p.pen.enabled {
+                    Some(Drawing::Path(p))
+                } else { None }));
             },
             Clear => {
                 assert!(state.temporary_path().is_none());
