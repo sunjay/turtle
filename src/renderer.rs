@@ -137,18 +137,18 @@ impl Renderer {
                 }
             },
             BeginFill => {
-                assert!(self.fill_polygon.is_none(), "Cannot begin fill until previous fill has been completed");
-                self.fill_polygon = Some((Vec::new(), Polygon {
+                // Calling begin_fill multiple times is okay, it just won't do anything until
+                // end_fill is called
+                self.fill_polygon = self.fill_polygon.take().or_else(|| Some((Vec::new(), Polygon {
                     vertices: Vec::new(),
                     fill_color: state.drawing().fill_color,
-                }));
+                })));
             },
+            // Calling end_fill multiple times is not a problem
             EndFill => if let Some((border, poly)) = self.fill_polygon.take() {
                 // Always add the border over the filled polygon so the border is drawn on top
                 self.drawings.push(Drawing::Polygon(poly));
                 self.drawings.extend(border.into_iter().map(Drawing::Path));
-            } else {
-                panic!("Cannot end fill when begin_fill() was never called");
             },
             Clear => {
                 assert!(state.temporary_path().is_none());
