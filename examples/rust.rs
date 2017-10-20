@@ -5,7 +5,7 @@ use turtle::Turtle;
 fn main() {
     let mut turtle = Turtle::new();
 
-    turtle.set_speed(10);
+    turtle.set_speed(11);
 
     turtle.pen_up();
     turtle.forward(150.0);
@@ -18,14 +18,14 @@ fn main() {
     turtle.left(90.0);
     turtle.pen_down();
 
-    circle(&mut turtle);
+    inner_gear(&mut turtle);
 
+    turtle.wait_for_click();
     turtle.hide();
 }
 
 fn gear(turtle: &mut Turtle) {
-    // These variable names don't actually mean much because this was created by guessing and
-    // then checking and the result doesn't exactly abide by the values as they are shown.
+    // Much of this code was figured out by guessing and checking
     let teeth = 32.0;
     let tooth_size = 20.0;
     let angle = 360.0 / teeth;
@@ -40,9 +40,61 @@ fn gear(turtle: &mut Turtle) {
     turtle.right(angle * 6.0 / 2.0);
 }
 
-fn circle(turtle: &mut Turtle) {
+fn inner_gear(turtle: &mut Turtle) {
+    inner_circle(turtle);
+    inner_teeth(turtle);
+}
+
+fn inner_circle(turtle: &mut Turtle) {
     for _ in 0..360 {
         turtle.forward(1.5);
         turtle.right(1.0);
+    }
+}
+
+fn inner_teeth(turtle: &mut Turtle) {
+    let tooth_size = 40.0;
+    turtle.pen_up();
+    turtle.left(90.0);
+    turtle.forward(10.0);
+    turtle.right(90.0);
+    turtle.pen_down();
+
+    for _ in 0..5 {
+        turtle.pen_up();
+        turtle.forward(tooth_size / 2.0);
+        turtle.pen_down();
+
+        turtle.right(120.0);
+        turtle.forward(tooth_size);
+        turtle.right(120.0);
+        turtle.forward(tooth_size);
+        turtle.right(120.0);
+
+        turtle.pen_up();
+        turtle.forward(tooth_size / 2.0);
+        turtle.right(90.0);
+        turtle.forward(5.0);
+        turtle.left(90.0);
+        turtle.pen_down();
+
+        inner_tooth_circle(turtle);
+
+        turtle.pen_up();
+        turtle.left(90.0);
+        turtle.forward(5.0);
+        turtle.right(90.0);
+        for _ in 0..360/5/2 {
+            turtle.forward(3.41);
+            turtle.right(2.0);
+        }
+        turtle.pen_down();
+    }
+}
+
+fn inner_tooth_circle(turtle: &mut Turtle) {
+    for _ in 0..360/8 {
+        turtle.forward(1.0);
+        turtle.right(8.0);
     }
 }
