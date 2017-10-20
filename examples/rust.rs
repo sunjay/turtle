@@ -8,11 +8,13 @@ fn main() {
     turtle.set_speed(10);
     turtle.set_fill_color("black");
 
+    turtle.begin_fill();
     turtle.pen_up();
     turtle.forward(150.0);
     turtle.pen_down();
 
     gear(&mut turtle);
+    turtle.end_fill();
 
     turtle.pen_up();
     turtle.forward(45.0);
@@ -30,14 +32,12 @@ fn gear(turtle: &mut Turtle) {
     let tooth_size = 20.0;
     let angle = 360.0 / teeth;
     turtle.right(180.0 - angle * 6.0 / 2.0);
-    turtle.begin_fill();
     for _ in 0..teeth as u64 {
         turtle.forward(tooth_size);
         turtle.left(180.0 - angle * 7.0);
         turtle.forward(tooth_size);
         turtle.right(180.0 - angle * 6.0);
     }
-    turtle.end_fill();
 
     turtle.right(angle * 6.0 / 2.0);
 }
