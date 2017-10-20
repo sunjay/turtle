@@ -14,7 +14,7 @@ use turtle_window::ReadOnly;
 use extensions::ConvertScreenCoordinates;
 use state::{Path, Polygon, Pen, TurtleState};
 use event::from_piston_event;
-use {Point, Event, color};
+use {Point, Event, Color, color};
 
 pub enum DrawingCommand {
     /// When a path is finished being animated, it needs to be persisted in the renderer
@@ -23,7 +23,10 @@ pub enum DrawingCommand {
     /// Begins filling with the current fill color from the next path onwards. If temporary_path is
     /// set, it is included in the fill shape. Any paths sent via StorePath will be added to the
     /// filled shape.
-    BeginFill,
+    /// This command should be passed the fill color that was set at the time when this command
+    /// was issued. We cannot simply poll that from the state when this command is handled because
+    /// that may be well after the fill color has changed.
+    BeginFill(Color),
     /// Send EndFill to finish the filled shape.
     EndFill,
     /// Clears the image completely
@@ -32,6 +35,7 @@ pub enum DrawingCommand {
     Clear,
 }
 
+#[derive(Debug)]
 pub enum Drawing {
     Path(Path),
     Polygon(Polygon),
@@ -73,7 +77,7 @@ impl Renderer {
 
             loop {
                 match drawing_rx.try_recv() {
-                    Ok(cmd) => self.handle_drawing_command(cmd, &state),
+                    Ok(cmd) => self.handle_drawing_command(cmd),
                     Err(TryRecvError::Empty) => break, // Do nothing
                     Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
                 }
@@ -120,7 +124,9 @@ impl Renderer {
     }
 
     /// Handles a drawing command sent from the main thread
-    fn handle_drawing_command(&mut self, command: DrawingCommand, state: &ReadOnly) {
+    fn handle_drawing_command(&mut self, command: DrawingCommand) {
+        //NOTE: Do not pass the ReadOnly state to this function. By the time a DrawingCommand is
+        // handled, that state may be completely out of date
         use self::DrawingCommand::*;
         match command {
             StorePath(path) => {
@@ -138,12 +144,12 @@ impl Renderer {
                     self.drawings.push(Drawing::Path(path));
                 }
             },
-            BeginFill => {
+            BeginFill(fill_color) => {
                 // Calling begin_fill multiple times is okay, it just won't do anything until
                 // end_fill is called
                 self.fill_polygon = self.fill_polygon.take().or_else(|| Some((Vec::new(), Polygon {
                     vertices: Vec::new(),
-                    fill_color: state.drawing().fill_color,
+                    fill_color: fill_color,
                 })));
             },
             // Calling end_fill multiple times is not a problem
@@ -155,7 +161,7 @@ impl Renderer {
                 } else { None }));
             },
             Clear => {
-                assert!(state.temporary_path().is_none());
+                //assert!(state.temporary_path().is_none());
                 unimplemented!(); //TODO
             }
         }

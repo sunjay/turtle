@@ -146,7 +146,8 @@ impl TurtleWindow {
 
     /// Begin filling the shape drawn by the turtle's movements.
     pub fn begin_fill(&mut self) {
-        self.send_drawing_command(BeginFill);
+        let fill_color = self.drawing().fill_color;
+        self.send_drawing_command(BeginFill(fill_color));
     }
 
     /// Stop filling the current shape
