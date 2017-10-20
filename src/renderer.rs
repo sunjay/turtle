@@ -41,13 +41,14 @@ pub struct Renderer {
     drawings: Vec<Drawing>,
     /// Polygon that is currently in the process of being filled
     /// Removed when EndFill is sent
-    fill_polygon: Option<Polygon>,
+    fill_polygon: Option<(Vec<Path>, Polygon)>,
 }
 
 impl Renderer {
     pub fn new() -> Renderer {
         Self {
             drawings: Vec::new(),
+            fill_polygon: None,
         }
     }
 
@@ -88,11 +89,19 @@ impl Renderer {
                 center = [width * 0.5, height * 0.5];
 
                 for drawing in &self.drawings {
-                    match drawing {
-                        Drawing::Path(path) => self.render_path(c, g, center, path),
-                        Drawing::Polygon(poly) => self.render_polygon(c, g, center, poly),
+                    match *drawing {
+                        Drawing::Path(ref path) => self.render_path(c, g, center, path),
+                        Drawing::Polygon(ref poly) => self.render_polygon(c, g, center, poly),
                     }
                 }
+
+                if let Some(&(ref border, ref poly)) = self.fill_polygon.as_ref() {
+                    self.render_polygon(c, g, center, poly);
+                    for path in border {
+                        self.render_path(c, g, center, path);
+                    }
+                }
+                //TODO: Render the temporary_path as part of the polygon when fill_polygon.is_some()
 
                 if let Some(ref path) = *state.temporary_path() {
                     if path.pen.enabled {
@@ -112,11 +121,35 @@ impl Renderer {
     fn handle_drawing_command(&mut self, command: DrawingCommand, state: &ReadOnly) {
         use self::DrawingCommand::*;
         match command {
-            StorePath(path) => if path.pen.enabled {
-                self.drawings.push(path);
+            StorePath(path) => {
+                if self.fill_polygon.is_some() {
+                    let &mut (ref mut border, ref mut poly) = self.fill_polygon.as_mut().unwrap();
+                    border.push(path.clone());
+
+                    let Path {start, end, ..} = path;
+                    if poly.vertices.last().map_or(true, |&v| v != path.start) {
+                        poly.vertices.push(start);
+                    }
+                    poly.vertices.push(end);
+                }
+                else if path.pen.enabled {
+                    self.drawings.push(Drawing::Path(path));
+                }
             },
-            BeginFill => unimplemented!(),
-            EndFill => unimplemented!(),
+            BeginFill => {
+                assert!(self.fill_polygon.is_none(), "Cannot begin fill until previous fill has been completed");
+                self.fill_polygon = Some((Vec::new(), Polygon {
+                    vertices: Vec::new(),
+                    fill_color: state.drawing().fill_color,
+                }));
+            },
+            EndFill => if let Some((border, poly)) = self.fill_polygon.take() {
+                // Always add the border over the filled polygon so the border is drawn on top
+                self.drawings.push(Drawing::Polygon(poly));
+                self.drawings.extend(border.into_iter().map(Drawing::Path));
+            } else {
+                panic!("Cannot end fill when begin_fill() was never called");
+            },
             Clear => {
                 assert!(state.temporary_path().is_none());
                 unimplemented!(); //TODO
@@ -136,6 +169,12 @@ impl Renderer {
         line(color.into(), thickness,
             [start[0], start[1], end[0], end[1]],
             c.transform, g);
+    }
+
+    /// Render a polygon
+    fn render_polygon(&self, c: context::Context, g: &mut G2d, center: Point, poly: &Polygon) {
+        let verts = poly.vertices.iter().map(|p| p.to_screen_coords(center)).collect::<Vec<_>>();
+        polygon(poly.fill_color.into(), &verts, c.transform, g);
     }
 
     /// Draw the turtle's shell

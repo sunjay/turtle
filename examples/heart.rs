@@ -13,6 +13,8 @@ fn main() {
     turtle.forward(-50.0);
     turtle.pen_down();
 
+    turtle.set_fill_color("red");
+    turtle.begin_fill();
     turtle.left(50.0);
     turtle.forward(111.65);
     turtle.set_speed(10);
@@ -21,6 +23,7 @@ fn main() {
     curve(&mut turtle);
     turtle.set_speed(7);
     turtle.forward(111.65);
+    turtle.end_fill();
 
     turtle.forward(20.0);
     for _ in 0..10 {
