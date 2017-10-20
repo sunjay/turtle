@@ -24,7 +24,14 @@ pub struct Path {
 }
 
 #[derive(Debug, Clone)]
+pub struct Polygon {
+    pub vertices: Vec<Point>,
+    pub fill_color: Color,
+}
+
+#[derive(Debug, Clone)]
 pub struct DrawingState {
     pub pen: Pen,
+    pub fill_color: Color,
     pub background: Color,
 }

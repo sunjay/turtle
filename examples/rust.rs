@@ -5,7 +5,8 @@ use turtle::Turtle;
 fn main() {
     let mut turtle = Turtle::new();
 
-    turtle.set_speed(11);
+    turtle.set_speed(10);
+    turtle.set_fill_color("black");
 
     turtle.pen_up();
     turtle.forward(150.0);
@@ -20,7 +21,6 @@ fn main() {
 
     inner_gear(&mut turtle);
 
-    turtle.wait_for_click();
     turtle.hide();
 }
 
@@ -30,12 +30,14 @@ fn gear(turtle: &mut Turtle) {
     let tooth_size = 20.0;
     let angle = 360.0 / teeth;
     turtle.right(180.0 - angle * 6.0 / 2.0);
+    turtle.begin_fill();
     for _ in 0..teeth as u64 {
         turtle.forward(tooth_size);
         turtle.left(180.0 - angle * 7.0);
         turtle.forward(tooth_size);
         turtle.right(180.0 - angle * 6.0);
     }
+    turtle.end_fill();
 
     turtle.right(angle * 6.0 / 2.0);
 }
@@ -46,10 +48,14 @@ fn inner_gear(turtle: &mut Turtle) {
 }
 
 fn inner_circle(turtle: &mut Turtle) {
+    turtle.set_fill_color("white");
+    turtle.begin_fill();
     for _ in 0..360 {
         turtle.forward(1.5);
         turtle.right(1.0);
     }
+    turtle.end_fill();
+    turtle.set_fill_color("black");
 }
 
 fn inner_teeth(turtle: &mut Turtle) {
@@ -65,11 +71,13 @@ fn inner_teeth(turtle: &mut Turtle) {
         turtle.forward(tooth_size / 2.0);
         turtle.pen_down();
 
+        turtle.begin_fill();
         turtle.right(120.0);
         turtle.forward(tooth_size);
         turtle.right(120.0);
         turtle.forward(tooth_size);
         turtle.right(120.0);
+        turtle.end_fill();
 
         turtle.pen_up();
         turtle.forward(tooth_size / 2.0);
@@ -93,8 +101,12 @@ fn inner_teeth(turtle: &mut Turtle) {
 }
 
 fn inner_tooth_circle(turtle: &mut Turtle) {
+    turtle.set_fill_color("white");
+    turtle.begin_fill();
     for _ in 0..360/8 {
         turtle.forward(1.0);
         turtle.right(8.0);
     }
+    turtle.end_fill();
+    turtle.set_fill_color("black");
 }

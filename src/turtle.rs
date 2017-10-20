@@ -115,8 +115,27 @@ impl Turtle {
         self.window.drawing().pen.color
     }
 
+    /// Returns the color of the background
     pub fn background_color(&self) -> Color {
         self.window.drawing().background
+    }
+
+    /// Returns the current fill color
+    ///
+    /// This will be used to fill the shape when `begin_fill()` and `end_fill()` are called.
+    //TODO: Hyperlink begin_fill() and end_fill() methods to their docs
+    pub fn fill_color(&self) -> Color {
+        self.window.drawing().fill_color
+    }
+
+    /// Begin filling the shape drawn by the turtle's movements
+    pub fn begin_fill(&mut self) {
+        self.window.begin_fill();
+    }
+
+    /// Stop filling the shape drawn by the turtle's movements
+    pub fn end_fill(&mut self) {
+        self.window.end_fill();
     }
 
     /// Pull the pen down so that the turtle draws while moving
@@ -145,6 +164,15 @@ impl Turtle {
     //TODO: Document this more like set_speed
     pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().background = color.into();
+    }
+
+    /// Sets the fill color to the given color
+    ///
+    /// **Note:** Only the fill color set **before** `begin_fill()` is called will be used to fill
+    /// the shape.
+    //TODO: Document this more like set_speed
+    pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
+        self.window.drawing_mut().fill_color = color.into();
     }
 
     /// Set the turtle's movement speed to the given setting. This speed affects the animation of

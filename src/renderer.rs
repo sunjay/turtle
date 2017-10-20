@@ -12,25 +12,49 @@ use piston_window::{
 
 use turtle_window::ReadOnly;
 use extensions::ConvertScreenCoordinates;
-use state::{Path, Pen,TurtleState};
+use state::{Path, Polygon, Pen, TurtleState};
 use event::from_piston_event;
 use {Point, Event, color};
 
+pub enum DrawingCommand {
+    /// When a path is finished being animated, it needs to be persisted in the renderer
+    /// so it can be redrawn every frame
+    StorePath(Path),
+    /// Begins filling with the current fill color from the next path onwards. If temporary_path is
+    /// set, it is included in the fill shape. Any paths sent via StorePath will be added to the
+    /// filled shape.
+    BeginFill,
+    /// Send EndFill to finish the filled shape.
+    EndFill,
+    /// Clears the image completely
+    ///
+    /// Panics if temporary_path is not None
+    Clear,
+}
+
+pub enum Drawing {
+    Path(Path),
+    Polygon(Polygon),
+}
+
 pub struct Renderer {
-    paths: Vec<Path>,
+    drawings: Vec<Drawing>,
+    /// Polygon that is currently in the process of being filled
+    /// Removed when EndFill is sent
+    fill_polygon: Option<Polygon>,
 }
 
 impl Renderer {
     pub fn new() -> Renderer {
         Self {
-            paths: Vec::new(),
+            drawings: Vec::new(),
         }
     }
 
     pub fn run(
         &mut self,
         window: &mut PistonWindow,
-        paths_rx: mpsc::Receiver<Path>,
+        drawing_rx: mpsc::Receiver<DrawingCommand>,
         events_tx: mpsc::Sender<Event>,
         state: ReadOnly,
     ) {
@@ -47,10 +71,8 @@ impl Renderer {
             }
 
             loop {
-                match paths_rx.try_recv() {
-                    Ok(path) => if path.pen.enabled {
-                        self.paths.push(path);
-                    },
+                match drawing_rx.try_recv() {
+                    Ok(cmd) => self.handle_drawing_command(cmd, &state),
                     Err(TryRecvError::Empty) => break, // Do nothing
                     Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
                 }
@@ -65,8 +87,11 @@ impl Renderer {
                 let height = view[1] as f64;
                 center = [width * 0.5, height * 0.5];
 
-                for path in &self.paths {
-                    self.render_path(c, g, center, path);
+                for drawing in &self.drawings {
+                    match drawing {
+                        Drawing::Path(path) => self.render_path(c, g, center, path),
+                        Drawing::Polygon(poly) => self.render_polygon(c, g, center, poly),
+                    }
                 }
 
                 if let Some(ref path) = *state.temporary_path() {
@@ -81,6 +106,22 @@ impl Renderer {
 
         // Quit immediately when the window is closed
         process::exit(0);
+    }
+
+    /// Handles a drawing command sent from the main thread
+    fn handle_drawing_command(&mut self, command: DrawingCommand, state: &ReadOnly) {
+        use self::DrawingCommand::*;
+        match command {
+            StorePath(path) => if path.pen.enabled {
+                self.drawings.push(path);
+            },
+            BeginFill => unimplemented!(),
+            EndFill => unimplemented!(),
+            Clear => {
+                assert!(state.temporary_path().is_none());
+                unimplemented!(); //TODO
+            }
+        }
     }
 
     /// Render a path assuming that its pen is enabled

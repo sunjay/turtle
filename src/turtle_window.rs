@@ -11,11 +11,13 @@ use piston_window::{
     math,
 };
 
-use renderer::Renderer;
+use renderer::{Renderer, DrawingCommand};
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path, Pen};
 use radians::{self, Radians};
 use {Speed, Distance, Event, color};
+
+use self::DrawingCommand::*;
 
 /// Types that will be shared with another thread
 pub type Shared<T> = Arc<RwLock<T>>;
@@ -47,9 +49,8 @@ impl ReadOnly {
 
 pub struct TurtleWindow {
     thread_handle: Option<thread::JoinHandle<()>>,
-    /// Channel for sending completed paths so they can be stored and re-rendered
-    /// in the rendering thread
-    paths_channel: mpsc::Sender<Path>,
+    /// Channel for sending drawing commands to the renderer thread
+    drawing_channel: mpsc::Sender<DrawingCommand>,
     /// Channel for receiving events from the rendering thread
     events_channel: mpsc::Receiver<Event>,
 
@@ -61,12 +62,12 @@ pub struct TurtleWindow {
 
 impl TurtleWindow {
     pub fn new() -> TurtleWindow {
-        let (paths_tx, paths_rx) = mpsc::channel();
+        let (drawing_tx, drawing_rx) = mpsc::channel();
         let (events_tx, events_rx) = mpsc::channel();
 
         let mut turtle_window = Self {
             thread_handle: None,
-            paths_channel: paths_tx,
+            drawing_channel: drawing_tx,
             events_channel: events_rx,
             turtle: Arc::new(RwLock::new(TurtleState {
                 position: [0., 0.],
@@ -80,6 +81,7 @@ impl TurtleWindow {
                     thickness: 1.,
                     color: color::BLACK,
                 },
+                fill_color: color::BLACK,
                 background: color::WHITE,
             })),
             temporary_path: Arc::new(RwLock::new(None)),
@@ -91,7 +93,7 @@ impl TurtleWindow {
                 "Turtle", [800, 600]
             ).exit_on_esc(true).build().unwrap();
 
-            Renderer::new().run(&mut window, paths_rx, events_tx, read_only);
+            Renderer::new().run(&mut window, drawing_rx, events_tx, read_only);
         });
 
         turtle_window.thread_handle = Some(handle);
@@ -140,6 +142,16 @@ impl TurtleWindow {
             // The window has been closed
             Err(TryRecvError::Disconnected) => process::exit(0), // Quit
         }
+    }
+
+    /// Begin filling the shape drawn by the turtle's movements.
+    pub fn begin_fill(&mut self) {
+        self.send_drawing_command(BeginFill);
+    }
+
+    /// Stop filling the current shape
+    pub fn end_fill(&mut self) {
+        self.send_drawing_command(EndFill);
     }
 
     /// Move the turtle forward by the given distance. To move backwards, use a negative distance.
@@ -210,14 +222,7 @@ impl TurtleWindow {
                 AnimationStatus::Complete(path) => {
                     if let Some(path) = path {
                         self.set_temporary_path(None);
-                        match self.paths_channel.send(path) {
-                            Ok(_) => {},
-                            // The channel is closed which means the window was closed
-                            Err(_) => {
-                                // quit immediately
-                                process::exit(0);
-                            },
-                        };
+                        self.send_drawing_command(StorePath(path));
                     }
 
                     break;
@@ -226,6 +231,15 @@ impl TurtleWindow {
 
             fps.tick();
         }
+    }
+
+    #[inline]
+    fn send_drawing_command(&mut self, command: DrawingCommand) {
+        self.drawing_channel.send(command).unwrap_or_else(|_| {
+            // The channel is closed which means the window was closed
+            // quit immediately
+            process::exit(0);
+        });
     }
 }
 
