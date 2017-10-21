@@ -1,9 +1,6 @@
 title: Turtle Graphics
 author: Sunjay Varma
-# this means to ignore newlines until "baseurl:"
-description: >-
-  Learn programming in Rust by drawing pictures and
-  being creative. This is an easy and fun way to gradually learn programming!
+description: Learn programming in Rust
 # the subpath of your site, e.g. /blog
 baseurl: ""
 # the base hostname & protocol for your site, e.g. http://example.com
@@ -18,6 +15,11 @@ plugins:
   - jekyll-feed
   - jekyll-redirect-from
   - jekyll-seo-tag
+
+# Header navigation
+header_pages:
+  - learn/index.md
+  - github.md
 
 # Exclude from processing.
 exclude:
