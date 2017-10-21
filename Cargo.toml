@@ -12,7 +12,7 @@ categories = ["rendering", "rendering::graphics-api", "rendering::engine", "game
 license = "MIT"
 
 [dependencies]
-piston_window = "*"
-interpolation = "*"
-fps_clock = "*"
-rand = "*"
+piston_window = "^0.73.0"
+interpolation = "^0.1.0"
+fps_clock = "^2.0.0"
+rand = "^0.3.17"
