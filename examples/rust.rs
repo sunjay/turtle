@@ -147,6 +147,7 @@ fn letter(turtle: &mut Turtle) {
         turtle.set_speed(SPEED);
     }
 
+    turtle.set_speed(9);
     turtle.forward(52.0);
     turtle.right(90.0);
     turtle.forward(50.0);
