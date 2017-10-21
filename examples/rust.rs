@@ -9,10 +9,12 @@ extern crate turtle;
 
 use turtle::Turtle;
 
+const SPEED: i32 = 10;
+
 fn main() {
     let mut turtle = Turtle::new();
 
-    turtle.set_speed(10);
+    turtle.set_speed(SPEED);
     turtle.set_fill_color("black");
 
     turtle.begin_fill();
@@ -124,7 +126,7 @@ fn letter(turtle: &mut Turtle) {
     turtle.pen_up();
     turtle.right(180.0);
     turtle.pen_down();
-    for _ in 0..(360/5 - 7)/2 {
+    for _ in 0..(360/5 - 8)/2 {
         turtle.forward(3.41);
         turtle.left(2.0);
     }
@@ -132,10 +134,46 @@ fn letter(turtle: &mut Turtle) {
     let heading = turtle.heading();
     turtle.right(heading);
 
-    turtle.set_pen_size(10.0);
-    turtle.forward(180.0);
+    turtle.set_pen_size(12.0);
+    turtle.forward(110.0);
+    for _ in 0..600 {
+        // By going forward and then backward, we avoid any "gaps" between the very small movements
+        // To see why this is needed, try replacing this with a single movement of the difference
+        // between the two.
+        turtle.forward(0.5);
+        turtle.set_speed("instant");
+        turtle.backward(0.4);
+        turtle.right(0.3);
+        turtle.set_speed(SPEED);
+    }
+
+    turtle.forward(52.0);
+    turtle.right(90.0);
+    turtle.forward(50.0);
     turtle.backward(90.0);
 
-    turtle.right(90.0);
-    turtle.forward(100.0);
+    turtle.left(90.0);
+    turtle.forward(65.0);
+    turtle.backward(95.0);
+
+    turtle.pen_up();
+    turtle.backward(95.0);
+    turtle.pen_down();
+
+    turtle.forward(40.0);
+    for _ in 0..400 {
+        turtle.forward(0.5);
+        turtle.set_speed("instant");
+        turtle.backward(0.4);
+        turtle.right(0.2);
+        turtle.set_speed(SPEED);
+    }
+
+    for _ in 0..200 {
+        turtle.forward(0.5);
+        turtle.set_speed("instant");
+        turtle.backward(0.4);
+        turtle.left(0.1);
+        turtle.set_speed(SPEED);
+    }
 }
