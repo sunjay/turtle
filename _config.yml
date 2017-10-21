@@ -27,3 +27,4 @@ exclude:
   - vendor/ruby/
   - README.md
   - serve
+  - target
