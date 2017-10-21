@@ -1,0 +1,72 @@
+---
+---
+
+.docs-page {
+  @media (min-width: 768px) {
+    display: flex;
+  }
+}
+
+.docs-nav-trigger {
+  height: 15px;
+  opacity: 0;
+  position: absolute;
+  width: 18px;
+
+  &:checked ~ .docs-nav {
+    display: block;
+  }
+}
+
+.docs-nav-toggle {
+  margin-bottom: 10px;
+  position: relative;
+
+  .menu-icon {
+    vertical-align: middle;
+  }
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.docs-nav {
+  display: none;
+  flex-shrink: 0;
+
+  ul {
+    list-style-type: none;
+    margin-left: 0;
+  }
+
+  .header,
+  .header a,
+  .header :visited {
+    color: #03a9f4;
+    font-weight: bold;
+  }
+
+  .header:not(:first-child) {
+    margin-top: 10px;
+  }
+
+  li:not(.header) {
+    margin-left: 10px;
+    margin-top: 5px;
+
+    a,
+    a:visited,
+    a:hover {
+      color: inherit;
+    }
+  }
+
+  @media (min-width: 768px) {
+    border-right: 1px solid #9e9e9e;
+    display: block;
+    margin-right: 10px;
+    padding-right: 10px;
+    width: auto;
+  }
+}

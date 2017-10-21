@@ -7,6 +7,7 @@ $font-size-base:                 14px !default;
 $font-size-large:                ceil(($font-size-base * 1.25)) !default; // ~18px
 $font-size-small:                ceil(($font-size-base * 0.85)) !default; // ~12px
 
+$line-height-base:               1.428571429 !default; // 20/14
 $line-height-large:              1.3333333 !default; // extra decimals for Win 8.1 Chrome
 $line-height-small:              1.5 !default;
 
@@ -139,7 +140,7 @@ $btn-border-radius-small:        3px !default;
   cursor: pointer;
   display: inline-block;
   margin-bottom: 0; // For input.btn
-  padding: 5px 2px;
+  @include button-size($padding-base-vertical, $padding-base-horizontal, $font-size-base, $line-height-base, $btn-border-radius-base);
   text-align: center;
   touch-action: manipulation;
   user-select: none;

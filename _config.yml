@@ -8,6 +8,9 @@ url: "http://turtle.rs"
 twitter_username: sunjay03
 github_username:  sunjay
 
+header_pages:
+  - docs/index.md
+
 # Build settings
 markdown: kramdown
 theme: minima
