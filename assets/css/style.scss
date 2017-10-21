@@ -25,6 +25,28 @@ footer {
   a:hover {
     color: inherit;
   }
+
+  .copyright {
+    text-align: center;
+    width: 100%;
+  }
+
+  .footer-col-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+    }
+
+    .footer-col-1,
+    .footer-col-2,
+    .footer-col-3 {
+      width: auto;
+    }
+  }
 }
 
 .site-header {
