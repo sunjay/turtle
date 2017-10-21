@@ -169,7 +169,7 @@ impl TurtleWindow {
         let end = math::add(start, [x, y]);
 
         let speed = speed.to_absolute(); // px per second
-        let total_millis = distance / speed * 1000.;
+        let total_millis = (distance / speed * 1000.).abs();
 
         let animation = MoveAnimation {
             path: Path {
