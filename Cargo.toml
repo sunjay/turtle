@@ -1,6 +1,6 @@
 [package]
 name = "turtle"
-version = "0.0.0"
+version = "1.0.0-alpha.0"
 authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
 description = "Turtle Graphics in Rust"
 homepage = "http://turtle.rs"
