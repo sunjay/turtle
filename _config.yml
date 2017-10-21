@@ -16,11 +16,6 @@ plugins:
   - jekyll-redirect-from
   - jekyll-seo-tag
 
-# Header navigation
-header_pages:
-  - learn/index.md
-  - github.md
-
 # Exclude from processing.
 exclude:
   - Gemfile

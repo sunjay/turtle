@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Learn Programming
-headline: Learn Programming in Rust
+title: Turtle Documentation
+nav_title: Guide
 permalink: /learn/
 ---
 
