@@ -234,6 +234,13 @@ impl Turtle {
         self.window.turtle_mut().speed = speed.into();
     }
 
+    /// Delete the turtle's drawings from the screen.
+    ///
+    /// Do not move turtle. Position and heading of the turtle are not affected.
+    pub fn clear(&mut self) {
+        self.window.clear();
+    }
+
     /// Makes the turtle invisible. The shell will not be shown, but drawings will continue.
     ///
     /// Useful for some complex drawings.

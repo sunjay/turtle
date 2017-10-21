@@ -161,8 +161,11 @@ impl Renderer {
                 } else { None }));
             },
             Clear => {
-                //assert!(state.temporary_path().is_none());
-                unimplemented!(); //TODO
+                self.drawings.clear();
+                // Because clear doesn't actually shorten the capacity of the vector
+                // We don't want to leak memory by leaving this Vec at whatever its size was before
+                self.drawings.shrink_to_fit();
+                self.fill_polygon.take();
             }
         }
     }

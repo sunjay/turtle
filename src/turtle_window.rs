@@ -129,6 +129,11 @@ impl TurtleWindow {
         self.drawing.write().expect("bug: Lock was poisoned")
     }
 
+    /// Provides read-only access to the temporary path
+    fn temporary_path(&self) -> ReadOnlyRef<Option<Path>> {
+        self.temporary_path.read().expect("bug: Lock was poisoned")
+    }
+
     fn set_temporary_path(&mut self, path: Option<Path>) {
         let mut temp = self.temporary_path.write().expect("bug: Lock was poisoned");
         *temp = path;
@@ -153,6 +158,13 @@ impl TurtleWindow {
     /// Stop filling the current shape
     pub fn end_fill(&mut self) {
         self.send_drawing_command(EndFill);
+    }
+
+    /// Clear the turtle's drawings
+    pub fn clear(&mut self) {
+        assert!(self.temporary_path().is_none(),
+            "bug: The temporary path was still set when the renderer was asked to clear the drawing");
+        self.send_drawing_command(Clear);
     }
 
     /// Move the turtle forward by the given distance. To move backwards, use a negative distance.
