@@ -27,7 +27,7 @@ fn main() {
         // 200e^(-(1/200(x - 400))^2)
         let y = amplitude * E.powf(-(1.0/(width / 4.0) * (x - width/2.0)).powi(2));
 
-        turtle.set_pen_color(random::<Color>().visible());
+        turtle.set_pen_color(random::<Color>().opaque());
         turtle.set_pen_size(y * height_factor);
         turtle.forward(step);
     }

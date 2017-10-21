@@ -55,12 +55,14 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn visible(mut self) -> Color {
+    /// Set the color's opacity (alpha) to 1.0
+    pub fn opaque(mut self) -> Color {
         self.alpha = 1.0;
         self
     }
 
-    pub fn invisible(mut self) -> Color {
+    /// Set the color's opacity (alpha) to 0.0
+    pub fn transparent(mut self) -> Color {
         self.alpha = 0.0;
         self
     }
