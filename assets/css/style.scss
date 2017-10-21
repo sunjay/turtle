@@ -1,0 +1,22 @@
+---
+---
+
+@import '{{ site.theme }}';
+
+html,
+body {
+  min-height: 100%;
+}
+
+.site-header {
+  background: #4caf50;
+
+  .page-link {
+    color: #fff;
+  }
+}
+
+.site-title,
+.site-title:visited {
+  color: #fff;
+}
