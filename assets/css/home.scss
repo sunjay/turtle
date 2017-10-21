@@ -1,0 +1,41 @@
+---
+---
+
+.headline-container {
+  display: grid;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+  }
+}
+
+.headline {
+  font-size: 2em;
+  font-weight: bold;
+
+  @media (min-width: 768px) {
+    font-size: 2.5em;
+  }
+}
+
+.start-learning {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.rust-drawing {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+
+  @media (min-width: 768px) {
+    grid-column: 2;
+    grid-row-end: 3;
+    grid-row-start: 1;
+    margin-left: 10px;
+    margin-top: 0;
+  }
+}

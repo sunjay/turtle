@@ -1,11 +1,30 @@
 ---
 ---
 
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
 @import '{{ site.theme }}';
+
+@import 'buttons';
 
 html,
 body {
+  background: #424242;
+  color: #212121;
+  font-family: 'Open Sans', sans-serif;
   min-height: 100%;
+}
+
+main {
+  background: #fff;
+}
+
+footer {
+  &,
+  a,
+  a:visited,
+  a:hover {
+    color: inherit;
+  }
 }
 
 .site-header {
@@ -19,4 +38,20 @@ body {
 .site-title,
 .site-title:visited {
   color: #fff;
+}
+
+@media screen and (max-width: 600px) {
+  .site-nav {
+    background: #2e7d32;
+    border-color: #4caf50;
+    text-align: left;
+
+    input:checked ~ .trigger {
+      min-width: 250px;
+    }
+
+    .page-link {
+      margin-left: 0;
+    }
+  }
 }

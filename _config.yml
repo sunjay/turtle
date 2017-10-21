@@ -1,4 +1,5 @@
-title: Turtle Graphics in Rust
+title: Turtle Graphics
+author: Sunjay Varma
 # this means to ignore newlines until "baseurl:"
 description: >-
   Learn programming in Rust by drawing pictures and
