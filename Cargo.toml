@@ -6,7 +6,7 @@ description = "Turtle Graphics in Rust"
 homepage = "http://turtle.rs"
 repository = "https://github.com/sunjay/turtle"
 readme = "README.md"
-keywords = ["turtle", "graphics", "drawing", "teaching", "learning", "beginners"]
+keywords = ["turtle", "graphics", "drawing", "teaching", "beginner"]
 # crates.io/category_slugs
 categories = ["rendering", "rendering::graphics-api", "rendering::engine", "games", "gui"]
 license = "MIT"
