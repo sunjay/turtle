@@ -1,6 +1,6 @@
 [root]
 name = "turtle"
-version = "1.0.0-alpha.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "fps_clock 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "interpolation 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
