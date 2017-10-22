@@ -1,6 +1,6 @@
 [root]
 name = "turtle"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "fps_clock 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "interpolation 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -20,7 +20,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "arrayvec"
-version = "0.4.3"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "nodrop 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -770,7 +770,7 @@ name = "rusttype"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "arrayvec 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "arrayvec 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "linked-hash-map 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "stb_truetype 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1050,7 +1050,7 @@ dependencies = [
 [metadata]
 "checksum adler32 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6cbd0b9af8587c72beadc9f72d35b9fbb070982c9e6203e46e93f10df25f8f45"
 "checksum android_glue 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "000444226fcff248f2bc4c7625be32c63caccfecc2723a2b9f78a7487a49c407"
-"checksum arrayvec 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "6f9bb6deaad90a5bd12b5af488483c8bb318b4b5c1bf836d0148a1c0f3d9da2e"
+"checksum arrayvec 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "1c0250693b17316353df525fb088da32a8c18f84eb65d113dde31f5a76ed17b6"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 "checksum bitflags 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "1370e9fc2a6ae53aea8b7a5110edbd08836ed87c88736dfabccade1c2b44bff4"
 "checksum bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "4efd02e230a02e18f92fc2735f44597385ed02ad8f831e7c1c1156ee5e1ab3a5"
