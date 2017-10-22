@@ -29,11 +29,12 @@ layout: default
   <div class="wrapper">
     <h2>The Basic Concept</h2>
     <div class="section-text">
-      <p>You control a turtle with a pen tied to its tail.
-        When you tell it to move somewhere, it draws the path that it goes through to get there.</p>
-      <p>Change the color of the pen, fill shapes, and even use randomness to
-        direct the turtle. There are plenty of ways to draw all kinds of
-        amazing pictures!</p>
+      <p>You control a turtle with a pen tied to its tail. As it moves across
+        the screen, it draws the path that it follows. Change the turtle's
+        speed, its pen's color, and more to create more complex drawings and
+        animations.</p>
+      <p>This simple mental model is all you need to draw
+        all kinds of pictures!</p>
     </div>
     <div class="section-image">
       <img src="{{ "/assets/images/circle-square.gif" | relative_url }}" />
@@ -43,23 +44,31 @@ layout: default
 
 <section class="home-section">
   <div class="wrapper">
-    <h2>Fun, and Easy to Learn Code</h2>
+    <h2>Easy to Learn Graphics</h2>
     <div class="section-text">
-      <p>This crate is designed to be incredibly easy to learn. Each drawing
-        command is designed to be simple and straightforward.</p>
+      <p>We designed Turtle to be incredibly easy to learn and user friendly.
+        We leverage the power of Rust's advanced type system to make using Turtle
+        as convenient for you as possible.</p>
+
+        <p>Use different colors, fills and other options to create anything you
+          want! Turtle supports lots of different drawing commands so you can
+          get really creative!</p>
     </div>
     <div class="section-code">
-      {% highlight rust linenos %}
+{% highlight rust linenos %}
 // This program draws a triangle
 let mut turtle = Turtle::new();
+turtle.set_pen_color("red");
+turtle.set_fill_color("orange");
 // Turn right 30 degrees
 turtle.right(30.0);
 for _ in 0..3 {
   // Walk forward 150 steps
   turtle.forward(150.0);
+  // Turn right 120 degrees
   turtle.right(120.0);
 }
-      {% endhighlight %}
+{% endhighlight %}
     </div>
   </div>
 </section>
@@ -71,6 +80,7 @@ for _ in 0..3 {
       <p>Start from the most basic concepts, then quickly work your way up
         as you learn to draw more complex things.</p>
 {% highlight rust linenos %}
+// Draws what looks like several nested cubes
 for i in 0..290 {
     let i = i as f64;
     turtle.set_pen_color(Color {
