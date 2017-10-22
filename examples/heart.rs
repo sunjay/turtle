@@ -5,7 +5,7 @@ use turtle::Turtle;
 fn main() {
     let mut turtle = Turtle::new();
 
-    turtle.set_speed(7);
+    turtle.set_speed(5);
     turtle.set_pen_size(3.0);
     turtle.set_pen_color("red");
 
@@ -17,11 +17,11 @@ fn main() {
     turtle.begin_fill();
     turtle.left(50.0);
     turtle.forward(111.65);
-    turtle.set_speed(10);
+    turtle.set_speed(7);
     curve(&mut turtle);
     turtle.left(120.0);
     curve(&mut turtle);
-    turtle.set_speed(7);
+    turtle.set_speed(5);
     turtle.forward(111.65);
     turtle.end_fill();
 

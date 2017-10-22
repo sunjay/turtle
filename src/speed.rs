@@ -33,14 +33,14 @@ impl Speed {
         match self {
             One => 50.,
             Two => 100.,
-            Three => 150.,
-            Four => 200.,
-            Five => 250.,
-            Six => 300.,
-            Seven => 350.,
-            Eight => 400.,
-            Nine => 450.,
-            Ten => 500.,
+            Three => 200.,
+            Four => 300.,
+            Five => 500.,
+            Six => 600.,
+            Seven => 700.,
+            Eight => 800.,
+            Nine => 900.,
+            Ten => 1000.,
             Instant => f64::INFINITY,
         }
     }
