@@ -82,6 +82,10 @@
     text-shadow: 0 1px 0 rgba(0,0,0,.25);
   }
 
+  .highlight {
+    text-align: center;
+  }
+
   &:nth-child(2n+1) {
     background: #03a9f4;
     box-shadow: 0 2px 0 rgba(0,0,0,.25);
@@ -102,19 +106,19 @@
 
   .section-text {
     grid-area: text;
+    // https://stackoverflow.com/a/43312314/551904
+    min-width: 0;
   }
 
   .section-image,
   .section-code {
     grid-area: figure;
+    // https://stackoverflow.com/a/43312314/551904
+    min-width: 0;
   }
 
   .section-image {
     text-align: center;
-  }
-
-  .section-code .highlight {
-    overflow-x: auto;
   }
 
   @media (min-width: 768px) {
@@ -122,6 +126,19 @@
       grid-template-areas:
         'figure heading'
         'figure text';
+      grid-template-columns: 40% auto;
+      grid-template-rows: 2.5em auto;
+    }
+
+    .highlight {
+      text-align: left;
+    }
+
+    &:nth-child(2n) .wrapper {
+      grid-template-areas:
+        'heading figure'
+        'text figure';
+      grid-template-columns: auto auto;
     }
 
     h2 {
@@ -130,7 +147,8 @@
     }
 
     .section-text {
-      font-size: 1.2em
+      font-size: 1.2em;
+      padding-top: 20px;
     }
   }
 }

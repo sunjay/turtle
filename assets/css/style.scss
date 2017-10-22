@@ -35,6 +35,7 @@ h6 {
 .highlight {
   background: none;
   margin-bottom: 0;
+  overflow-x: auto;
 
   .highlighter-rouge & {
     background: none;
@@ -66,7 +67,9 @@ h6 {
   }
 }
 
-footer {
+.site-footer {
+  border: 0;
+
   &,
   a,
   a:visited,
