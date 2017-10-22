@@ -11,8 +11,8 @@ fn main() {
         turtle.set_background_color(random::<Color>().opaque());
 
         turtle.set_pen_color(random::<Color>().opaque());
-        turtle.forward(5.0 + i as f64);
+        turtle.forward(i as f64);
 
-        turtle.right(30.0);
+        turtle.right(60.0);
     }
 }
