@@ -10,7 +10,7 @@ permalink: /docs/getting-started/
 **Note:** If you already have a recent version of Rust and Cargo installed,
 you can skip this section.
 
-1. Go to [rustup.rs](https://rustup.rs/).
+1. Go to [rustup.rs](https://rustup.rs/){:target="_blank"}.
 2. Follow the instructions on that page to install Rust
 3. Open your terminal or command prompt, and check that you have the right
    version with the following command:
@@ -92,8 +92,9 @@ In Rust, we share pieces of code by packing them up into "crates". We call them
 crates because our packaging and build system is named Cargo. You may see the
 same concept referred to as a "library" or "package" in other programming
 languages. The Turtle crate gives you the ability to create animated pictures.
-There are many other crates available on [crates.io](https://crates.io/) that
-you can use in your application in addition to this one.
+There are many other crates available on
+[crates.io](https://crates.io/){:target="_blank"} that you can use in your
+application in addition to this one.
 
 When you add a crate to your project, it is known as a "dependency" of your
 project because your project *depends* on it in order to run. Cargo will
