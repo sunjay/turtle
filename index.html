@@ -63,3 +63,27 @@ for _ in 0..3 {
     </div>
   </div>
 </section>
+
+<section class="home-section">
+  <div class="wrapper">
+    <h2>Go From Basic To Advanced</h2>
+    <div class="section-text">
+      <p>Start from the most basic concepts, then quickly work your way up
+        as you learn to draw more complex things.</p>
+{% highlight rust linenos %}
+for i in 0..290 {
+    let i = i as f64;
+    turtle.set_pen_color(Color {
+        red: (i / 300.0 * 4.0) * 255.0 % 255.0,
+        green: 255.0, blue: 255.0, alpha: 1.0,
+    });
+    turtle.forward(i);
+    turtle.right(60.0);
+}
+{% endhighlight %}
+    </div>
+    <div class="section-image">
+      <img src="{{ "/assets/images/nestedcubes.gif" | relative_url }}" />
+    </div>
+  </div>
+</section>
