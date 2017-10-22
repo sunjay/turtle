@@ -1,24 +1,65 @@
 ---
-layout: home
+layout: default
 ---
 <link rel="stylesheet" href="{{ "/assets/css/home.css" | relative_url }}">
 
-<div class="headline-container">
-  <div>
-    <div class="headline">
-      Create Animated Drawings Quickly and Easily in Rust
+<section class="headline-section">
+  <div class="wrapper">
+    <div class="section-text">
+      <div class="headline">
+        Create Animated Drawings Quickly and Easily in Rust
+      </div>
+      <p class="tagline">
+        Get started immediately and produce your first drawing within minutes.
+        This crate is an excellent tool for learning and teaching the
+        <a href="https://www.rust-lang.org">Rust programming language</a>.
+        Anyone of any age or skill level can learn how to create art with code!
+      </p>
     </div>
-    <p class="tagline">
-      Get started immediately and produce your first drawing within minutes.
-      This crate is an excellent tool for learning and teaching the
-      <a href="https://www.rust-lang.org">Rust programming language</a>.
-      Anyone of any age or skill level can learn how to create art with code!
-    </p>
-  </div>
 
-  <div class="start-learning">
-    <a class="btn btn-lg btn-primary" href="{% link docs/index.md %}">Start Learning Now!</a>
-  </div>
+    <div class="start-learning">
+      <a class="btn btn-lg btn-primary" href="{% link docs/index.md %}">Start Learning Now!</a>
+    </div>
 
-  <img class="rust-drawing" src="{{ "/assets/images/rust.gif" | relative_url }}" />
-</div>
+    <img class="rust-drawing" src="{{ "/assets/images/rust.gif" | relative_url }}" />
+  </div>
+</section>
+
+<section class="home-section">
+  <div class="wrapper">
+    <h2>The Basic Concept</h2>
+    <div class="section-text">
+      <p>You control a turtle with a pen tied to its tail.
+        When you tell it to move somewhere, it draws the path that it goes through to get there.</p>
+      <p>Change the color of the pen, fill shapes, and even use randomness to
+        direct the turtle. There are plenty of ways to draw all kinds of
+        amazing pictures!</p>
+    </div>
+    <div class="section-image">
+      <img src="{{ "/assets/images/circle-square.gif" | relative_url }}" />
+    </div>
+  </div>
+</section>
+
+<section class="home-section">
+  <div class="wrapper">
+    <h2>Fun, and Easy to Learn Code</h2>
+    <div class="section-text">
+      <p>This crate is designed to be incredibly easy to learn. Each drawing
+        command is designed to be simple and straightforward.</p>
+    </div>
+    <div class="section-code">
+      {% highlight rust linenos %}
+// This program draws a triangle
+let mut turtle = Turtle::new();
+// Turn right 30 degrees
+turtle.right(30.0);
+for _ in 0..3 {
+  // Walk forward 150 steps
+  turtle.forward(150.0);
+  turtle.right(120.0);
+}
+      {% endhighlight %}
+    </div>
+  </div>
+</section>

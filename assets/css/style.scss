@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
 @import '{{ site.theme }}';
 
+@import 'monokai';
 @import 'buttons';
 
 html,
@@ -18,8 +19,51 @@ main {
   background: #fff;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-shadow: 0 2px 0 rgba(0,0,0,.25);
+}
+
 .wrapper {
   max-width: 900px;
+}
+
+.highlight {
+  background: none;
+  margin-bottom: 0;
+
+  .highlighter-rouge & {
+    background: none;
+  }
+
+  .highlighter-rouge & > pre,
+  > pre {
+    background: #424242;
+    border: 0;
+    border-radius: 5px;
+    color: #9e9e9e;
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 2px;
+    text-align: left;
+
+    .rouge-code > pre,
+    .code > pre,
+    .lineno {
+      border-color: #424242;
+      margin-bottom: 0;
+    }
+
+    .lineno {
+      background: #424242;
+      padding-right: 5px;
+      text-align: right;
+    }
+  }
 }
 
 footer {

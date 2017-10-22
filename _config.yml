@@ -14,6 +14,13 @@ header_pages:
 
 # Build settings
 markdown: kramdown
+kramdown:
+  syntax_highlighter_opts:
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
 theme: minima
 plugins:
   - jekyll-feed
