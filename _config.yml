@@ -1,6 +1,6 @@
-title: Turtle Graphics
+title: Turtle
 author: Sunjay Varma
-description: Learn programming in Rust
+description: Create Animated Drawings in Rust
 # the subpath of your site, e.g. /blog
 baseurl: ""
 # the base hostname & protocol for your site, e.g. http://example.com
