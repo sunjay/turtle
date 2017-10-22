@@ -125,7 +125,22 @@ h6 {
 
   .page-link {
     color: #fff;
+
+    @media (min-width: 768px) {
+      margin: 0;
+      padding: 16px;
+
+      &:not(:last-child) {
+        margin-right: 0;
+      }
+
+      &:hover {
+        background: #1b5e20;
+        text-decoration: none;
+      }
+    }
   }
+
 }
 
 .site-title,
