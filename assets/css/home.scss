@@ -21,12 +21,17 @@
 }
 
 .start-learning {
-  grid-column: 1;
-  grid-row: 2;
+  grid-row: 3;
+
+  @media (min-width: 768px) {
+    grid-column: 1;
+    grid-row: 2;
+  }
 }
 
 .rust-drawing {
   display: block;
+  margin-bottom: 10px;
   margin-left: auto;
   margin-right: auto;
   margin-top: 10px;
@@ -35,6 +40,7 @@
     grid-column: 2;
     grid-row-end: 3;
     grid-row-start: 1;
+    margin-bottom: 0;
     margin-left: 10px;
     margin-top: 0;
   }
