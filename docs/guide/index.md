@@ -27,3 +27,22 @@ In the meantime, the following resources should help you learn what you need:
 
 To start using Turtle, follow the instructions in the
 [**Getting Started**]({% link guide/getting-started.md %}) section.
+
+----
+
+## Introduction to Programming
+
+This section will answer the questions:
+
+* Why do we program?
+* What is a programming language and why do we need it?
+* What can we do with a programming language?
+* What is Rust? Why should I learn Rust?
+
+The reason we program is so that we can get the computer to do something.
+Computers don't do anything on their own. Someone must give the computer
+**instructions** in order for anything to be executed. Our operating system
+(Windows, Linux, Mac OSX, Android, etc.) is just one big **program** full of
+instructions. These instructions are not written in English, French, Spanish,
+or any other human language. Instead, machines use something called **machine
+language**. This is a special
