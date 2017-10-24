@@ -95,12 +95,12 @@ impl Renderer {
                 for drawing in &self.drawings {
                     match *drawing {
                         Drawing::Path(ref path) => self.render_path(c, g, center, path),
-                        Drawing::Polygon(ref poly) => self.render_polygon(c, g, center, poly),
+                        Drawing::Polygon(ref poly) => self.render_polygon(c, g, center, poly, None),
                     }
                 }
 
                 if let Some(&(ref border, ref poly)) = self.fill_polygon.as_ref() {
-                    self.render_polygon(c, g, center, poly);
+                    self.render_polygon(c, g, center, poly, state.temporary_path().as_ref());
                     for path in border {
                         if path.pen.enabled {
                             self.render_path(c, g, center, path);
@@ -135,7 +135,7 @@ impl Renderer {
                     border.push(path.clone());
 
                     let Path {start, end, ..} = path;
-                    if poly.vertices.last().map_or(true, |&v| v != path.start) {
+                    if poly.vertices.last().map_or(true, |&v| v != start) {
                         poly.vertices.push(start);
                     }
                     poly.vertices.push(end);
@@ -184,9 +184,26 @@ impl Renderer {
             c.transform, g);
     }
 
-    /// Render a polygon
-    fn render_polygon(&self, c: context::Context, g: &mut G2d, center: Point, poly: &Polygon) {
-        let verts = poly.vertices.iter().map(|p| p.to_screen_coords(center)).collect::<Vec<_>>();
+    /// Render a polygon with an optional extra edge
+    fn render_polygon(&self, c: context::Context, g: &mut G2d, center: Point, poly: &Polygon,
+        extra_edge: Option<&Path>
+    ) {
+        let extra = if let Some(&Path {start, end, ..}) = extra_edge {
+            if poly.vertices.last().map_or(true, |&v| v != start) {
+                vec![start, end]
+            }
+            else {
+                vec![end]
+            }
+        }
+        else {
+            Vec::new()
+        };
+
+        let verts = poly.vertices.iter()
+            .chain(extra.iter())
+            .map(|p| p.to_screen_coords(center))
+            .collect::<Vec<_>>();
         polygon(poly.fill_color.into(), &verts, c.transform, g);
     }
 
