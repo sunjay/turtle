@@ -95,19 +95,31 @@ impl Renderer {
                 for drawing in &self.drawings {
                     match *drawing {
                         Drawing::Path(ref path) => self.render_path(c, g, center, path),
-                        Drawing::Polygon(ref poly) => self.render_polygon(c, g, center, poly, None),
+                        Drawing::Polygon(ref poly) => self.render_polygon(c, g, center,
+                            poly.fill_color, poly.vertices.iter()),
                     }
                 }
 
                 if let Some(&(ref border, ref poly)) = self.fill_polygon.as_ref() {
-                    self.render_polygon(c, g, center, poly, state.temporary_path().as_ref());
+                    // If the temporary_path is not None, we need to add it to the polygon being
+                    // filled or else the polygon will fall one edge behind in the animation
+                    let extra = state.temporary_path().as_ref().map_or(Vec::new(), |&Path {start, end, ..}| {
+                        if poly.vertices.last().map_or(true, |&v| v != start) {
+                            vec![start, end]
+                        }
+                        else {
+                            vec![end]
+                        }
+                    });
+                    self.render_polygon(c, g, center, poly.fill_color,
+                        poly.vertices.iter().chain(extra.iter()));
+
                     for path in border {
                         if path.pen.enabled {
                             self.render_path(c, g, center, path);
                         }
                     }
                 }
-                //TODO: Render the temporary_path as part of the polygon when fill_polygon.is_some()
 
                 if let Some(ref path) = *state.temporary_path() {
                     if path.pen.enabled {
@@ -184,27 +196,32 @@ impl Renderer {
             c.transform, g);
     }
 
-    /// Render a polygon with an optional extra edge
-    fn render_polygon(&self, c: context::Context, g: &mut G2d, center: Point, poly: &Polygon,
-        extra_edge: Option<&Path>
+    /// Render a polygon given its vertices
+    fn render_polygon<'a, T: Iterator<Item=&'a Point>>(
+        &self,
+        c: context::Context,
+        g: &mut G2d,
+        center: Point,
+        fill_color: Color,
+        verts: T,
     ) {
-        let extra = if let Some(&Path {start, end, ..}) = extra_edge {
-            if poly.vertices.last().map_or(true, |&v| v != start) {
-                vec![start, end]
-            }
-            else {
-                vec![end]
-            }
-        }
-        else {
-            Vec::new()
-        };
-
-        let verts = poly.vertices.iter()
-            .chain(extra.iter())
-            .map(|p| p.to_screen_coords(center))
-            .collect::<Vec<_>>();
-        polygon(poly.fill_color.into(), &verts, c.transform, g);
+        // Performance note: Why make this function generic instead of just taking Polygon?
+        // Answer: render_polygon is called multiple times. It's called repeatedly in a loop, and
+        // it is also called when drawing the current fill_polygon. Rather than moving the
+        // code to *maybe* add the temporary_path to the rendered polygon into this method, we
+        // avoid branching unnecessarily by allowing the repeated caller to do what is fast, then
+        // doing the slow thing (checking if the path is None) only once when it is needed.
+        //
+        // We pass in the points as an Iterator so that they do not need to be collected into any
+        // struct. This avoids an allocation that really isn't needed since these are all temporary
+        // anyway. Everything is going to get copied anyway on the next line. No need to do it
+        // twice.
+        //
+        // See the commit before this comment was added for the approach that would have required
+        // branching in every iteration of the loop where render_polygon is called over and over
+        // again.
+        let verts = verts.map(|p| p.to_screen_coords(center)).collect::<Vec<_>>();
+        polygon(fill_color.into(), &verts, c.transform, g);
     }
 
     /// Draw the turtle's shell
