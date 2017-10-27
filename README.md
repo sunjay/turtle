@@ -16,8 +16,7 @@ of all ages!
 across the screen, it draws the path that it follows. You can use this to draw
 any picture you want just by moving the turtle across the screen.
 
-![turtle start](https://github.com/sunjay/turtle/raw/master/turtle1.png)
-![turtle moved](https://github.com/sunjay/turtle/raw/master/turtle2.png)
+![turtle moving forward](https://github.com/sunjay/turtle/raw/master/forward.gif)
 
 ## Documentation
 
@@ -47,7 +46,7 @@ fn main() {
 
 This will produce the following:
 
-![turtle drawing a circle](https://github.com/sunjay/turtle/raw/master/turtle_circle.gif)
+![turtle drawing a circle](https://github.com/sunjay/turtle/raw/master/circle.gif)
 
 See the [`examples/`](https://github.com/sunjay/turtle/raw/master/examples) directory for more examples of how to use this
 library.
