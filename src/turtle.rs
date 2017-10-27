@@ -50,7 +50,16 @@ pub type Distance = f64;
 /// unit the Turtle was set to when this angle was retrieved
 pub type Angle = f64;
 
-/// A turtle with a pen attached to its tail
+/// A turtle with a pen attached to its tail.
+///
+/// **The idea:** You control a turtle with a pen tied to its tail. As it moves
+/// across the screen, it draws the path that it follows. You can use this to draw
+/// any picture you want just by moving the turtle across the screen.
+///
+/// ![turtle moving forward](https://github.com/sunjay/turtle/raw/master/forward.gif)
+///
+/// See the documentation for the methods below to learn about the different drawing commands you
+/// can use with the turtle.
 pub struct Turtle {
     window: TurtleWindow,
     angle_unit: AngleUnit,
