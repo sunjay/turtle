@@ -1,6 +1,5 @@
 extern crate piston_window;
 extern crate interpolation;
-extern crate fps_clock;
 extern crate rand;
 
 // Re-exported for the convenience of library users

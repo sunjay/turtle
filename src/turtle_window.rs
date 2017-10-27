@@ -4,7 +4,6 @@ use std::time::Instant;
 use std::sync::mpsc::{self, TryRecvError};
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use fps_clock::FpsClock;
 use piston_window::{
     PistonWindow,
     WindowSettings,
@@ -223,7 +222,6 @@ impl TurtleWindow {
         // is too small, every small movement (say forward(1) or right(1)) will take too long.
         // We use a huge framerate so we can sleep occasionally for longer animations but still
         // finish smaller ones in a reasonable amount of time.
-        let mut fps = FpsClock::new(600);
         loop {
             // We want to keep the lock for as little time as possible
             let status = {
@@ -241,8 +239,6 @@ impl TurtleWindow {
                     break;
                 },
             }
-
-            fps.tick();
         }
     }
 
