@@ -1,3 +1,27 @@
+//! The API Documentation below will help you learn about the various things you can do with this
+//! library.
+//!
+//! **If this is your first time using Rust or using this library, read the Guide on
+//! [turtle.rs](http://turtle.rs) to learn how to start.**
+//!
+//! The [`Turtle` struct](struct.Turtle.html) documentation contains information about the various
+//! things you can do with the `Turtle` instances you create. The [`color` module](color/index.html)
+//! and its submodules contain hundreds of constants that you can use as color values.
+//! As a convenience, you can use the color name listed with each constant in a string instead of the
+//! constant itself. See that module for more information about how to use different colors.
+//!
+//! ## Event Handling
+//!
+//! For advanced users, the [`Event` struct](event/enum.Event.html) documentation provides information
+//! about how you can create an event loop. This allows you to draw things in response to
+//! certain events like the mouse moving, keys being pressed, and more.
+//!
+//! The `Turtle` struct contains a few convenience methods so you can do some common event-related
+//! things without creating the entire event loop.
+//!
+//! * Use [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
+//!   anywhere on the screen before continuing
+
 extern crate piston_window;
 extern crate interpolation;
 extern crate rand;
