@@ -1,8 +1,14 @@
+// During tests, we disable the renderer and that causes a bunch of warnings that we just want
+// to get rid of.
+// See Cargo.toml for an explanation of this attribute
+#![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables))]
+
 use std::process;
 use std::sync::mpsc::{self, TryRecvError};
 
 use piston_window::{
     PistonWindow,
+    WindowSettings,
     G2d,
     context,
     clear,
@@ -58,11 +64,14 @@ impl Renderer {
 
     pub fn run(
         &mut self,
-        window: &mut PistonWindow,
         drawing_rx: mpsc::Receiver<DrawingCommand>,
         events_tx: mpsc::Sender<Event>,
         state: ReadOnly,
     ) {
+        let mut window: PistonWindow = WindowSettings::new(
+            "Turtle", [800, 600]
+        ).exit_on_esc(true).build().unwrap();
+
         let mut center = [0.0, 0.0];
 
         'renderloop:

@@ -15,3 +15,16 @@ license = "MIT"
 piston_window = "^0.73.0"
 interpolation = "^0.1.0"
 rand = "^0.3.17"
+
+# The reason we do this is because doctests don't get cfg(test)
+# See: https://github.com/rust-lang/cargo/issues/4669
+#
+# This allows us to write attributes like the following and have it work
+# in all tests.
+#
+# #[cfg(any(feature = "test", test))]
+#
+# NOTE: This means that tests MUST be run with:
+#   cargo test --features "test"
+[features]
+test = []

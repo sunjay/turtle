@@ -1,14 +1,15 @@
+// During tests, we disable the renderer and that causes a bunch of warnings that we just want
+// to get rid of.
+// See Cargo.toml for an explanation of this attribute
+#![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables, unused_imports))]
+
 use std::thread;
 use std::process;
 use std::time::Instant;
 use std::sync::mpsc::{self, TryRecvError};
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use piston_window::{
-    PistonWindow,
-    WindowSettings,
-    math,
-};
+use piston_window::math;
 
 use renderer::{Renderer, DrawingCommand};
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
@@ -88,11 +89,9 @@ impl TurtleWindow {
 
         let read_only = turtle_window.read_only();
         let handle = thread::spawn(move || {
-            let mut window: PistonWindow = WindowSettings::new(
-                "Turtle", [800, 600]
-            ).exit_on_esc(true).build().unwrap();
-
-            Renderer::new().run(&mut window, drawing_rx, events_tx, read_only);
+            // See Cargo.toml for an explanation of this attribute
+            #[cfg(not(any(feature = "test", test)))]
+            Renderer::new().run(drawing_rx, events_tx, read_only);
         });
 
         turtle_window.thread_handle = Some(handle);

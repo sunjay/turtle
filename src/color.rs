@@ -9,7 +9,7 @@
 //!
 //! You can refer to a color by using its color name as a string literal. For example:
 //!
-//! ```rust,no_run
+//! ```rust
 //! # extern crate turtle;
 //! # use turtle::color;
 //! # fn main() {
@@ -25,7 +25,7 @@
 //!
 //! You can also use hex literals to get any color you want (even ones that aren't listed here).
 //!
-//! ```rust,no_run
+//! ```rust
 //! # extern crate turtle;
 //! # fn main() {
 //! # let mut turtle = turtle::Turtle::new();
@@ -47,7 +47,7 @@
 //!
 //! You can also generate random colors. Here's an example:
 //!
-//! ```rust,no_run
+//! ```rust
 //! # extern crate turtle;
 //! # fn main() {
 //! # let mut turtle = turtle::Turtle::new();
