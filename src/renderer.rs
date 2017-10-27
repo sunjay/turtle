@@ -12,7 +12,7 @@ use piston_window::{
 
 use turtle_window::ReadOnly;
 use extensions::ConvertScreenCoordinates;
-use state::{Path, Polygon, Pen, TurtleState};
+use state::{Path, Polygon, Pen, TurtleState, DrawingState};
 use event::from_piston_event;
 use {Point, Event, Color, color};
 
@@ -84,50 +84,18 @@ impl Renderer {
             }
 
             window.draw_2d(&e, |c, g| {
-                let background = state.drawing().background;
-                clear(background.into(), g);
-
                 let view = c.get_view_size();
                 let width = view[0] as f64;
                 let height = view[1] as f64;
                 center = [width * 0.5, height * 0.5];
 
-                for drawing in &self.drawings {
-                    match *drawing {
-                        Drawing::Path(ref path) => self.render_path(c, g, center, path),
-                        Drawing::Polygon(ref poly) => self.render_polygon(c, g, center,
-                            poly.fill_color, poly.vertices.iter()),
-                    }
-                }
+                // We clone the relevant state before rendering so that the rendering thread
+                // doesn't need to keep locking, waiting or making the main thread wait
+                let drawing = state.drawing().clone();
+                let temporary_path = state.temporary_path().clone();
+                let turtle = state.turtle().clone();
 
-                if let Some(&(ref border, ref poly)) = self.fill_polygon.as_ref() {
-                    // If the temporary_path is not None, we need to add it to the polygon being
-                    // filled or else the polygon will fall one edge behind in the animation
-                    let extra = state.temporary_path().as_ref().map_or(Vec::new(), |&Path {start, end, ..}| {
-                        if poly.vertices.last().map_or(true, |&v| v != start) {
-                            vec![start, end]
-                        }
-                        else {
-                            vec![end]
-                        }
-                    });
-                    self.render_polygon(c, g, center, poly.fill_color,
-                        poly.vertices.iter().chain(extra.iter()));
-
-                    for path in border {
-                        if path.pen.enabled {
-                            self.render_path(c, g, center, path);
-                        }
-                    }
-                }
-
-                if let Some(ref path) = *state.temporary_path() {
-                    if path.pen.enabled {
-                        self.render_path(c, g, center, path);
-                    }
-                }
-
-                self.render_shell(c, g, center, &state);
+                self.render(c, g, center, &drawing, &temporary_path, &turtle);
             });
         }
 
@@ -182,6 +150,50 @@ impl Renderer {
         }
     }
 
+    /// The main rendering route. Dispatches to other functions as needed.
+    fn render(&self, c: context::Context, g: &mut G2d, center: Point,
+        drawing: &DrawingState, temporary_path: &Option<Path>, turtle: &TurtleState) {
+        let background = drawing.background;
+        clear(background.into(), g);
+
+        for drawing in &self.drawings {
+            match *drawing {
+                Drawing::Path(ref path) => self.render_path(c, g, center, path),
+                Drawing::Polygon(ref poly) => self.render_polygon(c, g, center,
+                    poly.fill_color, poly.vertices.iter()),
+            }
+        }
+
+        if let Some(&(ref border, ref poly)) = self.fill_polygon.as_ref() {
+            // If the temporary_path is not None, we need to add it to the polygon being
+            // filled or else the polygon will fall one edge behind in the animation
+            let extra = temporary_path.as_ref().map_or(Vec::new(), |&Path {start, end, ..}| {
+                if poly.vertices.last().map_or(true, |&v| v != start) {
+                    vec![start, end]
+                }
+                else {
+                    vec![end]
+                }
+            });
+            self.render_polygon(c, g, center, poly.fill_color,
+                poly.vertices.iter().chain(extra.iter()));
+
+            for path in border {
+                if path.pen.enabled {
+                    self.render_path(c, g, center, path);
+                }
+            }
+        }
+
+        if let Some(ref path) = *temporary_path {
+            if path.pen.enabled {
+                self.render_path(c, g, center, path);
+            }
+        }
+
+        self.render_shell(c, g, center, turtle);
+    }
+
     /// Render a path assuming that its pen is enabled
     fn render_path(&self, c: context::Context, g: &mut G2d, center: Point, path: &Path) {
         let &Path {start, end, ref pen} = path;
@@ -225,10 +237,10 @@ impl Renderer {
     }
 
     /// Draw the turtle's shell
-    fn render_shell(&self, c: context::Context, g: &mut G2d, center: Point, state: &ReadOnly) {
+    fn render_shell(&self, c: context::Context, g: &mut G2d, center: Point,
+        &TurtleState {position, heading, visible, ..}: &TurtleState) {
         // Calculate all the points on the shell by rotating the shell shape by the turtle's
         // heading and moving it to the turtle's position
-        let TurtleState {position, heading, visible, ..} = *state.turtle();
         if !visible {
             return;
         }
