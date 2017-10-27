@@ -7,5 +7,6 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-RUSTFLAGS='-C debuginfo=2' cargo build --release --example "$1"
-perf stat -e cycles,L1-dcache-load-misses,instructions,cache-misses,context-switches "./target/release/examples/$1" 2>&1
+# Use debug profile since that is how this library will be used
+cargo build --example "$1"
+perf stat -e cycles,L1-dcache-load-misses,instructions,cache-misses,context-switches "./target/debug/examples/$1" 2>&1
