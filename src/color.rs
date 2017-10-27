@@ -42,15 +42,63 @@
 //! and each of their names as strings. These static variables only contain the colors from this
 //! module. The [`extended`](extended/index.html) module has its own static `COLOR` and
 //! `COLOR_NAMES` variables.
+//!
+//! ## Random Colors
+//!
+//! You can also generate random colors. Here's an example:
+//!
+//! ```rust,no_run
+//! # extern crate turtle;
+//! # fn main() {
+//! # let mut turtle = turtle::Turtle::new();
+//! use turtle::{random, Color};
+//! turtle.set_pen_color(random::<Color>().opaque());
+//! # }
+//! ```
+//!
+//! The syntax used in `random::<Color>()` is referred to as
+//! ["turbofish" syntax](https://doc.rust-lang.org/book/first-edition/generics.html#resolving-ambiguities).
+//! See that documentation for more information.
+//!
+//! Notice that you need to explicitly call the [`opaque()`](struct.Color.html#method.opaque)
+//! method on the color in order to make sure that the color has an alpha value of 1.0. By default,
+//! when you generate a random color, it's alpha value will be random as well.
+//!
+//! See the [examples directory on GitHub](https://github.com/sunjay/turtle/tree/master/examples)
+//! for more information.
+//!
+//! ## Creating a Color from Values
+//!
+//! Usually, you won't need to initialize a color this way since the above methods are quite
+//! convenient. However, in some situations it may be necessary to create a color with specific
+//! red, green, and blue values. The following example illustrates how to do that.
+//!
+//! ```rust,no_run
+//! # extern crate turtle;
+//! # fn main() {
+//! use turtle::Color;
+//! let my_color = Color {red: 255.0, green: 55.0, blue: 11.0, alpha: 1.0};
+//! # }
+//! ```
+//!
+//! Note that when creating a color this way, we **do not** check if the values of each property are
+//! within their valid ranges.
 
 use piston_window::types;
 use rand::{Rand, Rng};
 
+/// Type for representing a color.
+///
+/// See [the module level documentation](index.html) for more.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
+    /// Value between 0.0 and 255.0
     pub red: f64,
+    /// Value between 0.0 and 255.0
     pub green: f64,
+    /// Value between 0.0 and 255.0
     pub blue: f64,
+    /// Value between 0.0 and 1.0
     pub alpha: f64,
 }
 
