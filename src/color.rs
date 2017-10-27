@@ -23,7 +23,8 @@
 //! # }
 //! ```
 //!
-//! You can also use hex literals to get any color you want (even ones that aren't listed here).
+//! You can also use hexadecimal color strings to get any color you want
+//! (even ones that aren't listed here).
 //!
 //! ```rust
 //! # extern crate turtle;
@@ -83,6 +84,8 @@
 //!
 //! Note that when creating a color this way, we **do not** check if the values of each property are
 //! within their valid ranges.
+
+use std::iter::repeat;
 
 use piston_window::types;
 use rand::{Rand, Rng};
@@ -166,8 +169,25 @@ impl<'a> From<&'a str> for Color {
     fn from(s: &'a str) -> Self {
         match s {
             s if s.starts_with("#") => {
-                //TODO: Parse hex (#3366ff, #36f)
-                unimplemented!();
+                let color_str = &s[1..];
+                // Color strings can either be of size 3 (rgb) or 6 (rrggbb)
+                // e.g. 3366ff == 36f
+                let color_str = match color_str.len() {
+                    3 => color_str.chars().flat_map(|c| repeat(c).take(2)).collect(),
+                    6 => color_str.to_owned(),
+                    _ => panic!("Invalid color literal: {}", s),
+                };
+
+                let red = i64::from_str_radix(&color_str[0..2], 16);
+                let green = i64::from_str_radix(&color_str[2..4], 16);
+                let blue = i64::from_str_radix(&color_str[4..6], 16);
+
+                Color {
+                    red: red.expect(&format!("Invalid color literal: {}", s)) as f64,
+                    green: green.expect(&format!("Invalid color literal: {}", s)) as f64,
+                    blue: blue.expect(&format!("Invalid color literal: {}", s)) as f64,
+                    alpha: 1.0,
+                }
             },
             s => {
                 from_color_name(s)
@@ -201,6 +221,8 @@ macro_rules! color_consts {
     }
 }
 
+// Most important colors are put in the main module, the remaining are in extended.
+// We do this so that documentation doesn't get overloaded with constants.
 color_consts! {
     "transparent", TRANSPARENT, (0.0, 0.0, 0.0, 0.0);
     "red", RED,	(230.0, 25.0, 75.0, 1.0);
@@ -225,6 +247,34 @@ color_consts! {
     "grey", GREY,	(128.0, 128.0, 128.0, 1.0);
     "white", WHITE,	(255.0, 255.0, 255.0, 1.0);
     "black", BLACK,	(0.0, 0.0, 0.0, 1.0);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn color_equivalence() {
+        let c = Color {red: 51.0, green: 85.0, blue: 255.0, alpha: 1.0};
+        let c1: Color = "#35f".into();
+        let c2: Color = "#3355ff".into();
+        assert_eq!(c, c1);
+        assert_eq!(c1, c2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid color literal: #fffff")]
+    fn invalid_color1() {
+        // Wrong number of digits
+        Color::from("#fffff");
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid color literal: #www")]
+    fn invalid_color2() {
+        // Invalid hex character
+        Color::from("#www");
+    }
 }
 
 pub mod extended {
