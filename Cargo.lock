@@ -1,6 +1,6 @@
 [root]
 name = "turtle"
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.3"
 dependencies = [
  "interpolation 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston_window 0.73.0 (registry+https://github.com/rust-lang/crates.io-index)",
