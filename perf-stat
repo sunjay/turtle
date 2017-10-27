@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ $# -eq 0 ]; then
+    echo "Please provide the name of an example to profile"
+    exit 1
+fi
+
+RUSTFLAGS='-C debuginfo=2' cargo build --release --example "$1"
+perf stat -e cycles,L1-dcache-load-misses,instructions,cache-misses,context-switches "./target/release/examples/$1"

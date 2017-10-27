@@ -1,3 +1,6 @@
+perf.data*
+flame.svg
+
 # Created by https://www.gitignore.io/api/rust
 
 ### Rust ###

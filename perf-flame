@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ $# -eq 0 ]; then
+    echo "Please provide the name of an example to profile"
+    exit 1
+fi
+
+RUSTFLAGS='-C debuginfo=2' cargo build --release --example "$1"
+perf record -g "target/release/examples/$1" --bench "$1"
+perf script | stackcollapse-perf | flamegraph > flame.svg
+
+echo "Flamegraph written to 'flame.svg'"
