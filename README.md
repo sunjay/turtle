@@ -1,6 +1,7 @@
 # turtle
 
 [![Crates.io](https://img.shields.io/crates/v/turtle.svg)](https://crates.io/crates/turtle)
+[![Docs.rs](https://docs.rs/turtle/badge.svg)](https://docs.rs/turtle)
 [![Crates.io](https://img.shields.io/crates/l/turtle.svg)](https://crates.io/crates/turtle)
 [![Crates.io](https://img.shields.io/crates/d/turtle.svg)](https://crates.io/crates/turtle)
 [![Build Status](https://travis-ci.org/sunjay/turtle.svg?branch=master)](https://travis-ci.org/sunjay/turtle)
@@ -17,6 +18,11 @@ any picture you want just by moving the turtle across the screen.
 
 ![turtle start](https://github.com/sunjay/turtle/raw/master/turtle1.png)
 ![turtle moved](https://github.com/sunjay/turtle/raw/master/turtle2.png)
+
+## Documentation
+
+* [Website](http://turtle.rs)
+* [API Documentation](https://docs.rs/turtle)
 
 ## Example
 
