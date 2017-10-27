@@ -73,7 +73,7 @@
 //! convenient. However, in some situations it may be necessary to create a color with specific
 //! red, green, and blue values. The following example illustrates how to do that.
 //!
-//! ```rust,no_run
+//! ```rust
 //! # extern crate turtle;
 //! # fn main() {
 //! use turtle::Color;
@@ -103,13 +103,37 @@ pub struct Color {
 }
 
 impl Color {
-    /// Set the color's opacity (alpha) to 1.0
+    /// Return a new color with all of the same values except with opacity (alpha) set to 1.0
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # fn main() {
+    /// use turtle::Color;
+    /// let color = Color {red: 43.0, green: 79.0, blue: 23.0, alpha: 0.5};
+    /// assert_eq!(color.alpha, 0.5);
+    /// let color2 = color.opaque();
+    /// assert_eq!(color.alpha, 0.5);
+    /// assert_eq!(color2.alpha, 1.0);
+    /// # }
+    /// ```
     pub fn opaque(mut self) -> Color {
         self.alpha = 1.0;
         self
     }
 
-    /// Set the color's opacity (alpha) to 0.0
+    /// Return a new color with all of the same values except with opacity (alpha) set to 0.0
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # fn main() {
+    /// use turtle::Color;
+    /// let color = Color {red: 43.0, green: 79.0, blue: 23.0, alpha: 0.5};
+    /// assert_eq!(color.alpha, 0.5);
+    /// let color2 = color.transparent();
+    /// assert_eq!(color.alpha, 0.5);
+    /// assert_eq!(color2.alpha, 0.0);
+    /// # }
+    /// ```
     pub fn transparent(mut self) -> Color {
         self.alpha = 0.0;
         self
