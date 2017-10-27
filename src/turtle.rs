@@ -66,7 +66,20 @@ pub struct Turtle {
 }
 
 impl Turtle {
-    /// Initialize a new Turtle instance
+    /// Create a new turtle.
+    ///
+    /// This will immediately open a new window with the turtle at the center. As each line in
+    /// your program runs, the turtle shown in the window will update.
+    ///
+    /// ```rust,no_run
+    /// extern crate turtle;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///     // Do things with the turtle...
+    /// }
+    /// ```
     pub fn new() -> Turtle {
         Turtle {
             window: TurtleWindow::new(),
