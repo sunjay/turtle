@@ -107,6 +107,7 @@ install:
   - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
   - rustc -vV
   - cargo -vV
+  - set RUST_BACKTRACE=1
 
 ## Build Script ##
 
