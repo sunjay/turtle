@@ -72,6 +72,7 @@ impl Turtle {
     /// your program runs, the turtle shown in the window will update.
     ///
     /// ```rust
+    /// # #![allow(unused_variables, unused_mut)]
     /// extern crate turtle;
     /// use turtle::Turtle;
     ///
@@ -103,6 +104,19 @@ impl Turtle {
     }
 
     /// Returns the turtle's current location (x, y)
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.forward(100.0);
+    /// let pos = turtle.position();
+    /// # // Cheating a bit here for rounding...
+    /// # let pos = [pos[0].round(), pos[1].round()];
+    /// assert_eq!(pos, [0.0, 100.0]);
+    /// # }
+    /// ```
     pub fn position(&self) -> Point {
         self.window.turtle().position
     }
