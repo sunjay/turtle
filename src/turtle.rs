@@ -121,11 +121,43 @@ impl Turtle {
         self.window.turtle().position
     }
 
-    /// Returns the turtle's current heading
+    /// Returns the turtle's current heading.
     ///
-    /// Units are by default degrees, but can be set using the methods
+    /// Units are by default degrees, but can be set using the
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
-    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
+    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians) methods.
+    ///
+    /// The heading is relative to the positive x axis (east). When first created, the turtle
+    /// starts facing north. That means that its heading is 90.0 degrees. The following chart
+    /// contains many common directions and their angles.
+    ///
+    /// | Cardinal Direction | Heading (degrees) | Heading (radians) |
+    /// | ------------------ | ----------------- | ----------------- |
+    /// | East               | 0.0&deg;          | `0.0`             |
+    /// | North              | 90.0&deg;         | `PI/2`            |
+    /// | West               | 180.0&deg;        | `PI`              |
+    /// | South              | 270.0&deg;        | `3*PI/2`          |
+    ///
+    /// You can test the result of `heading()` with these values to see if the turtle is facing
+    /// a certain direction.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// // Turtles start facing north
+    /// let mut turtle = Turtle::new();
+    /// // The rounding is to account for floating-point error
+    /// assert_eq!(turtle.heading().round(), 90.0);
+    /// turtle.right(31.0);
+    /// assert_eq!(turtle.heading().round(), 59.0);
+    /// turtle.left(193.0);
+    /// assert_eq!(turtle.heading().round(), 252.0);
+    /// turtle.left(130.0);
+    /// // Angles should not exceed 360.0
+    /// assert_eq!(turtle.heading().round(), 22.0);
+    /// # }
+    /// ```
     pub fn heading(&self) -> Angle {
         let heading = self.window.turtle().heading;
         self.angle_unit.to_angle(heading)
