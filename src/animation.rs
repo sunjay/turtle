@@ -1,3 +1,7 @@
+// During tests, we disable animations and that causes a bunch of warnings
+// See Cargo.toml for an explanation of this attribute
+#![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables, unused_imports))]
+
 use std::time::Instant;
 
 use interpolation::lerp;
@@ -60,6 +64,8 @@ impl Animation for MoveAnimation {
     /// Advance the animation forward.
     ///
     /// The animation will use the timer it stores to calculate the current state it should be at.
+    // See Cargo.toml for an explanation of this attribute
+    #[cfg(not(any(feature = "test", test)))]
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
         use self::AnimationStatus::*;
 
@@ -80,6 +86,17 @@ impl Animation for MoveAnimation {
                 pen: path.pen.clone(),
             }))
         }
+    }
+
+    // See Cargo.toml for an explanation of this attribute
+    #[cfg(any(feature = "test", test))]
+    fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
+        use self::AnimationStatus::*;
+
+        // No animation during testing
+        let MoveAnimation {ref path, ..} = *self;
+        turtle.position = path.end;
+        Complete(Some(path.clone()))
     }
 }
 
@@ -109,6 +126,8 @@ impl Animation for RotateAnimation {
     /// Advance the animation forward.
     ///
     /// The animation will use the timer it stores to calculate the current state it should be at.
+    // See Cargo.toml for an explanation of this attribute
+    #[cfg(not(any(feature = "test", test)))]
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
         use self::AnimationStatus::*;
 
@@ -130,5 +149,17 @@ impl Animation for RotateAnimation {
 
             Running(None)
         }
+    }
+
+    // See Cargo.toml for an explanation of this attribute
+    #[cfg(any(feature = "test", test))]
+    fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
+        use self::AnimationStatus::*;
+
+        // No animation during testing
+        let RotateAnimation {start, delta_angle, clockwise, ..} = *self;
+        turtle.heading = rotate(start, delta_angle, clockwise) % TWO_PI;
+
+        Complete(None)
     }
 }
