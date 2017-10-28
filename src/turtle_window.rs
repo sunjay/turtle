@@ -238,6 +238,10 @@ impl TurtleWindow {
 
     #[inline]
     fn send_drawing_command(&mut self, command: DrawingCommand) {
+        // During tests, we disable the renderer. That means that if we let this code run, it will
+        // quit the application during the tests and make it look like everything passes.
+        // We disable this code so that none of that happens.
+        #[cfg(not(any(feature = "test", test)))]
         self.drawing_channel.send(command).unwrap_or_else(|_| {
             // The channel is closed which means the window was closed
             // quit immediately
