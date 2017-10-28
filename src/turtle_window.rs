@@ -1,5 +1,4 @@
-// During tests, we disable the renderer and that causes a bunch of warnings that we just want
-// to get rid of.
+// During tests, we disable the renderer and that causes a bunch of warnings
 // See Cargo.toml for an explanation of this attribute
 #![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables, unused_imports))]
 

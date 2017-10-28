@@ -71,7 +71,7 @@ impl Turtle {
     /// This will immediately open a new window with the turtle at the center. As each line in
     /// your program runs, the turtle shown in the window will update.
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// extern crate turtle;
     /// use turtle::Turtle;
     ///
@@ -88,6 +88,16 @@ impl Turtle {
     }
 
     /// Returns the current speed of the turtle
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.set_speed(8);
+    /// assert_eq!(turtle.speed(), Speed::Eight);
+    /// # }
+    /// ```
     pub fn speed(&self) -> Speed {
         self.window.turtle().speed
     }
