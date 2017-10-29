@@ -448,7 +448,8 @@ impl Turtle {
         self.window.clear();
     }
 
-    /// Move the turtle forward by the given amount of `distance`.
+    /// Move the turtle forward by the given amount of `distance`. If the pen is down, the turtle
+    /// will draw a line as it moves.
     ///
     /// `distance` is given in "pixels" which are like really small turtle steps.
     /// `distance` can be negative in which case the turtle can move backward
@@ -457,7 +458,8 @@ impl Turtle {
         self.window.forward(distance);
     }
 
-    /// Move the turtle backward by the given amount of `distance`.
+    /// Move the turtle backward by the given amount of `distance`. If the pen is down, the turtle
+    /// will draw a line as it moves.
     ///
     /// `distance` is given in "pixels" which are like really small turtle steps.
     /// `distance` can be negative in which case the turtle can move forwards
@@ -467,7 +469,8 @@ impl Turtle {
         self.window.forward(-distance);
     }
 
-    /// Rotate the turtle right (clockwise) by the given angle.
+    /// Rotate the turtle right (clockwise) by the given angle. Since the turtle rotates in place,
+    /// its position will not change and it will not draw anything at all.
     ///
     /// Units are by default degrees, but can be set using the methods
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
@@ -477,7 +480,8 @@ impl Turtle {
         self.window.rotate(angle, true);
     }
 
-    /// Rotate the turtle left (counterclockwise) by the given angle.
+    /// Rotate the turtle left (counterclockwise) by the given angle. Since the turtle rotates
+    /// in place, its position will not change and it will not draw anything at all.
     ///
     /// Units are by default degrees, but can be set using the methods
     /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
