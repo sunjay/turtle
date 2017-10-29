@@ -330,13 +330,53 @@ impl Turtle {
         self.window.drawing_mut().pen.enabled = false;
     }
 
-    /// Returns the size (thickness) of the pen
+    /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
+    ///
+    /// See [`Turtle::set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
     pub fn pen_size(&self) -> f64 {
         self.window.drawing().pen.thickness
     }
 
-    /// Sets the thickness of the pen to the given size
-    //TODO: Document this more like set_speed
+    /// Sets the thickness of the pen to the given size. The thickness is measured in pixels.
+    ///
+    /// The turtle's pen has a flat tip. The value you set the pen's size to will change the
+    /// width of the stroke created by the turtle as it moves. See the example below for more
+    /// about what this means.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// extern crate turtle;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///
+    ///     turtle.pen_up();
+    ///     turtle.right(90.0);
+    ///     turtle.backward(300.0);
+    ///     turtle.pen_down();
+    ///
+    ///     turtle.set_pen_color("#2196F3"); // blue
+    ///     turtle.set_pen_size(1.0);
+    ///     turtle.forward(200.0);
+    ///
+    ///     turtle.set_pen_color("#f44336"); // red
+    ///     turtle.set_pen_size(50.0);
+    ///     turtle.forward(200.0);
+    ///
+    ///     turtle.set_pen_color("#4CAF50"); // green
+    ///     turtle.set_pen_size(100.0);
+    ///     turtle.forward(200.0);
+    /// }
+    /// ```
+    ///
+    /// This will produce the following:
+    ///
+    /// ![turtle pen thickness](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/pen_thickness.png)
+    ///
+    /// Notice that while the turtle travels in a straight line, it produces different thicknesses
+    /// of lines which appear like large rectangles.
     pub fn set_pen_size(&mut self, thickness: f64) {
         self.window.drawing_mut().pen.thickness = thickness;
     }
