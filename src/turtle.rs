@@ -270,16 +270,60 @@ impl Turtle {
     }
 
     /// Return true if pen is down, false if it’s up.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// assert!(turtle.is_pen_down());
+    /// turtle.pen_up();
+    /// assert!(!turtle.is_pen_down());
+    /// turtle.pen_down();
+    /// assert!(turtle.is_pen_down());
+    /// # }
+    /// ```
     pub fn is_pen_down(&self) -> bool {
         self.window.drawing().pen.enabled
     }
 
-    /// Pull the pen down so that the turtle draws while moving
+    /// Pull the pen down so that the turtle draws while moving.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// # turtle.pen_up();
+    /// assert!(!turtle.is_pen_down());
+    /// // This will move the turtle, but not draw any lines
+    /// turtle.forward(100.0);
+    /// turtle.pen_down();
+    /// assert!(turtle.is_pen_down());
+    /// // The turtle will now draw lines again
+    /// turtle.forward(100.0);
+    /// # }
+    /// ```
     pub fn pen_down(&mut self) {
         self.window.drawing_mut().pen.enabled = true;
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// assert!(turtle.is_pen_down());
+    /// // The turtle will move and draw a line
+    /// turtle.forward(100.0);
+    /// turtle.pen_up();
+    /// assert!(!turtle.is_pen_down());
+    /// // Now, the turtle will move, but not draw anything
+    /// turtle.forward(100.0);
+    /// # }
+    /// ```
     pub fn pen_up(&mut self) {
         self.window.drawing_mut().pen.enabled = false;
     }
