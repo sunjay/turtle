@@ -103,6 +103,65 @@ impl Turtle {
         self.window.turtle().speed
     }
 
+    /// Set the turtle's movement speed to the given setting. This speed affects the animation of
+    /// the turtle's movement and rotation.
+    ///
+    /// This method's types make it so that it can be called in a number of different ways:
+    ///
+    /// ```rust,no_run
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.set_speed("normal");
+    /// turtle.set_speed("fast");
+    /// turtle.set_speed(2);
+    /// turtle.set_speed(10);
+    /// // Directly using a Speed variant works, but the methods above are usually more convenient.
+    /// turtle.set_speed(Speed::Six);
+    /// # }
+    /// ```
+    ///
+    /// If input is a number greater than 10 or smaller than 1,
+    /// speed is set to 0 (`Speed::Instant`). Strings are converted as follows:
+    ///
+    /// | String      | Value          |
+    /// | ----------- | -------------- |
+    /// | `"slowest"` | `Speed::One`     |
+    /// | `"slow"`    | `Speed::Three`   |
+    /// | `"normal"`  | `Speed::Six`     |
+    /// | `"fast"`    | `Speed::Eight`   |
+    /// | `"fastest"` | `Speed::Ten`     |
+    /// | `"instant"` | `Speed::Instant` |
+    ///
+    /// Anything else will cause the program to `panic!` at runtime.
+    ///
+    /// ## Moving Instantly
+    ///
+    /// A speed of zero (`Speed::Instant`) results in no animation. The turtle moves instantly
+    /// and turns instantly. This is very useful for moving the turtle from its "home" position
+    /// before you start drawing. By setting the speed to instant, you don't have to wait for
+    /// the turtle to move into position.
+    ///
+    /// ## Learning About Conversion Traits
+    ///
+    /// Using this method is an excellent way to learn about conversion
+    /// traits `From` and `Into`. This method takes a *generic type* as its speed parameter. That type
+    /// is specified to implement the `Into` trait for the type `Speed`. That means that *any* type
+    /// that can be converted into a `Speed` can be passed to this method.
+    ///
+    /// We have implemented that trait for several types like strings and 32-bit integers so that
+    /// those values can be passed into this method.
+    /// Rather than calling this function and passing `Speed::Six` directly, you can use just `6`.
+    /// Rust will then allow us to call `.into()` as provided by the `Into<Speed>` trait to get the
+    /// corresponding `Speed` value.
+    ///
+    /// You can pass in strings, 32-bit integers, and even `Speed` enum variants because they all
+    /// implement the `Into<Speed>` trait.
+    pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
+        self.window.turtle_mut().speed = speed.into();
+    }
+
     /// Returns the turtle's current location (x, y)
     ///
     /// ```rust
@@ -163,6 +222,128 @@ impl Turtle {
         self.angle_unit.to_angle(heading)
     }
 
+    /// Returns true if `Angle` values will be interpreted as degrees.
+    ///
+    /// See [Turtle::use_degrees()](struct.Turtle.html#method.use_degrees) for more information.
+    pub fn is_using_degrees(&self) -> bool {
+        self.angle_unit == AngleUnit::Degrees
+    }
+
+    /// Returns true if `Angle` values will be interpreted as radians.
+    ///
+    /// See [Turtle::use_radians()](struct.Turtle.html#method.use_degrees) for more information.
+    pub fn is_using_radians(&self) -> bool {
+        self.angle_unit == AngleUnit::Radians
+    }
+
+    /// Change the angle unit to degrees.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// # turtle.use_radians();
+    /// assert!(!turtle.is_using_degrees());
+    /// turtle.use_degrees();
+    /// assert!(turtle.is_using_degrees());
+    /// # }
+    /// ```
+    pub fn use_degrees(&mut self) {
+        self.angle_unit = AngleUnit::Degrees;
+    }
+
+    /// Change the angle unit to radians.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// assert!(!turtle.is_using_radians());
+    /// turtle.use_radians();
+    /// assert!(turtle.is_using_radians());
+    /// # }
+    /// ```
+    pub fn use_radians(&mut self) {
+        self.angle_unit = AngleUnit::Radians;
+    }
+
+    /// Return true if pen is down, false if it’s up.
+    pub fn is_pen_down(&self) -> bool {
+        self.window.drawing().pen.enabled
+    }
+
+    /// Pull the pen down so that the turtle draws while moving
+    pub fn pen_down(&mut self) {
+        self.window.drawing_mut().pen.enabled = true;
+    }
+
+    /// Pick the pen up so that the turtle does not draw while moving
+    pub fn pen_up(&mut self) {
+        self.window.drawing_mut().pen.enabled = false;
+    }
+
+    /// Returns the size (thickness) of the pen
+    pub fn pen_size(&self) -> f64 {
+        self.window.drawing().pen.thickness
+    }
+
+    /// Sets the thickness of the pen to the given size
+    //TODO: Document this more like set_speed
+    pub fn set_pen_size(&mut self, thickness: f64) {
+        self.window.drawing_mut().pen.thickness = thickness;
+    }
+
+    /// Returns the color of the pen
+    pub fn pen_color(&self) -> Color {
+        self.window.drawing().pen.color
+    }
+
+    /// Sets the color of the pen to the given color
+    //TODO: Document this more like set_speed
+    pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
+        self.window.drawing_mut().pen.color = color.into();
+    }
+
+    /// Returns the color of the background
+    pub fn background_color(&self) -> Color {
+        self.window.drawing().background
+    }
+
+    /// Sets the color of the background to the given color
+    //TODO: Document this more like set_speed
+    pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
+        self.window.drawing_mut().background = color.into();
+    }
+
+    /// Returns the current fill color
+    ///
+    /// This will be used to fill the shape when `begin_fill()` and `end_fill()` are called.
+    //TODO: Hyperlink begin_fill() and end_fill() methods to their docs
+    pub fn fill_color(&self) -> Color {
+        self.window.drawing().fill_color
+    }
+
+    /// Sets the fill color to the given color
+    ///
+    /// **Note:** Only the fill color set **before** `begin_fill()` is called will be used to fill
+    /// the shape.
+    //TODO: Document this more like set_speed
+    pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
+        self.window.drawing_mut().fill_color = color.into();
+    }
+
+    /// Begin filling the shape drawn by the turtle's movements
+    pub fn begin_fill(&mut self) {
+        self.window.begin_fill();
+    }
+
+    /// Stop filling the shape drawn by the turtle's movements
+    pub fn end_fill(&mut self) {
+        self.window.end_fill();
+    }
+
     /// Returns true if the turtle is visible.
     ///
     /// ```rust
@@ -179,161 +360,6 @@ impl Turtle {
     /// ```
     pub fn is_visible(&self) -> bool {
         self.window.turtle().visible
-    }
-
-    /// Returns true if `Angle` values will be interpreted as degrees.
-    ///
-    /// See [Turtle::use_degrees()](struct.Turtle.html#method.use_degrees) for more information.
-    pub fn is_using_degrees(&self) -> bool {
-        self.angle_unit == AngleUnit::Degrees
-    }
-
-    /// Returns true if `Angle` values will be interpreted as radians.
-    ///
-    /// See [Turtle::use_radians()](struct.Turtle.html#method.use_degrees) for more information.
-    pub fn is_using_radians(&self) -> bool {
-        self.angle_unit == AngleUnit::Radians
-    }
-
-    /// Return true if pen is down, false if it’s up.
-    pub fn is_pen_down(&self) -> bool {
-        self.window.drawing().pen.enabled
-    }
-
-    /// Returns the size (thickness) of the pen
-    pub fn pen_size(&self) -> f64 {
-        self.window.drawing().pen.thickness
-    }
-
-    /// Returns the color of the pen
-    pub fn pen_color(&self) -> Color {
-        self.window.drawing().pen.color
-    }
-
-    /// Returns the color of the background
-    pub fn background_color(&self) -> Color {
-        self.window.drawing().background
-    }
-
-    /// Returns the current fill color
-    ///
-    /// This will be used to fill the shape when `begin_fill()` and `end_fill()` are called.
-    //TODO: Hyperlink begin_fill() and end_fill() methods to their docs
-    pub fn fill_color(&self) -> Color {
-        self.window.drawing().fill_color
-    }
-
-    /// Begin filling the shape drawn by the turtle's movements
-    pub fn begin_fill(&mut self) {
-        self.window.begin_fill();
-    }
-
-    /// Stop filling the shape drawn by the turtle's movements
-    pub fn end_fill(&mut self) {
-        self.window.end_fill();
-    }
-
-    /// Pull the pen down so that the turtle draws while moving
-    pub fn pen_down(&mut self) {
-        self.window.drawing_mut().pen.enabled = true;
-    }
-
-    /// Pick the pen up so that the turtle does not draw while moving
-    pub fn pen_up(&mut self) {
-        self.window.drawing_mut().pen.enabled = false;
-    }
-
-    /// Sets the thickness of the pen to the given size
-    //TODO: Document this more like set_speed
-    pub fn set_pen_size(&mut self, thickness: f64) {
-        self.window.drawing_mut().pen.thickness = thickness;
-    }
-
-    /// Sets the color of the pen to the given color
-    //TODO: Document this more like set_speed
-    pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.drawing_mut().pen.color = color.into();
-    }
-
-    /// Sets the color of the background to the given color
-    //TODO: Document this more like set_speed
-    pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.drawing_mut().background = color.into();
-    }
-
-    /// Sets the fill color to the given color
-    ///
-    /// **Note:** Only the fill color set **before** `begin_fill()` is called will be used to fill
-    /// the shape.
-    //TODO: Document this more like set_speed
-    pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.drawing_mut().fill_color = color.into();
-    }
-
-    /// Set the turtle's movement speed to the given setting. This speed affects the animation of
-    /// the turtle's movement and rotation.
-    ///
-    /// This method's types make it so that it can be called in a number of different ways:
-    ///
-    /// ```rust,no_run
-    /// # extern crate turtle;
-    /// # use turtle::*;
-    /// # fn main() {
-    /// # let mut turtle = Turtle::new();
-    /// turtle.set_speed("normal");
-    /// turtle.set_speed("fast");
-    /// turtle.set_speed(2);
-    /// turtle.set_speed(10);
-    /// // Directly using a Speed variant works, but the methods above are usually more convenient.
-    /// turtle.set_speed(Speed::Six);
-    /// # }
-    /// ```
-    ///
-    /// If input is a number greater than 10 or smaller than 1,
-    /// speed is set to 0 (`Speed::Instant`). Strings are converted as follows:
-    ///
-    /// | String      | Value          |
-    /// | ----------- | -------------- |
-    /// | `"slowest"` | `Speed::One`     |
-    /// | `"slow"`    | `Speed::Three`   |
-    /// | `"normal"`  | `Speed::Six`     |
-    /// | `"fast"`    | `Speed::Eight`   |
-    /// | `"fastest"` | `Speed::Ten`     |
-    /// | `"instant"` | `Speed::Instant` |
-    ///
-    /// Anything else will cause the program to `panic!` at runtime.
-    ///
-    /// ## Moving Instantly
-    ///
-    /// A speed of zero (`Speed::Instant`) results in no animation. The turtle moves instantly
-    /// and turns instantly. This is very useful for moving the turtle from its "home" position
-    /// before you start drawing. By setting the speed to instant, you don't have to wait for
-    /// the turtle to move into position.
-    ///
-    /// ## Learning About Conversion Traits
-    ///
-    /// Using this method is an excellent way to learn about conversion
-    /// traits `From` and `Into`. This method takes a *generic type* as its speed parameter. That type
-    /// is specified to implement the `Into` trait for the type `Speed`. That means that *any* type
-    /// that can be converted into a `Speed` can be passed to this method.
-    ///
-    /// We have implemented that trait for several types like strings and 32-bit integers so that
-    /// those values can be passed into this method.
-    /// Rather than calling this function and passing `Speed::Six` directly, you can use just `6`.
-    /// Rust will then allow us to call `.into()` as provided by the `Into<Speed>` trait to get the
-    /// corresponding `Speed` value.
-    ///
-    /// You can pass in strings, 32-bit integers, and even `Speed` enum variants because they all
-    /// implement the `Into<Speed>` trait.
-    pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-        self.window.turtle_mut().speed = speed.into();
-    }
-
-    /// Delete the turtle's drawings from the screen.
-    ///
-    /// Do not move turtle. Position and heading of the turtle are not affected.
-    pub fn clear(&mut self) {
-        self.window.clear();
     }
 
     /// Makes the turtle invisible. The shell will not be shown, but drawings will continue.
@@ -371,37 +397,11 @@ impl Turtle {
         self.window.turtle_mut().visible = true;
     }
 
-    /// Change the angle unit to degrees.
+    /// Delete the turtle's drawings from the screen.
     ///
-    /// ```rust
-    /// # extern crate turtle;
-    /// # use turtle::*;
-    /// # fn main() {
-    /// # let mut turtle = Turtle::new();
-    /// # turtle.use_radians();
-    /// assert!(!turtle.is_using_degrees());
-    /// turtle.use_degrees();
-    /// assert!(turtle.is_using_degrees());
-    /// # }
-    /// ```
-    pub fn use_degrees(&mut self) {
-        self.angle_unit = AngleUnit::Degrees;
-    }
-
-    /// Change the angle unit to radians.
-    ///
-    /// ```rust
-    /// # extern crate turtle;
-    /// # use turtle::*;
-    /// # fn main() {
-    /// # let mut turtle = Turtle::new();
-    /// assert!(!turtle.is_using_radians());
-    /// turtle.use_radians();
-    /// assert!(turtle.is_using_radians());
-    /// # }
-    /// ```
-    pub fn use_radians(&mut self) {
-        self.angle_unit = AngleUnit::Radians;
+    /// Do not move turtle. Position and heading of the turtle are not affected.
+    pub fn clear(&mut self) {
+        self.window.clear();
     }
 
     /// Move the turtle forward by the given amount of `distance`.
