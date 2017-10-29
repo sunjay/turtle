@@ -258,8 +258,12 @@ mod tests {
         let c = Color {red: 51.0, green: 85.0, blue: 255.0, alpha: 1.0};
         let c1: Color = "#35f".into();
         let c2: Color = "#3355ff".into();
+        let c3: Color = "#35F".into();
+        let c4: Color = "#3355FF".into();
         assert_eq!(c, c1);
         assert_eq!(c1, c2);
+        assert_eq!(c2, c3);
+        assert_eq!(c3, c4);
     }
 
     #[test]
