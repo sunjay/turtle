@@ -17,10 +17,9 @@
 //! certain events like the mouse moving, keys being pressed, and more.
 //!
 //! The `Turtle` struct contains a few convenience methods so you can do some common event-related
-//! things without creating the entire event loop.
-//!
-//! * Use [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
-//!   anywhere on the screen before continuing
+//! things without creating the entire event loop. For example, use
+//! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
+//! anywhere on the screen before proceeding.
 
 extern crate piston_window;
 extern crate interpolation;
