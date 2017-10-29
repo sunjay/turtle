@@ -181,12 +181,16 @@ impl Turtle {
         self.window.turtle().visible
     }
 
-    /// Returns true if Angle values will be interpreted as degrees
+    /// Returns true if `Angle` values will be interpreted as degrees.
+    ///
+    /// See [Turtle::use_degrees()](struct.Turtle.html#method.use_degrees) for more information.
     pub fn is_using_degrees(&self) -> bool {
         self.angle_unit == AngleUnit::Degrees
     }
 
-    /// Returns true if Angle values will be interpreted as radians
+    /// Returns true if `Angle` values will be interpreted as radians.
+    ///
+    /// See [Turtle::use_radians()](struct.Turtle.html#method.use_degrees) for more information.
     pub fn is_using_radians(&self) -> bool {
         self.angle_unit == AngleUnit::Radians
     }
@@ -368,11 +372,34 @@ impl Turtle {
     }
 
     /// Change the angle unit to degrees.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// # turtle.use_radians();
+    /// assert!(!turtle.is_using_degrees());
+    /// turtle.use_degrees();
+    /// assert!(turtle.is_using_degrees());
+    /// # }
+    /// ```
     pub fn use_degrees(&mut self) {
         self.angle_unit = AngleUnit::Degrees;
     }
 
     /// Change the angle unit to radians.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// assert!(!turtle.is_using_radians());
+    /// turtle.use_radians();
+    /// assert!(turtle.is_using_radians());
+    /// # }
+    /// ```
     pub fn use_radians(&mut self) {
         self.angle_unit = AngleUnit::Radians;
     }
@@ -468,5 +495,24 @@ impl Turtle {
                 break;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_using_radians_degrees() {
+        // is_using_radians and is_using_degrees should be inverses of each other
+        let mut turtle = Turtle::new();
+        assert!(!turtle.is_using_radians());
+        assert!(turtle.is_using_degrees());
+        turtle.use_radians();
+        assert!(turtle.is_using_radians());
+        assert!(!turtle.is_using_degrees());
+        turtle.use_degrees();
+        assert!(!turtle.is_using_radians());
+        assert!(turtle.is_using_degrees());
     }
 }
