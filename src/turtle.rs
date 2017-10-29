@@ -163,7 +163,20 @@ impl Turtle {
         self.angle_unit.to_angle(heading)
     }
 
-    /// Returns true if the turtle is visible
+    /// Returns true if the turtle is visible.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// let mut turtle = Turtle::new();
+    /// assert!(turtle.is_visible());
+    /// turtle.hide();
+    /// assert!(!turtle.is_visible());
+    /// turtle.show();
+    /// assert!(turtle.is_visible());
+    /// # }
+    /// ```
     pub fn is_visible(&self) -> bool {
         self.window.turtle().visible
     }
@@ -322,11 +335,34 @@ impl Turtle {
     /// Makes the turtle invisible. The shell will not be shown, but drawings will continue.
     ///
     /// Useful for some complex drawings.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// assert!(turtle.is_visible());
+    /// turtle.hide();
+    /// assert!(!turtle.is_visible());
+    /// # }
+    /// ```
     pub fn hide(&mut self) {
         self.window.turtle_mut().visible = false;
     }
 
     /// Makes the turtle visible.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// # turtle.hide();
+    /// assert!(!turtle.is_visible());
+    /// turtle.show();
+    /// assert!(turtle.is_visible());
+    /// # }
+    /// ```
     pub fn show(&mut self) {
         self.window.turtle_mut().visible = true;
     }
