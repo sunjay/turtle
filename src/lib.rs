@@ -12,7 +12,7 @@
 //!
 //! ## Event Handling
 //!
-//! For advanced users, the [`Event` struct](event/enum.Event.html) documentation provides information
+//! For advanced users, the [`Event` enum](event/enum.Event.html) documentation provides information
 //! about how you can create an event loop. This allows you to draw things in response to
 //! certain events like the mouse moving, keys being pressed, and more.
 //!
