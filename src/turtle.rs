@@ -41,16 +41,17 @@ impl AngleUnit {
 /// # }
 pub type Point = [f64; 2];
 
-/// Any distance value
+/// Any distance value (positive or negative)
 pub type Distance = f64;
 
 /// An angle value without a unit
 ///
-/// The unit of the angle represented by this value depends on what
-/// unit the Turtle was set to when this angle was retrieved
+/// The unit with which this angle will be interpreted depends on whether the Turtle is set to use
+/// degrees or radians. See the [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
+/// [`use_radians()`](struct.Turtle.html#method.use_radians) methods for more information.
 pub type Angle = f64;
 
-/// A turtle with a pen attached to its tail.
+/// A turtle with a pen attached to its tail
 ///
 /// **The idea:** You control a turtle with a pen tied to its tail. As it moves
 /// across the screen, it draws the path that it follows. You can use this to draw
@@ -387,6 +388,9 @@ impl Turtle {
     /// assert!(!turtle.is_using_degrees());
     /// turtle.use_degrees();
     /// assert!(turtle.is_using_degrees());
+    ///
+    /// // This will now be interpreted as 1.0 degree
+    /// turtle.right(1.0);
     /// # }
     /// ```
     pub fn use_degrees(&mut self) {
@@ -403,6 +407,9 @@ impl Turtle {
     /// assert!(!turtle.is_using_radians());
     /// turtle.use_radians();
     /// assert!(turtle.is_using_radians());
+    ///
+    /// // This will now be interpreted as 1.0 radian
+    /// turtle.right(1.0);
     /// # }
     /// ```
     pub fn use_radians(&mut self) {

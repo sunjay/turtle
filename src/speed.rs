@@ -6,7 +6,7 @@ use rand::{Rand, Rng};
 use radians::Radians;
 use {Distance};
 
-/// Represents the various supported speeds that the turtle can move at
+/// Represents the supported movement and rotation speeds
 ///
 /// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
 #[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq)]
