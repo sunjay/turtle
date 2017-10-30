@@ -772,6 +772,30 @@ impl Turtle {
     ///
     /// Does not move turtle. Position, speed and heading of the turtle are not affected. The
     /// background color and any other settings (pen color, size, etc.) all remain the same.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// extern crate turtle;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///     turtle.right(32.0);
+    ///     turtle.forward(150.0);
+    ///
+    ///     turtle.wait_for_click();
+    ///     turtle.clear();
+    /// }
+    /// ```
+    ///
+    /// This will produce the following:
+    ///
+    /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/clear_before_click.png)
+    ///
+    /// Once you click on the screen, the drawings will be cleared:
+    ///
+    /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/clear_after_click.png)
     pub fn clear(&mut self) {
         self.window.clear();
     }
