@@ -88,6 +88,49 @@ impl Turtle {
         }
     }
 
+    /// Move the turtle forward by the given amount of `distance`. If the pen is down, the turtle
+    /// will draw a line as it moves.
+    ///
+    /// `distance` is given in "pixels" which are like really small turtle steps.
+    /// `distance` can be negative in which case the turtle can move backward
+    /// using this method.
+    pub fn forward(&mut self, distance: Distance) {
+        self.window.forward(distance);
+    }
+
+    /// Move the turtle backward by the given amount of `distance`. If the pen is down, the turtle
+    /// will draw a line as it moves.
+    ///
+    /// `distance` is given in "pixels" which are like really small turtle steps.
+    /// `distance` can be negative in which case the turtle can move forwards
+    /// using this method.
+    pub fn backward(&mut self, distance: Distance) {
+        // Moving backwards is essentially moving forwards with a negative distance
+        self.window.forward(-distance);
+    }
+
+    /// Rotate the turtle right (clockwise) by the given angle. Since the turtle rotates in place,
+    /// its position will not change and it will not draw anything at all.
+    ///
+    /// Units are by default degrees, but can be set using the methods
+    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
+    pub fn right(&mut self, angle: Angle) {
+        let angle = self.angle_unit.to_radians(angle);
+        self.window.rotate(angle, true);
+    }
+
+    /// Rotate the turtle left (counterclockwise) by the given angle. Since the turtle rotates
+    /// in place, its position will not change and it will not draw anything at all.
+    ///
+    /// Units are by default degrees, but can be set using the methods
+    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
+    pub fn left(&mut self, angle: Angle) {
+        let angle = self.angle_unit.to_radians(angle);
+        self.window.rotate(angle, false);
+    }
+
     /// Returns the current speed of the turtle
     ///
     /// ```rust
@@ -552,49 +595,6 @@ impl Turtle {
     /// background color and any other settings (pen color, size, etc.) all remain the same.
     pub fn clear(&mut self) {
         self.window.clear();
-    }
-
-    /// Move the turtle forward by the given amount of `distance`. If the pen is down, the turtle
-    /// will draw a line as it moves.
-    ///
-    /// `distance` is given in "pixels" which are like really small turtle steps.
-    /// `distance` can be negative in which case the turtle can move backward
-    /// using this method.
-    pub fn forward(&mut self, distance: Distance) {
-        self.window.forward(distance);
-    }
-
-    /// Move the turtle backward by the given amount of `distance`. If the pen is down, the turtle
-    /// will draw a line as it moves.
-    ///
-    /// `distance` is given in "pixels" which are like really small turtle steps.
-    /// `distance` can be negative in which case the turtle can move forwards
-    /// using this method.
-    pub fn backward(&mut self, distance: Distance) {
-        // Moving backwards is essentially moving forwards with a negative distance
-        self.window.forward(-distance);
-    }
-
-    /// Rotate the turtle right (clockwise) by the given angle. Since the turtle rotates in place,
-    /// its position will not change and it will not draw anything at all.
-    ///
-    /// Units are by default degrees, but can be set using the methods
-    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
-    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
-    pub fn right(&mut self, angle: Angle) {
-        let angle = self.angle_unit.to_radians(angle);
-        self.window.rotate(angle, true);
-    }
-
-    /// Rotate the turtle left (counterclockwise) by the given angle. Since the turtle rotates
-    /// in place, its position will not change and it will not draw anything at all.
-    ///
-    /// Units are by default degrees, but can be set using the methods
-    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
-    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
-    pub fn left(&mut self, angle: Angle) {
-        let angle = self.angle_unit.to_radians(angle);
-        self.window.rotate(angle, false);
     }
 
     /// Rotates the turtle to face the given coordinates.
