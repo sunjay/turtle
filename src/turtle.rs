@@ -91,41 +91,126 @@ impl Turtle {
     /// Move the turtle forward by the given amount of `distance`. If the pen is down, the turtle
     /// will draw a line as it moves.
     ///
-    /// `distance` is given in "pixels" which are like really small turtle steps.
-    /// `distance` can be negative in which case the turtle can move backward
-    /// using this method.
+    /// The turtle takes very small steps (measured in "pixels"). So if you want it to move more,
+    /// use a bigger value to make the turtle walk further.
+    /// The `distance` can be a negative value in which case the turtle will move backward.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # #![allow(unused_variables, unused_mut)]
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// // Move forward 10 tiny turtle steps, drawing a line as you move
+    /// turtle.forward(10.0);
+    ///
+    /// // Move forward 100 tiny turtle steps, drawing a much longer line
+    /// turtle.forward(100.0);
+    ///
+    /// // Move backward 223 tiny turtle steps, without drawing anything
+    /// turtle.pen_up();
+    /// turtle.forward(-223.0);
+    /// # }
+    /// ```
     pub fn forward(&mut self, distance: Distance) {
         self.window.forward(distance);
     }
 
-    /// Move the turtle backward by the given amount of `distance`. If the pen is down, the turtle
+    /// Move the turtle backwards by the given amount of `distance`. If the pen is down, the turtle
     /// will draw a line as it moves.
     ///
-    /// `distance` is given in "pixels" which are like really small turtle steps.
-    /// `distance` can be negative in which case the turtle can move forwards
-    /// using this method.
+    /// The turtle takes very small steps (measured in "pixels"). So if you want it to move more,
+    /// use a bigger value to make the turtle walk further.
+    /// The `distance` can be a negative value in which case the turtle will move forward.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # #![allow(unused_variables, unused_mut)]
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// // Move backward 10 tiny turtle steps, drawing a line as you move
+    /// turtle.backward(10.0);
+    ///
+    /// // Move backward 100 tiny turtle steps, drawing a much longer line
+    /// turtle.backward(100.0);
+    ///
+    /// // Move forward 179 tiny turtle steps, without drawing anything
+    /// turtle.pen_up();
+    /// turtle.backward(-179.0);
+    /// # }
+    /// ```
     pub fn backward(&mut self, distance: Distance) {
         // Moving backwards is essentially moving forwards with a negative distance
         self.window.forward(-distance);
     }
 
-    /// Rotate the turtle right (clockwise) by the given angle. Since the turtle rotates in place,
-    /// its position will not change and it will not draw anything at all.
+    /// Instruct the turtle to turn right (clockwise) by the given angle. Since the turtle rotates
+    /// in place, its position will not change and it will not draw anything while it turns.
     ///
-    /// Units are by default degrees, but can be set using the methods
+    /// The `angle` parameter is a floating point number that represents how much you want the
+    /// turtle to rotate.
+    /// The unit of `angle` is "degrees" by default. You can change that by using the
     /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
-    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians) methods.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// // rotate right by 30 degrees
+    /// turtle.right(30.0);
+    ///
+    /// // rotate right by 1 radian (57.2957795 degrees)
+    /// turtle.use_radians();
+    /// turtle.right(1.0);
+    /// // Use PI for precise angles in radians
+    /// use std::f64::consts::PI;
+    /// // This is the same as turning 45.0 degrees
+    /// turtle.right(PI/4.0);
+    /// # }
+    /// ```
     pub fn right(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
         self.window.rotate(angle, true);
     }
 
-    /// Rotate the turtle left (counterclockwise) by the given angle. Since the turtle rotates
-    /// in place, its position will not change and it will not draw anything at all.
+    /// Instruct the turtle to turn left (counterclockwise) by the given angle. Since the turtle
+    /// rotates in place, its position will not change and it will not draw anything while it
+    /// turns.
     ///
-    /// Units are by default degrees, but can be set using the methods
+    /// The `angle` parameter is a floating point number that represents how much you want the
+    /// turtle to rotate.
+    /// The unit of `angle` is "degrees" by default. You can change that by using the
     /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
-    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians) methods.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// // rotate left by 30 degrees
+    /// turtle.left(30.0);
+    ///
+    /// // rotate left by 1 radian (57.2957795 degrees)
+    /// turtle.use_radians();
+    /// turtle.left(1.0);
+    /// // Use PI for precise angles in radians
+    /// use std::f64::consts::PI;
+    /// // This is the same as turning 45.0 degrees
+    /// turtle.left(PI/4.0);
+    /// # }
+    /// ```
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
         self.window.rotate(angle, false);
