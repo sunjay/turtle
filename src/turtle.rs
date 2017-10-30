@@ -470,6 +470,16 @@ impl Turtle {
 
     /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
     ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.set_pen_size(25.0);
+    /// assert_eq!(turtle.pen_size(), 25.0);
+    /// # }
+    /// ```
+    ///
     /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
     pub fn pen_size(&self) -> f64 {
         self.window.drawing().pen.thickness
@@ -521,6 +531,16 @@ impl Turtle {
 
     /// Returns the color of the pen.
     ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.set_pen_color("blue");
+    /// assert_eq!(turtle.pen_color(), "blue".into());
+    /// # }
+    /// ```
+    ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn pen_color(&self) -> Color {
         self.window.drawing().pen.color
@@ -530,11 +550,46 @@ impl Turtle {
     ///
     /// Any type that can be converted into a color can be passed into this function.
     /// See the [`color` module](color/index.html) for more information.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// extern crate turtle;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///     turtle.set_background_color("light grey");
+    ///     turtle.set_pen_size(3.0);
+    ///
+    ///     let colors = ["red", "green", "blue"];
+    ///
+    ///     for i in 0..36 {
+    ///         turtle.set_pen_color(colors[i % colors.len()]);
+    ///         turtle.forward(25.0);
+    ///         turtle.right(10.0);
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// This will produce the following:
+    ///
+    /// ![turtle pen color](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/colored_circle.png)
     pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().pen.color = color.into();
     }
 
     /// Returns the color of the background.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.set_background_color("purple");
+    /// assert_eq!(turtle.background_color(), "purple".into());
+    /// # }
+    /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn background_color(&self) -> Color {
@@ -545,6 +600,22 @@ impl Turtle {
     ///
     /// Any type that can be converted into a color can be passed into this function.
     /// See the [`color` module](color/index.html) for more information.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// extern crate turtle;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///     turtle.set_background_color("orange");
+    /// }
+    /// ```
+    ///
+    /// This will produce the following:
+    ///
+    /// ![turtle background](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/orange_background.png)
     pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().background = color.into();
     }
@@ -555,6 +626,16 @@ impl Turtle {
     /// [`begin_fill()`](struct.Turtle.html#method.begin_fill) and
     /// [`end_fill()`](struct.Turtle.html#method.end_fill) are called.
     ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.set_fill_color("coral");
+    /// assert_eq!(turtle.fill_color(), "coral".into());
+    /// # }
+    /// ```
+    ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn fill_color(&self) -> Color {
         self.window.drawing().fill_color
@@ -562,11 +643,15 @@ impl Turtle {
 
     /// Sets the fill color to the given color.
     ///
-    /// **Note:** The fill color set **before** `begin_fill()` is called will be used to fill
-    /// the shape.
+    /// **Note:** The fill color must be set **before** `begin_fill()` is called in order to be
+    /// used when filling the shape.
     ///
     /// Any type that can be converted into a color can be passed into this function.
     /// See the [`color` module](color/index.html) for more information.
+    ///
+    /// # Example
+    ///
+    /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for an example.
     pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().fill_color = color.into();
     }
@@ -581,12 +666,11 @@ impl Turtle {
     /// The following example will draw a circle filled with the color red and then a square with
     /// no fill.
     ///
-    /// **Note:** The fill color set **before** `begin_fill()` is called will be used to fill
-    /// the shape.
+    /// **Note:** The fill color must be set **before** `begin_fill()` is called in order to be
+    /// used when filling the shape.
     ///
     /// ```rust,no_run
     /// extern crate turtle;
-    ///
     /// use turtle::Turtle;
     ///
     /// fn main() {
