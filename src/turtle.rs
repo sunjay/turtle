@@ -185,8 +185,8 @@ impl Turtle {
     /// Returns the turtle's current heading.
     ///
     /// Units are by default degrees, but can be set using the
-    /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
-    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians) methods.
+    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians) methods.
     ///
     /// The heading is relative to the positive x axis (east). When first created, the turtle
     /// starts facing north. That means that its heading is 90.0 degrees. The following chart
@@ -226,14 +226,14 @@ impl Turtle {
 
     /// Returns true if `Angle` values will be interpreted as degrees.
     ///
-    /// See [Turtle::use_degrees()](struct.Turtle.html#method.use_degrees) for more information.
+    /// See [`use_degrees()`](struct.Turtle.html#method.use_degrees) for more information.
     pub fn is_using_degrees(&self) -> bool {
         self.angle_unit == AngleUnit::Degrees
     }
 
     /// Returns true if `Angle` values will be interpreted as radians.
     ///
-    /// See [Turtle::use_radians()](struct.Turtle.html#method.use_degrees) for more information.
+    /// See [`use_radians()`](struct.Turtle.html#method.use_degrees) for more information.
     pub fn is_using_radians(&self) -> bool {
         self.angle_unit == AngleUnit::Radians
     }
@@ -332,7 +332,7 @@ impl Turtle {
 
     /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
     ///
-    /// See [`Turtle::set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
+    /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
     pub fn pen_size(&self) -> f64 {
         self.window.drawing().pen.thickness
     }
@@ -515,8 +515,8 @@ impl Turtle {
     /// its position will not change and it will not draw anything at all.
     ///
     /// Units are by default degrees, but can be set using the methods
-    /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
-    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
+    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
     pub fn right(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
         self.window.rotate(angle, true);
@@ -526,8 +526,8 @@ impl Turtle {
     /// in place, its position will not change and it will not draw anything at all.
     ///
     /// Units are by default degrees, but can be set using the methods
-    /// [`Turtle::use_degrees`](struct.Turtle.html#method.use_degrees) or
-    /// [`Turtle::use_radians`](struct.Turtle.html#method.use_radians).
+    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians).
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
         self.window.rotate(angle, false);
