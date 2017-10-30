@@ -71,7 +71,7 @@ impl Turtle {
     /// This will immediately open a new window with the turtle at the center. As each line in
     /// your program runs, the turtle shown in the window will update.
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # #![allow(unused_variables, unused_mut)]
     /// extern crate turtle;
     /// use turtle::Turtle;
@@ -112,6 +112,7 @@ impl Turtle {
     /// // Move backward 223 tiny turtle steps, without drawing anything
     /// turtle.pen_up();
     /// turtle.forward(-223.0);
+    /// # assert_eq!(turtle.position()[1].round(), -113.0);
     /// # }
     /// ```
     pub fn forward(&mut self, distance: Distance) {
@@ -142,6 +143,7 @@ impl Turtle {
     /// // Move forward 179 tiny turtle steps, without drawing anything
     /// turtle.pen_up();
     /// turtle.backward(-179.0);
+    /// # assert_eq!(turtle.position()[1].round(), 69.0);
     /// # }
     /// ```
     pub fn backward(&mut self, distance: Distance) {
@@ -160,7 +162,7 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
@@ -175,6 +177,10 @@ impl Turtle {
     /// use std::f64::consts::PI;
     /// // This is the same as turning 45.0 degrees
     /// turtle.right(PI/4.0);
+    /// # assert_eq!(
+    /// #     (turtle.heading() * 1e5).trunc(),
+    /// #     (((90f64 - 30f64).to_radians() - 1.0 - PI/4.0) * 1e5).trunc()
+    /// # );
     /// # }
     /// ```
     pub fn right(&mut self, angle: Angle) {
@@ -194,7 +200,7 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
@@ -209,6 +215,10 @@ impl Turtle {
     /// use std::f64::consts::PI;
     /// // This is the same as turning 45.0 degrees
     /// turtle.left(PI/4.0);
+    /// # assert_eq!(
+    /// #     (turtle.heading() * 1e5).trunc(),
+    /// #     (((90f64 + 30f64).to_radians() + 1.0 + PI/4.0) * 1e5).trunc()
+    /// # );
     /// # }
     /// ```
     pub fn left(&mut self, angle: Angle) {
