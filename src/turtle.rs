@@ -381,51 +381,114 @@ impl Turtle {
         self.window.drawing_mut().pen.thickness = thickness;
     }
 
-    /// Returns the color of the pen
+    /// Returns the color of the pen.
+    ///
+    /// See the [`color` module](color/index.html) for more information about colors.
     pub fn pen_color(&self) -> Color {
         self.window.drawing().pen.color
     }
 
-    /// Sets the color of the pen to the given color
-    //TODO: Document this more like set_speed
+    /// Sets the color of the pen to the given color.
+    ///
+    /// Any type that can be converted into a color can be passed into this function.
+    /// See the [`color` module](color/index.html) for more information.
     pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().pen.color = color.into();
     }
 
-    /// Returns the color of the background
+    /// Returns the color of the background.
+    ///
+    /// See the [`color` module](color/index.html) for more information about colors.
     pub fn background_color(&self) -> Color {
         self.window.drawing().background
     }
 
-    /// Sets the color of the background to the given color
-    //TODO: Document this more like set_speed
+    /// Sets the color of the background to the given color.
+    ///
+    /// Any type that can be converted into a color can be passed into this function.
+    /// See the [`color` module](color/index.html) for more information.
     pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().background = color.into();
     }
 
-    /// Returns the current fill color
+    /// Returns the current fill color.
     ///
-    /// This will be used to fill the shape when `begin_fill()` and `end_fill()` are called.
-    //TODO: Hyperlink begin_fill() and end_fill() methods to their docs
+    /// This will be used to fill the shape when
+    /// [`begin_fill()`](struct.Turtle.html#method.begin_fill) and
+    /// [`end_fill()`](struct.Turtle.html#method.end_fill) are called.
+    ///
+    /// See the [`color` module](color/index.html) for more information about colors.
     pub fn fill_color(&self) -> Color {
         self.window.drawing().fill_color
     }
 
-    /// Sets the fill color to the given color
+    /// Sets the fill color to the given color.
     ///
-    /// **Note:** Only the fill color set **before** `begin_fill()` is called will be used to fill
+    /// **Note:** The fill color set **before** `begin_fill()` is called will be used to fill
     /// the shape.
-    //TODO: Document this more like set_speed
+    ///
+    /// Any type that can be converted into a color can be passed into this function.
+    /// See the [`color` module](color/index.html) for more information.
     pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
         self.window.drawing_mut().fill_color = color.into();
     }
 
-    /// Begin filling the shape drawn by the turtle's movements
+    /// Begin filling the shape drawn by the turtle's movements.
+    ///
+    /// **Rule of thumb:** For every call to [`begin_fill()`](struct.Turtle.html#method.begin_fill),
+    /// there should be a corresponding call to [`end_fill()`](struct.Turtle.html#method.end_fill).
+    ///
+    /// # Example
+    ///
+    /// The following example will draw a circle filled with the color red and then a square with
+    /// no fill.
+    ///
+    /// **Note:** The fill color set **before** `begin_fill()` is called will be used to fill
+    /// the shape.
+    ///
+    /// ```rust,no_run
+    /// extern crate turtle;
+    ///
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///     turtle.right(90.0);
+    ///     turtle.set_pen_size(3.0);
+    ///
+    ///     turtle.set_pen_color("blue");
+    ///     turtle.set_fill_color("red");
+    ///     turtle.begin_fill();
+    ///     for _ in 0..360 {
+    ///         turtle.forward(2.0);
+    ///         turtle.right(1.0);
+    ///     }
+    ///     turtle.end_fill();
+    ///
+    ///     turtle.set_pen_color("green");
+    ///     turtle.forward(120.0);
+    ///     for _ in 0..3 {
+    ///         turtle.right(90.0);
+    ///         turtle.forward(240.0);
+    ///     }
+    ///     turtle.right(90.0);
+    ///     turtle.forward(120.0);
+    /// }
+    /// ```
+    ///
+    /// This will result in the following:
+    ///
+    /// ![turtle fill example](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/red_circle.png)
     pub fn begin_fill(&mut self) {
         self.window.begin_fill();
     }
 
-    /// Stop filling the shape drawn by the turtle's movements
+    /// Stop filling the shape drawn by the turtle's movements.
+    ///
+    /// **Rule of thumb:** For every call to [`begin_fill()`](struct.Turtle.html#method.begin_fill),
+    /// there should be a corresponding call to [`end_fill()`](struct.Turtle.html#method.end_fill).
+    ///
+    /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for more information.
     pub fn end_fill(&mut self) {
         self.window.end_fill();
     }
