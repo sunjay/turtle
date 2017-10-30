@@ -26,7 +26,7 @@ pub enum Speed {
 
 impl Speed {
     /// Converts a speed to its value as pixels per second
-    pub fn to_absolute(self) -> Distance {
+    pub(crate) fn to_absolute(self) -> Distance {
         use self::Speed::*;
         // Arbitrary values that can be tweaked
         // Just make sure to keep invariants like Five > Three, etc.
@@ -46,7 +46,7 @@ impl Speed {
     }
 
     /// Converts a speed to its value as radians per second
-    pub fn to_rotation(self) -> Radians {
+    pub(crate) fn to_rotation(self) -> Radians {
         use self::Speed::*;
         // Arbitrary values that can be tweaked
         // Just make sure to keep invariants like Five > Three, etc.
