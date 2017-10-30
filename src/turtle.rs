@@ -548,7 +548,8 @@ impl Turtle {
 
     /// Delete the turtle's drawings from the screen.
     ///
-    /// Do not move turtle. Position and heading of the turtle are not affected.
+    /// Does not move turtle. Position, speed and heading of the turtle are not affected. The
+    /// background color and any other settings (pen color, size, etc.) all remain the same.
     pub fn clear(&mut self) {
         self.window.clear();
     }
