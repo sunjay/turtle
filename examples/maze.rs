@@ -14,10 +14,12 @@ extern crate turtle;
 use turtle::Turtle;
 
 pub use maze::Maze;
+use grid::{GridIter};
+use cell::Cell;
 
 // Dimensions of the maze in turtle steps (pixels)
-const WIDTH: usize = 600; // px
-const HEIGHT: usize = 600; // px
+const WIDTH: f64 = 600.0; // px
+const HEIGHT: f64 = 600.0; // px
 
 fn main() {
     let maze = Maze::new();
@@ -30,63 +32,76 @@ fn main() {
 
     // Get to the top left corner
     turtle.pen_up();
-    turtle.forward((HEIGHT / 2) as f64);
+    turtle.forward(HEIGHT / 2.0);
     turtle.right(90.0);
-    turtle.backward((WIDTH / 2) as f64);
+    turtle.backward(WIDTH / 2.0);
     turtle.pen_down();
 
+    let cell_width = WIDTH/(maze.row_size() as f64);
+    let cell_height = WIDTH/(maze.row_size() as f64);
+
     // Draw rows
-    let cell_width = (WIDTH as f64)/(maze.row_size() as f64);
-    let cell_height = (WIDTH as f64)/(maze.row_size() as f64);
-
-    // Draw first row
-    draw_row(&mut turtle, cell_width,
-        maze.first_row().iter().map(|cell| cell.north.is_closed()));
-
-    for (i, row) in maze.rows().enumerate() {
-        turtle.pen_up();
-        let direction = if i % 2 == 0 { 1.0 } else { -1.0 };
-        turtle.right(direction * 90.0);
-        turtle.forward(cell_height);
-        turtle.right(direction * 90.0);
-        turtle.pen_down();
-
-        let walls = row.map(|cell| cell.south.is_closed());
-
-        // Every second row needs to be reversed so the turtle can zig-zag back and
-        // forth instead of wasting too much time moving all the way to the left of
-        // each row
-        if i % 2 == 0 {
-            draw_row(&mut turtle, cell_width, walls);
-        } else {
-            draw_row(&mut turtle, cell_width, walls.rev());
-        }
-    }
+    draw_rows(
+        &mut turtle,
+        cell_width,
+        cell_height,
+        maze.first_row().iter().map(|cell| cell.north.is_closed()),
+        maze.rows(),
+        |cell| cell.south.is_closed(),
+        false,
+    );
 
     // Draw columns
     turtle.left(90.0);
+    draw_rows(
+        &mut turtle,
+        cell_height,
+        cell_width,
+        maze.last_col().iter().map(|cell| cell.west.is_closed()),
+        maze.rows(),
+        |cell| cell.east.is_closed(),
+        true,
+    );
+}
 
-    // Draw first column
-    draw_row(&mut turtle, cell_width,
-        maze.last_col().iter().map(|cell| cell.west.is_closed()));
+fn draw_rows<R: Iterator<Item=bool>, F: Fn(&Cell) -> bool>(
+    turtle: &mut Turtle,
+    // size of each cell in the row
+    cell_size: f64,
+    // gap between rows
+    cell_gap: f64,
+    first_row: R,
+    rows: GridIter,
+    row_walls: F,
+    rotate_left: bool,
+) {
+    draw_row(turtle, cell_size, first_row);
 
-    for (i, row) in maze.cols().rev().enumerate() {
+    // Direction of rotation for all turns
+    let rotation = if rotate_left { -1.0 } else { 1.0 };
+    for (i, row) in rows.enumerate() {
         turtle.pen_up();
-        let direction = if i % 2 == 0 { -1.0 } else { 1.0 };
+
+        // Direction of rotation for these turns
+        let direction = rotation * if i % 2 == 0 {
+            1.0
+        } else {
+            -1.0
+        };
         turtle.right(direction * 90.0);
-        turtle.forward(cell_height);
+        turtle.forward(cell_gap);
         turtle.right(direction * 90.0);
         turtle.pen_down();
 
-        let walls = row.map(|cell| cell.east.is_closed());
+        let walls = row.map(&row_walls);
 
         // Every second row needs to be reversed so the turtle can zig-zag back and
         // forth instead of wasting too much time moving all the way to the left of
         // each row
         if i % 2 == 0 {
-            draw_row(&mut turtle, cell_width, walls);
+            draw_row(turtle, cell_size, walls);
         } else {
-            draw_row(&mut turtle, cell_width, walls.rev());
+            draw_row(turtle, cell_size, walls.rev());
         }
     }
 }
