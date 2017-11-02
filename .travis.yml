@@ -8,4 +8,5 @@ script:
   - cargo test --verbose --features "test" --all
 matrix:
   allow_failures:
+    - rust: beta
     - rust: nightly
