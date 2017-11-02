@@ -153,13 +153,23 @@ impl Grid {
     }
 
     /// Returns the first row
-    pub fn first_row(&self) -> &Cells {
-        &self.0[0]
+    pub fn first_row(&self) -> GridCellIter {
+        self.rows().next().unwrap()
+    }
+
+    /// Returns the last row
+    pub fn last_row(&self) -> GridCellIter {
+        self.rows().next_back().unwrap()
+    }
+
+    /// Returns the first column
+    pub fn first_col(&self) -> GridCellIter {
+        self.cols().next().unwrap()
     }
 
     /// Returns the last column
-    pub fn last_col(&self) -> &Cells {
-        &self.0[self.row_size() - 1]
+    pub fn last_col(&self) -> GridCellIter {
+        self.cols().next_back().unwrap()
     }
 
     /// Returns an iterator over each row
