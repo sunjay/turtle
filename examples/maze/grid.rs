@@ -61,7 +61,7 @@ impl<'a> DoubleEndedIterator for GridIter<'a> {
         let iter = GridCellIter::new(
             self.grid,
             self.target,
-            self.end
+            self.end - 1
         );
 
         self.end -= 1;

@@ -1,5 +1,7 @@
 //HACK: This is how we're splitting the maze example into multiple files since
 // cargo doesn't properly support examples with multiple files yet
+#[path = "maze/wall.rs"]
+mod wall;
 #[path = "maze/cell.rs"]
 mod cell;
 #[path = "maze/maze.rs"]
@@ -22,6 +24,9 @@ fn main() {
 
     let mut turtle = Turtle::new();
     turtle.set_speed(9);
+    turtle.set_background_color("#A5D6A7");
+    turtle.set_pen_color("#03A9F4");
+    turtle.set_pen_size(5.0);
 
     // Get to the top left corner
     turtle.pen_up();
@@ -65,7 +70,7 @@ fn main() {
     draw_row(&mut turtle, cell_width,
         maze.last_col().iter().map(|cell| cell.west.is_closed()));
 
-    for (i, row) in maze.rows().enumerate() {
+    for (i, row) in maze.cols().rev().enumerate() {
         turtle.pen_up();
         let direction = if i % 2 == 0 { -1.0 } else { 1.0 };
         turtle.right(direction * 90.0);
