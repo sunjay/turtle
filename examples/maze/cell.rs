@@ -1,3 +1,5 @@
+use turtle::{Rand, Rng};
+
 use wall::Wall;
 
 #[derive(Debug, Clone, Copy)]
@@ -26,5 +28,16 @@ impl Default for Cell {
             west: Closed,
             marker: None,
         }
+    }
+}
+
+impl Rand for Cell {
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        let mut cell = Cell::default();
+        cell.north = Wall::rand(rng);
+        cell.east = Wall::rand(rng);
+        cell.south = Wall::rand(rng);
+        cell.west = Wall::rand(rng);
+        cell
     }
 }

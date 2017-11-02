@@ -1,3 +1,5 @@
+use turtle::random;
+
 use cell::Cell;
 
 const GRID_SIZE: usize = 8;
@@ -140,6 +142,16 @@ pub struct Grid([Cells; GRID_SIZE]);
 impl Grid {
     pub fn new() -> Grid {
         Grid([Cells::default(); GRID_SIZE])
+    }
+
+    pub fn random_walls() -> Grid {
+        let mut grid = [Cells::default(); GRID_SIZE];
+        for row in &mut grid {
+            for cell in row {
+                *cell = random();
+            }
+        }
+        Grid(grid)
     }
 
     /// Returns the size of each row
