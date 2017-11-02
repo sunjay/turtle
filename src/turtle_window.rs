@@ -178,6 +178,7 @@ impl TurtleWindow {
         let end = math::add(start, [x, y]);
 
         let speed = speed.to_absolute(); // px per second
+        // We take the absolute value because the time is always positive, even if distance is negative
         let total_millis = (distance / speed * 1000.).abs();
 
         let animation = MoveAnimation {
@@ -202,7 +203,8 @@ impl TurtleWindow {
         let TurtleState {heading, speed, ..} = *self.turtle();
         let speed = speed.to_rotation(); // radians per second
         let total_millis = angle / speed * 1000.;
-        let total_millis = total_millis.to_radians();
+        // We take the absolute value because the time is always positive, even if angle is negative
+        let total_millis = total_millis.to_radians().abs();
 
         let animation = RotateAnimation {
             start: heading,
