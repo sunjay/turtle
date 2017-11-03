@@ -17,6 +17,16 @@ pub struct Cell {
     pub marker: Option<CellMarker>,
 }
 
+impl Cell {
+    pub fn mark_start(&mut self) {
+        self.marker = Some(CellMarker::Start);
+    }
+
+    pub fn mark_finish(&mut self) {
+        self.marker = Some(CellMarker::Finish);
+    }
+}
+
 impl Default for Cell {
     fn default() -> Self {
         use self::Wall::*;

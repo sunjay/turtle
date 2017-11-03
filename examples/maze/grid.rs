@@ -1,6 +1,9 @@
+use std::ops::{Index, IndexMut};
+
 use turtle::random;
 
 use cell::Cell;
+use wall::Wall;
 
 const GRID_SIZE: usize = 8;
 
@@ -139,6 +142,20 @@ impl<'a> DoubleEndedIterator for GridCellIter<'a> {
 #[derive(Debug)]
 pub struct Grid([Cells; GRID_SIZE]);
 
+impl Index<usize> for Grid {
+    type Output = Cells;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.0.index(index)
+    }
+}
+
+impl IndexMut<usize> for Grid {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        self.0.index_mut(index)
+    }
+}
+
 impl Grid {
     pub fn new() -> Grid {
         Grid([Cells::default(); GRID_SIZE])
@@ -152,6 +169,52 @@ impl Grid {
             }
         }
         Grid(grid)
+    }
+
+    /// Removes the wall between two adjacent cells
+    pub fn open_between(&mut self, (row1, col1): (usize, usize), (row2, col2): (usize, usize)) {
+        match (row2 as isize - row1 as isize, col2 as isize - col1 as isize) {
+            (0, -1) => {
+                self[row1][col1].north = Wall::Open;
+                self[row2][col2].south = Wall::Open;
+            },
+            (1, 0) => {
+                self[row1][col1].east = Wall::Open;
+                self[row2][col2].west = Wall::Open;
+            },
+            (0, 1) => {
+                self[row1][col1].south = Wall::Open;
+                self[row2][col2].north = Wall::Open;
+            },
+            (-1, 0) => {
+                self[row1][col1].west = Wall::Open;
+                self[row2][col2].east = Wall::Open;
+            },
+            _ => unreachable!("Cells were not adjacent"),
+        }
+    }
+
+    /// Returns the cell positions adjacent in the four cardinal directions to the given cell
+    /// position. Only returns valid cell positions.
+    pub fn adjacent_cells(&self, (row, col): (usize, usize)) -> Vec<(usize, usize)> {
+        let mut positions = Vec::new();
+        if row > 0 {
+            // north
+            positions.push((row - 1, col));
+        }
+        if col < self.row_size()-1 {
+            // east
+            positions.push((row, col + 1));
+        }
+        if row < self.col_size()-1 {
+            // south
+            positions.push((row + 1, col));
+        }
+        if col > 0 {
+            // west
+            positions.push((row, col - 1));
+        }
+        positions
     }
 
     /// Returns the size of each row

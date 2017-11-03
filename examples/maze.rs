@@ -22,7 +22,7 @@ const WIDTH: f64 = 600.0; // px
 const HEIGHT: f64 = 600.0; // px
 
 fn main() {
-    let maze = Maze::new();
+    let maze = Maze::generate();
 
     let mut turtle = Turtle::new();
     turtle.set_speed(9);
