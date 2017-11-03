@@ -217,6 +217,11 @@ impl Grid {
         positions
     }
 
+    /// Gets the cell at the given position
+    pub fn get(&self, (row, col): (usize, usize)) -> &Cell {
+        &self[row][col]
+    }
+
     /// Returns the size of each row
     pub fn row_size(&self) -> usize {
         self.0[0].len()

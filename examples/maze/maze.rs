@@ -29,15 +29,24 @@ impl Maze {
             }
             visited.insert(current);
 
-            let mut adjacents = grid.adjacent_cells(current)
-                .into_iter()
+            let adjacents = grid.adjacent_cells(current);
+
+            if grid.get(current).is_all_closed() {
+                // This cell hasn't been connected yet, let's try to do that
+                let visited_adjacent = adjacents.iter().find(|&p| visited.contains(p));
+                if let Some(&adj) = visited_adjacent {
+                    grid.open_between(current, adj);
+                }
+            }
+
+            let mut unvisited = adjacents.into_iter()
                 .filter(|p| !visited.contains(p))
                 .collect::<Vec<_>>();
 
-            if !adjacents.is_empty() {
-                rng.shuffle(&mut adjacents);
+            if !unvisited.is_empty() {
+                rng.shuffle(&mut unvisited);
 
-                let mut unvisited = adjacents.into_iter();
+                let mut unvisited = unvisited.into_iter();
                 // should exist because we just checked is_empty
                 let next = unvisited.next().unwrap();
                 remaining.push_front(next);
