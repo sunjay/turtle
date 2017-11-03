@@ -174,19 +174,19 @@ impl Grid {
     /// Removes the wall between two adjacent cells
     pub fn open_between(&mut self, (row1, col1): (usize, usize), (row2, col2): (usize, usize)) {
         match (row2 as isize - row1 as isize, col2 as isize - col1 as isize) {
-            (0, -1) => {
+            (-1, 0) => {
                 self[row1][col1].north = Wall::Open;
                 self[row2][col2].south = Wall::Open;
             },
-            (1, 0) => {
+            (0, 1) => {
                 self[row1][col1].east = Wall::Open;
                 self[row2][col2].west = Wall::Open;
             },
-            (0, 1) => {
+            (1, 0) => {
                 self[row1][col1].south = Wall::Open;
                 self[row2][col2].north = Wall::Open;
             },
-            (-1, 0) => {
+            (0, -1) => {
                 self[row1][col1].west = Wall::Open;
                 self[row2][col2].east = Wall::Open;
             },
