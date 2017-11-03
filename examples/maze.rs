@@ -57,9 +57,9 @@ fn main() {
         &mut turtle,
         cell_height,
         cell_width,
-        maze.last_col().map(|cell| cell.west.is_closed()),
+        maze.last_col().map(|cell| cell.east.is_closed()),
         maze.cols().rev(),
-        |cell| cell.east.is_closed(),
+        |cell| cell.west.is_closed(),
         true,
     );
 }
