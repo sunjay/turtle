@@ -25,10 +25,10 @@ fn main() {
     let maze = Maze::generate();
 
     let mut turtle = Turtle::new();
-    turtle.set_speed(9);
+    turtle.set_speed(10);
     turtle.set_background_color("#A5D6A7");
     turtle.set_pen_color("#03A9F4");
-    turtle.set_pen_size(5.0);
+    turtle.set_pen_size(2.0);
 
     // Get to the top left corner
     turtle.pen_up();
@@ -47,7 +47,7 @@ fn main() {
         cell_height,
         maze.first_row().map(|cell| cell.north.is_closed()),
         maze.rows(),
-        |cell| cell.south.is_closed(),
+        |row| row.map(|cell| cell.south.is_closed()),
         false,
     );
 
@@ -57,14 +57,20 @@ fn main() {
         &mut turtle,
         cell_height,
         cell_width,
-        maze.last_col().map(|cell| cell.east.is_closed()),
+        maze.last_col().rev().map(|cell| cell.east.is_closed()),
         maze.cols().rev(),
-        |cell| cell.west.is_closed(),
+        |col| col.map(|cell| cell.west.is_closed()).rev(),
         true,
     );
 }
 
-fn draw_rows<'a, R: Iterator<Item=bool>, G: Iterator<Item=GridCellIter<'a>>, F: Fn(&Cell) -> bool>(
+fn draw_rows<
+    'a,
+    R: Iterator<Item=bool>,
+    G: Iterator<Item=GridCellIter<'a>>,
+    F: Fn(GridCellIter<'a>) -> X,
+    X: Iterator<Item=bool> + DoubleEndedIterator
+>(
     turtle: &mut Turtle,
     // size of each cell in the row
     cell_size: f64,
@@ -83,17 +89,13 @@ fn draw_rows<'a, R: Iterator<Item=bool>, G: Iterator<Item=GridCellIter<'a>>, F: 
         turtle.pen_up();
 
         // Direction of rotation for these turns
-        let direction = rotation * if i % 2 == 0 {
-            1.0
-        } else {
-            -1.0
-        };
+        let direction = rotation * if i % 2 == 0 { 1.0 } else { -1.0 };
         turtle.right(direction * 90.0);
         turtle.forward(cell_gap);
         turtle.right(direction * 90.0);
         turtle.pen_down();
 
-        let walls = row.map(&row_walls);
+        let walls = row_walls(row);
 
         // Every second row needs to be reversed so the turtle can zig-zag back and
         // forth instead of wasting too much time moving all the way to the left of
