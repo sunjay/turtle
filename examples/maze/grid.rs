@@ -5,7 +5,7 @@ use turtle::random;
 use cell::Cell;
 use wall::Wall;
 
-const GRID_SIZE: usize = 8;
+const GRID_SIZE: usize = 12;
 
 /// A row or column of cells
 pub type Cells = [Cell; GRID_SIZE];
