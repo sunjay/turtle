@@ -15,7 +15,6 @@ use turtle::Turtle;
 
 pub use maze::Maze;
 use grid::{GridCellIter};
-use cell::Cell;
 
 // Dimensions of the maze in turtle steps (pixels)
 const WIDTH: f64 = 600.0; // px
