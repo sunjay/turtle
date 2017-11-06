@@ -25,7 +25,7 @@ fn main() {
 
     let mut turtle = Turtle::new();
     turtle.set_speed(10);
-    turtle.set_background_color("#A5D6A7");
+    turtle.set_background_color("#BDBDBD");
     turtle.set_pen_color("#03A9F4");
     turtle.set_pen_size(2.0);
 
