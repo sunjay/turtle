@@ -37,10 +37,10 @@ impl Speed {
             Four => 300.,
             Five => 500.,
             Six => 600.,
-            Seven => 700.,
-            Eight => 800.,
-            Nine => 900.,
-            Ten => 1000.,
+            Seven => 1000.,
+            Eight => 2000.,
+            Nine => 3000.,
+            Ten => 5000.,
             Instant => f64::INFINITY,
         }
     }
@@ -53,14 +53,14 @@ impl Speed {
         Radians::from_radians_value(match self {
             One => 0.7 * PI,
             Two => 0.9 * PI,
-            Three => 1.1 * PI,
-            Four => 1.3 * PI,
-            Five =>  1.5 * PI,
-            Six => 2.5 * PI,
-            Seven => 3.5 * PI,
-            Eight => 4.0 * PI,
-            Nine => 8.0 * PI,
-            Ten => 12.0 * PI,
+            Three => 1.0 * PI,
+            Four => 2.0 * PI,
+            Five =>  3.0 * PI,
+            Six => 6.0 * PI,
+            Seven => 8.0 * PI,
+            Eight => 12.0 * PI,
+            Nine => 14.0 * PI,
+            Ten => 16.0 * PI,
             Instant => f64::INFINITY,
         })
     }

@@ -24,7 +24,7 @@ fn main() {
     let maze = Maze::generate();
 
     let mut turtle = Turtle::new();
-    turtle.set_speed(10);
+    turtle.set_speed(8);
     turtle.set_background_color("#BDBDBD");
     turtle.set_pen_color("#03A9F4");
     turtle.set_pen_size(2.0);
