@@ -33,8 +33,12 @@ impl Maze {
 
             if grid.get(current).is_all_closed() {
                 // This cell hasn't been connected yet, let's try to do that
-                let visited_adjacent = adjacents.iter().find(|&p| visited.contains(p));
-                if let Some(&adj) = visited_adjacent {
+                let mut visited_adjacents = adjacents.iter()
+                    .filter(|&p| visited.contains(p))
+                    .collect::<Vec<_>>();
+                rng.shuffle(&mut visited_adjacents);
+
+                if let Some(&&adj) = visited_adjacents.first() {
                     grid.open_between(current, adj);
                 }
             }
