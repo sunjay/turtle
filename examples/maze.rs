@@ -76,6 +76,8 @@ fn main() {
     turtle.left(90.0);
     turtle.pen_down();
 
+    turtle.set_speed(5);
+    turtle.set_pen_size(2.0);
     solve(&mut turtle, maze, cell_width, cell_height);
 }
 

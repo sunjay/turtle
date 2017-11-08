@@ -171,6 +171,37 @@ impl Grid {
         Grid(grid)
     }
 
+    /// Returns true if there is NO wall between two adjacent cells
+    pub fn is_open_between(
+        &self,
+        (row1, col1): (usize, usize),
+        (row2, col2): (usize, usize),
+    ) -> bool {
+        match (row2 as isize - row1 as isize, col2 as isize - col1 as isize) {
+            // second position is north of first position
+            (-1, 0) => {
+                assert_eq!(self[row1][col1].north, self[row2][col2].south);
+                self[row1][col1].north == Wall::Open
+            },
+            // second position is east of first position
+            (0, 1) => {
+                assert_eq!(self[row1][col1].east, self[row2][col2].west);
+                self[row1][col1].east == Wall::Open
+            },
+            // second position is south of first position
+            (1, 0) => {
+                assert_eq!(self[row1][col1].south, self[row2][col2].north);
+                self[row1][col1].south == Wall::Open
+            },
+            // second position is west of first position
+            (0, -1) => {
+                assert_eq!(self[row1][col1].west, self[row2][col2].east);
+                self[row1][col1].west == Wall::Open
+            },
+            _ => unreachable!("Cells were not adjacent"),
+        }
+    }
+
     /// Removes the wall between two adjacent cells
     pub fn open_between(&mut self, (row1, col1): (usize, usize), (row2, col2): (usize, usize)) {
         match (row2 as isize - row1 as isize, col2 as isize - col1 as isize) {
