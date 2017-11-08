@@ -18,48 +18,49 @@ pub fn solve(turtle: &mut Turtle, maze: Maze, cell_width: f64, cell_height: f64)
 
     let mut rng = thread_rng();
     loop {
-        if visited.contains(&current) {
-            continue;
-        }
         visited.insert(current);
 
         if current == maze.finish() {
             break;
         }
 
-        // We force the compiler to copy here so that we do not get a borrow checker error since
-        // current is mutated below
-        let curr = current;
-        let mut unvisited = maze.adjacent_cells(current).into_iter()
-            .filter(|p| maze.is_open_between(curr, *p))
-            .filter(|p| !visited.contains(p))
-            .peekable();
+        let mut unvisited = unvisited_open_adjacents(&maze, &visited, current);
+        rng.shuffle(&mut unvisited);
 
-        if unvisited.peek().is_none() {
+        if unvisited.is_empty() {
             // Dead end, start backtracking until we have unvisited adjacents
+            turtle.set_pen_color(BACKTRACK_COLOR);
             loop {
                 let previous = match path_stack.pop_back() {
                     Some(pos) => pos,
                     None => unreachable!("Backtracked to the beginning. Could not find solution for maze!"),
                 };
-                // Animate to previous
-                turtle.set_pen_color(BACKTRACK_COLOR);
 
-                // If previous has unvisited adjacents, make it the current and break this loop
-                // Otherwise keep going
+                move_to(turtle, current, previous, cell_width, cell_height);
+                current = previous;
+
+                let unvisited = unvisited_open_adjacents(&maze, &visited, previous);
+                if !unvisited.is_empty() {
+                    break;
+                }
             }
+            turtle.set_pen_color(SOLUTION_COLOR);
         }
         else {
             path_stack.push_back(current);
-
-            let mut unvisited = unvisited.collect::<Vec<_>>();
-            rng.shuffle(&mut unvisited);
 
             let next = *unvisited.first().unwrap();
             move_to(turtle, current, next, cell_width, cell_height);
             current = next;
         }
     }
+}
+
+fn unvisited_open_adjacents(maze: &Maze, visited: &HashSet<(usize, usize)>, position: (usize, usize)) -> Vec<(usize, usize)> {
+    maze.adjacent_cells(position).into_iter()
+        .filter(|p| maze.is_open_between(position, *p))
+        .filter(|p| !visited.contains(p))
+        .collect()
 }
 
 fn move_to(
