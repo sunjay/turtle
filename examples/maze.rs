@@ -11,7 +11,7 @@ mod grid;
 
 extern crate turtle;
 
-use turtle::Turtle;
+use turtle::{Turtle, Color};
 
 pub use maze::Maze;
 use grid::{GridCellIter};
@@ -61,6 +61,10 @@ fn main() {
         |col| col.map(|cell| cell.west.is_closed()).rev(),
         true,
     );
+
+    turtle.right(90.0);
+    draw_marker(&mut turtle, maze.start(), cell_width, cell_height, "#C5E1A5");
+    draw_marker(&mut turtle, maze.finish(), cell_width, cell_height, "#FFAB91");
 }
 
 fn draw_rows<
@@ -116,4 +120,57 @@ fn draw_row<I: Iterator<Item=bool>>(turtle: &mut Turtle, wall_size: f64, walls: 
         turtle.forward(wall_size);
         turtle.pen_down();
     }
+}
+
+fn draw_marker<C: Into<Color>>(
+    turtle: &mut Turtle,
+    (row, col): (usize, usize),
+    cell_width: f64,
+    cell_height: f64,
+    color: C,
+) {
+    turtle.pen_up();
+
+    let row = row as f64;
+    let col = col as f64;
+    let speed = turtle.speed();
+
+    turtle.set_speed("instant");
+    turtle.forward(col * cell_width);
+    turtle.right(90.0);
+    turtle.forward(row * cell_height);
+    turtle.left(90.0);
+    turtle.set_speed(speed);
+
+    // The padding around the start and finish markers
+    let marker_padding = turtle.pen_size(); // px
+
+    turtle.set_fill_color(color);
+    turtle.forward(marker_padding);
+    turtle.right(90.0);
+    turtle.forward(marker_padding);
+    turtle.left(90.0);
+
+    turtle.begin_fill();
+    for _ in 0..2 {
+        turtle.forward(cell_width - marker_padding * 2.0);
+        turtle.right(90.0);
+        turtle.forward(cell_height - marker_padding * 2.0);
+        turtle.right(90.0);
+    }
+    turtle.end_fill();
+
+    turtle.backward(marker_padding);
+    turtle.right(90.0);
+    turtle.backward(marker_padding);
+    turtle.left(90.0);
+
+    turtle.set_speed("instant");
+    turtle.backward(col * cell_width);
+    turtle.right(90.0);
+    turtle.backward(row * cell_height);
+    turtle.left(90.0);
+    turtle.set_speed(speed);
+
+    turtle.pen_down();
 }

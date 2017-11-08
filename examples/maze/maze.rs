@@ -10,13 +10,14 @@ pub struct Maze {
     // The cells of the maze are stored row-wise
     // That means that each array in the outer array is a row of the maze
     grid: Grid,
+    start: (usize, usize),
+    finish: (usize, usize),
 }
 
 impl Maze {
     /// Generates a new random maze
     pub fn generate() -> Self {
         let mut grid = Grid::new();
-        grid[0][0].mark_start();
 
         let mut visited = HashSet::<(usize, usize)>::new();
         let mut remaining = VecDeque::<(usize, usize)>::new();
@@ -60,9 +61,19 @@ impl Maze {
             }
         }
 
-        Self {
-            grid,
-        }
+        let start = (0, 0);
+        let finish = (grid.col_size() - 1, grid.row_size() - 1);
+        Self {grid, start, finish}
+    }
+
+    // The start of the maze (row, col)
+    pub fn start(&self) -> (usize, usize) {
+        self.start
+    }
+
+    // The exit of the maze (row, col)
+    pub fn finish(&self) -> (usize, usize) {
+        self.finish
     }
 }
 

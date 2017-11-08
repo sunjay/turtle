@@ -3,18 +3,11 @@ use turtle::{Rand, Rng};
 use wall::Wall;
 
 #[derive(Debug, Clone, Copy)]
-pub enum CellMarker {
-    Start,
-    Finish,
-}
-
-#[derive(Debug, Clone, Copy)]
 pub struct Cell {
     pub north: Wall,
     pub east: Wall,
     pub south: Wall,
     pub west: Wall,
-    pub marker: Option<CellMarker>,
 }
 
 impl Cell {
@@ -23,14 +16,6 @@ impl Cell {
             && self.east.is_closed()
             && self.south.is_closed()
             && self.west.is_closed()
-    }
-
-    pub fn mark_start(&mut self) {
-        self.marker = Some(CellMarker::Start);
-    }
-
-    pub fn mark_finish(&mut self) {
-        self.marker = Some(CellMarker::Finish);
     }
 }
 
@@ -43,7 +28,6 @@ impl Default for Cell {
             east: Closed,
             south: Closed,
             west: Closed,
-            marker: None,
         }
     }
 }
