@@ -8,6 +8,8 @@ mod cell;
 mod maze;
 #[path = "maze/grid.rs"]
 mod grid;
+#[path = "maze/solver.rs"]
+mod solver;
 
 extern crate turtle;
 
@@ -15,6 +17,7 @@ use turtle::{Turtle, Color};
 
 pub use maze::Maze;
 use grid::{GridCellIter};
+use solver::solve;
 
 // Dimensions of the maze in turtle steps (pixels)
 const WIDTH: f64 = 600.0; // px
@@ -65,6 +68,15 @@ fn main() {
     turtle.right(90.0);
     draw_marker(&mut turtle, maze.start(), cell_width, cell_height, "#C5E1A5");
     draw_marker(&mut turtle, maze.finish(), cell_width, cell_height, "#FFAB91");
+
+    turtle.pen_up();
+    turtle.forward(cell_width * 0.5);
+    turtle.right(90.0);
+    turtle.forward(cell_height * 0.5);
+    turtle.left(90.0);
+    turtle.pen_down();
+
+    solve(&mut turtle, maze, cell_width, cell_height);
 }
 
 fn draw_rows<
