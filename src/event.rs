@@ -24,7 +24,7 @@ use {Point};
 /// Events are used to make programs more interactive.
 /// See that method's documentation for more information about how to use events.
 ///
-/// This type is meant to provide a simplified model of piston_window's `Event` type.
+/// This type is meant to provide a simplified model of `piston_window`'s `Event` type.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
     /// Sent when a keyboard key is pressed

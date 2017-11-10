@@ -38,8 +38,8 @@
 //! Each color's constant name is in uppercase in the list below. The color name you should use to
 //! refer to it is in lower case next to the constant.
 //!
-//! For your convenience, there are two static variables [COLORS](static.COLORS.html) and
-//! [COLOR_NAMES](static.COLOR_NAMES.html) which contain the values of all the color constants
+//! For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
+//! [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
 //! and each of their names as strings. These static variables only contain the colors from this
 //! module. The [`extended`](extended/index.html) module has its own static `COLOR` and
 //! `COLOR_NAMES` variables.
@@ -168,7 +168,7 @@ impl From<Color> for types::Color {
 impl<'a> From<&'a str> for Color {
     fn from(s: &'a str) -> Self {
         match s {
-            s if s.starts_with("#") => {
+            s if s.starts_with('#') => {
                 let color_str = &s[1..];
                 // Color strings can either be of size 3 (rgb) or 6 (rrggbb)
                 // e.g. 3366ff == 36f
@@ -284,13 +284,13 @@ mod tests {
 pub mod extended {
     //! Even more colors!!
     //!
-    //! This extended list of colors is from: https://xkcd.com/color/rgb/
+    //! This extended list of colors is from: <https://xkcd.com/color/rgb/>
     //!
     //! Each color's constant name is in uppercase in the list below. The color name you should use to
     //! refer to it is in lower case next to the constant.
     //!
-    //! For your convenience, there are two static variables [COLORS](static.COLORS.html) and
-    //! [COLOR_NAMES](static.COLOR_NAMES.html) which contain the values of all the color constants
+    //! For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
+    //! [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
     //! and each of their names as strings. These static variables only contain the colors from this
     //! module.
     use super::Color;

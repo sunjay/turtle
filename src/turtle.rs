@@ -66,6 +66,12 @@ pub struct Turtle {
     angle_unit: AngleUnit,
 }
 
+impl Default for Turtle {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Turtle {
     /// Create a new turtle.
     ///

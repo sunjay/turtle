@@ -29,49 +29,41 @@ impl Radians {
     }
 
     /// Returns the raw value stored in radians
-    #[inline(always)]
     pub fn to_radians(&self) -> f64 {
         self.0
     }
 
     /// Returns the raw value stored in degrees
-    #[inline(always)]
     pub fn to_degrees(&self) -> f64 {
         self.0.to_degrees()
     }
 
     /// Computes the cosine of this radians value
-    #[inline(always)]
     pub fn cos(self) -> f64 {
         self.0.cos()
     }
 
     /// Computes the sine of this radians value
-    #[inline(always)]
     pub fn sin(self) -> f64 {
         self.0.sin()
     }
 
     /// Returns true if this value is positive infinity or negative infinity and false otherwise.
-    #[inline(always)]
     pub fn is_infinite(self) -> bool {
         self.0.is_infinite()
     }
 
     /// Returns true if this value is `NaN` and false otherwise.
-    #[inline(always)]
     pub fn is_nan(self) -> bool {
         self.0.is_infinite()
     }
 
     /// See [`std::f64::signum()`](https://doc.rust-lang.org/std/primitive.f64.html#method.signum)
-    #[inline(always)]
     pub fn signum(self) -> f64 {
         self.0.signum()
     }
 
     /// See [`std::f64::abs()`](https://doc.rust-lang.org/std/primitive.f64.html#method.abs)
-    #[inline(always)]
     pub fn abs(self) -> Self {
         Radians(self.0.abs())
     }
@@ -80,17 +72,14 @@ impl Radians {
 impl Spatial for Radians {
     type Scalar = f64;
 
-    #[inline(always)]
     fn add(&self, other: &Self) -> Self {
         *self + *other
     }
 
-    #[inline(always)]
     fn sub(&self, other: &Self) -> Self {
         *self - *other
     }
 
-    #[inline(always)]
     fn scale(&self, other: &Self::Scalar) -> Self {
         *self * *other
     }

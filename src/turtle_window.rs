@@ -100,9 +100,9 @@ impl TurtleWindow {
     /// Provide a read-only version of the state
     pub fn read_only(&self) -> ReadOnly {
         ReadOnly {
-            turtle: self.turtle.clone(),
-            drawing: self.drawing.clone(),
-            temporary_path: self.temporary_path.clone(),
+            turtle: Arc::clone(&self.turtle),
+            drawing: Arc::clone(&self.drawing),
+            temporary_path: Arc::clone(&self.temporary_path),
         }
     }
 
