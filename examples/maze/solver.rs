@@ -1,6 +1,7 @@
 use std::collections::{VecDeque, HashSet};
 
-use turtle::{Turtle, thread_rng, Rng};
+use turtle::{Turtle};
+use turtle::rand::{thread_rng, Rng};
 use maze::Maze;
 
 const SOLUTION_COLOR: &str = "#4CAF50";

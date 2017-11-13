@@ -23,10 +23,7 @@
 
 extern crate piston_window;
 extern crate interpolation;
-extern crate rand;
-
-// Re-exported for the convenience of library users
-pub use rand::*;
+extern crate rand as rand_crate;
 
 mod turtle_window;
 
@@ -40,8 +37,10 @@ mod state;
 
 pub mod color;
 pub mod event;
+pub mod rand;
 
 pub use turtle::{Turtle, Point, Distance, Angle};
 pub use speed::{Speed};
 pub use color::{Color};
 pub use event::Event;
+pub use rand::random;

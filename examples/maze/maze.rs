@@ -1,7 +1,7 @@
 use std::collections::{VecDeque, HashSet};
 use std::ops::{Deref, DerefMut};
 
-use turtle::{thread_rng, Rng};
+use turtle::rand::{thread_rng, Rng};
 
 use grid::Grid;
 

@@ -1,4 +1,4 @@
-use turtle::{Rand, Rng};
+use turtle::rand::{Rand, Rng};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Wall {

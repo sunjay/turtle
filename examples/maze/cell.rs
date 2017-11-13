@@ -1,4 +1,4 @@
-use turtle::{Rand, Rng};
+use turtle::rand::{Rand, Rng};
 
 use wall::Wall;
 
