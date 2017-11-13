@@ -184,10 +184,14 @@ impl Turtle {
     /// use std::f64::consts::PI;
     /// // This is the same as turning 45.0 degrees
     /// turtle.right(PI/4.0);
-    /// # assert_eq!(
-    /// #     (turtle.heading() * 1e5).trunc(),
-    /// #     (((90f64 - 30f64).to_radians() - 1.0 - PI/4.0) * 1e5).trunc()
-    /// # );
+    /// # // Calculate the angle that should result from the above rotations
+    /// # let expected = (90f64 - 30f64).to_radians() - 1.0 - PI/4.0;
+    /// # // Need to properly normalize the angle so that it can be checked
+    /// # // We only perform a normalization in `right`, and not `left` because the angle resulting
+    /// # // from the rotations is negative.
+    /// # let expected = expected - (2.0*PI) * (expected / (2.0*PI)).floor();
+    /// # let expected = (expected * 1e5).trunc();
+    /// # assert_eq!((turtle.heading() * 1e5).trunc(), expected);
     /// # }
     /// ```
     pub fn right(&mut self, angle: Angle) {

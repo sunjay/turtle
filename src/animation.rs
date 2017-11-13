@@ -36,12 +36,11 @@ pub enum AnimationStatus {
 /// if clockwise is true, we need to subtract the `rotation` from X resulting in
 /// `X - rotation`. If clockwise is false, we can just add normally.
 fn rotate(angle: Radians, rotation: Radians, clockwise: bool) -> Radians {
-    if clockwise {
-        angle - rotation
-    }
-    else {
-        angle + rotation
-    }
+    let angle = if clockwise { angle - rotation } else { angle + rotation };
+    // Normalize the angle to be between 0 and 2*pi
+    // Formula adapted from: https://stackoverflow.com/a/24234924/551904
+    // More info: https://stackoverflow.com/a/28316446/551904
+    angle - radians::TWO_PI * (angle / radians::TWO_PI).floor()
 }
 
 /// Animate the turtle moving from a start point to an end point
@@ -135,7 +134,7 @@ impl Animation for RotateAnimation {
         let elapsed = timer.elapsed().as_millis() as f64;
 
         if elapsed >= total_millis {
-            turtle.heading = rotate(start, delta_angle, clockwise) % TWO_PI;
+            turtle.heading = rotate(start, delta_angle, clockwise);
 
             Complete(None)
         }
@@ -144,7 +143,7 @@ impl Animation for RotateAnimation {
             let t = elapsed / total_millis;
             // Only rotate as much as the animation has proceeded so far
             let angle = lerp(&radians::ZERO, &delta_angle, &t);
-            turtle.heading = rotate(start, angle, clockwise) % TWO_PI;
+            turtle.heading = rotate(start, angle, clockwise);
             assert!(!turtle.heading.is_nan(), "bug: heading became NaN");
 
             Running(None)
@@ -158,7 +157,7 @@ impl Animation for RotateAnimation {
 
         // No animation during testing
         let RotateAnimation {start, delta_angle, clockwise, ..} = *self;
-        turtle.heading = rotate(start, delta_angle, clockwise) % TWO_PI;
+        turtle.heading = rotate(start, delta_angle, clockwise);
 
         Complete(None)
     }

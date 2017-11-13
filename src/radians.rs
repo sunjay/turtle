@@ -67,6 +67,11 @@ impl Radians {
     pub fn abs(self) -> Self {
         Radians(self.0.abs())
     }
+
+    /// See [`std::f64::floor()`](https://doc.rust-lang.org/std/primitive.f64.html#method.floor)
+    pub fn floor(self) -> Self {
+        Radians(self.0.floor())
+    }
 }
 
 impl Spatial for Radians {
