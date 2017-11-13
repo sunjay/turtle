@@ -1,3 +1,6 @@
+use std::thread;
+use std::time::Duration;
+
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
 use event::MouseButton;
@@ -235,6 +238,23 @@ impl Turtle {
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
         self.window.rotate(angle, false);
+    }
+
+    /// Waits for the specified number of seconds before executing the next command.
+    ///
+    /// ```rust,no_run
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.forward(100.0);
+    /// turtle.wait(2.0);
+    /// // The turtle will stop for 2 seconds before proceeding to this line
+    /// turtle.forward(50.0);
+    /// # }
+    /// ```
+    pub fn wait(&mut self, secs: f64) {
+        thread::sleep(Duration::from_millis((secs * 1000.0) as u64));
     }
 
     /// Returns the current speed of the turtle
