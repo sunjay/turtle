@@ -368,6 +368,32 @@ impl Turtle {
         self.go_to([x, y]);
     }
 
+    /// Moves instantaneously to the origin and resets the heading to face north.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// let mut turtle = Turtle::new();
+    /// let start_position = turtle.position();
+    /// let start_heading = turtle.heading().round();
+    /// turtle.right(55.0);
+    /// turtle.forward(127.0);
+    /// assert_ne!(turtle.heading().round(), start_heading);
+    /// assert_ne!(turtle.position()[0].round(), start_position[0].round());
+    /// assert_ne!(turtle.position()[1].round(), start_position[1].round());
+    /// turtle.home();
+    /// assert_eq!(turtle.heading().round(), start_heading);
+    /// assert_eq!(turtle.position()[0].round(), start_position[0].round());
+    /// assert_eq!(turtle.position()[1].round(), start_position[1].round());
+    /// # }
+    /// ```
+    pub fn home(&mut self) {
+        let mut turtle = self.window.turtle_mut();
+        turtle.position = [0.0, 0.0];
+        turtle.heading = radians::PI/2.0;
+    }
+
     /// Returns the turtle's current heading.
     ///
     /// The unit of the returned angle is degrees by default, but can be set using the
