@@ -370,7 +370,7 @@ impl Turtle {
 
     /// Returns the turtle's current heading.
     ///
-    /// Units are by default degrees, but can be set using the
+    /// The unit of the returned angle is degrees by default, but can be set using the
     /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
     /// [`use_radians()`](struct.Turtle.html#method.use_radians) methods.
     ///
@@ -408,6 +408,59 @@ impl Turtle {
     pub fn heading(&self) -> Angle {
         let heading = self.window.turtle().heading;
         self.angle_unit.to_angle(heading)
+    }
+
+    /// Rotate the turtle so that its heading is the given angle.
+    ///
+    /// The unit of `angle` is degrees by default, but can be set using the
+    /// [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
+    /// [`use_radians()`](struct.Turtle.html#method.use_radians) methods.
+    ///
+    /// The turtle will attempt to rotate as little as possible in order to reach the given heading
+    /// (between -180 and 179 degrees).
+    /// Use [`set_speed()`](struct.Turtle.html#method.set_speed) to control the animation speed.
+    ///
+    /// Here are some common directions in degrees and radians:
+    ///
+    /// | Cardinal Direction | Heading (degrees) | Heading (radians) |
+    /// | ------------------ | ----------------- | ----------------- |
+    /// | East               | 0.0&deg;          | `0.0`             |
+    /// | North              | 90.0&deg;         | `PI/2`            |
+    /// | West               | 180.0&deg;        | `PI`              |
+    /// | South              | 270.0&deg;        | `3*PI/2`          |
+    ///
+    /// See [`heading()`](struct.Turtle.html#method.heading) for more information.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// // Turtles start facing north
+    /// let mut turtle = Turtle::new();
+    /// // The rounding is to account for floating-point error
+    /// assert_eq!(turtle.heading().round(), 90.0);
+    /// turtle.set_heading(31.0);
+    /// assert_eq!(turtle.heading().round(), 31.0);
+    /// turtle.set_heading(293.0);
+    /// assert_eq!(turtle.heading().round(), 293.0);
+    /// turtle.set_heading(1.0);
+    /// assert_eq!(turtle.heading().round(), 1.0);
+    /// // Angles should not exceed 360.0, even when we set them to values larger than that
+    /// turtle.set_heading(367.0);
+    /// assert_eq!(turtle.heading().round(), 7.0);
+    /// # }
+    /// ```
+    pub fn set_heading(&mut self, angle: Angle) {
+        let angle = self.angle_unit.to_radians(angle);
+        let heading = self.window.turtle().heading;
+        // Find the amount we need to turn to reach the target heading based on our current heading
+        let angle = angle - heading;
+        // Normalize the angle to be between -180 and 179 so that we rotate as little as possible
+        // Formula from: https://stackoverflow.com/a/24234924/551904
+        let angle = angle - radians::TWO_PI * ((angle + radians::PI) / radians::TWO_PI).floor();
+        self.window.rotate(angle, false);
     }
 
     /// Returns true if `Angle` values will be interpreted as degrees.
