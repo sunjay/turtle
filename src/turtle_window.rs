@@ -14,7 +14,7 @@ use renderer::{Renderer, DrawingCommand};
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path, Pen};
 use radians::{self, Radians};
-use {Speed, Distance, Event, color};
+use {Point, Speed, Distance, Event, color};
 
 use self::DrawingCommand::*;
 
@@ -162,6 +162,28 @@ impl TurtleWindow {
         assert!(self.temporary_path().is_none(),
             "bug: The temporary path was still set when the renderer was asked to clear the drawing");
         self.send_drawing_command(Clear);
+    }
+
+    /// Move the turtle to the given position without changing its heading.
+    pub fn go_to(&mut self, end: Point) {
+        let TurtleState {position: start, speed, ..} = *self.turtle();
+
+        let distance = math::square_len(math::sub(start, end)).sqrt();
+        let speed = speed.to_absolute(); // px per second
+        // We take the absolute value because the time is always positive, even if distance is negative
+        let total_millis = (distance / speed * 1000.).abs();
+
+        let animation = MoveAnimation {
+            path: Path {
+                start,
+                end,
+                pen: self.drawing().pen.clone(),
+            },
+            timer: Instant::now(),
+            total_millis,
+        };
+
+        self.play_animation(animation);
     }
 
     /// Move the turtle forward by the given distance. To move backwards, use a negative distance.

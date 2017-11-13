@@ -327,6 +327,43 @@ impl Turtle {
         self.window.turtle().position
     }
 
+    /// Moves the turtle directly to the given position.
+    ///
+    /// If the pen is down, this will draw a line. The turtle will not turn to face the direction
+    /// in which it is moving. It's heading will stay the same.
+    /// Use [`set_speed()`](struct.Turtle.html#method.set_speed) to control the animation speed.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// let heading = turtle.heading();
+    /// assert_eq!(turtle.position(), [0.0, 0.0]);
+    /// turtle.go_to([100.0, -150.0]);
+    /// // The heading has not changed, but the turtle has moved to the new position
+    /// assert_eq!(turtle.heading(), heading);
+    /// assert_eq!(turtle.position(), [100.0, -150.0]);
+    /// # }
+    /// ```
+    pub fn go_to(&mut self, position: Point) {
+        self.window.go_to(position);
+    }
+
+    /// Goes to the given x-coordinate, keeping the y-coordinate and heading of the turtle the
+    /// same. See [`go_to()`](struct.Turtle.html#method.go_to) for more information.
+    pub fn set_x(&mut self, x: f64) {
+        let y = self.position()[1];
+        self.go_to([x, y]);
+    }
+
+    /// Goes to the given y-coordinate, keeping the x-coordinate and heading of the turtle the
+    /// same. See [`go_to()`](struct.Turtle.html#method.go_to) for more information.
+    pub fn set_y(&mut self, y: f64) {
+        let x = self.position()[0];
+        self.go_to([x, y]);
+    }
+
     /// Returns the turtle's current heading.
     ///
     /// Units are by default degrees, but can be set using the
