@@ -1065,4 +1065,18 @@ mod tests {
         assert!(!turtle.is_using_radians());
         assert!(turtle.is_using_degrees());
     }
+
+    #[test]
+    fn clear_leaves_position_and_heading() {
+        let mut turtle = Turtle::new();
+        assert_eq!(turtle.position(), [0.0, 0.0]);
+        assert_eq!(turtle.heading(), 90.0);
+        turtle.forward(100.0);
+        turtle.set_heading(51.0);
+        turtle.clear();
+        // The rounding is to account for floating-point error
+        assert_eq!(turtle.position()[0].round(), 0.0);
+        assert_eq!(turtle.position()[1].round(), 100.0);
+        assert_eq!(turtle.heading(), 51.0);
+    }
 }
