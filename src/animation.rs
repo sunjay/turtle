@@ -6,7 +6,7 @@ use std::time::Instant;
 
 use interpolation::lerp;
 
-use radians::{self, Radians, TWO_PI};
+use radians::{self, Radians};
 use state::{TurtleState, Path};
 use extensions::AsMillis;
 
