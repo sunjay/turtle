@@ -901,6 +901,33 @@ impl Turtle {
         self.window.turtle_mut().visible = true;
     }
 
+    /// Delete the turtle's drawings from the screen, re-center the turtle and reset all of the
+    /// turtle's state (speed, color, etc.) back to the default.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.left(43.0);
+    /// turtle.forward(289.0);
+    /// turtle.set_pen_color("red");
+    /// turtle.set_background_color("green");
+    /// let position = turtle.position();
+    /// let heading = turtle.heading();
+    /// turtle.reset();
+    /// assert_eq!(turtle.heading(), 90.0);
+    /// assert_eq!(turtle.position(), [0.0, 0.0]);
+    /// assert_ne!(turtle.pen_color(), "red".into());
+    /// assert_ne!(turtle.background_color(), "green".into());
+    /// # }
+    /// ```
+    pub fn reset(&mut self) {
+        self.clear();
+        *self.window.turtle_mut() = Default::default();
+        *self.window.drawing_mut() = Default::default();
+    }
+
     /// Delete the turtle's drawings from the screen.
     ///
     /// Does not move turtle. Position, speed and heading of the turtle are not affected. The

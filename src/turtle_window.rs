@@ -12,9 +12,9 @@ use piston_window::math;
 
 use renderer::{Renderer, DrawingCommand};
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
-use state::{TurtleState, DrawingState, Path, Pen};
+use state::{TurtleState, DrawingState, Path};
 use radians::{self, Radians};
-use {Point, Speed, Distance, Event, color};
+use {Point, Distance, Event};
 
 use self::DrawingCommand::*;
 
@@ -68,21 +68,8 @@ impl TurtleWindow {
             thread_handle: None,
             drawing_channel: drawing_tx,
             events_channel: events_rx,
-            turtle: Arc::new(RwLock::new(TurtleState {
-                position: [0., 0.],
-                heading: Radians::from_degrees_value(90.),
-                speed: Speed::Five,
-                visible: true,
-            })),
-            drawing: Arc::new(RwLock::new(DrawingState {
-                pen: Pen {
-                    enabled: true,
-                    thickness: 1.,
-                    color: color::BLACK,
-                },
-                fill_color: color::BLACK,
-                background: color::WHITE,
-            })),
+            turtle: Arc::new(RwLock::new(TurtleState::default())),
+            drawing: Arc::new(RwLock::new(DrawingState::default())),
             temporary_path: Arc::new(RwLock::new(None)),
         };
 
