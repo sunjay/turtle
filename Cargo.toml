@@ -11,6 +11,19 @@ keywords = ["turtle", "graphics", "drawing", "teaching", "beginner"]
 categories = ["rendering", "rendering::graphics-api", "rendering::engine", "games", "gui"]
 license = "MIT"
 
+[badges]
+# Appveyor: `repository` is required. `branch` is optional; default is `master`
+appveyor = { repository = "sunjay/turtle" }
+
+# Travis CI: `repository` in format "<user>/<project>" is required.
+travis-ci = { repository = "sunjay/turtle" }
+
+# Is it maintained resolution time: `repository` is required.
+is-it-maintained-issue-resolution = { repository = "sunjay/turtle" }
+
+# Is it maintained percentage of open issues: `repository` is required.
+is-it-maintained-open-issues = { repository = "sunjay/turtle" }
+
 [dependencies]
 piston_window = "^0.73.0"
 interpolation = "^0.1.0"
