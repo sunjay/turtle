@@ -10,7 +10,12 @@
 //! As a convenience, you can use the color name listed with each constant in a string instead of the
 //! constant itself. See that module for more information about how to use different colors.
 //!
-//! ## Event Handling
+//! # Random Values
+//!
+//! See the [`rand` module](rand/index.html) for information about generating random values which
+//! can be used in your programs.
+//!
+//! # Event Handling
 //!
 //! For advanced users, the [`Event` enum](event/enum.Event.html) documentation provides information
 //! about how you can create an event loop. This allows you to draw things in response to
