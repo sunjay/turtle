@@ -14,7 +14,7 @@ license = "MIT"
 [dependencies]
 piston_window = "^0.73.0"
 interpolation = "^0.1.0"
-rand = "^0.3.17"
+rand = "^0.3.18"
 
 # The reason we do this is because doctests don't get cfg(test)
 # See: https://github.com/rust-lang/cargo/issues/4669
