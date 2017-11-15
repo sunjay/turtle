@@ -53,7 +53,8 @@
 //! if you run the following, the compiler will tell you that it needs you to give it more
 //! information about the type that you want to generate:
 //!
-//! ```rust,ignore
+//! ```rust,ignore,compile_fail,E0283,rust
+//! # // Remove `ignore` when Rust 1.22 comes out and compile_fail is added
 //! # extern crate turtle;
 //! # use turtle::{Turtle, random};
 //! # fn main() {
@@ -120,8 +121,12 @@
 //!
 //! The type signature of the [`random()`] function is similar to the following:
 //!
-//! ```rust,ignore
+//! ```rust,ignore,compile_fail,E0308
+//! # // Remove `ignore` when Rust 1.22 comes out and compile_fail is added
+//! # extern crate turtle;
+//! # use turtle::rand::Rand;
 //! fn random<T: Rand>() -> T { /* ... */ }
+//! # fn main() {}
 //! ```
 //!
 //! This tells us the following:
