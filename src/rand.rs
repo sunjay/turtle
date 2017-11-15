@@ -88,6 +88,28 @@
 //! # }
 //! ```
 //!
+//! # More Functions for Generating Random Values
+//!
+//! The [`random_range()`] function allows you to generate values in a given range. You provide
+//! a lower bound and an upper bound. The number generated will be greater than or equal to the
+//! lower bound and strictly less than the upper bound.
+//!
+//! ```rust
+//! # extern crate turtle;
+//! # use turtle::random_range;
+//! # fn main() {
+//! // Generates an f64 value between 394.0 and 499.99999...
+//! let value: f64 = random_range(394.0, 500.0);
+//! assert!(value >= 394.0 && value < 500.0);
+//! // Generates a u64 value between 32 and 64
+//! let value = random_range::<u64>(32, 65);
+//! assert!(value >= 32 && value <= 64);
+//! // You do not need to specify the type if the compiler has enough information:
+//! fn foo(a: u64) {}
+//! foo(random_range(381, 920));
+//! # }
+//! ```
+//!
 //! ## How can one function generate so many different return types?
 //!
 //! Knowing how [`random()`] works is **not required** in order to be able to use it. That being said,
@@ -160,6 +182,7 @@
 //!
 //! [`Rand`]: ../../rand/trait.Rand.html
 //! [`random()`]: ../fn.random.html
+//! [`random_range()`]: fn.random_range.html
 //! [`Distance`]: ../type.Distance.html
 //! [`Angle`]: ../type.Angle.html
 //! [`Speed`]: ../speed/enum.Speed.html
@@ -167,3 +190,32 @@
 //! [`Point`]: ../type.Point.html
 
 pub use rand_crate::*;
+
+use self::distributions::range::SampleRange;
+
+/// Generates a random value in the given range.
+///
+/// The value `x` that is returned will be such that low &le; x &lt; high.
+///
+/// # Panics
+/// Panics if low &ge; high
+///
+/// # Example:
+/// ```rust
+/// # extern crate turtle;
+/// # use turtle::random_range;
+/// # fn main() {
+/// // Generates an f64 value between 100 and 199
+/// let value: f64 = random_range(100.0, 200.0);
+/// assert!(value >= 100.0 && value < 200.0);
+/// // Generates a u64 value between 1000 and 3000000
+/// let value = random_range::<u64>(1000, 3000001);
+/// assert!(value >= 1000 && value < 3000001);
+/// // You do not need to specify the type if the compiler has enough information:
+/// fn foo(a: u64) {}
+/// foo(random_range(432, 1938));
+/// # }
+/// ```
+pub fn random_range<T: PartialOrd + SampleRange>(low: T, high: T) -> T {
+    thread_rng().gen_range(low, high)
+}
