@@ -577,7 +577,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn is_pen_down(&self) -> bool {
-        self.window.drawing().pen.enabled
+        self.window.turtle().pen.enabled
     }
 
     /// Pull the pen down so that the turtle draws while moving.
@@ -598,7 +598,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn pen_down(&mut self) {
-        self.window.drawing_mut().pen.enabled = true;
+        self.window.turtle_mut().pen.enabled = true;
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
@@ -618,7 +618,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn pen_up(&mut self) {
-        self.window.drawing_mut().pen.enabled = false;
+        self.window.turtle_mut().pen.enabled = false;
     }
 
     /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
@@ -635,7 +635,7 @@ impl Turtle {
     ///
     /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
     pub fn pen_size(&self) -> f64 {
-        self.window.drawing().pen.thickness
+        self.window.turtle().pen.thickness
     }
 
     /// Sets the thickness of the pen to the given size. The thickness is measured in pixels.
@@ -679,7 +679,7 @@ impl Turtle {
     /// Notice that while the turtle travels in a straight line, it produces different thicknesses
     /// of lines which appear like large rectangles.
     pub fn set_pen_size(&mut self, thickness: f64) {
-        self.window.drawing_mut().pen.thickness = thickness;
+        self.window.turtle_mut().pen.thickness = thickness;
     }
 
     /// Returns the color of the pen.
@@ -696,7 +696,7 @@ impl Turtle {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn pen_color(&self) -> Color {
-        self.window.drawing().pen.color
+        self.window.turtle().pen.color
     }
 
     /// Sets the color of the pen to the given color.
@@ -729,7 +729,7 @@ impl Turtle {
     ///
     /// ![turtle pen color](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/colored_circle.png)
     pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.drawing_mut().pen.color = color.into();
+        self.window.turtle_mut().pen.color = color.into();
     }
 
     /// Returns the color of the background.
@@ -791,7 +791,7 @@ impl Turtle {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn fill_color(&self) -> Color {
-        self.window.drawing().fill_color
+        self.window.turtle().fill_color
     }
 
     /// Sets the fill color to the given color.
@@ -806,7 +806,7 @@ impl Turtle {
     ///
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for an example.
     pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.drawing_mut().fill_color = color.into();
+        self.window.turtle_mut().fill_color = color.into();
     }
 
     /// Begin filling the shape drawn by the turtle's movements.

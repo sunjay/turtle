@@ -33,6 +33,8 @@ impl Default for Pen {
 
 #[derive(Debug, Clone)]
 pub struct TurtleState {
+    pub pen: Pen,
+    pub fill_color: Color,
     pub position: Point,
     pub heading: Radians,
     pub speed: Speed,
@@ -42,6 +44,8 @@ pub struct TurtleState {
 impl Default for TurtleState {
     fn default() -> Self {
         Self {
+            pen: Pen::default(),
+            fill_color: color::BLACK,
             position: [0.0, 0.0],
             heading: Radians::from_degrees_value(90.0),
             speed: Speed::Five,
@@ -52,16 +56,12 @@ impl Default for TurtleState {
 
 #[derive(Debug, Clone)]
 pub struct DrawingState {
-    pub pen: Pen,
-    pub fill_color: Color,
     pub background: Color,
 }
 
 impl Default for DrawingState {
     fn default() -> Self {
         Self {
-            pen: Pen::default(),
-            fill_color: color::BLACK,
             background: color::WHITE,
         }
     }

@@ -135,7 +135,7 @@ impl TurtleWindow {
 
     /// Begin filling the shape drawn by the turtle's movements.
     pub fn begin_fill(&mut self) {
-        let fill_color = self.drawing().fill_color;
+        let fill_color = self.turtle().fill_color;
         self.send_drawing_command(BeginFill(fill_color));
     }
 
@@ -153,7 +153,10 @@ impl TurtleWindow {
 
     /// Move the turtle to the given position without changing its heading.
     pub fn go_to(&mut self, end: Point) {
-        let TurtleState {position: start, speed, ..} = *self.turtle();
+        let (start, speed, pen) = {
+            let turtle = self.turtle();
+            (turtle.position, turtle.speed, turtle.pen.clone())
+        };
 
         let distance = math::square_len(math::sub(start, end)).sqrt();
         let speed = speed.to_absolute(); // px per second
@@ -161,11 +164,7 @@ impl TurtleWindow {
         let total_millis = (distance / speed * 1000.).abs();
 
         let animation = MoveAnimation {
-            path: Path {
-                start,
-                end,
-                pen: self.drawing().pen.clone(),
-            },
+            path: Path {start, end, pen},
             timer: Instant::now(),
             total_millis,
         };
@@ -181,7 +180,10 @@ impl TurtleWindow {
             return;
         }
 
-        let TurtleState {position: start, heading, speed, ..} = *self.turtle();
+        let (start, speed, heading, pen) = {
+            let turtle = self.turtle();
+            (turtle.position, turtle.speed, turtle.heading, turtle.pen.clone())
+        };
         let x = distance * heading.cos();
         let y = distance * heading.sin();
         let end = math::add(start, [x, y]);
@@ -191,11 +193,7 @@ impl TurtleWindow {
         let total_millis = (distance / speed * 1000.).abs();
 
         let animation = MoveAnimation {
-            path: Path {
-                start,
-                end,
-                pen: self.drawing().pen.clone(),
-            },
+            path: Path {start, end, pen},
             timer: Instant::now(),
             total_millis,
         };
