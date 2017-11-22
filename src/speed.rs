@@ -4,7 +4,7 @@ use std::f64::consts::PI;
 use rand::{Rand, Rng};
 
 use radians::Radians;
-use {Distance};
+use types::Distance;
 
 /// Represents the supported movement and rotation speeds
 ///
@@ -74,7 +74,7 @@ impl Rand for Speed {
 
 impl<'a> From<&'a str> for Speed {
     fn from(s: &'a str) -> Self {
-        use Speed::*;
+        use self::Speed::*;
 
         match s {
             "slowest" => One,
@@ -90,7 +90,7 @@ impl<'a> From<&'a str> for Speed {
 
 impl From<i32> for Speed {
     fn from(n: i32) -> Self {
-        use Speed::*;
+        use self::Speed::*;
 
         match n {
             1 => One,

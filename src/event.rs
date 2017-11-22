@@ -17,7 +17,7 @@ pub use piston_window::{
     TouchArgs as Touch,
 };
 
-use {Point};
+use types::Point;
 
 /// Possible events returned from [`Turtle::poll_event()`](../struct.Turtle.html#method.poll_event).
 ///

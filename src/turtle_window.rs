@@ -47,7 +47,6 @@ impl ReadOnly {
 }
 
 pub struct TurtleWindow {
-    thread_handle: Option<thread::JoinHandle<()>>,
     /// Channel for sending drawing commands to the renderer thread
     drawing_channel: mpsc::Sender<DrawingCommand>,
     /// Channel for receiving events from the rendering thread
