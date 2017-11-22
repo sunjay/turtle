@@ -45,6 +45,7 @@ mod animation;
 mod extensions;
 mod state;
 mod query;
+mod types;
 
 pub mod color;
 pub mod event;

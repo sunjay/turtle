@@ -4,7 +4,7 @@ use std::time::Duration;
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
 use event::MouseButton;
-use {Speed, Color, Event};
+use {Speed, Color, Event, Point, Distance, Angle};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
