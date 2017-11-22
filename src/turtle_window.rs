@@ -10,9 +10,9 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use piston_window::math;
 
-use renderer::{Renderer, DrawingCommand};
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
+use query::DrawingCommand;
 use radians::{self, Radians};
 use {Point, Distance, Event};
 
@@ -47,6 +47,7 @@ impl ReadOnly {
 }
 
 pub struct TurtleWindow {
+    thread_handle: Option<thread::JoinHandle<()>>,
     /// Channel for sending drawing commands to the renderer thread
     drawing_channel: mpsc::Sender<DrawingCommand>,
     /// Channel for receiving events from the rendering thread
@@ -74,9 +75,6 @@ impl TurtleWindow {
 
         let read_only = turtle_window.read_only();
         let handle = thread::spawn(move || {
-            // See Cargo.toml for an explanation of this attribute
-            #[cfg(not(any(feature = "test", test)))]
-            Renderer::new().run(drawing_rx, events_tx, read_only);
         });
 
         turtle_window.thread_handle = Some(handle);
