@@ -93,7 +93,7 @@ use rand::{Rand, Rng};
 /// Type for representing a color.
 ///
 /// See [the module level documentation](index.html) for more.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Color {
     /// Value between 0.0 and 255.0
     pub red: f64,

@@ -1,7 +1,7 @@
 //! Extension traits for various types
 use std::time::Duration;
 
-use {Point};
+use types::Point;
 
 /// Conversions between different "interpretations" of coordinates.
 pub trait ConvertScreenCoordinates {
