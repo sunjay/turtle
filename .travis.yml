@@ -8,6 +8,7 @@ rust:
   - nightly
 script:
   - cargo build --verbose --all
+  - cargo run --verbose --example runtest
   - cargo test --verbose --features "test" --all
 matrix:
   allow_failures:
