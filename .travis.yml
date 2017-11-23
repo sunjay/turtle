@@ -12,7 +12,8 @@ rust:
 script: |
   cargo build --verbose --all &&
   cargo run --verbose --example runtest &&
-  cargo test --verbose --features "test" --all
+  cargo test --verbose --features "test" --all &&
+  cargo doc --verbose --all
 matrix:
   # Mark the build as finished even if the allow_failures builds
   # are still running
