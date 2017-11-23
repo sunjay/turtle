@@ -1,14 +1,7 @@
-//HACK: This is how we're splitting the maze example into multiple files since
-// cargo doesn't properly support examples with multiple files yet
-#[path = "maze/wall.rs"]
 mod wall;
-#[path = "maze/cell.rs"]
 mod cell;
-#[path = "maze/maze.rs"]
 mod maze;
-#[path = "maze/grid.rs"]
 mod grid;
-#[path = "maze/solver.rs"]
 mod solver;
 
 extern crate turtle;
