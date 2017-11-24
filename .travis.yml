@@ -11,6 +11,12 @@ script:
   - cargo run --verbose --example runtest
   - cargo test --verbose --features "test" --all
   - cargo doc --verbose --all
+# We are using xvfb to run our runtest which uses GUI
+# https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
 matrix:
   # Mark the build as finished even if the allow_failures builds
   # are still running
