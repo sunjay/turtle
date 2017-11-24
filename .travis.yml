@@ -7,40 +7,10 @@ rust:
   - beta
   - nightly
 
-before_script:
-  # Workaround for bug in piston_window caused by mesa being out of date
-  # From: https://github.com/PistonDevelopers/piston/issues/1202#issuecomment-338331123
-  - |
-    if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then
-        pip install --user mako
-        apt-get build-dep mesa libdrm2
-        wget --no-check-certificate https://dri.freedesktop.org/libdrm/libdrm-2.4.88.tar.gz
-        tar xf libdrm-2.4.88.tar.gz
-        cd libdrm-2.4.88
-        ./configure
-        make -j 8
-        sudo make install
-        cd ..
-
-        wget --no-check-certificate https://mesa.freedesktop.org/archive/mesa-17.1.9.tar.xz
-        tar xf mesa-17.1.9.tar.xz
-        cd mesa-17.1.9
-        ./configure
-        make -j 8
-        sudo make install
-        cd ..
-    fi
-
-  # We are using xvfb to run our runtest which uses GUI
-  # https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then export DISPLAY=:99.0; fi
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sh -e /etc/init.d/xvfb start; fi
-  # give xvfb some time to start
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sleep 3; fi
-
 script:
   - cargo build --verbose --all
-  - cargo run --verbose --example runtest
+  # Make sure we can run on osx
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cargo run --verbose --example runtest; fi
   - cargo test --verbose --features "test" --all
   - cargo doc --verbose --all
 matrix:
