@@ -6,14 +6,11 @@ rust:
   - stable
   - beta
   - nightly
-# We need to run everything in one command, not in several due to travis not
-# supporting any "fail fast" option.
-# See: https://github.com/travis-ci/travis-ci/issues/1066
-script: |
-  cargo build --verbose --all &&
-  cargo run --verbose --example runtest &&
-  cargo test --verbose --features "test" --all &&
-  cargo doc --verbose --all
+script:
+  - cargo build --verbose --all
+  - cargo run --verbose --example runtest
+  - cargo test --verbose --features "test" --all
+  - cargo doc --verbose --all
 matrix:
   # Mark the build as finished even if the allow_failures builds
   # are still running
