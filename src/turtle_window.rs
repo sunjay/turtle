@@ -129,7 +129,7 @@ impl TurtleWindow {
             Ok(event) => Some(event),
             Err(TryRecvError::Empty) => None, // Do nothing
             // The window has been closed
-            Err(TryRecvError::Disconnected) => process::exit(0), // Quit
+            Err(TryRecvError::Disconnected) => self.exit_process(), // Quit
         }
     }
 
@@ -254,15 +254,45 @@ impl TurtleWindow {
         self.drawing_channel.send(command).unwrap_or_else(|_| {
             // The channel is closed which means the window was closed
             // quit immediately
-            process::exit(0);
+            self.exit_process();
         });
+    }
+
+    /// Exits the current process with the correct error code
+    ///
+    /// Panics if the thread handle has already been consumed
+    #[inline]
+    fn exit_process(&mut self) -> ! {
+        if let Some(handle) = self.thread_handle.take() {
+            // First check if the other thread panicked before it quit
+            match handle.join() {
+                Ok(_) => process::exit(0),
+                // If this returns an error, the other thread panicked
+                Err(_) => process::exit(1),
+            }
+        }
+        else {
+            unreachable!("bug: the thread handle was used but the process did not end");
+        }
     }
 }
 
 impl Drop for TurtleWindow {
     fn drop(&mut self) {
+        // If the current thread is panicking, we want to abort right away
+        // because otherwise there is code in the rendering thread that will call
+        // process::exit(0) and then the exit code will be 0 instead of 1
+        if thread::panicking() {
+            process::exit(1);
+        }
+
+        // If this is just a normal ending of the main thread, we want to leave the renderer
+        // running so that the user can see their drawing as long as they keep the window open
         if let Some(handle) = self.thread_handle.take() {
-            handle.join().unwrap();
+            handle.join().unwrap_or_else(|_| {
+                // If this returns an error, the other thread panicked
+                process::exit(1);
+            });
         }
     }
 }
