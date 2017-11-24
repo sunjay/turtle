@@ -277,6 +277,7 @@ impl TurtleWindow {
     }
 }
 
+#[cfg(not(any(feature = "test", test)))]
 impl Drop for TurtleWindow {
     fn drop(&mut self) {
         // If the current thread is panicking, we want to abort right away
