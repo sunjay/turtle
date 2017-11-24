@@ -14,9 +14,10 @@ script:
 # We are using xvfb to run our runtest which uses GUI
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
 before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; export DISPLAY=:99.0; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; sh -e /etc/init.d/xvfb start; fi
+  # give xvfb some time to start
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; sleep 3; fi
 matrix:
   # Mark the build as finished even if the allow_failures builds
   # are still running
