@@ -1,3 +1,4 @@
+sudo: false
 language: rust
 os:
   - linux
@@ -13,10 +14,11 @@ before_script:
   - |
     if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then
         pip install --user mako
+        apt-get build-dep mesa
         git clone https://anongit.freedesktop.org/git/mesa/mesa.git
         cd mesa
         git checkout mesa-17.1.9
-        ./autogen.sh --prefix=/path/to/desired/mesa-inst --with-gallium-drivers="i915,swrast" --with-dri-drivers="i915,i965,swrast"
+        ./configure
         make -j 8
         make install
     fi
