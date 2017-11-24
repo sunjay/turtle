@@ -6,11 +6,6 @@ rust:
   - stable
   - beta
   - nightly
-script:
-  - cargo build --verbose --all
-  - cargo run --verbose --example runtest
-  - cargo test --verbose --features "test" --all
-  - cargo doc --verbose --all
 # We are using xvfb to run our runtest which uses GUI
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
 before_script:
@@ -18,6 +13,11 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sh -e /etc/init.d/xvfb start; fi
   # give xvfb some time to start
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sleep 3; fi
+script:
+  - cargo build --verbose --all
+  - cargo run --verbose --example runtest
+  - cargo test --verbose --features "test" --all
+  - cargo doc --verbose --all
 matrix:
   # Mark the build as finished even if the allow_failures builds
   # are still running
