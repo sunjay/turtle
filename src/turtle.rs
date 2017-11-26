@@ -65,6 +65,39 @@ impl Turtle {
     ///     // Do things with the turtle...
     /// }
     /// ```
+    ///
+    /// # Use The Main Thread
+    ///
+    /// The turtle **MUST** be created on the main thread. The main thread is the thread where
+    /// the `main` function is running.
+    ///
+    /// If you don't know what threads are yet, you don't need to worry about this. The examples
+    /// and online guide do not make this error. You can follow those safely without ever running
+    /// into this problem.
+    ///
+    /// **The following code is invalid and will result in a panic on some operating systems!**
+    ///
+    /// ```rust,no_run
+    /// # #![allow(unused_variables, unused_mut)]
+    /// extern crate turtle;
+    /// use std::thread;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     thread::spawn(move || {
+    ///         // This is INVALID! Do NOT do this!
+    ///         // This will compile, but then immediately panic on some operating systems!
+    ///         let mut turtle = Turtle::new();
+    ///         // ...
+    ///     });
+    ///
+    ///     // Turtles can be created here, but not in another thread
+    ///     let mut turtle = Turtle::new(); // This is okay
+    /// }
+    /// ```
+    ///
+    /// Note that this doesn't mean that you can't create a turtle outside of the `main` function.
+    /// It just means that you can't create a turtle in another thread.
     pub fn new() -> Turtle {
         Turtle {
             window: TurtleWindow::new(),
