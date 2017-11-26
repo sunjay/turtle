@@ -38,12 +38,14 @@ extern crate rand as rand_crate;
 
 mod turtle_window;
 
+mod app;
 mod turtle;
 mod canvas;
 mod speed;
 mod radians;
 mod animation;
 mod extensions;
+mod renderer;
 mod state;
 mod query;
 mod types;
