@@ -2,6 +2,7 @@
 // See Cargo.toml for an explanation of this attribute
 #![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables, unused_imports))]
 
+use std::env;
 use std::thread;
 use std::process;
 use std::time::Instant;
@@ -10,6 +11,7 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use piston_window::math;
 
+use canvas;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::DrawingCommand;
@@ -63,8 +65,8 @@ impl TurtleWindow {
     pub fn new() -> TurtleWindow {
         // If this environment variable is present, this process is hijacked (no other code runs).
         // We run the renderer loop and then immediately exit.
-        if env::var("RUN_TURTLE_CANVAS").unwrap_or("") == "true" {
-            run_canvas();
+        if env::var("RUN_TURTLE_CANVAS").unwrap_or_else(|_| "".to_owned()) == "true" {
+            canvas::run();
             unreachable!("Renderer loop did not exit after finishing");
         }
 

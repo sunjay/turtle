@@ -31,11 +31,6 @@ is-it-maintained-issue-resolution = { repository = "sunjay/turtle" }
 # Is it maintained percentage of open issues: `repository` is required.
 is-it-maintained-open-issues = { repository = "sunjay/turtle" }
 
-[[bin]]
-name = "turtle-canvas"
-path = "src/main.rs"
-doc = false
-
 [dependencies]
 serde = "^1.0.21"
 serde_derive = "^1.0.21"
