@@ -9,7 +9,7 @@ use types::Distance;
 /// Represents the supported movement and rotation speeds
 ///
 /// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
-#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Speed {
     One,
     Two,
