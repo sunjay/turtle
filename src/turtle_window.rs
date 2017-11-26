@@ -61,6 +61,13 @@ pub struct TurtleWindow {
 
 impl TurtleWindow {
     pub fn new() -> TurtleWindow {
+        // If this environment variable is present, this process is hijacked (no other code runs).
+        // We run the renderer loop and then immediately exit.
+        if env::var("RUN_TURTLE_CANVAS").unwrap_or("") == "true" {
+            run_canvas();
+            unreachable!("Renderer loop did not exit after finishing");
+        }
+
         let (drawing_tx, drawing_rx) = mpsc::channel();
         let (events_tx, events_rx) = mpsc::channel();
 
