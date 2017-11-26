@@ -39,6 +39,7 @@ extern crate rand as rand_crate;
 mod turtle_window;
 
 mod turtle;
+mod canvas;
 mod speed;
 mod radians;
 mod animation;
