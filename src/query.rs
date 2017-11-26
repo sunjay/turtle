@@ -2,21 +2,11 @@ use color::Color;
 use event::Event;
 use state::{Path, TurtleState, DrawingState};
 
-pub type Response = Result<QueryResponse, Error>;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum QueryResponse {
+pub enum Response {
     TurtleState(TurtleState),
     DrawingState(DrawingState),
     Event(Event),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Error {
-    SyntaxError {
-        line: usize,
-        column: usize,
-    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

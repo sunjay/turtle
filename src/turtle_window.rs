@@ -4,139 +4,99 @@
 
 use std::env;
 use std::thread;
-use std::process;
+use std::process::{self, Stdio};
 use std::time::Instant;
 use std::sync::mpsc::{self, TryRecvError};
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use piston_window::math;
 
+use client;
 use canvas;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
-use query::DrawingCommand;
+use query::{Query, DrawingCommand, Response};
 use radians::{self, Radians};
 use {Point, Distance, Event};
 
 use self::DrawingCommand::*;
 
-/// Types that will be shared with another thread
-pub type Shared<T> = Arc<RwLock<T>>;
-/// Alias to help make the types more understandable without exposing as many implementation details
-pub type ReadOnlyRef<'a, T> = RwLockReadGuard<'a, T>;
-pub type MutableRef<'a, T> = RwLockWriteGuard<'a, T>;
-
-/// A structure that provides read-only access to shared state
-pub struct ReadOnly {
-    turtle: Shared<TurtleState>,
-    drawing: Shared<DrawingState>,
-    /// A temporary path for use during animations
-    temporary_path: Shared<Option<Path>>,
-}
-
-impl ReadOnly {
-    pub fn turtle(&self) -> ReadOnlyRef<TurtleState> {
-        self.turtle.read().expect("bug: Lock was poisoned")
-    }
-
-    pub fn drawing(&self) -> ReadOnlyRef<DrawingState> {
-        self.drawing.read().expect("bug: Lock was poisoned")
-    }
-
-    pub fn temporary_path(&self) -> ReadOnlyRef<Option<Path>> {
-        self.temporary_path.read().expect("bug: Lock was poisoned")
-    }
-}
-
 pub struct TurtleWindow {
+    renderer: process::Child,
     thread_handle: Option<thread::JoinHandle<()>>,
-    /// Channel for sending drawing commands to the renderer thread
-    drawing_channel: mpsc::Sender<DrawingCommand>,
-    /// Channel for receiving events from the rendering thread
-    events_channel: mpsc::Receiver<Event>,
-
-    turtle: Shared<TurtleState>,
-    drawing: Shared<DrawingState>,
-    /// A temporary path for use during animations
-    temporary_path: Shared<Option<Path>>,
+    /// Channel for receiving responses from the rendering process
+    response_channel: mpsc::Receiver<Response>,
 }
 
 impl TurtleWindow {
     pub fn new() -> TurtleWindow {
-        // If this environment variable is present, this process is hijacked (no other code runs).
-        // We run the renderer loop and then immediately exit.
-        if env::var("RUN_TURTLE_CANVAS").unwrap_or_else(|_| "".to_owned()) == "true" {
-            canvas::run();
-            unreachable!("Renderer loop did not exit after finishing");
-        }
+        canvas::start();
 
-        let (drawing_tx, drawing_rx) = mpsc::channel();
-        let (events_tx, events_rx) = mpsc::channel();
+        let (response_tx, response_rx) = mpsc::channel();
 
-        let mut turtle_window = Self {
-            thread_handle: None,
-            drawing_channel: drawing_tx,
-            events_channel: events_rx,
-            turtle: Arc::new(RwLock::new(TurtleState::default())),
-            drawing: Arc::new(RwLock::new(DrawingState::default())),
-            temporary_path: Arc::new(RwLock::new(None)),
-        };
+        let current_exe = env::current_exe()
+            .expect("Could not read path of the currently running executable")
+            .into_os_string();
+        let mut renderer_process = process::Command::new(current_exe)
+            .env("RUN_TURTLE_CANVAS", "true")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("renderer process failed to start");
 
-        let read_only = turtle_window.read_only();
+        let renderer_stdout = renderer_process.stdout.take()
+            .expect("renderer process was not opened with stdout");
         let handle = thread::spawn(move || {
+            client::run(renderer_stdout, response_tx);
         });
 
-        turtle_window.thread_handle = Some(handle);
-        turtle_window
-    }
-
-    /// Provide a read-only version of the state
-    pub fn read_only(&self) -> ReadOnly {
-        ReadOnly {
-            turtle: Arc::clone(&self.turtle),
-            drawing: Arc::clone(&self.drawing),
-            temporary_path: Arc::clone(&self.temporary_path),
+        Self {
+            renderer: renderer_process,
+            thread_handle: Some(handle),
+            response_channel: response_rx,
         }
     }
 
     /// Provides read-only access to the turtle state
-    pub fn turtle(&self) -> ReadOnlyRef<TurtleState> {
-        self.turtle.read().expect("bug: Lock was poisoned")
+    pub fn turtle(&self) -> TurtleState {
+        unimplemented!();
     }
 
-    /// Provides mutable access to the turtle state
-    pub fn turtle_mut(&mut self) -> MutableRef<TurtleState> {
-        self.turtle.write().expect("bug: Lock was poisoned")
+    /// Update the turtle state
+    pub fn update_turtle(&mut self, turtle: TurtleState) {
+        unimplemented!();
     }
 
     /// Provides read-only access to the drawing
-    pub fn drawing(&self) -> ReadOnlyRef<DrawingState> {
-        self.drawing.read().expect("bug: Lock was poisoned")
+    pub fn drawing(&self) -> DrawingState {
+        unimplemented!();
     }
 
-    /// Provides mutable access to the drawing
-    pub fn drawing_mut(&mut self) -> MutableRef<DrawingState> {
-        self.drawing.write().expect("bug: Lock was poisoned")
+    /// Update the drawing state
+    pub fn update_drawing(&mut self, drawing: DrawingState) {
+        unimplemented!();
     }
 
     /// Provides read-only access to the temporary path
-    fn temporary_path(&self) -> ReadOnlyRef<Option<Path>> {
-        self.temporary_path.read().expect("bug: Lock was poisoned")
+    fn temporary_path(&self) -> Option<Path> {
+        unimplemented!();
     }
 
     fn set_temporary_path(&mut self, path: Option<Path>) {
-        let mut temp = self.temporary_path.write().expect("bug: Lock was poisoned");
-        *temp = path;
+        unimplemented!();
     }
 
     /// See [`Turtle::poll_event()`](struct.Turtle.html#method.poll_event).
     pub fn poll_event(&mut self) -> Option<Event> {
-        match self.events_channel.try_recv() {
-            Ok(event) => Some(event),
-            Err(TryRecvError::Empty) => None, // Do nothing
-            // The window has been closed
-            Err(TryRecvError::Disconnected) => self.exit_process(), // Quit
-        }
+        //TODO: query for an event, then read the response
+        unimplemented!();
+        //match self.response_channel.try_recv() {
+        //    Ok(event) => Some(event),
+        //    Err(TryRecvError::Empty) => None, // Do nothing
+        //    // The window has been closed
+        //    Err(TryRecvError::Disconnected) => self.exit_process(), // Quit
+        //}
     }
 
     /// Begin filling the shape drawn by the turtle's movements.
@@ -213,7 +173,7 @@ impl TurtleWindow {
             return;
         }
 
-        let TurtleState {heading, speed, ..} = *self.turtle();
+        let TurtleState {heading, speed, ..} = self.turtle();
         let speed = speed.to_rotation(); // radians per second
         let total_millis = angle / speed * 1000.;
         // We take the absolute value because the time is always positive, even if angle is negative
@@ -234,8 +194,10 @@ impl TurtleWindow {
         loop {
             // We want to keep the lock for as little time as possible
             let status = {
-                let mut turtle = self.turtle_mut();
-                animation.advance(&mut *turtle)
+                let mut turtle = self.turtle();
+                let status = animation.advance(&mut turtle);
+                self.update_turtle(turtle);
+                status
             };
             match status {
                 AnimationStatus::Running(path) => self.set_temporary_path(path),
@@ -251,17 +213,21 @@ impl TurtleWindow {
         }
     }
 
+    // During tests, we disable the renderer. That means that if we let this code run, it will
+    // quit the application during the tests and make it look like everything passes.
+    // We disable this code so that none of that happens.
+    #[cfg(any(feature = "test", test))]
+    fn send_drawing_command(&mut self, _: DrawingCommand) {}
+
+    #[cfg(not(any(feature = "test", test)))]
     #[inline]
     fn send_drawing_command(&mut self, command: DrawingCommand) {
-        // During tests, we disable the renderer. That means that if we let this code run, it will
-        // quit the application during the tests and make it look like everything passes.
-        // We disable this code so that none of that happens.
-        #[cfg(not(any(feature = "test", test)))]
-        self.drawing_channel.send(command).unwrap_or_else(|_| {
-            // The channel is closed which means the window was closed
-            // quit immediately
-            self.exit_process();
-        });
+        if let Some(ref mut stdin) = self.renderer.stdin {
+            client::send_query(stdin, &Query::Drawing(command));
+        }
+        else {
+            unreachable!("bug: renderer process was not opened with stdin");
+        }
     }
 
     /// Exits the current process with the correct error code
