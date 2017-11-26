@@ -1,9 +1,10 @@
+use std::process;
 use std::sync::mpsc;
 
 use app::TurtleApp;
 use renderer::Renderer;
 
-fn run_canvas() {
+pub fn run() {
     let app = TurtleApp::new();
     let (_drawing_tx, drawing_rx) = mpsc::channel();
     let (events_tx, _events_rx) = mpsc::channel();
