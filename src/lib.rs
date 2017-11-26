@@ -49,6 +49,7 @@ mod renderer;
 mod state;
 mod query;
 mod types;
+mod server;
 
 pub mod color;
 pub mod event;

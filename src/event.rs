@@ -25,7 +25,7 @@ use types::Point;
 /// See that method's documentation for more information about how to use events.
 ///
 /// This type is meant to provide a simplified model of `piston_window`'s `Event` type.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Event {
     /// Sent when a keyboard key is pressed
     KeyPressed(Key),

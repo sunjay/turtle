@@ -13,7 +13,7 @@ pub const ZERO: Radians = Radians(0.0);
 /// you to think about whether your value is actually in radians or degrees.
 /// Use `Radians::from_degrees_value` or `Radians::from_radians_value` to
 /// construct an instance.
-#[derive(Default, Clone, Copy, Debug, PartialOrd, PartialEq)]
+#[derive(Default, Clone, Copy, Debug, PartialOrd, PartialEq, Serialize, Deserialize)]
 pub struct Radians(f64);
 
 impl Radians {

@@ -1,16 +1,38 @@
 use color::Color;
-use state::Path;
+use event::Event;
+use state::{Path, TurtleState, DrawingState};
 
+pub type Response = Result<QueryResponse, Error>;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum QueryResponse {
+    TurtleState(TurtleState),
+    DrawingState(DrawingState),
+    Event(Event),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Error {
+    SyntaxError {
+        line: usize,
+        column: usize,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Query {
     Request(Request),
     Drawing(DrawingCommand),
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Request {
     TurtleState,
     DrawingState,
+    Event,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DrawingCommand {
     /// When a path is finished being animated, it needs to be persisted in the renderer
     /// so it can be redrawn every frame
