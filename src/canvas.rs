@@ -8,12 +8,12 @@ use server;
 pub fn run() {
     let app = TurtleApp::new();
     let read_only = app.read_only();
-    let (query_tx, query_rx) = mpsc::channel();
+    let (drawing_tx, drawing_rx) = mpsc::channel();
 
     thread::spawn(move || {
-        server::run(app, query_tx);
+        server::run(app, drawing_tx);
     });
 
     // Renderer MUST run on the main thread or else it will panic on MacOS
-    Renderer::new().run(query_rx, read_only);
+    Renderer::new().run(drawing_rx, read_only);
 }

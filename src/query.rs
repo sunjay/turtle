@@ -22,6 +22,7 @@ pub enum Error {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Query {
     Request(Request),
+    Update(StateUpdate),
     Drawing(DrawingCommand),
 }
 
@@ -30,6 +31,13 @@ pub enum Request {
     TurtleState,
     DrawingState,
     Event,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum StateUpdate {
+    TurtleState(TurtleState),
+    DrawingState(DrawingState),
+    TemporaryPath(Path),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
