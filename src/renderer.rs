@@ -20,7 +20,7 @@ use piston_window::{
 use app::ReadOnly;
 use extensions::ConvertScreenCoordinates;
 use state::{Path, Polygon, Pen, TurtleState, DrawingState};
-use query::{Query, DrawingCommand};
+use query::DrawingCommand;
 use event::from_piston_event;
 use types::Point;
 use color::{self, Color};
@@ -46,7 +46,7 @@ impl Renderer {
         }
     }
 
-    pub fn run(&mut self, query_rx: mpsc::Receiver<Query>, state: ReadOnly) {
+    pub fn run(&mut self, drawing_rx: mpsc::Receiver<DrawingCommand>, state: ReadOnly) {
         let mut window: PistonWindow = WindowSettings::new(
             "Turtle", [800, 600]
         ).exit_on_esc(true).build().unwrap();
@@ -63,9 +63,8 @@ impl Renderer {
             // Need to handle all of the queries we receive at once so that any lag caused by
             // how long rendering takes doesn't cause any problems
             loop {
-                match query_rx.try_recv() {
-                    Ok(Query::Request(req)) => unimplemented!(),
-                    Ok(Query::Drawing(cmd)) => self.handle_drawing_command(cmd),
+                match drawing_rx.try_recv() {
+                    Ok(cmd) => self.handle_drawing_command(cmd),
                     Err(TryRecvError::Empty) => break, // Do nothing
                     Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
                 }
