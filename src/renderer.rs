@@ -5,6 +5,7 @@
 
 use std::process;
 use std::sync::mpsc::{self, TryRecvError};
+use std::collections::VecDeque;
 
 use piston_window::{
     PistonWindow,
@@ -19,10 +20,9 @@ use piston_window::{
 use app::ReadOnly;
 use extensions::ConvertScreenCoordinates;
 use state::{Path, Polygon, Pen, TurtleState, DrawingState};
-use query::DrawingCommand;
+use query::{Query, DrawingCommand};
 use event::from_piston_event;
 use types::Point;
-use event::Event;
 use color::{self, Color};
 
 #[derive(Debug)]
@@ -46,31 +46,26 @@ impl Renderer {
         }
     }
 
-    pub fn run(
-        &mut self,
-        drawing_rx: mpsc::Receiver<DrawingCommand>,
-        events_tx: mpsc::Sender<Event>,
-        state: ReadOnly,
-    ) {
+    pub fn run(&mut self, query_rx: mpsc::Receiver<Query>, state: ReadOnly) {
         let mut window: PistonWindow = WindowSettings::new(
             "Turtle", [800, 600]
         ).exit_on_esc(true).build().unwrap();
 
         let mut center = [0.0, 0.0];
+        let mut events = VecDeque::new();
 
         'renderloop:
         while let Some(e) = window.next() {
             if let Some(event) = from_piston_event(&e, |pt| pt.to_local_coords(center)) {
-                match events_tx.send(event) {
-                    Ok(_) => {},
-                    // Quit
-                    Err(_) => break,
-                }
+                events.push_back(event);
             }
 
+            // Need to handle all of the queries we receive at once so that any lag caused by
+            // how long rendering takes doesn't cause any problems
             loop {
-                match drawing_rx.try_recv() {
-                    Ok(cmd) => self.handle_drawing_command(cmd),
+                match query_rx.try_recv() {
+                    Ok(Query::Request(req)) => unimplemented!(),
+                    Ok(Query::Drawing(cmd)) => self.handle_drawing_command(cmd),
                     Err(TryRecvError::Empty) => break, // Do nothing
                     Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
                 }

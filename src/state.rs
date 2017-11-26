@@ -33,7 +33,7 @@ impl Default for Pen {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TurtleState {
     pub pen: Pen,
     pub fill_color: Color,
@@ -56,7 +56,7 @@ impl Default for TurtleState {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DrawingState {
     pub background: Color,
 }
