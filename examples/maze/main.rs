@@ -6,7 +6,7 @@ mod solver;
 
 extern crate turtle;
 
-use turtle::{Turtle, Color};
+use turtle::{self, Turtle, Color};
 
 pub use maze::Maze;
 use grid::{GridCellIter};
@@ -17,6 +17,8 @@ const WIDTH: f64 = 600.0; // px
 const HEIGHT: f64 = 600.0; // px
 
 fn main() {
+    turtle::start();
+
     let maze = Maze::generate();
 
     let mut turtle = Turtle::new();
