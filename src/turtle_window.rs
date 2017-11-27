@@ -6,8 +6,8 @@ use std::env;
 use std::thread;
 use std::process::{self, Stdio};
 use std::time::Instant;
-use std::sync::mpsc::{self, TryRecvError};
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::cell::RefCell;
+use std::sync::mpsc;
 
 use piston_window::math;
 
@@ -15,7 +15,7 @@ use client;
 use canvas;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
-use query::{Query, DrawingCommand, Response};
+use query::{Query, Request, DrawingCommand, Response};
 use radians::{self, Radians};
 use {Point, Distance, Event};
 
@@ -62,8 +62,8 @@ fn renderer_client(response_tx: mpsc::Sender<Response>) -> (process::Child, thre
 }
 
 pub struct TurtleWindow {
-    renderer: process::Child,
-    thread_handle: Option<thread::JoinHandle<()>>,
+    renderer: RefCell<process::Child>,
+    thread_handle: RefCell<Option<thread::JoinHandle<()>>>,
     /// Channel for receiving responses from the rendering process
     response_channel: mpsc::Receiver<Response>,
 }
@@ -79,34 +79,36 @@ impl TurtleWindow {
         let (renderer_process, handle) = renderer_client(response_tx);
 
         Self {
-            renderer: renderer_process,
-            thread_handle: Some(handle),
+            renderer: RefCell::new(renderer_process),
+            thread_handle: RefCell::new(Some(handle)),
             response_channel: response_rx,
         }
     }
 
-    /// Provides read-only access to the turtle state
-    pub fn turtle(&self) -> TurtleState {
-        unimplemented!();
+    pub fn fetch_turtle(&self) -> TurtleState {
+        self.send_query(Query::Request(Request::TurtleState));
+        match self.wait_for_response() {
+            Response::TurtleState(state) => {
+                println!("{:?}", state);
+                state
+            },
+            _ => panic!("The renderer process sent back the wrong state!"),
+        }
     }
 
-    /// Update the turtle state
     pub fn update_turtle(&mut self, turtle: TurtleState) {
         unimplemented!();
     }
 
-    /// Provides read-only access to the drawing
-    pub fn drawing(&self) -> DrawingState {
+    pub fn fetch_drawing(&self) -> DrawingState {
         unimplemented!();
     }
 
-    /// Update the drawing state
     pub fn update_drawing(&mut self, drawing: DrawingState) {
         unimplemented!();
     }
 
-    /// Provides read-only access to the temporary path
-    fn temporary_path(&self) -> Option<Path> {
+    fn fetch_temporary_path(&self) -> Option<Path> {
         unimplemented!();
     }
 
@@ -128,7 +130,7 @@ impl TurtleWindow {
 
     /// Begin filling the shape drawn by the turtle's movements.
     pub fn begin_fill(&mut self) {
-        let fill_color = self.turtle().fill_color;
+        let fill_color = self.fetch_turtle().fill_color;
         self.send_drawing_command(BeginFill(fill_color));
     }
 
@@ -139,7 +141,7 @@ impl TurtleWindow {
 
     /// Clear the turtle's drawings
     pub fn clear(&mut self) {
-        assert!(self.temporary_path().is_none(),
+        assert!(self.fetch_temporary_path().is_none(),
             "bug: The temporary path was still set when the renderer was asked to clear the drawing");
         self.send_drawing_command(Clear);
     }
@@ -147,7 +149,7 @@ impl TurtleWindow {
     /// Move the turtle to the given position without changing its heading.
     pub fn go_to(&mut self, end: Point) {
         let (start, speed, pen) = {
-            let turtle = self.turtle();
+            let turtle = self.fetch_turtle();
             (turtle.position, turtle.speed, turtle.pen.clone())
         };
 
@@ -174,7 +176,7 @@ impl TurtleWindow {
         }
 
         let (start, speed, heading, pen) = {
-            let turtle = self.turtle();
+            let turtle = self.fetch_turtle();
             (turtle.position, turtle.speed, turtle.heading, turtle.pen.clone())
         };
         let x = distance * heading.cos();
@@ -200,7 +202,7 @@ impl TurtleWindow {
             return;
         }
 
-        let TurtleState {heading, speed, ..} = self.turtle();
+        let TurtleState {heading, speed, ..} = self.fetch_turtle();
         let speed = speed.to_rotation(); // radians per second
         let total_millis = angle / speed * 1000.;
         // We take the absolute value because the time is always positive, even if angle is negative
@@ -221,7 +223,7 @@ impl TurtleWindow {
         loop {
             // We want to keep the lock for as little time as possible
             let status = {
-                let mut turtle = self.turtle();
+                let mut turtle = self.fetch_turtle();
                 let status = animation.advance(&mut turtle);
                 self.update_turtle(turtle);
                 status
@@ -240,20 +242,33 @@ impl TurtleWindow {
         }
     }
 
+    fn send_drawing_command(&self, command: DrawingCommand) {
+        self.send_query(Query::Drawing(command));
+    }
+
     // During tests, we disable the renderer. That means that if we let this code run, it will
     // quit the application during the tests and make it look like everything passes.
     // We disable this code so that none of that happens.
     #[cfg(any(feature = "test", test))]
-    fn send_drawing_command(&mut self, _: DrawingCommand) {}
+    fn send_query(&self, _: Query) {}
 
     #[cfg(not(any(feature = "test", test)))]
     #[inline]
-    fn send_drawing_command(&mut self, command: DrawingCommand) {
-        if let Some(ref mut stdin) = self.renderer.stdin {
-            client::send_query(stdin, &Query::Drawing(command));
+    fn send_query(&self, query: Query) {
+        if let Some(ref mut stdin) = self.renderer.borrow_mut().stdin {
+            client::send_query(stdin, &query);
         }
         else {
             unreachable!("bug: renderer process was not opened with stdin");
+        }
+    }
+
+    fn wait_for_response(&self) -> Response {
+        match self.response_channel.recv() {
+            Ok(response) => response,
+            // The client thread has exited, that means that the renderer process has exited
+            // and the window has closed
+            Err(_) => self.exit_process(), // Quit
         }
     }
 
@@ -261,8 +276,8 @@ impl TurtleWindow {
     ///
     /// Panics if the thread handle has already been consumed
     #[inline]
-    fn exit_process(&mut self) -> ! {
-        if let Some(handle) = self.thread_handle.take() {
+    fn exit_process(&self) -> ! {
+        if let Some(handle) = self.thread_handle.borrow_mut().take() {
             // First check if the other thread panicked before it quit
             match handle.join() {
                 Ok(_) => process::exit(0),
@@ -288,7 +303,7 @@ impl Drop for TurtleWindow {
 
         // If this is just a normal ending of the main thread, we want to leave the renderer
         // running so that the user can see their drawing as long as they keep the window open
-        if let Some(handle) = self.thread_handle.take() {
+        if let Some(handle) = self.thread_handle.borrow_mut().take() {
             handle.join().unwrap_or_else(|_| {
                 // If this returns an error, the other thread panicked
                 process::exit(1);

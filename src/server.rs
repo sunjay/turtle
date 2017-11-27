@@ -1,11 +1,10 @@
 use std::io;
-use std::process;
 use std::sync::mpsc;
 
 use serde_json;
 
 use app::TurtleApp;
-use query::{self, Query, Response, DrawingCommand};
+use query::{Query, DrawingCommand};
 
 /// Continuously read queries from stdin and send them to the renderer
 pub fn run(_app: TurtleApp, drawing_tx: mpsc::Sender<DrawingCommand>) {
