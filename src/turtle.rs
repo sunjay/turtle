@@ -246,7 +246,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn speed(&self) -> Speed {
-        self.window.turtle().speed
+        self.window.fetch_turtle().speed
     }
 
     /// Set the turtle's movement speed to the given setting. This speed affects the animation of
@@ -326,7 +326,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn position(&self) -> Point {
-        self.window.turtle().position
+        self.window.fetch_turtle().position
     }
 
     /// Moves the turtle directly to the given position.
@@ -431,7 +431,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn heading(&self) -> Angle {
-        let heading = self.window.turtle().heading;
+        let heading = self.window.fetch_turtle().heading;
         self.angle_unit.to_angle(heading)
     }
 
@@ -479,7 +479,7 @@ impl Turtle {
     /// ```
     pub fn set_heading(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
-        let heading = self.window.turtle().heading;
+        let heading = self.window.fetch_turtle().heading;
         // Find the amount we need to turn to reach the target heading based on our current heading
         let angle = angle - heading;
         // Normalize the angle to be between -180 and 179 so that we rotate as little as possible
@@ -556,7 +556,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn is_pen_down(&self) -> bool {
-        self.window.turtle().pen.enabled
+        self.window.fetch_turtle().pen.enabled
     }
 
     /// Pull the pen down so that the turtle draws while moving.
@@ -616,7 +616,7 @@ impl Turtle {
     ///
     /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
     pub fn pen_size(&self) -> f64 {
-        self.window.turtle().pen.thickness
+        self.window.fetch_turtle().pen.thickness
     }
 
     /// Sets the thickness of the pen to the given size. The thickness is measured in pixels.
@@ -678,7 +678,7 @@ impl Turtle {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn pen_color(&self) -> Color {
-        self.window.turtle().pen.color
+        self.window.fetch_turtle().pen.color
     }
 
     /// Sets the color of the pen to the given color.
@@ -729,7 +729,7 @@ impl Turtle {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn background_color(&self) -> Color {
-        self.window.drawing().background
+        self.window.fetch_drawing().background
     }
 
     /// Sets the color of the background to the given color.
@@ -775,7 +775,7 @@ impl Turtle {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn fill_color(&self) -> Color {
-        self.window.turtle().fill_color
+        self.window.fetch_turtle().fill_color
     }
 
     /// Sets the fill color to the given color.
@@ -868,7 +868,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn is_visible(&self) -> bool {
-        self.window.turtle().visible
+        self.window.fetch_turtle().visible
     }
 
     /// Makes the turtle invisible. The shell will not be shown, but drawings will continue.
@@ -988,7 +988,7 @@ impl Turtle {
             return;
         }
 
-        let heading = self.window.turtle().heading;
+        let heading = self.window.fetch_turtle().heading;
 
         let angle = (target_y - y).atan2(target_x - x);
         let angle = Radians::from_radians_value(angle);
