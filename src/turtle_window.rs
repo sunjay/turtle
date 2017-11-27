@@ -21,6 +21,46 @@ use {Point, Distance, Event};
 
 use self::DrawingCommand::*;
 
+#[cfg(any(feature = "test", test))]
+fn renderer_client(_: mpsc::Sender<Response>) -> (process::Child, thread::JoinHandle<()>) {
+    let command = if cfg!(windows) {
+        "dir"
+    } else {
+        "ls"
+    };
+    let mut test_proc = process::Command::new(command)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("test process failed to start");
+    test_proc.kill().expect("test process could not be killed!");
+    let handle = thread::spawn(move || {});
+    (test_proc, handle)
+}
+
+#[cfg(not(any(feature = "test", test)))]
+fn renderer_client(response_tx: mpsc::Sender<Response>) -> (process::Child, thread::JoinHandle<()>) {
+    let current_exe = env::current_exe()
+        .expect("Could not read path of the currently running executable")
+        .into_os_string();
+    let mut renderer_process = process::Command::new(current_exe)
+        .env("RUN_TURTLE_CANVAS", "true")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("renderer process failed to start");
+
+    let renderer_stdout = renderer_process.stdout.take()
+        .expect("renderer process was not opened with stdout");
+    let handle = thread::spawn(move || {
+        client::run(renderer_stdout, response_tx);
+    });
+
+    (renderer_process, handle)
+}
+
 pub struct TurtleWindow {
     renderer: process::Child,
     thread_handle: Option<thread::JoinHandle<()>>,
@@ -33,23 +73,7 @@ impl TurtleWindow {
         canvas::start();
 
         let (response_tx, response_rx) = mpsc::channel();
-
-        let current_exe = env::current_exe()
-            .expect("Could not read path of the currently running executable")
-            .into_os_string();
-        let mut renderer_process = process::Command::new(current_exe)
-            .env("RUN_TURTLE_CANVAS", "true")
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .expect("renderer process failed to start");
-
-        let renderer_stdout = renderer_process.stdout.take()
-            .expect("renderer process was not opened with stdout");
-        let handle = thread::spawn(move || {
-            client::run(renderer_stdout, response_tx);
-        });
+        let (renderer_process, handle) = renderer_client(response_tx);
 
         Self {
             renderer: renderer_process,
