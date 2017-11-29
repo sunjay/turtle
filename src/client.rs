@@ -31,9 +31,6 @@ pub fn run<R: Read>(mut renderer_stdout: R, response_tx: mpsc::Sender<Response>)
 pub fn send_query<W: Write>(renderer_stdin: W, query: &Query) -> Result<(), ()> {
     match serde_json::to_writer(renderer_stdin, query) {
         Ok(_) => Ok(()),
-        // We could not write to the output stream, so we should probably quit because it is likely
-        // that the renderer process has ended
-        //TODO: Detect whether the renderer process panicked
         Err(err) => {
             if err.is_io() || err.is_eof() {
                 Err(())
