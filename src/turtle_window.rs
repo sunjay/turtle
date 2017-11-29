@@ -89,7 +89,6 @@ impl TurtleWindow {
         self.send_query(Query::Request(Request::TurtleState));
         match self.wait_for_response() {
             Response::TurtleState(state) => {
-                println!("{:?}", state);
                 state
             },
             _ => panic!("bug: the renderer process did not sent back TurtleState"),
