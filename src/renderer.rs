@@ -3,7 +3,6 @@
 // See Cargo.toml for an explanation of this attribute
 #![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables))]
 
-use std::process;
 use std::sync::mpsc::{self, TryRecvError};
 use std::collections::VecDeque;
 
@@ -85,9 +84,6 @@ impl Renderer {
                 self.render(c, g, center, &drawing, &temporary_path, &turtle);
             });
         }
-
-        // Quit immediately when the window is closed
-        process::exit(0);
     }
 
     /// Handles a drawing command sent from the main thread

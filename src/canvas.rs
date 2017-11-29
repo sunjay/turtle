@@ -1,5 +1,6 @@
 use std::env;
 use std::thread;
+use std::process;
 use std::sync::mpsc;
 
 use app::TurtleApp;
@@ -28,7 +29,7 @@ use canvas;
 /// use turtle::{self, Turtle};
 ///
 /// fn main() {
-///     // Initializes the turtle renderer first so that there is less delay when a Turtle 
+///     // Initializes the turtle renderer first so that there is less delay when a Turtle
 ///     // is created and so that there are no conflicts with command line arguments or
 ///     // environment variables.
 ///     // Not required if Turtle::new() is already at the top of main.
@@ -62,10 +63,25 @@ pub fn run() {
     let read_only = app.read_only();
     let (drawing_tx, drawing_rx) = mpsc::channel();
 
-    thread::spawn(move || {
-        server::run(app, drawing_tx);
+    let (running_tx, running_rx) = mpsc::channel();
+    let handle = thread::spawn(move || {
+        server::run(app, drawing_tx, running_tx);
     });
 
     // Renderer MUST run on the main thread or else it will panic on MacOS
     Renderer::new().run(drawing_rx, read_only);
+
+    // Quit immediately when the window is closed
+
+    // Check if an error has occurred on the thread
+    match running_rx.try_recv() {
+        Ok(_) => unreachable!("bug: running channel should always be empty"),
+        // The thread was still running, exit normally
+        Err(mpsc::TryRecvError::Empty) => process::exit(0),
+        Err(mpsc::TryRecvError::Disconnected) => match handle.join() {
+            Ok(_) => process::exit(0),
+            // The other thread must have panicked
+            Err(_) => process::exit(1),
+        },
+    }
 }
