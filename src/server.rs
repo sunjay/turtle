@@ -7,7 +7,12 @@ use app::TurtleApp;
 use query::{Query, DrawingCommand};
 
 /// Continuously read queries from stdin and send them to the renderer
-pub fn run(app: TurtleApp, drawing_tx: mpsc::Sender<DrawingCommand>) {
+pub fn run(
+    app: TurtleApp,
+    drawing_tx: mpsc::Sender<DrawingCommand>,
+    // Intentionally unused. Only used to tell if thread has already quit.
+    _running_tx: mpsc::Sender<()>,
+) {
     // Read queries from the turtle process
     let stdin = io::stdin();
     let mut reader = BufReader::new(stdin);
