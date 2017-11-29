@@ -1,4 +1,4 @@
-use std::io::{self, BufReader, BufRead};
+use std::io::{self, Write, BufReader, BufRead};
 use std::sync::mpsc;
 
 use serde_json;
@@ -48,5 +48,26 @@ pub fn run(
                 }
             },
         }
+    }
+}
+
+/// Sends a response to stdout
+fn send_response(query: &Query) -> Result<(), ()> {
+    let mut stdout = io::stdout();
+    match serde_json::to_writer(&mut stdout, query) {
+        Ok(_) => {
+            writeln!(&mut stdout)
+                .expect("bug: unable to write final newline when sending response");
+            Ok(())
+        },
+        Err(err) => {
+            if err.is_io() || err.is_eof() {
+                Err(())
+            }
+            else {
+                // The other cases for err all have to do with input, so those should never occur
+                unreachable!("bug: got an input error when writing output");
+            }
+        },
     }
 }
