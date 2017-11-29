@@ -92,7 +92,7 @@ impl TurtleWindow {
                 println!("{:?}", state);
                 state
             },
-            _ => panic!("The renderer process sent back the wrong state!"),
+            _ => panic!("bug: the renderer process did not sent back TurtleState"),
         }
     }
 
@@ -299,7 +299,20 @@ impl TurtleWindow {
         if let Some(handle) = self.thread_handle.borrow_mut().take() {
             // First check if the other thread panicked before it quit
             match handle.join() {
-                Ok(_) => process::exit(0),
+                Ok(_) => match self.renderer.borrow_mut().try_wait() {
+                    Ok(Some(status)) => {
+                        if status.success() {
+                            // The window/renderer process was closed normally
+                            process::exit(0);
+                        }
+                        else {
+                            // Something went wrong, likely the other thread panicked
+                            process::exit(1);
+                        }
+                    },
+                    Ok(None) => panic!("bug: client thread quit even though renderer process was still running"),
+                    Err(_) => panic!("bug: unable to check the exit status of the renderer process after client thread quit"),
+                },
                 // If this returns an error, the other thread panicked
                 Err(_) => process::exit(1),
             }
@@ -322,6 +335,7 @@ impl Drop for TurtleWindow {
 
         // If this is just a normal ending of the main thread, we want to leave the renderer
         // running so that the user can see their drawing as long as they keep the window open
+        //TODO: Maybe we should wait on the renderer_process instead of (or in addition to?) this thread
         if let Some(handle) = self.thread_handle.borrow_mut().take() {
             handle.join().unwrap_or_else(|_| {
                 // If this returns an error, the other thread panicked
