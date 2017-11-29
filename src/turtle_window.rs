@@ -31,7 +31,7 @@ fn renderer_client(_: mpsc::Sender<Response>) -> (process::Child, thread::JoinHa
     let mut test_proc = process::Command::new(command)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
+        .stderr(Stdio::inherit())
         .spawn()
         .expect("test process failed to start");
     test_proc.kill().expect("test process could not be killed!");
@@ -48,7 +48,7 @@ fn renderer_client(response_tx: mpsc::Sender<Response>) -> (process::Child, thre
         .env("RUN_TURTLE_CANVAS", "true")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
+        .stderr(Stdio::inherit())
         .spawn()
         .expect("renderer process failed to start");
 
@@ -252,15 +252,34 @@ impl TurtleWindow {
     #[cfg(any(feature = "test", test))]
     fn send_query(&self, _: Query) {}
 
-    #[cfg(not(any(feature = "test", test)))]
     #[inline]
+    #[cfg(not(any(feature = "test", test)))]
     fn send_query(&self, query: Query) {
-        if let Some(ref mut stdin) = self.renderer.borrow_mut().stdin {
-            client::send_query(stdin, &query);
+        let result = if let Some(ref mut stdin) = self.renderer.borrow_mut().stdin {
+            client::send_query(stdin, &query)
         }
         else {
             unreachable!("bug: renderer process was not opened with stdin");
-        }
+        };
+
+        result.unwrap_or_else(|_| {
+            // Something went wrong while sending the query, check if the renderer process
+            // panicked (exited with an error)
+            match self.renderer.borrow_mut().try_wait() {
+                Ok(Some(status)) => {
+                    if status.success() {
+                        // The window/renderer process was closed normally
+                        process::exit(0);
+                    }
+                    else {
+                        // Something went wrong, likely the other thread panicked
+                        process::exit(1);
+                    }
+                },
+                Ok(None) => panic!("bug: failed to send query even though renderer process was still running"),
+                Err(_) => panic!("bug: unable to check the exit status of the renderer process"),
+            }
+        });
     }
 
     fn wait_for_response(&self) -> Response {
