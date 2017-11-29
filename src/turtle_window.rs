@@ -310,7 +310,17 @@ impl TurtleWindow {
                             process::exit(1);
                         }
                     },
-                    Ok(None) => panic!("bug: client thread quit even though renderer process was still running"),
+                    Ok(None) => match self.renderer.borrow_mut().wait() {
+                        Ok(status) => {
+                            if status.success() {
+                                process::exit(0);
+                            }
+                            else {
+                                process::exit(1);
+                            }
+                        },
+                        Err(_) => unreachable!("bug: renderer process never ran even though we exited"),
+                    },
                     Err(_) => panic!("bug: unable to check the exit status of the renderer process after client thread quit"),
                 },
                 // If this returns an error, the other thread panicked
