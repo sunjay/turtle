@@ -6,7 +6,7 @@ mod solver;
 
 extern crate turtle;
 
-use turtle::{self, Turtle, Color};
+use turtle::{Turtle, Color};
 
 pub use maze::Maze;
 use grid::{GridCellIter};
