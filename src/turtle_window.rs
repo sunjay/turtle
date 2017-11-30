@@ -93,8 +93,14 @@ impl TurtleWindow {
         }
     }
 
-    pub fn update_turtle(&mut self, turtle: TurtleState) {
+    /// Fetch and update the turtle with no way of holding on to the reference or forgetting to
+    /// update it after
+    pub fn with_turtle_mut<F, T>(&mut self, update: F) -> T
+        where F: FnOnce(&mut TurtleState) -> T {
+        let mut turtle = self.fetch_turtle();
+        let result = update(&mut turtle);
         self.send_query(Query::Update(StateUpdate::TurtleState(turtle)));
+        result
     }
 
     pub fn fetch_drawing(&self) -> DrawingState {
@@ -105,9 +111,16 @@ impl TurtleWindow {
         }
     }
 
-    pub fn update_drawing(&mut self, drawing: DrawingState) {
+    /// Fetch and update the drawing with no way of holding on to the reference or forgetting to
+    /// update it after
+    pub fn with_drawing_mut<F, T>(&mut self, update: F) -> T
+        where F: FnOnce(&mut DrawingState) -> T {
+        let mut drawing = self.fetch_drawing();
+        let result = update(&mut drawing);
         self.send_query(Query::Update(StateUpdate::DrawingState(drawing)));
+        result
     }
+
 
     fn set_temporary_path(&mut self, path: Option<Path>) {
         self.send_query(Query::Update(StateUpdate::TemporaryPath(path)));
@@ -214,12 +227,7 @@ impl TurtleWindow {
     fn play_animation<A: Animation>(&mut self, animation: A) {
         loop {
             // We want to keep the lock for as little time as possible
-            let status = {
-                let mut turtle = self.fetch_turtle();
-                let status = animation.advance(&mut turtle);
-                self.update_turtle(turtle);
-                status
-            };
+            let status = self.with_turtle_mut(|turtle| animation.advance(turtle));
             match status {
                 AnimationStatus::Running(path) => self.set_temporary_path(path),
                 AnimationStatus::Complete(path) => {
