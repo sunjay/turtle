@@ -1,3 +1,8 @@
+// During tests, we disable the renderer and that causes a bunch of warnings that we just want
+// to get rid of.
+// See Cargo.toml for an explanation of this attribute
+#![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables, unused_imports))]
+
 use std::env;
 use std::thread;
 use std::process;
@@ -71,6 +76,7 @@ pub fn main() {
     });
 
     // Renderer MUST run on the main thread or else it will panic on MacOS
+    #[cfg(not(any(feature = "test", test)))]
     Renderer::new().run(drawing_rx, events_tx, read_only);
 
     // Quit immediately when the window is closed
