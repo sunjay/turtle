@@ -6,7 +6,7 @@ use state::{Path, TurtleState, DrawingState};
 pub enum Response {
     TurtleState(TurtleState),
     DrawingState(DrawingState),
-    Event(Event),
+    Event(Option<Event>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

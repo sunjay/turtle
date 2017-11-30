@@ -1,5 +1,5 @@
 use std::io::{self, Write, BufReader, BufRead};
-use std::sync::mpsc;
+use std::sync::mpsc::{self, TryRecvError};
 
 use serde_json;
 
@@ -65,7 +65,11 @@ fn handle_request(
     send_response(&match request {
         TurtleState => Response::TurtleState((*app.turtle()).clone()),
         DrawingState => Response::DrawingState((*app.drawing()).clone()),
-        Event => Response::Event(events_rx.recv().map_err(|_| ())?),
+        Event => Response::Event(match events_rx.try_recv() {
+            Ok(event) => Some(event),
+            Err(TryRecvError::Empty) => None,
+            Err(TryRecvError::Disconnected) => return Err(()),
+        }),
     })
 }
 
