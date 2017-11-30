@@ -6,7 +6,6 @@ use std::sync::mpsc;
 use app::TurtleApp;
 use renderer::Renderer;
 use server;
-use canvas;
 
 /// Start the turtle canvas process.
 ///
@@ -53,12 +52,14 @@ pub fn start() {
     // We run the renderer loop and then immediately exit.
     if env::var("RUN_TURTLE_CANVAS").unwrap_or_else(|_| "".to_owned()) == "true" {
         // This code MUST be run on the main thread.
-        canvas::run();
+
+        // Run the canvas process
+        main();
         unreachable!("bug: renderer loop did not exit after finishing");
     }
 }
 
-pub fn run() {
+pub fn main() {
     let app = TurtleApp::new();
     let read_only = app.read_only();
     let (drawing_tx, drawing_rx) = mpsc::channel();
