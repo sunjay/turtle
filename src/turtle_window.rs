@@ -115,14 +115,11 @@ impl TurtleWindow {
 
     /// See [`Turtle::poll_event()`](struct.Turtle.html#method.poll_event).
     pub fn poll_event(&mut self) -> Option<Event> {
-        //TODO: query for an event, then read the response
-        unimplemented!();
-        //match self.response_channel.try_recv() {
-        //    Ok(event) => Some(event),
-        //    Err(TryRecvError::Empty) => None, // Do nothing
-        //    // The window has been closed
-        //    Err(TryRecvError::Disconnected) => self.exit_process(), // Quit
-        //}
+        self.send_query(Query::Request(Request::Event));
+        match self.wait_for_response() {
+            Response::Event(event) => event,
+            _ => panic!("bug: the renderer process did not sent back an Event"),
+        }
     }
 
     /// Begin filling the shape drawn by the turtle's movements.
