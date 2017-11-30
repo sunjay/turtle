@@ -1,7 +1,3 @@
-// During tests, we disable the renderer and that causes a bunch of warnings
-// See Cargo.toml for an explanation of this attribute
-#![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables, unused_imports))]
-
 use std::env;
 use std::thread;
 use std::process::{self, Stdio};
@@ -21,25 +17,6 @@ use {Point, Distance, Event};
 
 use self::DrawingCommand::*;
 
-#[cfg(any(feature = "test", test))]
-fn renderer_client(_: mpsc::Sender<Response>) -> (process::Child, thread::JoinHandle<()>) {
-    let command = if cfg!(windows) {
-        "dir"
-    } else {
-        "ls"
-    };
-    let mut test_proc = process::Command::new(command)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::inherit())
-        .spawn()
-        .expect("test process failed to start");
-    test_proc.kill().expect("test process could not be killed!");
-    let handle = thread::spawn(move || {});
-    (test_proc, handle)
-}
-
-#[cfg(not(any(feature = "test", test)))]
 fn renderer_client(response_tx: mpsc::Sender<Response>) -> (process::Child, thread::JoinHandle<()>) {
     let current_exe = env::current_exe()
         .expect("Could not read path of the currently running executable")
@@ -246,14 +223,7 @@ impl TurtleWindow {
         self.send_query(Query::Drawing(command));
     }
 
-    // During tests, we disable the renderer. That means that if we let this code run, it will
-    // quit the application during the tests and make it look like everything passes.
-    // We disable this code so that none of that happens.
-    #[cfg(any(feature = "test", test))]
-    fn send_query(&self, _: Query) {}
-
     #[inline]
-    #[cfg(not(any(feature = "test", test)))]
     fn send_query(&self, query: Query) {
         let result = if let Some(ref mut stdin) = self.renderer.borrow_mut().stdin {
             client::send_query(stdin, &query)
@@ -333,7 +303,6 @@ impl TurtleWindow {
     }
 }
 
-#[cfg(not(any(feature = "test", test)))]
 impl Drop for TurtleWindow {
     fn drop(&mut self) {
         // If the current thread is panicking, we want to abort right away

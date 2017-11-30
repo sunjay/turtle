@@ -1,8 +1,3 @@
-// During tests, we disable the renderer and that causes a bunch of warnings that we just want
-// to get rid of.
-// See Cargo.toml for an explanation of this attribute
-#![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables))]
-
 use std::io::{Read, Write, BufReader, BufRead};
 use std::sync::mpsc;
 
