@@ -27,7 +27,7 @@ pub enum Request {
 pub enum StateUpdate {
     TurtleState(TurtleState),
     DrawingState(DrawingState),
-    TemporaryPath(Path),
+    TemporaryPath(Option<Path>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
