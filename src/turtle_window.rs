@@ -15,7 +15,7 @@ use client;
 use canvas;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
-use query::{Query, Request, DrawingCommand, Response};
+use query::{Query, Request, StateUpdate, DrawingCommand, Response};
 use radians::{self, Radians};
 use {Point, Distance, Event};
 
@@ -96,7 +96,7 @@ impl TurtleWindow {
     }
 
     pub fn update_turtle(&mut self, turtle: TurtleState) {
-        unimplemented!();
+        self.send_query(Query::Update(StateUpdate::TurtleState(turtle)));
     }
 
     pub fn fetch_drawing(&self) -> DrawingState {

@@ -5,20 +5,11 @@ use serde_json;
 
 use app::TurtleApp;
 use event::Event;
-use query::{Query, DrawingCommand, Request, Response};
-
-macro_rules! maybe_break {
-    ($e:expr) => {
-        match $e {
-            Ok(_) => {},
-            Err(_) => break,
-        }
-    };
-}
+use query::{Query, DrawingCommand, Request, StateUpdate, Response};
 
 /// Continuously read queries from stdin and send them to the renderer
 pub fn run(
-    app: TurtleApp,
+    mut app: TurtleApp,
     drawing_tx: mpsc::Sender<DrawingCommand>,
     events_rx: mpsc::Receiver<Event>,
     // Intentionally unused. Only used to tell if thread has already quit.
@@ -41,8 +32,11 @@ pub fn run(
         let query: Result<Query, _> = serde_json::from_str(&buffer);
         match query {
             Ok(query) => match query {
-                Query::Request(req) => maybe_break!(handle_request(req, &app, &events_rx)),
-                Query::Update(update) => unimplemented!(),
+                Query::Request(req) => match handle_request(req, &app, &events_rx) {
+                    Ok(_) => {},
+                    Err(_) => break,
+                },
+                Query::Update(update) => handle_update(update, &mut app),
                 Query::Drawing(cmd) => match drawing_tx.send(cmd) {
                     Ok(_) => {},
                     // The renderer thread is no longer around, so quit
@@ -67,11 +61,24 @@ fn handle_request(
     app: &TurtleApp,
     events_rx: &mpsc::Receiver<Event>,
 ) -> Result<(), ()> {
+    use self::Request::*;
     send_response(&match request {
-        Request::TurtleState => Response::TurtleState((*app.turtle()).clone()),
-        Request::DrawingState => Response::DrawingState((*app.drawing()).clone()),
-        Request::Event => Response::Event(events_rx.recv().map_err(|_| ())?),
+        TurtleState => Response::TurtleState((*app.turtle()).clone()),
+        DrawingState => Response::DrawingState((*app.drawing()).clone()),
+        Event => Response::Event(events_rx.recv().map_err(|_| ())?),
     })
+}
+
+fn handle_update(
+    update: StateUpdate,
+    app: &mut TurtleApp,
+) {
+    use self::StateUpdate::*;
+    match update {
+        TurtleState(turtle) => *app.turtle_mut() = turtle,
+        DrawingState(drawing) => *app.drawing_mut() = drawing,
+        TemporaryPath(path) => app.set_temporary_path(path),
+    }
 }
 
 /// Sends a response to stdout
