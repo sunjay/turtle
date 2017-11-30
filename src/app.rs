@@ -76,11 +76,6 @@ impl TurtleApp {
         self.drawing.write().expect("bug: Lock was poisoned")
     }
 
-    /// Provides read-only access to the temporary path
-    pub fn temporary_path(&self) -> ReadOnlyRef<Option<Path>> {
-        self.temporary_path.read().expect("bug: Lock was poisoned")
-    }
-
     /// Set the temporary_path to a new value, overwriting the previous one
     pub fn set_temporary_path(&mut self, path: Option<Path>) {
         let mut temp = self.temporary_path.write().expect("bug: Lock was poisoned");
