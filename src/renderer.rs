@@ -4,7 +4,6 @@
 #![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables))]
 
 use std::sync::mpsc::{self, TryRecvError};
-use std::collections::VecDeque;
 
 use piston_window::{
     PistonWindow,
@@ -20,7 +19,7 @@ use app::ReadOnly;
 use extensions::ConvertScreenCoordinates;
 use state::{Path, Polygon, Pen, TurtleState, DrawingState};
 use query::DrawingCommand;
-use event::from_piston_event;
+use event::{Event, from_piston_event};
 use types::Point;
 use color::{self, Color};
 
@@ -45,18 +44,26 @@ impl Renderer {
         }
     }
 
-    pub fn run(&mut self, drawing_rx: mpsc::Receiver<DrawingCommand>, state: ReadOnly) {
+    pub fn run(
+        &mut self,
+        drawing_rx: mpsc::Receiver<DrawingCommand>,
+        events_tx: mpsc::Sender<Event>,
+        state: ReadOnly,
+    ) {
         let mut window: PistonWindow = WindowSettings::new(
             "Turtle", [800, 600]
         ).exit_on_esc(true).build().unwrap();
 
         let mut center = [0.0, 0.0];
-        let mut events = VecDeque::new();
 
         'renderloop:
         while let Some(e) = window.next() {
             if let Some(event) = from_piston_event(&e, |pt| pt.to_local_coords(center)) {
-                events.push_back(event);
+                match events_tx.send(event) {
+                    Ok(_) => {},
+                    // Quit - the server thread must have quit
+                    Err(_) => break,
+                }
             }
 
             // Need to handle all of the queries we receive at once so that any lag caused by

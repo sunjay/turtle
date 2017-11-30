@@ -62,14 +62,15 @@ pub fn run() {
     let app = TurtleApp::new();
     let read_only = app.read_only();
     let (drawing_tx, drawing_rx) = mpsc::channel();
+    let (events_tx, events_rx) = mpsc::channel();
 
     let (running_tx, running_rx) = mpsc::channel();
     let handle = thread::spawn(move || {
-        server::run(app, drawing_tx, running_tx);
+        server::run(app, drawing_tx, events_rx, running_tx);
     });
 
     // Renderer MUST run on the main thread or else it will panic on MacOS
-    Renderer::new().run(drawing_rx, read_only);
+    Renderer::new().run(drawing_rx, events_tx, read_only);
 
     // Quit immediately when the window is closed
 
