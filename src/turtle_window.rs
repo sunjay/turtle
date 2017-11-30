@@ -88,9 +88,7 @@ impl TurtleWindow {
     pub fn fetch_turtle(&self) -> TurtleState {
         self.send_query(Query::Request(Request::TurtleState));
         match self.wait_for_response() {
-            Response::TurtleState(state) => {
-                state
-            },
+            Response::TurtleState(state) => state,
             _ => panic!("bug: the renderer process did not sent back TurtleState"),
         }
     }
@@ -100,19 +98,19 @@ impl TurtleWindow {
     }
 
     pub fn fetch_drawing(&self) -> DrawingState {
-        unimplemented!();
+        self.send_query(Query::Request(Request::DrawingState));
+        match self.wait_for_response() {
+            Response::DrawingState(state) => state,
+            _ => panic!("bug: the renderer process did not sent back DrawingState"),
+        }
     }
 
     pub fn update_drawing(&mut self, drawing: DrawingState) {
-        unimplemented!();
-    }
-
-    fn fetch_temporary_path(&self) -> Option<Path> {
-        unimplemented!();
+        self.send_query(Query::Update(StateUpdate::DrawingState(drawing)));
     }
 
     fn set_temporary_path(&mut self, path: Option<Path>) {
-        unimplemented!();
+        self.send_query(Query::Update(StateUpdate::TemporaryPath(path)));
     }
 
     /// See [`Turtle::poll_event()`](struct.Turtle.html#method.poll_event).
@@ -140,8 +138,6 @@ impl TurtleWindow {
 
     /// Clear the turtle's drawings
     pub fn clear(&mut self) {
-        assert!(self.fetch_temporary_path().is_none(),
-            "bug: The temporary path was still set when the renderer was asked to clear the drawing");
         self.send_drawing_command(Clear);
     }
 
