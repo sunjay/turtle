@@ -4,12 +4,23 @@ use std::sync::mpsc;
 use serde_json;
 
 use app::TurtleApp;
-use query::{Query, DrawingCommand};
+use event::Event;
+use query::{Query, DrawingCommand, Request, Response};
+
+macro_rules! maybe_break {
+    ($e:expr) => {
+        match $e {
+            Ok(_) => {},
+            Err(_) => break,
+        }
+    };
+}
 
 /// Continuously read queries from stdin and send them to the renderer
 pub fn run(
     app: TurtleApp,
     drawing_tx: mpsc::Sender<DrawingCommand>,
+    events_rx: mpsc::Receiver<Event>,
     // Intentionally unused. Only used to tell if thread has already quit.
     _running_tx: mpsc::Sender<()>,
 ) {
@@ -30,7 +41,7 @@ pub fn run(
         let query: Result<Query, _> = serde_json::from_str(&buffer);
         match query {
             Ok(query) => match query {
-                Query::Request(req) => unimplemented!(),
+                Query::Request(req) => maybe_break!(handle_request(req, &app, &events_rx)),
                 Query::Update(update) => unimplemented!(),
                 Query::Drawing(cmd) => match drawing_tx.send(cmd) {
                     Ok(_) => {},
@@ -51,10 +62,22 @@ pub fn run(
     }
 }
 
+fn handle_request(
+    request: Request,
+    app: &TurtleApp,
+    events_rx: &mpsc::Receiver<Event>,
+) -> Result<(), ()> {
+    send_response(&match request {
+        Request::TurtleState => Response::TurtleState((*app.turtle()).clone()),
+        Request::DrawingState => Response::DrawingState((*app.drawing()).clone()),
+        Request::Event => Response::Event(events_rx.recv().map_err(|_| ())?),
+    })
+}
+
 /// Sends a response to stdout
-fn send_response(query: &Query) -> Result<(), ()> {
+fn send_response(response: &Response) -> Result<(), ()> {
     let mut stdout = io::stdout();
-    match serde_json::to_writer(&mut stdout, query) {
+    match serde_json::to_writer(&mut stdout, response) {
         Ok(_) => {
             writeln!(&mut stdout)
                 .expect("bug: unable to write final newline when sending response");
