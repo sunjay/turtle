@@ -307,8 +307,7 @@ impl Turtle {
     /// You can pass in strings, 32-bit integers, and even `Speed` enum variants because they all
     /// implement the `Into<Speed>` trait.
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-        //self.window.turtle_mut().speed = speed.into();
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.speed = speed.into());
     }
 
     /// Returns the turtle's current location (x, y)
@@ -387,10 +386,10 @@ impl Turtle {
     /// # }
     /// ```
     pub fn home(&mut self) {
-        //let mut turtle = self.window.turtle_mut();
-        //turtle.position = [0.0, 0.0];
-        //turtle.heading = radians::PI/2.0;
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| {
+            turtle.position = [0.0, 0.0];
+            turtle.heading = radians::PI/2.0;
+        });
     }
 
     /// Returns the turtle's current heading.
@@ -577,8 +576,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn pen_down(&mut self) {
-        //self.window.turtle_mut().pen.enabled = true;
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.pen.enabled = true);
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
@@ -598,8 +596,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn pen_up(&mut self) {
-        //self.window.turtle_mut().pen.enabled = false;
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.pen.enabled = false);
     }
 
     /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
@@ -660,8 +657,7 @@ impl Turtle {
     /// Notice that while the turtle travels in a straight line, it produces different thicknesses
     /// of lines which appear like large rectangles.
     pub fn set_pen_size(&mut self, thickness: f64) {
-        //self.window.turtle_mut().pen.thickness = thickness;
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.pen.thickness = thickness);
     }
 
     /// Returns the color of the pen.
@@ -711,8 +707,7 @@ impl Turtle {
     ///
     /// ![turtle pen color](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/colored_circle.png)
     pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
-        //self.window.turtle_mut().pen.color = color.into();
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.pen.color = color.into());
     }
 
     /// Returns the color of the background.
@@ -753,8 +748,7 @@ impl Turtle {
     ///
     /// ![turtle background](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/orange_background.png)
     pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
-        //self.window.drawing_mut().background = color.into();
-        unimplemented!();
+        self.window.with_drawing_mut(|drawing| drawing.background = color.into());
     }
 
     /// Returns the current fill color.
@@ -790,8 +784,7 @@ impl Turtle {
     ///
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for an example.
     pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
-        //self.window.turtle_mut().fill_color = color.into();
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.fill_color = color.into());
     }
 
     /// Begin filling the shape drawn by the turtle's movements.
@@ -886,8 +879,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn hide(&mut self) {
-        //self.window.turtle_mut().visible = false;
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.visible = false);
     }
 
     /// Makes the turtle visible.
@@ -904,8 +896,7 @@ impl Turtle {
     /// # }
     /// ```
     pub fn show(&mut self) {
-        //self.window.turtle_mut().visible = true;
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| turtle.visible = true);
     }
 
     /// Delete the turtle's drawings from the screen, re-center the turtle and reset all of the
@@ -931,9 +922,8 @@ impl Turtle {
     /// ```
     pub fn reset(&mut self) {
         self.clear();
-        //*self.window.turtle_mut() = Default::default();
-        //*self.window.drawing_mut() = Default::default();
-        unimplemented!();
+        self.window.with_turtle_mut(|turtle| *turtle = Default::default());
+        self.window.with_drawing_mut(|drawing| *drawing = Default::default());
     }
 
     /// Delete the turtle's drawings from the screen.
