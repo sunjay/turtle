@@ -32,8 +32,8 @@ is-it-maintained-issue-resolution = { repository = "sunjay/turtle" }
 is-it-maintained-open-issues = { repository = "sunjay/turtle" }
 
 [dependencies]
-serde = "^1.0.21"
-serde_derive = "^1.0.21"
+serde = "^1.0.23"
+serde_derive = "^1.0.23"
 serde_json = "^1.0.6"
 
 piston_window = "^0.73.0"
