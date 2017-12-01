@@ -73,7 +73,7 @@ pub fn setup() {
     if env::var("RUN_TURTLE_CANVAS").unwrap_or_else(|_| "".to_owned()) == "true" {
         // This code MUST be run on the main thread.
 
-        // Run the canvas process
+        // Run the renderer process
         main();
         unreachable!("bug: renderer loop did not exit after finishing");
     }
