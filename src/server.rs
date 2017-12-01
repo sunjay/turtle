@@ -53,10 +53,22 @@ pub fn run(
     }
 }
 
+/// We want to expose this specifically for tests so that tests can mimic the behaviour of the
+/// server without actually spawning a new process. See renderer_process.rs for more details.
+#[cfg(any(feature = "test", test))]
+pub(crate) fn handle_query_for_test_use_only(
+    query: Query,
+    app: &mut TurtleApp,
+    events_rx: &mpsc::Receiver<Event>,
+    drawing_tx: &mpsc::Sender<DrawingCommand>,
+) -> Result<Option<Response>, ()> {
+    handle_query(query, app, events_rx, drawing_tx)
+}
+
 /// Returns the appropriate Response (if any) to the given Query
 ///
 /// Returns Err(()) if it is time to quit because we have been disconnected.
-pub fn handle_query(
+fn handle_query(
     query: Query,
     app: &mut TurtleApp,
     events_rx: &mpsc::Receiver<Event>,
