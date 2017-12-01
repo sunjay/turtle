@@ -25,11 +25,7 @@ fn main() {
     turtle.forward(111.65);
     turtle.end_fill();
 
-    turtle.forward(20.0);
-    for _ in 0..10 {
-        turtle.right(2.0);
-        turtle.forward(2.0);
-    }
+    end_loop(&mut turtle);
 
     turtle.set_background_color("pink");
 }
@@ -38,5 +34,29 @@ fn curve(turtle: &mut Turtle) {
     for _ in 0..100 {
         turtle.right(2.0);
         turtle.forward(2.0);
+    }
+}
+
+fn end_loop(turtle: &mut Turtle) {
+    turtle.forward(20.0);
+    for _ in 0..10 {
+        turtle.right(2.0);
+        turtle.forward(3.0);
+    }
+
+    let speed = turtle.speed();
+    turtle.set_speed(8);
+    for _ in 0..60 {
+        turtle.forward(1.5);
+        turtle.backward(0.5);
+        turtle.right(5.0);
+    }
+    turtle.set_speed(speed);
+
+    turtle.right(15.0);
+    turtle.forward(20.0);
+    for _ in 0..10 {
+        turtle.right(7.0);
+        turtle.forward(5.0);
     }
 }
