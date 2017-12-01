@@ -14,7 +14,7 @@ script:
   # Make sure we can run on osx
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cargo run --verbose --example runtest; fi
   - cargo test --verbose --features "test" --all -- --test-threads=4
-  - cargo doc --verbose --all
+  - cargo doc --no-deps --verbose --all
 matrix:
   # Mark the build as finished even if the allow_failures builds
   # are still running
