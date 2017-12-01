@@ -45,7 +45,7 @@ use server;
 /// ```rust,no_run
 /// # #![allow(unused_variables, unused_mut)]
 /// extern crate turtle;
-/// use turtle::{self, Turtle};
+/// use turtle::Turtle;
 ///
 /// fn main() {
 ///     // Initializes the turtle renderer first so that there is less delay when a Turtle
