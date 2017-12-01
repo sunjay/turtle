@@ -18,7 +18,7 @@ script:
   # Source: https://github.com/ipetkov/conch-runtime/commit/3e6afc5f45791e7793b968712c1ed8ddbe0758fb
   - cargo test --verbose --features "test" --all || (
       echo "$(tput setaf 3)$(tput bold)Initial 'cargo test' failed, retrying with fewer cores to work around Travis CI OOM issues$(tput sgr 0)" &&
-      cargo test --verbose --features "test" --all --jobs 1
+      cargo test --verbose --features "test" --all --jobs 1 -- --test-threads=1
     )
   - cargo doc --no-deps --verbose --all
 matrix:
