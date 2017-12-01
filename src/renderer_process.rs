@@ -1,3 +1,8 @@
+// During tests, we disable the renderer and that causes a bunch of warnings that we just want
+// to get rid of.
+// See Cargo.toml for an explanation of this attribute
+#![cfg_attr(any(feature = "test", test), allow(unused_imports))]
+
 use std::env;
 use std::thread;
 use std::process::{self, Stdio};
@@ -158,5 +163,30 @@ impl Drop for RendererProcess {
             },
             Err(_) => unreachable!("bug: renderer process never ran even though we exited"),
         }
+    }
+}
+
+/// A special "renderer process" specifically for tests. Simulates the renderer process by
+/// providing all of the same functionality and reusing internal parts of the
+#[cfg(any(feature = "test", test))]
+pub struct RendererProcess {
+    app: ::app::TurtleApp,
+    events: (mpsc::Sender<::event::Event>, mpsc::Receiver<::event::Event>),
+    drawing: (mpsc::Sender<::query::DrawingCommand>, mpsc::Receiver<::query::DrawingCommand>),
+}
+
+#[cfg(any(feature = "test", test))]
+impl RendererProcess {
+    pub fn new() -> Self {
+        Self {
+            app: ::app::TurtleApp::new(),
+            events: mpsc::channel(),
+            drawing: mpsc::channel(),
+        }
+    }
+
+    pub fn send_query(&mut self, query: Query) -> Option<Response> {
+        ::server::handle_query_for_test_use_only(query, &mut self.app, &self.events.1, &self.drawing.0)
+            .expect("test bug: a query failed to be successful")
     }
 }
