@@ -30,29 +30,42 @@ pub fn run(
         }
 
         let query: Result<Query, _> = serde_json::from_str(&buffer);
-        match query {
-            Ok(query) => match query {
-                Query::Request(req) => match handle_request(req, &app, &events_rx) {
-                    Ok(_) => {},
-                    Err(_) => break,
-                },
-                Query::Update(update) => handle_update(update, &mut app),
-                Query::Drawing(cmd) => match drawing_tx.send(cmd) {
-                    Ok(_) => {},
-                    // The renderer thread is no longer around, so quit
-                    Err(_) => break,
-                },
-            },
-            Err(err) => {
-                if err.is_io() || err.is_syntax() || err.is_data() {
-                    panic!("bug: failed to read command from turtle process");
-                }
-                else if err.is_eof() {
-                    // Could not read anymore bytes from stdin, the turtle process must have ended
-                    break;
-                }
-            },
+        let result: Result<(), ()> = query.map_err(|err| {
+            if err.is_io() || err.is_syntax() || err.is_data() {
+                panic!("bug: failed to read command from turtle process");
+            }
+            else if err.is_eof() {
+                // Could not read anymore bytes from stdin, the turtle process must have ended
+                ()
+            }
+            else {
+                unreachable!("bug: reached unreachable case of serde error");
+            }
+        }).and_then(|query| {
+            handle_query(query, &mut app, &events_rx, &drawing_tx).and_then(|resp| match resp {
+                Some(ref response) => send_response(response),
+                None => Ok(()),
+            })
+        });
+        if let Err(_) = result {
+            break;
         }
+    }
+}
+
+/// Returns the appropriate Response (if any) to the given Query
+///
+/// Returns Err(()) if it is time to quit because we have been disconnected.
+pub fn handle_query(
+    query: Query,
+    app: &mut TurtleApp,
+    events_rx: &mpsc::Receiver<Event>,
+    drawing_tx: &mpsc::Sender<DrawingCommand>,
+) -> Result<Option<Response>, ()> {
+    match query {
+        Query::Request(req) => handle_request(req, &app, &events_rx),
+        Query::Update(update) => handle_update(update, app),
+        Query::Drawing(cmd) => drawing_tx.send(cmd).map(|_| None).map_err(|_| ()),
     }
 }
 
@@ -60,9 +73,9 @@ fn handle_request(
     request: Request,
     app: &TurtleApp,
     events_rx: &mpsc::Receiver<Event>,
-) -> Result<(), ()> {
+) -> Result<Option<Response>, ()> {
     use self::Request::*;
-    send_response(&match request {
+    Ok(Some(match request {
         TurtleState => Response::TurtleState((*app.turtle()).clone()),
         DrawingState => Response::DrawingState((*app.drawing()).clone()),
         Event => Response::Event(match events_rx.try_recv() {
@@ -70,19 +83,21 @@ fn handle_request(
             Err(TryRecvError::Empty) => None,
             Err(TryRecvError::Disconnected) => return Err(()),
         }),
-    })
+    }))
 }
 
 fn handle_update(
     update: StateUpdate,
     app: &mut TurtleApp,
-) {
+) -> Result<Option<Response>, ()> {
     use self::StateUpdate::*;
     match update {
         TurtleState(turtle) => *app.turtle_mut() = turtle,
         DrawingState(drawing) => *app.drawing_mut() = drawing,
         TemporaryPath(path) => app.set_temporary_path(path),
     }
+
+    Ok(None)
 }
 
 /// Sends a response to stdout
