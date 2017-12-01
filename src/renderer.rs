@@ -142,6 +142,13 @@ impl Renderer {
         events_tx: mpsc::Sender<Event>,
         state: ReadOnly,
     ) {
+        // This check isn't foolproof. Someone can always create a thread named "main".
+        if thread::current().name().unwrap_or("") != "main" {
+            // In order to maintain compatibility with MacOS, we need to make sure that windows are
+            // only created on the main thread. We do this check on all platforms so that no one
+            // can accidentally make a change that creates the window off of the main thread.
+            unreachable!("bug: windows can only be created on the main thread");
+        }
         let mut window: PistonWindow = WindowSettings::new(
             "Turtle", [800, 600]
         ).exit_on_esc(true).build().unwrap();
