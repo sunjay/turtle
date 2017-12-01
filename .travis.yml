@@ -13,7 +13,13 @@ script:
   - RUSTFLAGS="-D warnings" cargo build --verbose --all
   # Make sure we can run on osx
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cargo run --verbose --example runtest; fi
-  - cargo test --verbose --features "test" --all -- --test-threads=4
+  # Retry with fewer cores if the initial `cargo test` fails to work around possible OOM errors
+  # for more details see https://github.com/rust-lang/cargo/issues/4415
+  # Source: https://github.com/ipetkov/conch-runtime/commit/3e6afc5f45791e7793b968712c1ed8ddbe0758fb
+  - cargo test --verbose --features "test" --all || (
+      echo "$(tput setaf 3)$(tput bold)Initial 'cargo test' failed, retrying with fewer cores to work around Travis CI OOM issues$(tput sgr 0)" &&
+      cargo test --verbose --features "test" --all --jobs 1
+    )
   - cargo doc --no-deps --verbose --all
 matrix:
   # Mark the build as finished even if the allow_failures builds
