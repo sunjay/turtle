@@ -50,6 +50,7 @@ mod query;
 mod types;
 mod server;
 mod client;
+mod renderer_process;
 
 pub mod color;
 pub mod event;

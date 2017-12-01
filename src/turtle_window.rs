@@ -1,14 +1,10 @@
-use std::env;
-use std::thread;
-use std::process::{self, Stdio};
 use std::time::Instant;
 use std::cell::RefCell;
-use std::sync::mpsc;
 
 use piston_window::math;
 
-use client;
 use renderer;
+use renderer_process::RendererProcess;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
@@ -17,32 +13,8 @@ use {Point, Distance, Event};
 
 use self::DrawingCommand::*;
 
-fn renderer_client(response_tx: mpsc::Sender<Response>) -> (process::Child, thread::JoinHandle<()>) {
-    let current_exe = env::current_exe()
-        .expect("Could not read path of the currently running executable")
-        .into_os_string();
-    let mut renderer_process = process::Command::new(current_exe)
-        .env("RUN_TURTLE_CANVAS", "true")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::inherit())
-        .spawn()
-        .expect("renderer process failed to start");
-
-    let renderer_stdout = renderer_process.stdout.take()
-        .expect("renderer process was not opened with stdout");
-    let handle = thread::spawn(move || {
-        client::run(renderer_stdout, response_tx);
-    });
-
-    (renderer_process, handle)
-}
-
 pub struct TurtleWindow {
-    renderer: RefCell<process::Child>,
-    thread_handle: RefCell<Option<thread::JoinHandle<()>>>,
-    /// Channel for receiving responses from the rendering process
-    response_channel: mpsc::Receiver<Response>,
+    renderer: RefCell<RendererProcess>,
 }
 
 impl TurtleWindow {
@@ -52,20 +24,14 @@ impl TurtleWindow {
         // to make sure this call occurs when it should.
         renderer::setup();
 
-        let (response_tx, response_rx) = mpsc::channel();
-        let (renderer_process, handle) = renderer_client(response_tx);
-
         Self {
-            renderer: RefCell::new(renderer_process),
-            thread_handle: RefCell::new(Some(handle)),
-            response_channel: response_rx,
+            renderer: RefCell::new(RendererProcess::new()),
         }
     }
 
     pub fn fetch_turtle(&self) -> TurtleState {
-        self.send_query(Query::Request(Request::TurtleState));
-        match self.wait_for_response() {
-            Response::TurtleState(state) => state,
+        match self.renderer.borrow_mut().send_query(Query::Request(Request::TurtleState)) {
+            Some(Response::TurtleState(state)) => state,
             _ => panic!("bug: the renderer process did not sent back TurtleState"),
         }
     }
@@ -76,14 +42,13 @@ impl TurtleWindow {
         where F: FnOnce(&mut TurtleState) -> T {
         let mut turtle = self.fetch_turtle();
         let result = update(&mut turtle);
-        self.send_query(Query::Update(StateUpdate::TurtleState(turtle)));
+        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::TurtleState(turtle)));
         result
     }
 
     pub fn fetch_drawing(&self) -> DrawingState {
-        self.send_query(Query::Request(Request::DrawingState));
-        match self.wait_for_response() {
-            Response::DrawingState(state) => state,
+        match self.renderer.borrow_mut().send_query(Query::Request(Request::DrawingState)) {
+            Some(Response::DrawingState(state)) => state,
             _ => panic!("bug: the renderer process did not sent back DrawingState"),
         }
     }
@@ -94,20 +59,19 @@ impl TurtleWindow {
         where F: FnOnce(&mut DrawingState) -> T {
         let mut drawing = self.fetch_drawing();
         let result = update(&mut drawing);
-        self.send_query(Query::Update(StateUpdate::DrawingState(drawing)));
+        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::DrawingState(drawing)));
         result
     }
 
 
     fn set_temporary_path(&mut self, path: Option<Path>) {
-        self.send_query(Query::Update(StateUpdate::TemporaryPath(path)));
+        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::TemporaryPath(path)));
     }
 
     /// See [`Turtle::poll_event()`](struct.Turtle.html#method.poll_event).
     pub fn poll_event(&mut self) -> Option<Event> {
-        self.send_query(Query::Request(Request::Event));
-        match self.wait_for_response() {
-            Response::Event(event) => event,
+        match self.renderer.borrow_mut().send_query(Query::Request(Request::Event)) {
+            Some(Response::Event(event)) => event,
             _ => panic!("bug: the renderer process did not sent back an Event"),
         }
     }
@@ -220,106 +184,6 @@ impl TurtleWindow {
     }
 
     fn send_drawing_command(&self, command: DrawingCommand) {
-        self.send_query(Query::Drawing(command));
-    }
-
-    #[inline]
-    fn send_query(&self, query: Query) {
-        let result = if let Some(ref mut stdin) = self.renderer.borrow_mut().stdin {
-            client::send_query(stdin, &query)
-        }
-        else {
-            unreachable!("bug: renderer process was not opened with stdin");
-        };
-
-        result.unwrap_or_else(|_| {
-            // Something went wrong while sending the query, check if the renderer process
-            // panicked (exited with an error)
-            match self.renderer.borrow_mut().try_wait() {
-                Ok(Some(status)) => {
-                    if status.success() {
-                        // The window/renderer process was closed normally
-                        process::exit(0);
-                    }
-                    else {
-                        // Something went wrong, likely the other thread panicked
-                        process::exit(1);
-                    }
-                },
-                Ok(None) => panic!("bug: failed to send query even though renderer process was still running"),
-                Err(_) => panic!("bug: unable to check the exit status of the renderer process"),
-            }
-        });
-    }
-
-    fn wait_for_response(&self) -> Response {
-        match self.response_channel.recv() {
-            Ok(response) => response,
-            // The client thread has exited, that means that the renderer process has exited
-            // and the window has closed
-            Err(_) => self.exit_process(), // Quit
-        }
-    }
-
-    /// Exits the current process with the correct error code
-    ///
-    /// Panics if the thread handle has already been consumed
-    #[inline]
-    fn exit_process(&self) -> ! {
-        if let Some(handle) = self.thread_handle.borrow_mut().take() {
-            // First check if the other thread panicked before it quit
-            match handle.join() {
-                Ok(_) => match self.renderer.borrow_mut().try_wait() {
-                    Ok(Some(status)) => {
-                        if status.success() {
-                            // The window/renderer process was closed normally
-                            process::exit(0);
-                        }
-                        else {
-                            // Something went wrong, likely the other thread panicked
-                            process::exit(1);
-                        }
-                    },
-                    Ok(None) => match self.renderer.borrow_mut().wait() {
-                        Ok(status) => {
-                            if status.success() {
-                                process::exit(0);
-                            }
-                            else {
-                                process::exit(1);
-                            }
-                        },
-                        Err(_) => unreachable!("bug: renderer process never ran even though we exited"),
-                    },
-                    Err(_) => panic!("bug: unable to check the exit status of the renderer process after client thread quit"),
-                },
-                // If this returns an error, the other thread panicked
-                Err(_) => process::exit(1),
-            }
-        }
-        else {
-            unreachable!("bug: the thread handle was used but the process did not end");
-        }
-    }
-}
-
-impl Drop for TurtleWindow {
-    fn drop(&mut self) {
-        // If the current thread is panicking, we want to abort right away
-        // because otherwise there is code in the rendering thread that will call
-        // process::exit(0) and then the exit code will be 0 instead of 1
-        if thread::panicking() {
-            process::exit(1);
-        }
-
-        // If this is just a normal ending of the main thread, we want to leave the renderer
-        // running so that the user can see their drawing as long as they keep the window open
-        //TODO: Maybe we should wait on the renderer_process instead of (or in addition to?) this thread
-        if let Some(handle) = self.thread_handle.borrow_mut().take() {
-            handle.join().unwrap_or_else(|_| {
-                // If this returns an error, the other thread panicked
-                process::exit(1);
-            });
-        }
+        self.renderer.borrow_mut().send_query(Query::Drawing(command));
     }
 }
