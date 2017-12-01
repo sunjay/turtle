@@ -17,6 +17,7 @@ pub fn run(
 ) {
     // Read queries from the turtle process
     let stdin = io::stdin();
+    let mut stdout = io::stdout();
     let mut reader = BufReader::new(stdin);
     loop {
         let mut buffer = String::new();
@@ -43,7 +44,7 @@ pub fn run(
             }
         }).and_then(|query| {
             handle_query(query, &mut app, &events_rx, &drawing_tx).and_then(|resp| match resp {
-                Some(ref response) => send_response(response),
+                Some(ref response) => send_response(&mut stdout, response),
                 None => Ok(()),
             })
         });
@@ -113,11 +114,10 @@ fn handle_update(
 }
 
 /// Sends a response to stdout
-fn send_response(response: &Response) -> Result<(), ()> {
-    let mut stdout = io::stdout();
-    match serde_json::to_writer(&mut stdout, response) {
+fn send_response<W: Write>(mut writer: W, response: &Response) -> Result<(), ()> {
+    match serde_json::to_writer(&mut writer, response) {
         Ok(_) => {
-            writeln!(&mut stdout)
+            writeln!(&mut writer)
                 .expect("bug: unable to write final newline when sending response");
             Ok(())
         },
