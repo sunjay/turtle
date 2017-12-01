@@ -8,7 +8,9 @@ rust:
   - nightly
 
 script:
-  - cargo build --verbose --all
+  # -D warnings denies all warnings so that we always know when some code
+  # introduces new ones
+  - RUSTFLAGS="-D warnings" cargo build --verbose --all
   # Make sure we can run on osx
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cargo run --verbose --example runtest; fi
   - cargo test --verbose --features "test" --all
