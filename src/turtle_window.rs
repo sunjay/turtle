@@ -50,7 +50,7 @@ impl TurtleWindow {
         // This needs to be called as close to the start of the program as possible
         // Since Turtle::new() is called at the beginning of many turtle programs, we do so here
         // to make sure this call occurs when it should.
-        canvas::start();
+        canvas::setup();
 
         let (response_tx, response_rx) = mpsc::channel();
         let (renderer_process, handle) = renderer_client(response_tx);
