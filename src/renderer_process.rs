@@ -99,39 +99,21 @@ impl RendererProcess {
     /// Panics if the thread handle has already been consumed
     #[inline]
     fn exit_process(&mut self) -> ! {
-        if let Some(handle) = self.thread_handle.take() {
-            // First check if the other thread panicked before it quit
-            match handle.join() {
-                Ok(_) => match self.process.try_wait() {
-                    Ok(Some(status)) => {
-                        if status.success() {
-                            // The window/renderer process was closed normally
-                            process::exit(0);
-                        }
-                        else {
-                            // Something went wrong, likely the other thread panicked
-                            process::exit(1);
-                        }
-                    },
-                    Ok(None) => match self.process.wait() {
-                        Ok(status) => {
-                            if status.success() {
-                                process::exit(0);
-                            }
-                            else {
-                                process::exit(1);
-                            }
-                        },
-                        Err(_) => unreachable!("bug: renderer process never ran even though we exited"),
-                    },
-                    Err(_) => panic!("bug: unable to check the exit status of the renderer process after client thread quit"),
-                },
-                // If this returns an error, the other thread panicked
-                Err(_) => process::exit(1),
-            }
-        }
-        else {
+        let status = self.thread_handle.take().ok_or_else(|| {
             unreachable!("bug: the thread handle was used but the process did not end");
+        }).and_then(|handle| {
+            // First check if the other thread panicked before it quit
+            handle.join().map_err(|_| ())
+        }).and_then(|_| {
+            // Then check if the renderer process ended normally
+            self.process.wait()
+                .map_err(|_| unreachable!("bug: renderer process never ran even though we exited"))
+                .and_then(|status| if status.success() { Ok(()) } else { Err(()) })
+        });
+
+        match status {
+            Ok(_) => process::exit(0),
+            Err(_) => process::exit(1),
         }
     }
 }
