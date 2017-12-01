@@ -12,7 +12,7 @@ use app::TurtleApp;
 use renderer::Renderer;
 use server;
 
-/// Start the turtle canvas process.
+/// Setup the turtle window in advance
 ///
 /// You must call this function at the beginning of `main()` if you do not create the
 /// turtle immediately using [`Turtle::new()`].
@@ -37,20 +37,20 @@ use server;
 ///     // is created and so that there are no conflicts with command line arguments or
 ///     // environment variables.
 ///     // Not required if Turtle::new() is already at the top of main.
-///     turtle::start();
+///     turtle::setup();
 ///
 ///     // Do all kinds of expensive work here...
 ///     // Feel free to check environment variables, command line arguments, etc.
 ///
 ///     // Create the turtle when you are ready
-///     // Turtle::new() will also call start(), but calling it twice doesn't matter
+///     // Turtle::new() will also call setup(), but calling it twice doesn't matter
 ///     let mut turtle = Turtle::new();
 ///     // Do things with the turtle...
 /// }
 /// ```
 ///
 /// [`Turtle::new()`]: struct.Turtle.html#method.new
-pub fn start() {
+pub fn setup() {
     // If this environment variable is present, this process is taken over so that no other
     // code runs after canvas::run(). This allows us to ship one executable that appears to
     // have two separate processes.
@@ -70,6 +70,9 @@ pub fn main() {
     let (drawing_tx, drawing_rx) = mpsc::channel();
     let (events_tx, events_rx) = mpsc::channel();
 
+    // The running channel is entirely for checking if the other thread is still active.
+    // We need to check because while we can exit while that thread is still running, we want
+    // any errors caused in that thread to be reported.
     let (running_tx, running_rx) = mpsc::channel();
     let handle = thread::spawn(move || {
         server::run(app, drawing_tx, events_rx, running_tx);

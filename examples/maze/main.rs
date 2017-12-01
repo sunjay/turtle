@@ -17,7 +17,7 @@ const WIDTH: f64 = 600.0; // px
 const HEIGHT: f64 = 600.0; // px
 
 fn main() {
-    turtle::start();
+    turtle::setup();
 
     let maze = Maze::generate();
 

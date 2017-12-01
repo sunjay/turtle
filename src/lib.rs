@@ -56,7 +56,7 @@ pub mod color;
 pub mod event;
 pub mod rand;
 
-pub use canvas::start;
+pub use canvas::setup;
 pub use turtle::Turtle;
 pub use types::{Point, Distance, Angle};
 pub use speed::{Speed};
