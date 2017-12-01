@@ -40,7 +40,6 @@ mod turtle_window;
 
 mod app;
 mod turtle;
-mod canvas;
 mod speed;
 mod radians;
 mod animation;
@@ -56,7 +55,7 @@ pub mod color;
 pub mod event;
 pub mod rand;
 
-pub use canvas::setup;
+pub use renderer::setup;
 pub use turtle::Turtle;
 pub use types::{Point, Distance, Angle};
 pub use speed::{Speed};
