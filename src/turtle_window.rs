@@ -94,10 +94,7 @@ impl TurtleWindow {
 
     /// Move the turtle to the given position without changing its heading.
     pub fn go_to(&mut self, end: Point) {
-        let (start, speed, pen) = {
-            let turtle = self.fetch_turtle();
-            (turtle.position, turtle.speed, turtle.pen.clone())
-        };
+        let TurtleState {position: start, speed, pen, ..} = self.fetch_turtle();
 
         let distance = math::square_len(math::sub(start, end)).sqrt();
         let speed = speed.to_absolute(); // px per second
@@ -121,10 +118,7 @@ impl TurtleWindow {
             return;
         }
 
-        let (start, speed, heading, pen) = {
-            let turtle = self.fetch_turtle();
-            (turtle.position, turtle.speed, turtle.heading, turtle.pen.clone())
-        };
+        let TurtleState {position: start, speed, heading, pen, ..} = self.fetch_turtle();
         let x = distance * heading.cos();
         let y = distance * heading.sin();
         let end = math::add(start, [x, y]);
