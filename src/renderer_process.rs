@@ -8,8 +8,8 @@ use std::thread;
 use std::process::{self, Stdio};
 use std::sync::mpsc;
 
-use client;
 use query::{Query, Response};
+use messenger;
 
 /// Manages the renderer process and all communication with it
 #[cfg(not(any(feature = "test", test)))]
@@ -39,7 +39,15 @@ impl RendererProcess {
             .expect("renderer process was not opened with stdout");
         let (response_tx, response_rx) = mpsc::channel();
         let handle = thread::spawn(move || {
-            client::run(renderer_stdout, response_tx);
+            // Continously read responses from the renderer process
+            // This is in its own thread because it uses blocking IO and we don't want to block
+            // the main thread waiting for the renderer process
+            messenger::read_forever(
+                renderer_stdout,
+                "bug: unable to read data from renderer process",
+                "bug: failed to read response from renderer process",
+                |resp| response_tx.send(resp).map_err(|_| ()),
+            );
         });
 
         Self {
@@ -54,10 +62,14 @@ impl RendererProcess {
     /// If a query does not require a response, this function will return immediately after
     /// sending the query
     pub fn send_query(&mut self, query: Query) -> Option<Response> {
-        client::send_query(match self.process.stdin {
-            Some(ref mut stdin) => stdin,
-            None => unreachable!("bug: renderer process was not opened with stdin"),
-        }, &query).unwrap_or_else(|_| {
+        messenger::send(
+            match self.process.stdin {
+                Some(ref mut stdin) => stdin,
+                None => unreachable!("bug: renderer process was not opened with stdin"),
+            },
+            &query,
+            "bug: unable to write final newline when sending query"
+        ).unwrap_or_else(|_| {
             // Something went wrong while sending the query, check if the renderer process
             // panicked (exited with an error)
             match self.process.try_wait() {
