@@ -81,5 +81,4 @@ impl TurtleApp {
         let mut temp = self.temporary_path.write().expect("bug: Lock was poisoned");
         *temp = path;
     }
-
 }

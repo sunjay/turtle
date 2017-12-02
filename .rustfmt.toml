@@ -1,0 +1,5 @@
+reorder_imported_names = false
+match_block_trailing_comma = true
+error_on_line_overflow_comments = false
+error_on_line_overflow = false
+control_brace_style = "ClosingNextLine"
