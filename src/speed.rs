@@ -1,10 +1,9 @@
 use std::f64;
 use std::f64::consts::PI;
 
-use rand::{Rand, Rng};
-
 use radians::Radians;
-use types::Distance;
+use rand::{Rand, Rng};
+use {Distance};
 
 /// Represents the supported movement and rotation speeds
 ///

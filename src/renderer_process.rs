@@ -153,7 +153,7 @@ impl Drop for RendererProcess {
 #[cfg(any(feature = "test", test))]
 pub struct RendererProcess {
     app: ::app::TurtleApp,
-    events: (mpsc::Sender<::event::Event>, mpsc::Receiver<::event::Event>),
+    events: (mpsc::Sender<::Event>, mpsc::Receiver<::Event>),
     drawing: (mpsc::Sender<::query::DrawingCommand>, mpsc::Receiver<::query::DrawingCommand>),
 }
 

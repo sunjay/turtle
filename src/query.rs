@@ -1,6 +1,5 @@
-use color::Color;
-use event::Event;
 use state::{Path, TurtleState, DrawingState};
+use {Color, Event};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Response {
