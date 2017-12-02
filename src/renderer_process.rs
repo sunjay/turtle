@@ -155,7 +155,8 @@ impl Drop for RendererProcess {
 }
 
 /// A special "renderer process" specifically for tests. Simulates the renderer process by
-/// providing all of the same functionality and reusing internal parts of the
+/// providing all of the same functionality and reusing internal parts of the server. No actual
+/// process or additional threads are spawned.
 #[cfg(any(feature = "test", test))]
 pub struct RendererProcess {
     app: ::app::TurtleApp,
