@@ -86,12 +86,11 @@ impl RendererProcess {
     }
 
     fn wait_for_response(&mut self) -> Response {
-        match self.response_channel.recv() {
-            Ok(response) => response,
+        self.response_channel.recv().unwrap_or_else(|_| {
             // The client thread has exited, that means that the renderer process has exited
             // and the window has closed
-            Err(_) => self.exit_process(), // Quit
-        }
+            self.exit_process()
+        })
     }
 
     /// Exits the current process with the correct error code
