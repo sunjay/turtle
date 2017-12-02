@@ -3,7 +3,7 @@ use std::cell::RefCell;
 
 use piston_window::math;
 
-use renderer;
+use server;
 use renderer_process::RendererProcess;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
@@ -22,7 +22,7 @@ impl TurtleWindow {
         // This needs to be called as close to the start of the program as possible
         // Since Turtle::new() is called at the beginning of many turtle programs, we do so here
         // to make sure this call occurs when it should.
-        renderer::setup();
+        server::start();
 
         Self {
             renderer: RefCell::new(RendererProcess::new()),
