@@ -1,14 +1,9 @@
-// During tests, we disable the renderer and that causes a bunch of warnings that we just want
-// to get rid of.
-// See Cargo.toml for an explanation of this attribute
-#![cfg_attr(any(feature = "test", test), allow(unused_imports))]
-
-use std::env;
-use std::thread;
-use std::process::{self, Stdio};
 use std::sync::mpsc;
+#[cfg(not(any(feature = "test", test)))]
+use std::{env, thread, process};
 
 use query::{Query, Response};
+#[cfg(not(any(feature = "test", test)))]
 use messenger;
 
 /// Manages the renderer process and all communication with it
@@ -29,9 +24,9 @@ impl RendererProcess {
             .into_os_string();
         let mut renderer_process = process::Command::new(current_exe)
             .env("RUN_TURTLE_CANVAS", "true")
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
+            .stdin(process::Stdio::piped())
+            .stdout(process::Stdio::piped())
+            .stderr(process::Stdio::inherit())
             .spawn()
             .expect("renderer process failed to start");
 
