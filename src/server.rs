@@ -1,12 +1,12 @@
 use std::env;
 use std::thread;
 use std::process;
-use renderer::Renderer;
 use std::io::{self, Write};
 use std::sync::mpsc::{self, TryRecvError};
 
 use messenger;
 use app::TurtleApp;
+use renderer::Renderer;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
 use {Event};
 
@@ -52,7 +52,10 @@ pub fn start() {
     // If this environment variable is present, this process is taken over so that no other
     // code runs after main(). This allows us to ship one executable that appears to
     // have two separate processes.
-    // We run the renderer loop and then immediately exit.
+    // This implementation detail is why we request that users run start() at the beginning of
+    // their programs. When we spawn the same executable, we don't pass along any environment,
+    // input or command line arguments. That means that the user *needs* to run start() first or
+    // else their program won't be able to run at all. This is a tradeoff of this design decision.
     if env::var("RUN_TURTLE_CANVAS").unwrap_or_else(|_| "".to_owned()) == "true" {
         // This code MUST be run on the main thread.
 
