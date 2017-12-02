@@ -13,14 +13,13 @@ use piston_window::{
     polygon,
 };
 
-use app::{TurtleApp, ReadOnly};
-use extensions::ConvertScreenCoordinates;
-use state::{Path, Polygon, Pen, TurtleState, DrawingState};
-use query::DrawingCommand;
-use event::{Event, from_piston_event};
-use types::Point;
-use color::{self, Color};
 use server;
+use app::{TurtleApp, ReadOnly};
+use event::from_piston_event;
+use extensions::ConvertScreenCoordinates;
+use query::DrawingCommand;
+use state::{Path, Polygon, Pen, TurtleState, DrawingState};
+use {Point, Event, Color, color};
 
 /// Setup the turtle window in advance
 ///

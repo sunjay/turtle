@@ -3,8 +3,8 @@ use std::sync::mpsc::{self, TryRecvError};
 
 use messenger;
 use app::TurtleApp;
-use event::Event;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
+use {Event};
 
 /// Continuously read queries from stdin and send them to the renderer
 pub fn run(

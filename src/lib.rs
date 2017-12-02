@@ -47,7 +47,6 @@ mod extensions;
 mod renderer;
 mod state;
 mod query;
-mod types;
 mod server;
 mod client;
 mod renderer_process;
@@ -58,8 +57,7 @@ pub mod event;
 pub mod rand;
 
 pub use renderer::setup;
-pub use turtle::Turtle;
-pub use types::{Point, Distance, Angle};
+pub use turtle::{Turtle, Point, Distance, Angle};
 pub use speed::{Speed};
 pub use color::{Color};
 pub use event::Event;
