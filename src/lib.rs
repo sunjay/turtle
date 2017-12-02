@@ -48,7 +48,6 @@ mod renderer;
 mod state;
 mod query;
 mod server;
-mod client;
 mod renderer_process;
 mod messenger;
 
