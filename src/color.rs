@@ -167,33 +167,31 @@ impl From<Color> for types::Color {
 
 impl<'a> From<&'a str> for Color {
     fn from(s: &'a str) -> Self {
-        match s {
-            s if s.starts_with('#') => {
-                let color_str = &s[1..];
-                // Color strings can either be of size 3 (rgb) or 6 (rrggbb)
-                // e.g. 3366ff == 36f
-                let color_str = match color_str.len() {
-                    3 => color_str.chars().flat_map(|c| repeat(c).take(2)).collect(),
-                    6 => color_str.to_owned(),
-                    _ => panic!("Invalid color literal: {}", s),
-                };
+        if s.starts_with('#') {
+            let color_str = &s[1..];
+            // Color strings can either be of size 3 (rgb) or 6 (rrggbb)
+            // e.g. 3366ff == 36f
+            let color_str = match color_str.len() {
+                3 => color_str.chars().flat_map(|c| repeat(c).take(2)).collect(),
+                6 => color_str.to_owned(),
+                _ => panic!("Invalid color literal: {}", s),
+            };
 
-                let red = i64::from_str_radix(&color_str[0..2], 16);
-                let green = i64::from_str_radix(&color_str[2..4], 16);
-                let blue = i64::from_str_radix(&color_str[4..6], 16);
+            let red = i64::from_str_radix(&color_str[0..2], 16);
+            let green = i64::from_str_radix(&color_str[2..4], 16);
+            let blue = i64::from_str_radix(&color_str[4..6], 16);
 
-                Color {
-                    red: red.expect(&format!("Invalid color literal: {}", s)) as f64,
-                    green: green.expect(&format!("Invalid color literal: {}", s)) as f64,
-                    blue: blue.expect(&format!("Invalid color literal: {}", s)) as f64,
-                    alpha: 1.0,
-                }
-            },
-            s => {
-                from_color_name(s)
-                    .or_else(|| extended::from_color_name(s))
-                    .expect(&format!("Unknown color name: {}", s))
-            },
+            Color {
+                red: red.expect(&format!("Invalid color literal: {}", s)) as f64,
+                green: green.expect(&format!("Invalid color literal: {}", s)) as f64,
+                blue: blue.expect(&format!("Invalid color literal: {}", s)) as f64,
+                alpha: 1.0,
+            }
+        }
+        else {
+            from_color_name(s)
+                .or_else(|| extended::from_color_name(s))
+                .expect(&format!("Unknown color name: {}", s))
         }
     }
 }
