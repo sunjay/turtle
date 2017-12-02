@@ -1,8 +1,7 @@
-use std::io::{self, Write, BufReader, BufRead};
+use std::io::{self, Write};
 use std::sync::mpsc::{self, TryRecvError};
 
-use serde_json;
-
+use messenger;
 use app::TurtleApp;
 use event::Event;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
@@ -18,40 +17,15 @@ pub fn run(
     // Read queries from the turtle process
     let stdin = io::stdin();
     let mut stdout = io::stdout();
-    let mut reader = BufReader::new(stdin);
-    loop {
-        let mut buffer = String::new();
-        let read_bytes = reader.read_line(&mut buffer)
-            .expect("bug: unable to read data from stdin");
-        if read_bytes == 0 {
-            // Reached EOF, turtle process must have quit
-            // We stop this loop since there is no point in continuing to read from something that
-            // will never produce anything again
-            break;
-        }
-
-        let query: Result<Query, _> = serde_json::from_str(&buffer);
-        let result: Result<(), ()> = query.map_err(|err| {
-            if err.is_io() || err.is_syntax() || err.is_data() {
-                panic!("bug: failed to read command from turtle process");
-            }
-            else if err.is_eof() {
-                // Could not read anymore bytes from stdin, the turtle process must have ended
-                ()
-            }
-            else {
-                unreachable!("bug: reached unreachable case of serde error");
-            }
-        }).and_then(|query| {
-            handle_query(query, &mut app, &events_rx, &drawing_tx).and_then(|resp| match resp {
-                Some(ref response) => send_response(&mut stdout, response),
-                None => Ok(()),
-            })
-        });
-        if let Err(_) = result {
-            break;
-        }
-    }
+    messenger::read_forever(
+        stdin,
+        "bug: unable to read data from stdin",
+        "bug: failed to read command from turtle process",
+        |query| handle_query(query, &mut app, &events_rx, &drawing_tx).and_then(|resp| match resp {
+            Some(ref response) => send_response(&mut stdout, response),
+            None => Ok(()),
+        }),
+    );
 }
 
 /// We want to expose this specifically for tests so that tests can mimic the behaviour of the
@@ -114,21 +88,6 @@ fn handle_update(
 }
 
 /// Sends a response to stdout
-fn send_response<W: Write>(mut writer: W, response: &Response) -> Result<(), ()> {
-    match serde_json::to_writer(&mut writer, response) {
-        Ok(_) => {
-            writeln!(&mut writer)
-                .expect("bug: unable to write final newline when sending response");
-            Ok(())
-        },
-        Err(err) => {
-            if err.is_io() || err.is_eof() {
-                Err(())
-            }
-            else {
-                // The other cases for err all have to do with input, so those should never occur
-                unreachable!("bug: got an input error when writing output");
-            }
-        },
-    }
+fn send_response<W: Write>(writer: W, response: &Response) -> Result<(), ()> {
+    messenger::send(writer, response, "bug: unable to write final newline when sending response")
 }
