@@ -93,7 +93,7 @@ impl Turtle {
     /// ```
     ///
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
-    /// [`turtle::setup()`](fn.setup.html) in order to avoid any problems.
+    /// [`turtle::start()`](fn.start.html) in order to avoid any problems.
     pub fn new() -> Turtle {
         Turtle {
             window: TurtleWindow::new(),
