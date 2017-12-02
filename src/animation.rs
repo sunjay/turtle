@@ -1,13 +1,11 @@
-// During tests, we disable animations and that causes a bunch of warnings
-// See Cargo.toml for an explanation of this attribute
-#![cfg_attr(any(feature = "test", test), allow(dead_code, unused_variables, unused_imports))]
-
 use std::time::Instant;
 
+#[cfg(not(any(feature = "test", test)))]
 use interpolation::lerp;
 
 use radians::{self, Radians};
 use state::{TurtleState, Path};
+#[cfg(not(any(feature = "test", test)))]
 use extensions::AsMillis;
 
 pub trait Animation {
@@ -17,6 +15,10 @@ pub trait Animation {
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus;
 }
 
+// During tests, we disable animations and so it appears that this is dead code when it is not
+// dead code in reality
+// See Cargo.toml for an explanation of this attribute
+#[cfg_attr(any(feature = "test", test), allow(dead_code))]
 pub enum AnimationStatus {
     /// Returned if the animation is still running.
     ///
