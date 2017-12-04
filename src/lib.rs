@@ -1,25 +1,30 @@
 //! The API Documentation below will help you learn about the various things you can do with this
-//! library.
+//! crate.
 //!
-//! **If this is your first time using Rust or using this library, read the Guide on
+//! **If this is your first time using Rust or using this crate, read the Guide on
 //! [turtle.rs](http://turtle.rs) to learn how to start.**
 //!
-//! The [`Turtle` struct](struct.Turtle.html) documentation contains information about the various
-//! things you can do with the `Turtle` instances you create. The [`color` module](color/index.html)
-//! and its submodules contain hundreds of constants that you can use as color values.
-//! As a convenience, you can use the color name listed with each constant in a string instead of the
-//! constant itself. See that module for more information about how to use different colors.
+//! The documentation for the [`Turtle` struct](struct.Turtle.html) contains a listing of all of the
+//! various drawing commands that you can use on the Turtles that you create. The [`color`
+//! module](color/index.html) and its submodules contain hundreds of predefined color names that you
+//! can use to set the pen, background and fill color of a turtle. That module also explains how to
+//! use any arbitrary color, including ones that may not be defined in this crate.
+//!
+//! Note: Call [`turtle::start()`](fn.start.html) if you do not create a turtle with
+//! [`Turtle::new()`](struct.Turtle.html#method.new) right at the beginning of your program. Most
+//! programs will never need to call this function as it is called for you in
+//! [`Turtle::new()`](struct.Turtle.html#method.new).
 //!
 //! # Random Values
 //!
-//! See the [`rand` module](rand/index.html) for information about generating random values which
-//! can be used in your programs.
+//! See the [`rand` module](rand/index.html) for information about generating random colors, speeds,
+//! angles, and more which can be used in your programs to produce some interesting results!
 //!
 //! # Event Handling
 //!
-//! For advanced users, the [`Event` enum](event/enum.Event.html) documentation provides information
-//! about how you can create an event loop. This allows you to draw things in response to
-//! certain events like the mouse moving, keys being pressed, and more.
+//! The [`Event` enum](event/enum.Event.html) documentation provides information about how you can
+//! create an event loop. This allows you to draw things in response to certain events like the
+//! mouse moving, keys being pressed, and more.
 //!
 //! The `Turtle` struct contains a few convenience methods so you can do some common event-related
 //! things without creating the entire event loop. For example, use
