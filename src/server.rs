@@ -12,14 +12,14 @@ use {Event};
 
 /// Start the turtle window in advance
 ///
-/// You must call this function at the beginning of `main()` if you do not create the
-/// turtle immediately using [`Turtle::new()`].
+/// If you do not create a turtle immediately at the beginning of `main()` with [`Turtle::new()`],
+/// you must **call this function at the start of `main()` to avoid any problems**.
 ///
-/// It's a good idea to call this function before any other code runs in `main()`. Programs that
-/// parse command line arguments or look at environment variables may **fail** to start if this
-/// function is not called right at the beginning of the program. Programs that perform any
-/// expensive computations may experience delayed start up problems unless they call this
-/// function first.
+/// Since the majority of code created using this crate does little or no work before calling
+/// `Turtle::new()`, this usually isn't a problem. Programs that parse command line arguments, read
+/// input, or check environment variables may **fail** to start if this function is not called
+/// right at the beginning of the program. Programs that perform any expensive computations may
+/// experience delayed start up problems unless they call this function first.
 ///
 /// The [`Turtle::new()`] method will call this function for you so that you don't need to worry
 /// about this unless you are doing something before that.
