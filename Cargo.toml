@@ -2,7 +2,7 @@
 name = "turtle"
 version = "1.0.0-alpha.6"
 authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
-description = "Turtle Graphics in Rust"
+description = "Learn the Rust language by creating animated drawings!"
 homepage = "http://turtle.rs"
 repository = "https://github.com/sunjay/turtle"
 readme = "README.md"
