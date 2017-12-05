@@ -69,6 +69,12 @@ free to come to the [Turtle Gitter] anytime if you are lost.
 [Turtle Gitter]: https://gitter.im/rust-turtle/discuss
 [issues]: https://github.com/sunjay/turtle/issues
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for information about contributing to
+this project including how to build and test the project, submit new examples,
+report bugs, and more.
+
 ## Inspiration & Goals
 
 This crate is inspired by the [Logo educational programming language][logo-lang].
