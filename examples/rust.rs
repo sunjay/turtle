@@ -144,7 +144,7 @@ fn letter(turtle: &mut Turtle) {
         turtle.set_speed("instant");
         turtle.backward(0.4);
         turtle.right(0.3);
-        turtle.set_speed(SPEED);
+        turtle.set_speed(10);
     }
 
     turtle.set_speed(SPEED);
@@ -167,7 +167,7 @@ fn letter(turtle: &mut Turtle) {
         turtle.set_speed("instant");
         turtle.backward(0.4);
         turtle.right(0.2);
-        turtle.set_speed(SPEED);
+        turtle.set_speed(10);
     }
 
     for _ in 0..200 {
@@ -175,6 +175,6 @@ fn letter(turtle: &mut Turtle) {
         turtle.set_speed("instant");
         turtle.backward(0.4);
         turtle.left(0.1);
-        turtle.set_speed(SPEED);
+        turtle.set_speed(10);
     }
 }
