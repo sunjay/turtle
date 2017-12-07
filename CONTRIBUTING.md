@@ -22,8 +22,7 @@ great as possible!
 ## Code of Conduct
 [code-of-conduct]: #code-of-conduct
 
-**TODO:** We will have one very soon! If you know about adding a code of conduct
-to a project, please reach out!
+This project and everyone participating in it is governed by the [Turtle Code of Conduct](https://github.com/sunjay/turtle/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to varma.sunjay+turtlecoc@gmail.com.
 
 ## Getting Help
 [getting-help]: #getting-help
