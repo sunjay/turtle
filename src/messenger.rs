@@ -29,6 +29,11 @@ pub fn read_forever<R: Read, T: DeserializeOwned, F: FnMut(T) -> Result<(), ()>>
         }
 
         let result = serde_json::from_str(&buffer).map_err(|err| match err.classify() {
+            // In addition to cases where the JSON formatting is incorrect for some reason, this
+            // panic will occur if you use `println!` from inside the renderer process. This is
+            // because anything sent to stdout from within the renderer process is parsed as JSON.
+            // To avoid that and still be able to debug, switch to using the `eprintln!` macro
+            // instead. That macro will write to stderr and you will be able to continue as normal.
             Category::Io | Category::Syntax | Category::Data => panic!(failed_to_read_result),
             Category::Eof => (),
         }).and_then(|result| handler(result));
