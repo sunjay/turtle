@@ -37,8 +37,12 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 
+#[cfg(feature = "desktop")]
 extern crate piston_window;
+extern crate graphics;
+extern crate input;
 extern crate interpolation;
+
 extern crate rand as rand_crate;
 
 mod turtle_window;
@@ -53,7 +57,10 @@ mod state;
 mod query;
 mod messenger;
 mod render_strategy;
+#[cfg(feature = "desktop")]
 mod piston;
+#[cfg(feature = "wasm")]
+mod wasm;
 
 pub mod color;
 pub mod event;
@@ -62,11 +69,14 @@ pub mod rand;
 pub use turtle::{Turtle, Point, Distance, Angle};
 pub use speed::{Speed};
 pub use color::{Color};
-pub use event::Event;
+pub use event::{Event};
 pub use rand::{random, random_range};
 
-// TODO conditionally compile this
+#[cfg(feature = "desktop")]
 type DefaultRenderStrategy = ::piston::PistonRenderStrategy;
+#[cfg(feature = "wasm")]
+type DefaultRenderStrategy = ::wasm::WasmRenderStrategy;
+
 
 /// Set up turtle rendering.
 ///

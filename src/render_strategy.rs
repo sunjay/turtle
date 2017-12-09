@@ -1,5 +1,7 @@
 use query::{Query, Response};
 
+use std::default::Default;
+
 pub trait RenderStrategy: Default {
     /// Perform any necessary one-time initialization.
     // TODO perhaps have this be called on a type that then results in the type that has

@@ -87,7 +87,7 @@
 
 use std::iter::repeat;
 
-use piston_window::types;
+use graphics::types;
 use rand::{Rand, Rng};
 
 /// Type for representing a color.

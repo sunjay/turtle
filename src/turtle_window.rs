@@ -1,7 +1,7 @@
 use std::time::Instant;
 use std::cell::RefCell;
 
-use piston_window::math;
+use graphics::math;
 
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};

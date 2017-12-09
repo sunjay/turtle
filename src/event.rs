@@ -2,14 +2,14 @@
 //!
 //! See [`Event`](enum.Event.html) for more information.
 
-use piston_window::{
+use input::{
     Event as PistonEvent,
     Input, ButtonArgs,
     ButtonState,
     Button,
     Motion,
 };
-pub use piston_window::{
+pub use input::{
     Key,
     MouseButton,
     ControllerButton,
