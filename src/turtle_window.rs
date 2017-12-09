@@ -3,29 +3,30 @@ use std::cell::RefCell;
 
 use piston_window::math;
 
-use server;
-use renderer_process::RendererProcess;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
 use radians::{self, Radians};
 use {Point, Distance, Event};
+use render_strategy::RenderStrategy;
 
 use self::DrawingCommand::*;
 
-pub struct TurtleWindow {
-    renderer: RefCell<RendererProcess>,
+pub struct TurtleWindow<R: RenderStrategy> {
+    renderer: RefCell<R>,
 }
 
-impl TurtleWindow {
-    pub fn new() -> TurtleWindow {
+impl<R: RenderStrategy> TurtleWindow<R> {
+    pub fn new() -> TurtleWindow<R> {
         // This needs to be called as close to the start of the program as possible
         // Since Turtle::new() is called at the beginning of many turtle programs, we do so here
         // to make sure this call occurs when it should.
-        server::start();
+        R::initialize();
+
+        let r = R::default();
 
         Self {
-            renderer: RefCell::new(RendererProcess::new()),
+            renderer: RefCell::new(r),
         }
     }
 

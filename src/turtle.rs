@@ -4,7 +4,8 @@ use std::time::Duration;
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
 use event::MouseButton;
-use {Speed, Color, Event};
+use {Speed, Color, Event, DefaultRenderStrategy};
+use render_strategy::RenderStrategy;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -64,10 +65,12 @@ pub type Angle = f64;
 ///
 /// See the documentation for the methods below to learn about the different drawing commands you
 /// can use with the turtle.
-pub struct Turtle {
-    window: TurtleWindow,
+pub struct GenericTurtle<R: RenderStrategy> {
+    window: TurtleWindow<R>,
     angle_unit: AngleUnit,
 }
+
+pub type Turtle = GenericTurtle<DefaultRenderStrategy>;
 
 impl Default for Turtle {
     fn default() -> Self {
@@ -75,7 +78,7 @@ impl Default for Turtle {
     }
 }
 
-impl Turtle {
+impl<R: RenderStrategy> GenericTurtle<R> {
     /// Create a new turtle.
     ///
     /// This will immediately open a new window with the turtle at the center. As each line in
@@ -94,9 +97,9 @@ impl Turtle {
     ///
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
     /// [`turtle::start()`](fn.start.html) in order to avoid any problems.
-    pub fn new() -> Turtle {
-        Turtle {
-            window: TurtleWindow::new(),
+    pub fn new() -> GenericTurtle<DefaultRenderStrategy> {
+        GenericTurtle {
+            window: TurtleWindow::<DefaultRenderStrategy>::new(),
             angle_unit: AngleUnit::Degrees,
         }
     }

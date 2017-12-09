@@ -49,20 +49,64 @@ mod speed;
 mod radians;
 mod animation;
 mod extensions;
-mod renderer;
 mod state;
 mod query;
-mod server;
-mod renderer_process;
 mod messenger;
+mod render_strategy;
+mod piston;
 
 pub mod color;
 pub mod event;
 pub mod rand;
 
-pub use server::start;
 pub use turtle::{Turtle, Point, Distance, Angle};
 pub use speed::{Speed};
 pub use color::{Color};
 pub use event::Event;
 pub use rand::{random, random_range};
+
+// TODO conditionally compile this
+type DefaultRenderStrategy = ::piston::PistonRenderStrategy;
+
+/// Set up turtle rendering.
+///
+/// If you do not create a turtle immediately at the beginning of `main()` with [`Turtle::new()`],
+/// you must **call this function at the start of `main()` to avoid any problems**.
+///
+/// Since the majority of code created using this crate does little or no work before calling
+/// `Turtle::new()`, this usually isn't a problem. Programs that parse command line arguments, read
+/// input, or check environment variables may **fail** to start if this function is not called
+/// right at the beginning of the program. Programs that perform any expensive computations may
+/// experience delayed start up problems unless they call this function first.
+///
+/// The [`Turtle::new()`] method will call this function for you so that you don't need to worry
+/// about this unless you are doing something before that.
+///
+/// # Example
+/// ```rust,no_run
+/// # #![allow(unused_variables, unused_mut)]
+/// extern crate turtle;
+/// use turtle::Turtle;
+///
+/// fn main() {
+///     // Initializes the turtle renderer first so that there is less delay when a Turtle
+///     // is created and so that there are no conflicts with command line arguments or
+///     // environment variables.
+///     // Not required if Turtle::new() is already at the top of main.
+///     turtle::start();
+///
+///     // Do all kinds of expensive work here...
+///     // Feel free to check environment variables, command line arguments, etc.
+///
+///     // Create the turtle when you are ready
+///     // Turtle::new() will also call start(), but calling it twice doesn't matter
+///     let mut turtle = Turtle::new();
+///     // Do things with the turtle...
+/// }
+/// ```
+///
+/// [`Turtle::new()`]: struct.Turtle.html#method.new
+pub fn start() {
+    use render_strategy::RenderStrategy;;
+    DefaultRenderStrategy::initialize()
+}
