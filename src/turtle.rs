@@ -989,9 +989,6 @@ impl Turtle {
     ///
     /// If the coordinates are the same as the turtle's current position, no rotation takes place.
     /// Always rotates the least amount necessary in order to face the given point.
-    ///
-    /// ## UNSTABLE
-    /// This feature is currently unstable and completely buggy. Do not use it until it is fixed.
     pub fn turn_towards(&mut self, target: Point) {
         let target_x = target[0];
         let target_y = target[1];
@@ -1000,19 +997,24 @@ impl Turtle {
         let x = position[0];
         let y = position[1];
 
+        // If the target is (approximately) on the turtle don't turn
         if (target_x - x).abs() < 0.1 && (target_y - y).abs() < 0.1 {
             return;
         }
 
         let heading = self.window.fetch_turtle().heading;
 
+        // Calculate the target angle to reach
         let angle = (target_y - y).atan2(target_x - x);
         let angle = Radians::from_radians_value(angle);
+        // Calculate how much turning will be needed (angle - heading)
+        // And clamp it make sure the turtle doesn't turn more than 360 degrees
         let angle = (angle - heading) % radians::TWO_PI;
         // Try to rotate as little as possible
         let angle = if angle.abs() > radians::PI {
-            // Using signum to deal with negative angles properly
-            angle.signum()*(radians::TWO_PI - angle.abs())
+            // Use signum to make sure the angle has the right sign
+            // And the turtle turns the right way
+            -angle.signum()*(radians::TWO_PI - angle.abs())
         }
         else {
             angle
@@ -1155,5 +1157,27 @@ mod tests {
         assert_eq!(turtle.position()[0].round(), 0.0);
         assert_eq!(turtle.position()[1].round(), 100.0);
         assert_eq!(turtle.heading(), 51.0);
+    }
+
+    #[test]
+    fn turn_towards() {
+        let mut turtle = Turtle::new();
+        turtle.set_speed("instant");
+        let mut last_delta_angle = 0.0;
+        let mut delta_angle = 0.0;
+        for n in 0..32 as u32 {
+            let sin = (radians::TWO_PI * n as f64 / 32.0).sin();
+            let cos = (radians::TWO_PI * n as f64 / 32.0).cos();
+            
+            turtle.turn_towards([cos, sin]);
+
+            last_delta_angle = delta_angle;
+            delta_angle = sin.atan2(cos) - turtle.heading();
+            // Wait until last_delta_angle is set
+            if n >= 1 {
+                // Check if the turtle is heading in the right direction
+                assert!(last_delta_angle >= delta_angle);
+            }
+        }
     }
 }
