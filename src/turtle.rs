@@ -1160,23 +1160,19 @@ mod tests {
     }
 
     #[test]
-    fn turn_towards() {
+    fn turn_towards() {        
         let mut turtle = Turtle::new();
-        turtle.set_speed("instant");
-        let mut last_delta_angle = 0.0;
-        let mut delta_angle = 0.0;
-        for n in 0..32 as u32 {
-            let sin = (radians::TWO_PI * n as f64 / 32.0).sin();
-            let cos = (radians::TWO_PI * n as f64 / 32.0).cos();
-            
-            turtle.turn_towards([cos, sin]);
+        
+        // Turn from each cardinal direction to each cardinal direction
+        for n in 0..16 as u32 {
+            let original_angle = radians::TWO_PI * n as f64 / 16.0;
+            turtle.turn_towards([original_angle.cos(), original_angle.sin()]);
+            assert_eq!(turtle.heading().ceil(), original_angle.to_degrees().ceil());
 
-            last_delta_angle = delta_angle;
-            delta_angle = sin.atan2(cos) - turtle.heading();
-            // Wait until last_delta_angle is set
-            if n >= 1 {
-                // Check if the turtle is heading in the right direction
-                assert!(last_delta_angle >= delta_angle);
+            for i in 0..16 as u32 {
+                let target_angle = radians::TWO_PI * i as f64 / 16.0;
+                turtle.turn_towards([target_angle.cos(), target_angle.sin()]);
+                assert_eq!(turtle.heading().ceil(), target_angle.to_degrees().ceil());
             }
         }
     }
