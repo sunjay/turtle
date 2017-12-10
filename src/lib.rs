@@ -31,6 +31,9 @@
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
 
+#[cfg(all(test, not(feature = "test")))]
+compile_error!("Make sure you run tests with `cargo test --features test`");
+
 #[macro_use]
 extern crate serde_derive;
 
