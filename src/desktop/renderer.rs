@@ -4,12 +4,12 @@ use std::sync::mpsc::{self, TryRecvError};
 use piston_window::{
     PistonWindow,
     WindowSettings,
-    G2d,
     context,
     clear,
     line,
     polygon,
 };
+use graphics::Graphics;
 
 use app::ReadOnly;
 use event::from_piston_event;
@@ -121,7 +121,7 @@ impl Renderer {
                 // end_fill is called
                 self.fill_polygon = self.fill_polygon.take().or_else(|| Some((Vec::new(), Polygon {
                     vertices: Vec::new(),
-                    fill_color: fill_color,
+                    fill_color,
                 })));
             },
             // Calling end_fill multiple times is not a problem
@@ -143,7 +143,7 @@ impl Renderer {
     }
 
     /// The main rendering route. Dispatches to other functions as needed.
-    fn render(&self, c: context::Context, g: &mut G2d, center: Point,
+    fn render<G: Graphics>(&self, c: context::Context, g: &mut G, center: Point,
         drawing: &DrawingState, temporary_path: &Option<Path>, turtle: &TurtleState) {
         let background = drawing.background;
         clear(background.into(), g);
@@ -187,7 +187,7 @@ impl Renderer {
     }
 
     /// Render a path assuming that its pen is enabled
-    fn render_path(&self, c: context::Context, g: &mut G2d, center: Point, path: &Path) {
+    fn render_path<G: Graphics>(&self, c: context::Context, g: &mut G, center: Point, path: &Path) {
         let &Path {start, end, ref pen} = path;
         let &Pen {thickness, color, enabled} = pen;
         debug_assert!(enabled, "bug: attempt to render path when pen was not enabled");
@@ -201,10 +201,10 @@ impl Renderer {
     }
 
     /// Render a polygon given its vertices
-    fn render_polygon<'a, T: Iterator<Item=&'a Point>>(
+    fn render_polygon<'a, G: Graphics, T: Iterator<Item=&'a Point>>(
         &self,
         c: context::Context,
-        g: &mut G2d,
+        g: &mut G,
         center: Point,
         fill_color: Color,
         verts: T,
@@ -229,7 +229,7 @@ impl Renderer {
     }
 
     /// Draw the turtle's shell
-    fn render_shell(&self, c: context::Context, g: &mut G2d, center: Point,
+    fn render_shell<G: Graphics>(&self, c: context::Context, g: &mut G, center: Point,
         &TurtleState {position, heading, visible, ..}: &TurtleState) {
         // Calculate all the points on the shell by rotating the shell shape by the turtle's
         // heading and moving it to the turtle's position
