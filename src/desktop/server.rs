@@ -4,11 +4,18 @@ use std::process;
 use std::io::{self, Write};
 use std::sync::mpsc::{self, TryRecvError};
 
+use piston_window::{
+    PistonWindow,
+    WindowSettings,
+};
+
 use messenger;
-use app::TurtleApp;
-use super::renderer::Renderer;
+use app::{ReadOnly, TurtleApp};
+use renderer::Renderer;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
 use {Event};
+use event::from_piston_event;
+use extensions::ConvertScreenCoordinates;
 
 /// If this process is the child rendering process, enter the rendering loop and do not pass
 /// control to user turtle-navigating code.
@@ -47,7 +54,7 @@ fn main() {
     });
 
     // Renderer MUST run on the main thread or else it will panic on MacOS
-    Renderer::new().run(drawing_rx, events_tx, read_only);
+    run_render_loop(drawing_rx, events_tx, read_only);
 
     // Quit immediately when the window is closed
 
@@ -148,4 +155,59 @@ fn handle_update(
 /// Sends a response to stdout
 fn send_response<W: Write>(writer: W, response: &Response) -> Result<(), ()> {
     messenger::send(writer, response, "bug: unable to write final newline when sending response")
+}
+
+fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
+                   events_tx: mpsc::Sender<Event>,
+                   state: ReadOnly) {
+    let mut renderer = Renderer::new();
+
+    // This check isn't foolproof. Someone can always create a thread named "main".
+    if thread::current().name().unwrap_or("") != "main" {
+        // In order to maintain compatibility with MacOS, we need to make sure that windows are
+        // only created on the main thread. We do this check on all platforms so that no one
+        // can accidentally make a change that creates the window off of the main thread.
+        unreachable!("bug: windows can only be created on the main thread");
+    }
+    let mut window: PistonWindow = WindowSettings::new(
+        "Turtle", [800, 600]
+    ).exit_on_esc(true).build().unwrap();
+
+    let mut center = [0.0, 0.0];
+
+    'renderloop:
+        while let Some(e) = window.next() {
+        if let Some(event) = from_piston_event(&e, |pt| pt.to_local_coords(center)) {
+            match events_tx.send(event) {
+                Ok(_) => {},
+                // Quit - the server thread must have quit
+                Err(_) => break,
+            }
+        }
+
+        // Need to handle all of the queries we receive at once so that any lag caused by
+        // how long rendering takes doesn't cause any problems
+        loop {
+            match drawing_rx.try_recv() {
+                Ok(cmd) => renderer.handle_drawing_command(cmd),
+                Err(TryRecvError::Empty) => break, // Do nothing
+                Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
+            }
+        }
+
+        window.draw_2d(&e, |c, g| {
+            let view = c.get_view_size();
+            let width = view[0] as f64;
+            let height = view[1] as f64;
+            center = [width * 0.5, height * 0.5];
+
+            // We clone the relevant state before rendering so that the rendering thread
+            // doesn't need to keep locking, waiting or making the main thread wait
+            let drawing = state.drawing().clone();
+            let temporary_path = state.temporary_path().clone();
+            let turtle = state.turtle().clone();
+
+            renderer.render(c, g, center, &drawing, &temporary_path, &turtle);
+        });
+    }
 }

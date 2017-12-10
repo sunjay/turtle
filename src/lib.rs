@@ -56,6 +56,7 @@ mod extensions;
 mod state;
 mod query;
 mod messenger;
+mod renderer;
 mod render_strategy;
 #[cfg(feature = "desktop")]
 mod desktop;

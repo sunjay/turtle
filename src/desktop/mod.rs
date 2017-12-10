@@ -3,7 +3,6 @@ use render_strategy::RenderStrategy;
 
 use self::renderer_process::RendererProcess;
 
-mod renderer;
 mod renderer_process;
 mod server;
 
