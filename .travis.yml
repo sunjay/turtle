@@ -16,7 +16,7 @@ script:
   # -D warnings denies all warnings so that we always know when some code
   # introduces new ones
   # We use --no-run because if we kept it as part of the next command it would run twice when it fails
-  - RUSTFLAGS="-D warnings" cargo test --verbose --no-run
+  - RUSTFLAGS="-D warnings" cargo test --verbose --features "test" --all --no-run
   # Retry with fewer cores if the initial `cargo test` fails to work around possible OOM errors
   # for more details see https://github.com/rust-lang/cargo/issues/4415
   # Source: https://github.com/ipetkov/conch-runtime/commit/3e6afc5f45791e7793b968712c1ed8ddbe0758fb
