@@ -52,7 +52,7 @@ default = ["desktop"]
 desktop = ["piston_window"]
 
 # Render via wasm to canvas. Mutually exclusive with "desktop" feature.
-wasm = []
+canvas = []
 
 # The reason we do this is because doctests don't get cfg(test)
 # See: https://github.com/rust-lang/cargo/issues/4669

@@ -7,19 +7,19 @@ mod renderer;
 mod renderer_process;
 mod server;
 
-pub struct PistonRenderStrategy {
+pub struct DesktopRenderStrategy {
     renderer_process: RendererProcess
 }
 
-impl PistonRenderStrategy {
-    fn new() -> PistonRenderStrategy {
-        PistonRenderStrategy {
+impl DesktopRenderStrategy {
+    fn new() -> DesktopRenderStrategy {
+        DesktopRenderStrategy {
             renderer_process: RendererProcess::new()
         }
     }
 }
 
-impl RenderStrategy for PistonRenderStrategy {
+impl RenderStrategy for DesktopRenderStrategy {
     fn initialize() {
         server::start()
     }
@@ -29,8 +29,8 @@ impl RenderStrategy for PistonRenderStrategy {
     }
 }
 
-impl Default for PistonRenderStrategy {
+impl Default for DesktopRenderStrategy {
     fn default() -> Self {
-        PistonRenderStrategy::new()
+        DesktopRenderStrategy::new()
     }
 }

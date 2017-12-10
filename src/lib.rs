@@ -58,9 +58,9 @@ mod query;
 mod messenger;
 mod render_strategy;
 #[cfg(feature = "desktop")]
-mod piston;
-#[cfg(feature = "wasm")]
-mod wasm;
+mod desktop;
+#[cfg(feature = "canvas")]
+mod canvas;
 
 pub mod color;
 pub mod event;
@@ -73,9 +73,9 @@ pub use event::{Event};
 pub use rand::{random, random_range};
 
 #[cfg(feature = "desktop")]
-type DefaultRenderStrategy = ::piston::PistonRenderStrategy;
-#[cfg(feature = "wasm")]
-type DefaultRenderStrategy = ::wasm::WasmRenderStrategy;
+type DefaultRenderStrategy = ::desktop::DesktopRenderStrategy;
+#[cfg(feature = "canvas")]
+type DefaultRenderStrategy = ::canvas::CanvasRenderStrategy;
 
 
 /// Set up turtle rendering.

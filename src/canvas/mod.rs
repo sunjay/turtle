@@ -1,9 +1,9 @@
 use query::{Query, Response};
 use render_strategy::RenderStrategy;
 
-pub struct WasmRenderStrategy;
+pub struct CanvasRenderStrategy;
 
-impl RenderStrategy for WasmRenderStrategy {
+impl RenderStrategy for CanvasRenderStrategy {
     fn initialize() {
         // no op
     }
@@ -13,8 +13,8 @@ impl RenderStrategy for WasmRenderStrategy {
     }
 }
 
-impl Default for WasmRenderStrategy {
+impl Default for CanvasRenderStrategy {
     fn default() -> Self {
-        WasmRenderStrategy {}
+        CanvasRenderStrategy {}
     }
 }
