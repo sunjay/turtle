@@ -1165,11 +1165,11 @@ mod tests {
         
         // Turn from each cardinal direction to each cardinal direction
         for n in 0..16 as u32 {
-            let original_angle = radians::TWO_PI * n as f64 / 16.0;
-            turtle.turn_towards([original_angle.cos(), original_angle.sin()]);
-            assert_eq!(turtle.heading().ceil(), original_angle.to_degrees().ceil());
-
             for i in 0..16 as u32 {
+                let original_angle = radians::TWO_PI * n as f64 / 16.0;
+                turtle.turn_towards([original_angle.cos(), original_angle.sin()]);
+                assert_eq!(turtle.heading().ceil(), original_angle.to_degrees().ceil());
+
                 let target_angle = radians::TWO_PI * i as f64 / 16.0;
                 turtle.turn_towards([target_angle.cos(), target_angle.sin()]);
                 assert_eq!(turtle.heading().ceil(), target_angle.to_degrees().ceil());
