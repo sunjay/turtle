@@ -1,12 +1,9 @@
-use std::time::Instant;
-
 #[cfg(not(any(feature = "test", test)))]
 use interpolation::lerp;
 
 use radians::{self, Radians};
 use state::{TurtleState, Path};
-#[cfg(not(any(feature = "test", test)))]
-use extensions::AsMillis;
+use clock::Timestamp;
 
 pub trait Animation {
     /// Advance the animation forward.
@@ -47,13 +44,13 @@ fn rotate(angle: Radians, rotation: Radians, clockwise: bool) -> Radians {
 
 /// Animate the turtle moving from a start point to an end point
 /// while keeping its heading the same throughout (in a straight line)
-pub struct MoveAnimation {
+pub struct MoveAnimation<T: Timestamp> {
     /// path.start and path.end are used in lerp
     pub path: Path,
     /// timer since the start of the animation
     ///
     /// used with total_millis to calculate t in lerp
-    pub timer: Instant,
+    pub timer: T,
     /// the total time the animation is meant to take based on the speed and length from
     /// start to finish
     ///
@@ -61,7 +58,7 @@ pub struct MoveAnimation {
     pub total_millis: f64,
 }
 
-impl Animation for MoveAnimation {
+impl<T: Timestamp> Animation for MoveAnimation<T> {
     /// Advance the animation forward.
     ///
     /// The animation will use the timer it stores to calculate the current state it should be at.
@@ -71,7 +68,7 @@ impl Animation for MoveAnimation {
         use self::AnimationStatus::*;
 
         let MoveAnimation {ref path, ref timer, total_millis} = *self;
-        let elapsed = timer.elapsed().as_millis() as f64;
+        let elapsed = timer.elapsed();
         if elapsed >= total_millis {
             turtle.position = path.end;
             Complete(Some(path.clone()))
@@ -102,7 +99,7 @@ impl Animation for MoveAnimation {
 }
 
 /// Rotate the turtle in place by the given angle in the direction specified
-pub struct RotateAnimation {
+pub struct RotateAnimation<T: Timestamp> {
     /// turtle.heading when the animation was started
     pub start: Radians,
     /// The total angle to move by.
@@ -115,7 +112,7 @@ pub struct RotateAnimation {
     /// timer since the start of the animation
     ///
     /// used with total_millis to calculate t in lerp
-    pub timer: Instant,
+    pub timer: T,
     /// the total time the animation is meant to take based on the speed and length from
     /// start to finish
     ///
@@ -123,7 +120,7 @@ pub struct RotateAnimation {
     pub total_millis: f64,
 }
 
-impl Animation for RotateAnimation {
+impl<T: Timestamp> Animation for RotateAnimation<T> {
     /// Advance the animation forward.
     ///
     /// The animation will use the timer it stores to calculate the current state it should be at.
@@ -133,7 +130,7 @@ impl Animation for RotateAnimation {
         use self::AnimationStatus::*;
 
         let RotateAnimation {start, delta_angle, clockwise, ref timer, total_millis} = *self;
-        let elapsed = timer.elapsed().as_millis() as f64;
+        let elapsed = timer.elapsed();
 
         if elapsed >= total_millis {
             turtle.heading = rotate(start, delta_angle, clockwise);

@@ -58,6 +58,7 @@ mod query;
 mod messenger;
 mod renderer;
 mod render_strategy;
+mod clock;
 #[cfg(feature = "desktop")]
 mod desktop;
 #[cfg(feature = "canvas")]

@@ -1,4 +1,3 @@
-use std::time::Instant;
 use std::cell::RefCell;
 
 use graphics::math;
@@ -9,6 +8,7 @@ use query::{Query, Request, StateUpdate, DrawingCommand, Response};
 use radians::{self, Radians};
 use {Point, Distance, Event};
 use render_strategy::RenderStrategy;
+use clock::Clock;
 
 use self::DrawingCommand::*;
 
@@ -104,7 +104,7 @@ impl<R: RenderStrategy> TurtleWindow<R> {
 
         let animation = MoveAnimation {
             path: Path {start, end, pen},
-            timer: Instant::now(),
+            timer: R::Clock::now(),
             total_millis,
         };
 
@@ -130,7 +130,7 @@ impl<R: RenderStrategy> TurtleWindow<R> {
 
         let animation = MoveAnimation {
             path: Path {start, end, pen},
-            timer: Instant::now(),
+            timer: R::Clock::now(),
             total_millis,
         };
 
@@ -153,7 +153,7 @@ impl<R: RenderStrategy> TurtleWindow<R> {
             start: heading,
             delta_angle: angle,
             clockwise,
-            timer: Instant::now(),
+            timer: R::Clock::now(),
             total_millis,
         };
 

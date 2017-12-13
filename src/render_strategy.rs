@@ -1,8 +1,11 @@
 use query::{Query, Response};
+use clock;
 
 use std::default::Default;
 
 pub trait RenderStrategy: Default {
+    type Clock: clock::Clock;
+
     /// Perform any necessary one-time initialization.
     // TODO perhaps have this be called on a type that then results in the type that has
     // `send_query`. As it is, the type system does not enforce that you call `initialize()` first,
