@@ -1,0 +1,83 @@
+use graphics::{self, types};
+
+// TODO textures
+pub struct RgbaTexture {}
+
+impl graphics::ImageSize for RgbaTexture {
+    fn get_size(&self) -> (u32, u32) {
+        (0, 0)
+    }
+}
+
+/// Graphics implementation that draws into memory for use by an `ImageData` backing a `<canvas>`.
+pub struct RgbaBufferGraphics<'a> {
+    width: usize,
+    height: usize,
+    buffer: &'a mut [u8]
+}
+
+impl<'a> RgbaBufferGraphics<'a> {
+    pub fn new(width: usize, height: usize, buffer: &'a mut [u8]) -> RgbaBufferGraphics<'a> {
+        RgbaBufferGraphics {
+            width,
+            height,
+            buffer
+        }
+    }
+
+    #[inline]
+    fn write_color(&mut self, pixel_index: usize, color: &types::Color) {
+        let red = piston_color_channel_to_byte(color[0]);
+        let green = piston_color_channel_to_byte(color[1]);
+        let blue = piston_color_channel_to_byte(color[2]);
+        let alpha = piston_color_channel_to_byte(color[3]);
+
+        self.buffer[pixel_index] = red;
+        self.buffer[pixel_index + 1] = green;
+        self.buffer[pixel_index + 2] = blue;
+        self.buffer[pixel_index + 3] = alpha;
+    }
+}
+
+impl<'a> graphics::Graphics for RgbaBufferGraphics<'a> {
+    type Texture = RgbaTexture;
+
+    fn clear_color(&mut self, color: types::Color) {
+        let num_pixels = self.width * self.height;
+
+        let mut pixel_index = 0;
+        for _ in 0..num_pixels {
+            self.write_color(pixel_index, &color);
+
+            pixel_index += 4;
+        }
+    }
+
+    fn clear_stencil(&mut self, value: u8) {
+        // TODO
+    }
+
+    fn tri_list<F>(&mut self, draw_state: &graphics::DrawState, color: &[f32; 4], mut f: F) where F: FnMut(&mut FnMut(&[[f32; 2]])) {
+        f(&mut |s: &[[f32; 2]]| {
+            // TODO
+        })
+    }
+
+    fn tri_list_uv<F>(&mut self, draw_state: &graphics::DrawState, color: &[f32; 4], texture: &<Self as graphics::Graphics>::Texture, f: F) where F: FnMut(&mut FnMut(&[[f32; 2]], &[[f32; 2]])) {
+        // TODO
+    }
+}
+
+/// Maps an f32 in [0_f32, 1.0] to [0_u8, 255]
+#[inline]
+fn piston_color_channel_to_byte(f: f32) -> u8 {
+    (f * 255.0) as u8
+}
+
+/// Calculate offset of first byte of pixel for a fp x/y in an image
+#[inline]
+fn pixel_index(width: usize, height: usize, x: f32, y: f32) -> usize {
+    // TODO what's the scale of the vertices?
+    0
+}
+

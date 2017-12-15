@@ -16,6 +16,7 @@ pub trait Animation {
 // dead code in reality
 // See Cargo.toml for an explanation of this attribute
 #[cfg_attr(any(feature = "test", test), allow(dead_code))]
+#[derive(Debug)]
 pub enum AnimationStatus {
     /// Returned if the animation is still running.
     ///

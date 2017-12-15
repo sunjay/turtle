@@ -4,8 +4,8 @@ use std::time::Duration;
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
 use event::MouseButton;
-use {Speed, Color, Event, DefaultRenderStrategy};
-use render_strategy::RenderStrategy;
+use {Speed, Color, Event, DefaultRuntime};
+use runtime::Runtime;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -65,12 +65,12 @@ pub type Angle = f64;
 ///
 /// See the documentation for the methods below to learn about the different drawing commands you
 /// can use with the turtle.
-pub struct GenericTurtle<R: RenderStrategy> {
+pub struct GenericTurtle<R: Runtime> {
     window: TurtleWindow<R>,
     angle_unit: AngleUnit,
 }
 
-pub type Turtle = GenericTurtle<DefaultRenderStrategy>;
+pub type Turtle = GenericTurtle<DefaultRuntime>;
 
 impl Default for Turtle {
     fn default() -> Self {
@@ -78,7 +78,7 @@ impl Default for Turtle {
     }
 }
 
-impl<R: RenderStrategy> GenericTurtle<R> {
+impl<R: Runtime> GenericTurtle<R> {
     /// Create a new turtle.
     ///
     /// This will immediately open a new window with the turtle at the center. As each line in
@@ -97,9 +97,9 @@ impl<R: RenderStrategy> GenericTurtle<R> {
     ///
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
     /// [`turtle::start()`](fn.start.html) in order to avoid any problems.
-    pub fn new() -> GenericTurtle<DefaultRenderStrategy> {
+    pub fn new() -> GenericTurtle<R> {
         GenericTurtle {
-            window: TurtleWindow::<DefaultRenderStrategy>::new(),
+            window: TurtleWindow::<R>::new(),
             angle_unit: AngleUnit::Degrees,
         }
     }
@@ -260,6 +260,7 @@ impl<R: RenderStrategy> GenericTurtle<R> {
     /// # }
     /// ```
     pub fn wait(&mut self, secs: f64) {
+        // TODO handle sleep for wasm
         thread::sleep(Duration::from_millis((secs * 1000.0) as u64));
     }
 

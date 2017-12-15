@@ -1,7 +1,7 @@
 use std::time;
 
 use query::{Query, Response};
-use render_strategy::RenderStrategy;
+use runtime::Runtime;
 use extensions::AsMillis;
 use clock::{Clock, Timestamp};
 
@@ -10,35 +10,43 @@ use self::renderer_process::RendererProcess;
 mod renderer_process;
 mod server;
 
-pub struct DesktopRenderStrategy {
+/// A runtime for desktop OSs.
+///
+/// Spawns a separate process to render and keep track of turtle state so that the turtle logic can
+/// take over the main thread of the original process.
+pub struct DesktopRuntime {
     renderer_process: RendererProcess
 }
 
-impl DesktopRenderStrategy {
-    fn new() -> DesktopRenderStrategy {
-        DesktopRenderStrategy {
+impl DesktopRuntime {
+    fn new() -> DesktopRuntime {
+        DesktopRuntime {
             renderer_process: RendererProcess::new()
         }
     }
 }
 
-impl RenderStrategy for DesktopRenderStrategy {
+impl Runtime for DesktopRuntime {
     type Clock = SystemClock;
 
     fn initialize() {
         server::start()
     }
+
     fn send_query(&mut self, query: Query) -> Option<Response> {
         self.renderer_process.send_query(query)
     }
-}
 
-impl Default for DesktopRenderStrategy {
-    fn default() -> Self {
-        DesktopRenderStrategy::new()
+    fn debug_log(s: &str) {
+        eprintln!("{}", s);
     }
 }
 
+impl Default for DesktopRuntime {
+    fn default() -> Self {
+        DesktopRuntime::new()
+    }
+}
 
 /// A `Clock` backed by stdlib's time types.
 pub struct SystemClock;

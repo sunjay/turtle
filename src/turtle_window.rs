@@ -7,16 +7,16 @@ use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
 use radians::{self, Radians};
 use {Point, Distance, Event};
-use render_strategy::RenderStrategy;
+use runtime::Runtime;
 use clock::Clock;
 
 use self::DrawingCommand::*;
 
-pub struct TurtleWindow<R: RenderStrategy> {
+pub struct TurtleWindow<R: Runtime> {
     renderer: RefCell<R>,
 }
 
-impl<R: RenderStrategy> TurtleWindow<R> {
+impl<R: Runtime> TurtleWindow<R> {
     pub fn new() -> TurtleWindow<R> {
         // This needs to be called as close to the start of the program as possible
         // Since Turtle::new() is called at the beginning of many turtle programs, we do so here

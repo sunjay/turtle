@@ -31,6 +31,9 @@
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
 
+// wasm needs an alloc and dealloc
+#![cfg_attr(target_arch="wasm32", feature(allocator_api))]
+
 #[macro_use]
 extern crate serde_derive;
 
@@ -57,7 +60,7 @@ mod state;
 mod query;
 mod messenger;
 mod renderer;
-mod render_strategy;
+mod runtime;
 mod clock;
 #[cfg(feature = "desktop")]
 mod desktop;
@@ -75,9 +78,9 @@ pub use event::{Event};
 pub use rand::{random, random_range};
 
 #[cfg(feature = "desktop")]
-type DefaultRenderStrategy = ::desktop::DesktopRenderStrategy;
+type DefaultRuntime = ::desktop::DesktopRuntime;
 #[cfg(feature = "canvas")]
-type DefaultRenderStrategy = ::canvas::CanvasRenderStrategy;
+type DefaultRuntime = ::canvas::CanvasRuntime<'static>;
 
 
 /// Set up turtle rendering.
@@ -119,6 +122,9 @@ type DefaultRenderStrategy = ::canvas::CanvasRenderStrategy;
 ///
 /// [`Turtle::new()`]: struct.Turtle.html#method.new
 pub fn start() {
-    use render_strategy::RenderStrategy;;
-    DefaultRenderStrategy::initialize()
+    use runtime::Runtime;;
+    DefaultRuntime::initialize()
 }
+
+#[cfg(feature = "canvas")]
+pub use canvas::{alloc, dealloc, web_turtle_start};
