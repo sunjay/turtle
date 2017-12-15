@@ -1,9 +1,9 @@
+#[macro_use]
 extern crate turtle;
 
-use turtle::{Turtle, Color, random};
+use turtle::{Color, random};
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.set_speed(8);
     turtle.set_pen_size(2.0);
@@ -15,4 +15,4 @@ fn main() {
 
         turtle.right(60.0);
     }
-}
+});

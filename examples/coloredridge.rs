@@ -1,12 +1,11 @@
+#[macro_use]
 extern crate turtle;
 
 use std::f64::consts::E;
 
-use turtle::{Turtle, Color, random};
+use turtle::{Color, random};
 
-fn main() {
-    let mut turtle = Turtle::new();
-
+run_turtle!(|mut turtle| {
     let amplitude = 100.0;
     let width = 800.0;
     let step = 2.0;
@@ -31,4 +30,4 @@ fn main() {
         turtle.set_pen_size(y * height_factor);
         turtle.forward(step);
     }
-}
+});

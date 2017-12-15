@@ -1,10 +1,10 @@
+#[macro_use]
 extern crate turtle;
 
 use turtle::Turtle;
 
 /// This program demonstrates rotations at multiple speeds
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.pen_up();
     turtle.set_speed("instant");
@@ -23,7 +23,7 @@ fn main() {
         turtle.forward(60.0);
         turtle.pen_down();
     }
-}
+});
 
 fn circle(turtle: &mut Turtle) {
     for _ in 0..180 {

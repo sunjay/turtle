@@ -5,14 +5,14 @@
 //! In any case, this is an excellent example of creatively using fills and some other
 //! techniques to create a fairly complex drawing.
 
+#[macro_use]
 extern crate turtle;
 
 use turtle::Turtle;
 
 const SPEED: i32 = 7;
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.set_speed(SPEED);
     turtle.set_fill_color("black");
@@ -35,7 +35,7 @@ fn main() {
     letter(&mut turtle);
 
     turtle.hide();
-}
+});
 
 fn gear(turtle: &mut Turtle) {
     // Much of this code was figured out by guessing and checking

@@ -1,11 +1,9 @@
+#[macro_use]
 extern crate turtle;
-
-use turtle::Turtle;
 
 /// This program draws several parallel lines to demonstrate each of the
 /// different possible movement speeds
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.pen_up();
     turtle.set_speed("instant");
@@ -30,4 +28,4 @@ fn main() {
     }
 
     turtle.hide();
-}
+});

@@ -1,10 +1,9 @@
+#[macro_use]
 extern crate turtle;
 
-use turtle::Turtle;
 use turtle::Event::MouseMove;
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     println!("Move your mouse around the window");
 
@@ -24,4 +23,4 @@ fn main() {
             target = [x, y];
         }
     }
-}
+});

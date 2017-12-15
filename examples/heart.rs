@@ -1,9 +1,9 @@
+#[macro_use]
 extern crate turtle;
 
 use turtle::Turtle;
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.set_speed(5);
     turtle.set_pen_size(3.0);
@@ -28,7 +28,7 @@ fn main() {
     end_loop(&mut turtle);
 
     turtle.set_background_color("pink");
-}
+});
 
 fn curve(turtle: &mut Turtle) {
     for _ in 0..100 {

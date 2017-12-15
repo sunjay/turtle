@@ -1,8 +1,6 @@
 extern crate graphics;
 
 use std::mem;
-use std::ffi::CString;
-use std::os::raw::c_char;
 use std::heap::{Alloc, Heap, Layout};
 use std::slice;
 
@@ -26,12 +24,22 @@ pub struct CanvasRuntime<'a> {
     graphics: rgba_buffer_graphics::RgbaBufferGraphics<'a>
 }
 
+impl<'a> CanvasRuntime<'a> {
+    fn new() -> Self {
+        unsafe {
+            CanvasRuntime {
+                renderer: Renderer::new(),
+                context: graphics::Context::new(),
+                app: TurtleApp::new(),
+                // TODO initialization
+                graphics: rgba_buffer_graphics::RgbaBufferGraphics::new(500, 500, &mut TEMP_HACK_BUFFER)
+            }
+        }
+    }
+}
+
 impl<'a> Runtime for CanvasRuntime<'a> {
     type Clock = WebClock;
-
-    fn initialize() {
-        // no op
-    }
 
     fn send_query(&mut self, query: Query) -> Option<Response> {
         match query {
@@ -85,20 +93,6 @@ impl<'a> Runtime for CanvasRuntime<'a> {
     }
 }
 
-impl<'a> Default for CanvasRuntime<'a> {
-    fn default() -> Self {
-        unsafe {
-            CanvasRuntime {
-                renderer: Renderer::new(),
-                context: graphics::Context::new(),
-                app: TurtleApp::new(),
-                // TODO initialization
-                graphics: rgba_buffer_graphics::RgbaBufferGraphics::new(500, 500, &mut TEMP_HACK_BUFFER)
-            }
-        }
-    }
-}
-
 extern "C" {
     fn web_current_timestamp() -> f64;
     /// Log the UTF8 null-terminated string at this pointer.
@@ -147,7 +141,7 @@ pub fn web_turtle_start(pointer: *mut u8, max_width: usize, max_height: usize) {
     g.clear_color([0.7, 0.0, 0.7, 1.0]);
 
     // circle example
-    let mut turtle = ::turtle::Turtle::new();
+    let mut turtle = ::turtle::Turtle::new(CanvasRuntime::new());
 
     use runtime::Runtime;
     for _ in 0..10 {

@@ -72,12 +72,6 @@ pub struct GenericTurtle<R: Runtime> {
 
 pub type Turtle = GenericTurtle<DefaultRuntime>;
 
-impl Default for Turtle {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl<R: Runtime> GenericTurtle<R> {
     /// Create a new turtle.
     ///
@@ -97,9 +91,9 @@ impl<R: Runtime> GenericTurtle<R> {
     ///
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
     /// [`turtle::start()`](fn.start.html) in order to avoid any problems.
-    pub fn new() -> GenericTurtle<R> {
+    pub(crate) fn new(runtime: R) -> GenericTurtle<R> {
         GenericTurtle {
-            window: TurtleWindow::<R>::new(),
+            window: TurtleWindow::<R>::new(runtime),
             angle_unit: AngleUnit::Degrees,
         }
     }

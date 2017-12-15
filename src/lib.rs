@@ -32,7 +32,7 @@
 //! anywhere on the screen before proceeding.
 
 // wasm needs an alloc and dealloc
-#![cfg_attr(target_arch="wasm32", feature(allocator_api))]
+#![cfg_attr(target_arch = "wasm32", feature(allocator_api))]
 
 #[macro_use]
 extern crate serde_derive;
@@ -83,48 +83,24 @@ type DefaultRuntime = ::desktop::DesktopRuntime;
 type DefaultRuntime = ::canvas::CanvasRuntime<'static>;
 
 
-/// Set up turtle rendering.
-///
-/// If you do not create a turtle immediately at the beginning of `main()` with [`Turtle::new()`],
-/// you must **call this function at the start of `main()` to avoid any problems**.
-///
-/// Since the majority of code created using this crate does little or no work before calling
-/// `Turtle::new()`, this usually isn't a problem. Programs that parse command line arguments, read
-/// input, or check environment variables may **fail** to start if this function is not called
-/// right at the beginning of the program. Programs that perform any expensive computations may
-/// experience delayed start up problems unless they call this function first.
-///
-/// The [`Turtle::new()`] method will call this function for you so that you don't need to worry
-/// about this unless you are doing something before that.
-///
-/// # Example
-/// ```rust,no_run
-/// # #![allow(unused_variables, unused_mut)]
-/// extern crate turtle;
-/// use turtle::Turtle;
-///
-/// fn main() {
-///     // Initializes the turtle renderer first so that there is less delay when a Turtle
-///     // is created and so that there are no conflicts with command line arguments or
-///     // environment variables.
-///     // Not required if Turtle::new() is already at the top of main.
-///     turtle::start();
-///
-///     // Do all kinds of expensive work here...
-///     // Feel free to check environment variables, command line arguments, etc.
-///
-///     // Create the turtle when you are ready
-///     // Turtle::new() will also call start(), but calling it twice doesn't matter
-///     let mut turtle = Turtle::new();
-///     // Do things with the turtle...
-/// }
-/// ```
-///
-/// [`Turtle::new()`]: struct.Turtle.html#method.new
-pub fn start() {
-    use runtime::Runtime;;
-    DefaultRuntime::initialize()
-}
-
 #[cfg(feature = "canvas")]
 pub use canvas::{alloc, dealloc, web_turtle_start};
+
+#[cfg(feature = "desktop")]
+pub fn start_desktop<F>(f: F)
+    where F: FnOnce(Turtle) {
+    let runtime = ::desktop::DesktopRuntime::new();
+
+    let turtle = Turtle::new(runtime);
+
+    f(turtle);
+}
+
+#[macro_export]
+macro_rules! run_turtle {
+    ($f:expr) => {
+        fn main() {
+            turtle::start_desktop($f);
+        }
+    }
+}

@@ -1,12 +1,12 @@
 // Source: http://www.algorithm.co.il/blogs/computer-science/fractals-in-10-minutes-no-6-turtle-snowflake/
 // Modified to create a full snowflake with the fractals
 
+#[macro_use]
 extern crate turtle;
 
 use turtle::Turtle;
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.set_background_color("#29B6F6");
     turtle.set_pen_color("#B2EBF2");
@@ -25,7 +25,7 @@ fn main() {
     fractal(&mut turtle, 350.0, 3);
 
     turtle.hide();
-}
+});
 
 fn fractal(turtle: &mut Turtle, length: f64, depth: usize) {
     if depth == 0 {

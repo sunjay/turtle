@@ -19,7 +19,8 @@ pub struct DesktopRuntime {
 }
 
 impl DesktopRuntime {
-    fn new() -> DesktopRuntime {
+    pub(crate) fn new() -> DesktopRuntime {
+        server::start();
         DesktopRuntime {
             renderer_process: RendererProcess::new()
         }
@@ -29,22 +30,12 @@ impl DesktopRuntime {
 impl Runtime for DesktopRuntime {
     type Clock = SystemClock;
 
-    fn initialize() {
-        server::start()
-    }
-
     fn send_query(&mut self, query: Query) -> Option<Response> {
         self.renderer_process.send_query(query)
     }
 
     fn debug_log(s: &str) {
         eprintln!("{}", s);
-    }
-}
-
-impl Default for DesktopRuntime {
-    fn default() -> Self {
-        DesktopRuntime::new()
     }
 }
 

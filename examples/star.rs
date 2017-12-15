@@ -1,9 +1,7 @@
+#[macro_use]
 extern crate turtle;
 
-use turtle::Turtle;
-
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.right(90.0);
     turtle.set_pen_size(2.0);
@@ -13,4 +11,4 @@ fn main() {
         turtle.forward(300.0);
         turtle.right(180.0 - (180.0 / 5.0));
     }
-}
+});
