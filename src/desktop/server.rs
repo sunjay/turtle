@@ -9,7 +9,7 @@ use piston_window::{
     WindowSettings,
 };
 
-use messenger;
+use super::messenger;
 use app::{ReadOnly, TurtleApp};
 use renderer::Renderer;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};

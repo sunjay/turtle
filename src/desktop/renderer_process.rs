@@ -4,7 +4,7 @@ use std::{env, thread, process};
 
 use query::{Query, Response};
 #[cfg(not(any(feature = "test", test)))]
-use messenger;
+use super::messenger;
 
 /// Manages the renderer process and all communication with it
 #[cfg(not(any(feature = "test", test)))]

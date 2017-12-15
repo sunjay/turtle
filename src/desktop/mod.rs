@@ -9,6 +9,7 @@ use self::renderer_process::RendererProcess;
 
 mod renderer_process;
 mod server;
+mod messenger;
 
 /// A runtime for desktop OSs.
 ///

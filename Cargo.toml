@@ -68,4 +68,4 @@ test = []
 
 [lib]
 # uncomment for wasm32
-crate-type = ["cdylib"]
+#crate-type = ["cdylib"]
