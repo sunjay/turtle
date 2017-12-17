@@ -2,10 +2,7 @@ use std::ops::Deref;
 
 use turtle::Color;
 
-/// (Row, Column)
-pub type Position = (usize, usize);
-
-type Tiles = [[Option<Piece>; 8]; 8];
+use tiles::{Tiles, Position};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Piece {
@@ -36,11 +33,11 @@ impl Piece {
     }
 }
 
-fn valid_moves_for(tiles: Tiles, piece: Piece) -> Vec<Position> {
+fn valid_moves_for(tiles: &Tiles, piece: Piece) -> Vec<Position> {
     Default::default() //TODO
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct Board {
     current: Piece,
     /// None - empty tile
@@ -68,7 +65,7 @@ impl Board {
         tiles[4][3] = Some(Piece::B);
         tiles[4][4] = Some(Piece::A);
         let current = Piece::A;
-        let valid_moves = valid_moves_for(tiles, current);
+        let valid_moves = valid_moves_for(&tiles, current);
 
         Self {
             current,

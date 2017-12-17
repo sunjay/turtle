@@ -5,6 +5,7 @@
 extern crate turtle;
 
 mod board;
+mod tiles;
 
 use std::f64::consts::PI;
 
@@ -33,8 +34,8 @@ fn main() {
     let width = 580.0;
     let height = 580.0;
     let board = Board::new();
-    let rows = board.len();
-    let cols = board[0].len();
+    let rows = board.col_size();
+    let cols = board.row_size();
 
     // These values are used quite often, so it makes sense to compute them in advance so that
     // we don't need to keep repeating ourselves
@@ -47,6 +48,7 @@ fn main() {
         tile_height: height / rows as f64,
     };
 
+    turtle.set_speed("instant"); //TODO: Remove this line
     turtle.pen_up();
     turtle.forward(height / 2.0);
     turtle.right(90.0);
@@ -87,8 +89,8 @@ fn draw_board(turtle: &mut Turtle, dim: &Dimensions) {
 
 fn draw_board_pieces(turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
     // Draw starting pieces
-    for (row, row_pieces) in board.iter().enumerate() {
-        for (col, piece) in row_pieces.iter().enumerate() {
+    for (row, row_pieces) in board.rows().enumerate() {
+        for (col, piece) in row_pieces.enumerate() {
             if let &Some(piece) = piece {
                 move_to_tile(turtle, (row, col), &dim);
                 draw_piece(turtle, piece, &dim);
@@ -117,7 +119,6 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
             let row = ((1.0 - (mouse[1] + dim.height/2.0) / dim.height) * dim.rows as f64).floor() as isize;
             let col = ((mouse[0] + dim.width/2.0) / dim.width * dim.cols as f64).floor() as isize;
 
-            println!("Play {:?}", (row, col));
             if row >= 0 && row < dim.rows as isize
                 && col >= 0 && col < dim.cols as isize
                 && board.is_valid_move(&(row as usize, col as usize)) {
