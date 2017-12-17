@@ -32,7 +32,7 @@ fn main() {
 
     let width = 580.0;
     let height = 580.0;
-    let board: Board = Default::default();
+    let board = Board::new();
     let rows = board.len();
     let cols = board[0].len();
 
@@ -55,6 +55,7 @@ fn main() {
 
     println!("Drawing the board...\n");
     draw_board(&mut turtle, &dim);
+    draw_board_pieces(&mut turtle, &board, &dim);
     // Get rid of any events that may have accumulated while drawing
     drain_events(&mut turtle);
 
@@ -84,12 +85,24 @@ fn draw_board(turtle: &mut Turtle, dim: &Dimensions) {
     }
 }
 
+fn draw_board_pieces(turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
+    // Draw starting pieces
+    for (row, row_pieces) in board.iter().enumerate() {
+        for (col, piece) in row_pieces.iter().enumerate() {
+            if let &Some(piece) = piece {
+                move_to_tile(turtle, (row, col), &dim);
+                draw_piece(turtle, piece, &dim);
+            }
+        }
+    }
+}
+
 fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
     println!("Click on a tile to make a move.");
+    println!("Current Player: {}", board.current().name());
     turtle.set_speed(9);
 
     let mut mouse = [0.0, 0.0];
-    let mut current = Piece::A;
     loop {
         let event = turtle.poll_event();
         // Sometimes it is more convenient to use `if let` instead of `match`. In this case, it's
@@ -104,16 +117,18 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
             let row = ((1.0 - (mouse[1] + dim.height/2.0) / dim.height) * dim.rows as f64).floor() as isize;
             let col = ((mouse[0] + dim.width/2.0) / dim.width * dim.cols as f64).floor() as isize;
 
-            if row >= 0 && row < dim.rows as isize && col >= 0 && col < dim.cols as isize
-                && board[row as usize][col as usize].is_none() {
+            println!("Play {:?}", (row, col));
+            if row >= 0 && row < dim.rows as isize
+                && col >= 0 && col < dim.cols as isize
+                && board.is_valid_move(&(row as usize, col as usize)) {
                 let row = row as usize;
                 let col = col as usize;
-                board[row][col] = Some(current);
-                //TODO: Implement rules checking, winning, etc.
+                board.play_piece((row, col));
 
-                move_to_tile(turtle, row, col, &dim);
-                draw_piece(turtle, current, &dim);
-                current = current.other();
+                move_to_tile(turtle, (row, col), &dim);
+                draw_piece(turtle, board.current(), &dim);
+
+                println!("Current Player: {}", board.current().name());
 
                 // Get rid of any events that may have accumulated while drawing
                 drain_events(turtle);
@@ -123,7 +138,7 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
 }
 
 /// Moves to the center of the given tile
-fn move_to_tile(turtle: &mut Turtle, row: usize, col: usize, dim: &Dimensions) {
+fn move_to_tile(turtle: &mut Turtle, (row, col): (usize, usize), dim: &Dimensions) {
     let x = col as f64 / dim.cols as f64 * dim.width + dim.tile_width / 2.0 - dim.width / 2.0;
     let y = -(row as f64) / dim.rows as f64 * dim.height - dim.tile_height / 2.0 + dim.height / 2.0;
 
