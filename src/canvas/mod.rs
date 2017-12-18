@@ -2,9 +2,7 @@ extern crate graphics;
 
 use std::mem;
 use std::heap::{Alloc, Heap, Layout};
-use std::slice;
 
-use graphics::{Graphics};
 use query::{Query, Request, Response, StateUpdate};
 use renderer::Renderer;
 use runtime::Runtime;
@@ -12,33 +10,27 @@ use app::TurtleApp;
 use clock;
 
 pub mod rgba_buffer_graphics;
-use self::rgba_buffer_graphics::RgbaBufferGraphics;
-
-static mut TEMP_HACK_BUFFER: &'static mut [u8] = &mut [0; 500 * 500 * 4];
 
 /// A runtime for hosting turtle logic in a web page via WebAssembly and the `<canvas>` element.
-pub struct CanvasRuntime<'a> {
+pub struct CanvasRuntime {
     renderer: Renderer,
     context: graphics::Context,
     app: TurtleApp,
-    graphics: rgba_buffer_graphics::RgbaBufferGraphics<'a>
+    graphics: rgba_buffer_graphics::RgbaBufferGraphics
 }
 
-impl<'a> CanvasRuntime<'a> {
-    fn new() -> Self {
-        unsafe {
-            CanvasRuntime {
-                renderer: Renderer::new(),
-                context: graphics::Context::new(),
-                app: TurtleApp::new(),
-                // TODO initialization
-                graphics: rgba_buffer_graphics::RgbaBufferGraphics::new(500, 500, &mut TEMP_HACK_BUFFER)
-            }
+impl CanvasRuntime {
+    fn new(width: usize, height: usize, pixel_buffer: *mut u8) -> Self {
+        CanvasRuntime {
+            renderer: Renderer::new(),
+            context: graphics::Context::new(),
+            app: TurtleApp::new(),
+            graphics: rgba_buffer_graphics::RgbaBufferGraphics::new(width, height, pixel_buffer),
         }
     }
 }
 
-impl<'a> Runtime for CanvasRuntime<'a> {
+impl Runtime for CanvasRuntime {
     type Clock = WebClock;
 
     fn send_query(&mut self, query: Query) -> Option<Response> {
@@ -131,26 +123,11 @@ impl clock::Clock for WebClock {
 
 #[no_mangle]
 pub fn web_turtle_start(pointer: *mut u8, max_width: usize, max_height: usize) {
+    let mut turtle =
+        ::turtle::Turtle::new(CanvasRuntime::new(max_width, max_height, pointer));
 
-    // pixels are stored in RGBA, so each pixel is 4 bytes
-    let byte_size = max_width * max_height * 4;
-    let mut sl = unsafe { slice::from_raw_parts_mut(pointer, byte_size) };
-
-    let mut g = RgbaBufferGraphics::new(max_width, max_height, &mut sl);
-
-    g.clear_color([0.7, 0.0, 0.7, 1.0]);
-
-    // circle example
-    let mut turtle = ::turtle::Turtle::new(CanvasRuntime::new());
-
-    use runtime::Runtime;
-    for _ in 0..10 {
-        CanvasRuntime::debug_log("another degree");
-        // Move forward three steps
-        turtle.forward(3.0);
-        // Rotate to the right (clockwise) by 1 degree
-        turtle.right(1.0);
-    }
+    use ::color::Color;
+    turtle.set_background_color(Color::from("green").opaque());
 }
 
 

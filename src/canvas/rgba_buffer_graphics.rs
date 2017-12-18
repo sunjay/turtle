@@ -1,3 +1,5 @@
+use std::slice;
+
 use graphics::{self, types};
 
 // TODO textures
@@ -10,14 +12,15 @@ impl graphics::ImageSize for RgbaTexture {
 }
 
 /// Graphics implementation that draws into memory for use by an `ImageData` backing a `<canvas>`.
-pub struct RgbaBufferGraphics<'a> {
+pub struct RgbaBufferGraphics {
     width: usize,
     height: usize,
-    buffer: &'a mut [u8]
+    // TODO find a more appropriate way to handle ownership of the buffer
+    buffer: *mut u8
 }
 
-impl<'a> RgbaBufferGraphics<'a> {
-    pub fn new(width: usize, height: usize, buffer: &'a mut [u8]) -> RgbaBufferGraphics<'a> {
+impl RgbaBufferGraphics {
+    pub fn new(width: usize, height: usize, buffer: *mut u8) -> RgbaBufferGraphics {
         RgbaBufferGraphics {
             width,
             height,
@@ -32,14 +35,17 @@ impl<'a> RgbaBufferGraphics<'a> {
         let blue = piston_color_channel_to_byte(color[2]);
         let alpha = piston_color_channel_to_byte(color[3]);
 
-        self.buffer[pixel_index] = red;
-        self.buffer[pixel_index + 1] = green;
-        self.buffer[pixel_index + 2] = blue;
-        self.buffer[pixel_index + 3] = alpha;
+        // pixels are stored in RGBA, so each pixel is 4 bytes
+        let slice = unsafe { slice::from_raw_parts_mut(self.buffer, self.width * self.height * 4) };
+
+        slice[pixel_index] = red;
+        slice[pixel_index + 1] = green;
+        slice[pixel_index + 2] = blue;
+        slice[pixel_index + 3] = alpha;
     }
 }
 
-impl<'a> graphics::Graphics for RgbaBufferGraphics<'a> {
+impl graphics::Graphics for RgbaBufferGraphics {
     type Texture = RgbaTexture;
 
     fn clear_color(&mut self, color: types::Color) {
@@ -53,17 +59,15 @@ impl<'a> graphics::Graphics for RgbaBufferGraphics<'a> {
         }
     }
 
-    fn clear_stencil(&mut self, value: u8) {
+    fn clear_stencil(&mut self, _value: u8) {
         // TODO
     }
 
-    fn tri_list<F>(&mut self, draw_state: &graphics::DrawState, color: &[f32; 4], mut f: F) where F: FnMut(&mut FnMut(&[[f32; 2]])) {
-        f(&mut |s: &[[f32; 2]]| {
-            // TODO
-        })
+    fn tri_list<F>(&mut self, _draw_state: &graphics::DrawState, _color: &[f32; 4], mut _f: F) where F: FnMut(&mut FnMut(&[[f32; 2]])) {
+        // TODO
     }
 
-    fn tri_list_uv<F>(&mut self, draw_state: &graphics::DrawState, color: &[f32; 4], texture: &<Self as graphics::Graphics>::Texture, f: F) where F: FnMut(&mut FnMut(&[[f32; 2]], &[[f32; 2]])) {
+    fn tri_list_uv<F>(&mut self, _draw_state: &graphics::DrawState, _color: &[f32; 4], _texture: &<Self as graphics::Graphics>::Texture, _f: F) where F: FnMut(&mut FnMut(&[[f32; 2]], &[[f32; 2]])) {
         // TODO
     }
 }
@@ -74,10 +78,4 @@ fn piston_color_channel_to_byte(f: f32) -> u8 {
     (f * 255.0) as u8
 }
 
-/// Calculate offset of first byte of pixel for a fp x/y in an image
-#[inline]
-fn pixel_index(width: usize, height: usize, x: f32, y: f32) -> usize {
-    // TODO what's the scale of the vertices?
-    0
-}
 

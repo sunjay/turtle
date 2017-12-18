@@ -79,7 +79,7 @@ pub use rand::{random, random_range};
 #[cfg(feature = "desktop")]
 type DefaultRuntime = ::desktop::DesktopRuntime;
 #[cfg(feature = "canvas")]
-type DefaultRuntime = ::canvas::CanvasRuntime<'static>;
+type DefaultRuntime = ::canvas::CanvasRuntime;
 
 
 #[cfg(feature = "canvas")]
