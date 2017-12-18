@@ -126,10 +126,16 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
                 let col = col as usize;
                 erase_valid_moves(turtle, &board, dim);
 
-                board.play_piece((row, col));
+                let current = board.current();
+                let flipped = board.play_piece((row, col));
 
                 move_to_tile(turtle, (row, col), &dim);
-                draw_piece(turtle, board.current(), &dim);
+                draw_piece(turtle, current, &dim);
+
+                let background = turtle.background_color();
+                draw_tile_circles(turtle, 0.9, background, dim, flipped.iter());
+                draw_tile_circles(turtle, 0.8, current.color(), dim, flipped.iter());
+
                 draw_valid_moves(turtle, &board, dim);
 
                 println!("Current Player: {}", board.current().name());
