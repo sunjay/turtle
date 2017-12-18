@@ -87,11 +87,12 @@ impl Board {
         self.valid_moves.contains(position)
     }
 
-    pub fn play_piece(&mut self, pos: Position) {
+    /// Returns the tiles that were flipped
+    pub fn play_piece(&mut self, pos: Position) -> Vec<Position> {
         if self.is_valid_move(&pos) {
             assert!(self[pos.0][pos.1].is_none(), "Valid move was not an empty tile!");
             self.tiles[pos.0][pos.1] = Some(self.current);
-            self.flip_tiles(pos);
+            let flipped = self.flip_tiles(pos);
 
             self.current = self.current.other();
 
@@ -99,14 +100,41 @@ impl Board {
             // Link: https://github.com/rust-lang/rust/issues/44100
             let current = self.current;
             self.update_valid_moves(current);
+            flipped
         }
         else {
             unreachable!("Game should check for whether a valid move was used before playing it");
         }
     }
 
-    fn flip_tiles(&mut self, start: Position) {
-        unimplemented!()
+    fn flip_tiles(&mut self, (row, col): Position) -> Vec<Position> {
+        let piece = self.current;
+        assert_eq!(self.tiles[row][col], Some(piece));
+        let other = piece.other();
+        let rows = self.tiles.len() as isize;
+        let cols = self.tiles[0].len() as isize;
+
+        let mut flipped = Vec::new();
+        for (adj_row, adj_col) in self.adjacent_positions((row, col)) {
+            if self.tiles[adj_row][adj_col] == Some(other)
+                && self.find_piece((row, col), (adj_row, adj_col), piece) {
+                // Perform flips
+                let delta_row = adj_row as isize - row as isize;
+                let delta_col = adj_col as isize - col as isize;
+                let mut curr_row = adj_row as isize;
+                let mut curr_col = adj_col as isize;
+                while curr_row >= 0 && curr_row < rows && curr_col >= 0 && curr_col < cols {
+                    let current = &mut self.tiles[curr_row as usize][curr_col as usize];
+                    if *current == Some(other) {
+                        *current = Some(piece);
+                        flipped.push((curr_row as usize, curr_col as usize));
+                    }
+                    curr_row += delta_row;
+                    curr_col += delta_col;
+                }
+            }
+        }
+        flipped
     }
 
     fn update_valid_moves(&mut self, piece: Piece) {
@@ -151,17 +179,18 @@ impl Board {
     /// finds piece AND only encounters piece.other() along the way.
     fn find_piece(&self, pos: Position, (target_row, target_col): Position, piece: Piece) -> bool {
         let other = piece.other();
+        let rows = self.tiles.len() as isize;
+        let cols = self.tiles[0].len() as isize;
 
         let delta_row = target_row as isize - pos.0 as isize;
         let delta_col = target_col as isize - pos.1 as isize;
 
         let mut curr_row = target_row as isize + delta_row;
         let mut curr_col = target_col as isize + delta_col;
-        while curr_row >= 0 && curr_row < self.tiles.len() as isize
-            && curr_col >= 0 && curr_col < self.tiles[0].len() as isize {
+        while curr_row >= 0 && curr_row < rows && curr_col >= 0 && curr_col < cols {
             let current = self.tiles[curr_row as usize][curr_col as usize];
-            curr_row = curr_row + delta_row;
-            curr_col = curr_col + delta_col;
+            curr_row += delta_row;
+            curr_col += delta_col;
             if current == Some(other) {
                 continue;
             }
