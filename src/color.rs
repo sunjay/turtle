@@ -119,9 +119,8 @@ impl Color {
     /// assert_eq!(color2.alpha, 1.0);
     /// # }
     /// ```
-    pub fn opaque(mut self) -> Color {
-        self.alpha = 1.0;
-        self
+    pub fn opaque(self) -> Color {
+        self.with_alpha(1.0)
     }
 
     /// Return a new color with all of the same values except with opacity (alpha) set to 0.0
@@ -137,8 +136,25 @@ impl Color {
     /// assert_eq!(color2.alpha, 0.0);
     /// # }
     /// ```
-    pub fn transparent(mut self) -> Color {
-        self.alpha = 0.0;
+    pub fn transparent(self) -> Color {
+        self.with_alpha(0.0)
+    }
+
+    /// Return a new color with alpha set to the given value
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # fn main() {
+    /// use turtle::Color;
+    /// let color = Color {red: 43.0, green: 79.0, blue: 23.0, alpha: 0.5};
+    /// assert_eq!(color.alpha, 0.5);
+    /// let color2 = color.with_alpha(0.2);
+    /// assert_eq!(color.alpha, 0.5);
+    /// assert_eq!(color2.alpha, 0.2);
+    /// # }
+    /// ```
+    pub fn with_alpha(mut self, alpha: f64) -> Color {
+        self.alpha = alpha;
         self
     }
 }
