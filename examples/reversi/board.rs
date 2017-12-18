@@ -34,26 +34,7 @@ impl Piece {
 }
 
 fn valid_moves_for(tiles: &Tiles, piece: Piece) -> Vec<Position> {
-    // ALGORITHM: Go through all rows, columns and diagonals. Look through each row forwards and
-    // backwards. Find an empty tile followed by the other piece. If you can then find another
-    // `piece` before finding an empty tile, the empty tile is a valid move.
-
-    let other = piece.other();
-    //TODO: Convert each row into an iterator of (pos, tile)
-    let rows = search_row(tiles.rows().enumerate().map(|(i, r)| r.enumerate().map(|(j, c)| ((i, j), c))))
-        .chain(search_row(tiles.cols().enumerate().map(|(j, c)| c.enumerate().map(|(i, r)| ((i, j), c)))))
-        .chain(tiles.diagonals_tlbr())
-        .chain(tiles.diagonals_trbl())
-        .collect();
-    for pieces in rows {
-        let potential_move = None;
-    }
-}
-
-//TODO: Change return type into iterator
-fn search_row<R, C>(row: R) -> Vec<Position>
-    where R: Iterator<Item=C>,
-          C: Iterator<Item=(Position, Option<Piece>)> {
+    Default::default() //TODO
 }
 
 #[derive(Debug)]
