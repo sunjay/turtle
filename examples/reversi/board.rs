@@ -79,6 +79,10 @@ impl Board {
         self.current
     }
 
+    pub fn valid_moves(&self) -> &HashSet<Position> {
+        &self.valid_moves
+    }
+
     pub fn is_valid_move(&self, position: &Position) -> bool {
         self.valid_moves.contains(position)
     }
@@ -171,7 +175,7 @@ impl Board {
         return false;
     }
 
-    //TODO: Replace return type with `impl Iterator<Item=(usize, usize)>` when the "impl Trait"
+    //TODO: Replace return type with `impl Iterator<Item=Position>` when the "impl Trait"
     // feature is stable.
     fn adjacent_positions(&self, (row, col): Position) -> Vec<Position> {
         let rows = self.tiles.len();

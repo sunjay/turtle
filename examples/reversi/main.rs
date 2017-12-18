@@ -8,7 +8,7 @@ mod board;
 
 use std::f64::consts::PI;
 
-use turtle::{Turtle, Event};
+use turtle::{Turtle, Event, Color};
 use turtle::event::{MouseButton};
 
 use board::{Board, Piece};
@@ -56,6 +56,8 @@ fn main() {
     println!("Drawing the board...\n");
     draw_board(&mut turtle, &dim);
     draw_board_pieces(&mut turtle, &board, &dim);
+    draw_valid_moves(&mut turtle, &board, &dim);
+
     // Get rid of any events that may have accumulated while drawing
     drain_events(&mut turtle);
 
@@ -117,16 +119,18 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
             let row = ((1.0 - (mouse[1] + dim.height/2.0) / dim.height) * dim.rows as f64).floor() as isize;
             let col = ((mouse[0] + dim.width/2.0) / dim.width * dim.cols as f64).floor() as isize;
 
-            println!("Play {:?}", (row, col));
             if row >= 0 && row < dim.rows as isize
                 && col >= 0 && col < dim.cols as isize
                 && board.is_valid_move(&(row as usize, col as usize)) {
                 let row = row as usize;
                 let col = col as usize;
+                erase_valid_moves(turtle, &board, dim);
+
                 board.play_piece((row, col));
 
                 move_to_tile(turtle, (row, col), &dim);
                 draw_piece(turtle, board.current(), &dim);
+                draw_valid_moves(turtle, &board, dim);
 
                 println!("Current Player: {}", board.current().name());
 
@@ -151,11 +155,58 @@ fn move_to_tile(turtle: &mut Turtle, (row, col): (usize, usize), dim: &Dimension
     turtle.pen_down();
 }
 
+fn erase_valid_moves(turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
+    let background = turtle.background_color();
+    draw_tile_circles(
+        turtle,
+        0.5,
+        background,
+        dim,
+        board.valid_moves().iter(),
+    );
+}
+
+fn draw_valid_moves(turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
+    draw_tile_circles(
+        turtle,
+        0.2,
+        board.current().color().with_alpha(0.8),
+        dim,
+        board.valid_moves().iter(),
+    );
+}
+
+fn draw_tile_circles<'a, T: Iterator<Item = &'a (usize, usize)>>(
+    turtle: &mut Turtle,
+    relative_size: f64,
+    fill: Color,
+    dim: &Dimensions,
+    tiles: T,
+) {
+    let speed = turtle.speed();
+    turtle.set_speed("instant");
+    for pos in tiles {
+        move_to_tile(turtle, *pos, &dim);
+        tile_circle(turtle, relative_size, fill, dim);
+    }
+    turtle.set_speed(speed);
+}
+
 /// Draws the given piece
 fn draw_piece(turtle: &mut Turtle, piece: Piece, dim: &Dimensions) {
-    let radius = dim.tile_width.min(dim.tile_height) / 2.0 * 0.9;
+    turtle.show();
+    tile_circle(turtle, 0.8, piece.color(), dim);
+    turtle.hide();
+}
 
-    turtle.set_fill_color(piece.color());
+fn tile_circle(turtle: &mut Turtle, relative_size: f64, fill: Color, dim: &Dimensions) {
+    let radius = dim.tile_width.min(dim.tile_height) / 2.0 * relative_size;
+
+    filled_circle(turtle, radius, fill);
+}
+
+fn filled_circle(turtle: &mut Turtle, radius: f64, fill: Color) {
+    turtle.set_fill_color(fill);
     turtle.pen_up();
     turtle.begin_fill();
 
