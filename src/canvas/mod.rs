@@ -20,7 +20,7 @@ pub struct CanvasRuntime {
 }
 
 impl CanvasRuntime {
-    fn new(width: usize, height: usize, pixel_buffer: *mut u8) -> Self {
+    pub fn new(width: usize, height: usize, pixel_buffer: *mut u8) -> Self {
         CanvasRuntime {
             renderer: Renderer::new(),
             context: graphics::Context::new(),
@@ -146,21 +146,6 @@ impl ::rand::Rng for WebRng {
 }
 
 // functions used from js
-
-#[no_mangle]
-pub fn web_turtle_start(pointer: *mut u8, max_width: usize, max_height: usize) {
-    let mut turtle =
-        ::turtle::Turtle::new(CanvasRuntime::new(max_width, max_height, pointer));
-
-    use ::rand::Rng;
-    use ::color::Color;
-    let mut rng = turtle.rng();
-
-    for _ in 0..360 {
-        turtle.set_background_color(rng.gen::<Color>().opaque());
-    }
-}
-
 
 #[no_mangle]
 pub extern "C" fn alloc(size: usize) -> *mut u8 {

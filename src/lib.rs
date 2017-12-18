@@ -81,16 +81,20 @@ type DefaultRuntime = ::desktop::DesktopRuntime;
 #[cfg(feature = "canvas")]
 type DefaultRuntime = ::canvas::CanvasRuntime;
 
-
 #[cfg(feature = "canvas")]
-pub use canvas::{alloc, dealloc, web_turtle_start};
+pub use canvas::{alloc, dealloc};
 
 #[cfg(feature = "desktop")]
-pub fn start_desktop<F>(f: F)
-    where F: FnOnce(Turtle) {
-    let runtime = ::desktop::DesktopRuntime::new();
+pub fn start_desktop<F>(f: F) where F: FnOnce(Turtle) {
+    let turtle = Turtle::new(desktop::DesktopRuntime::new());
 
-    let turtle = Turtle::new(runtime);
+    f(turtle);
+}
+
+#[cfg(feature = "canvas")]
+pub fn start_web<F>(pointer: *mut u8, width: usize, height: usize, f: F) where F: FnOnce(Turtle) {
+    let turtle =
+        ::turtle::Turtle::new(canvas::CanvasRuntime::new(width, height, pointer));
 
     f(turtle);
 }
@@ -98,8 +102,21 @@ pub fn start_desktop<F>(f: F)
 #[macro_export]
 macro_rules! run_turtle {
     ($f:expr) => {
+        #[cfg(feature = "desktop")]
         fn main() {
             turtle::start_desktop($f);
+        }
+
+        #[cfg(feature = "canvas")]
+        fn main() {
+            println!("unused in wasm");
+        }
+
+        #[cfg(feature = "canvas")]
+        #[allow(dead_code)]
+        #[no_mangle]
+        pub extern "C" fn web_turtle_start(pointer: *mut u8, width: usize, height: usize) {
+            turtle::start_web(pointer, width, height, $f);
         }
     }
 }

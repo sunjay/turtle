@@ -2,15 +2,21 @@ Turtle for the web!
 
 # Building
 
-To build a wasm file, uncomment `crate-type = ["cdylib"]` in Cargo.toml and run:
+To build a wasm file (here for the randomcolors example), run:
 
 ```
-find . -name '*.wasm' -delete && cargo +nightly build --no-default-features --features=canvas --target=wasm32-unknown-unknown --release
+find . -name '*.wasm' -delete && cargo +nightly build \
+    --no-default-features --features=canvas \
+    --target=wasm32-unknown-unknown --release \
+    --example randomcolors
+
 ```
 
 Cargo doesn't seem very smart about updating the `.wasm` file, so we always delete it.
 
 Once the `.wasm` file is built, run a basic web server (like `python -m SimpleHTTPServer 9000`) and open [http://localhost:9000/canvas.html](http://localhost:9000/canvas.html).
+
+Rendering intermediate steps isn't working because we don't hand control flow back to the browser periodically, but if you wait long enough, it will eventually finish the entire example and render the most recent background color into the canvas.
 
 # Architecture
 

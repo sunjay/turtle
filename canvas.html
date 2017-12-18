@@ -52,7 +52,7 @@
           return utf8Decoder.decode(buffer_as_u8)
       }
 
-      fetch('target/wasm32-unknown-unknown/release/turtle.wasm')
+      fetch('target/wasm32-unknown-unknown/release/examples/randomcolors.wasm')
           .then(response => response.arrayBuffer())
           // Rust lacks a wasm cos, so provide JS's
           .then(bytes => WebAssembly.instantiate(bytes, wasmEnv))

@@ -65,7 +65,3 @@ canvas = []
 # NOTE: This means that tests MUST be run with:
 #   cargo test --features "test"
 test = []
-
-[lib]
-# uncomment for wasm32
-#crate-type = ["cdylib"]
