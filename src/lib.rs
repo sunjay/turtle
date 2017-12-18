@@ -59,6 +59,7 @@ mod query;
 mod server;
 mod renderer_process;
 mod messenger;
+mod parser;
 
 pub mod color;
 pub mod event;
@@ -71,3 +72,4 @@ pub use speed::{Speed};
 pub use color::{Color};
 pub use event::Event;
 pub use rand::{random, random_range};
+pub use parser::Parser;
