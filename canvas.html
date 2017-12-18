@@ -4,8 +4,12 @@
   <meta charset="utf-8"/>
   <script type="text/javascript">
       // hack to provide something we can override once we have a wasm instance
-      function web_debug_log_inner(ptr) {
-          console.log("uninitialized debug log called");
+      function web_debug_log_delegate(ptr) {
+          console.log("uninitialized debug log delegate called");
+      }
+
+      function web_update_canvas_delegate() {
+          console.log("uninitialized canvas delegate called");
       }
 
       let wasmEnv = {
@@ -16,7 +20,16 @@
                   return window.performance.now()
               },
               web_debug_log:         (ptr) => {
-                  web_debug_log_inner(ptr)
+                  web_debug_log_delegate(ptr)
+              },
+              web_prng:              () => {
+                  const min = 0;
+                  const max = 4294967295;
+
+                  return Math.floor(Math.random() * (max - min + 1)) + min;
+              },
+              web_update_canvas:     () => {
+                  web_update_canvas_delegate();
               }
           }
       };
@@ -52,7 +65,7 @@
                   wasmTurtle.start = instance.exports.web_turtle_start;
 
                   // override inner logging bits
-                  web_debug_log_inner = (ptr) => {
+                  web_debug_log_delegate = (ptr) => {
                       console.log(copyCStr(wasmTurtle, ptr));
                   };
 
@@ -68,13 +81,14 @@
           let byteSize = width * height * 4;
           const pointer = wasmTurtle.alloc(byteSize);
 
-          const usub = new Uint8ClampedArray(wasmTurtle.memory.buffer, pointer, byteSize);
-          const img = new ImageData(usub, width, height);
+          const pixelArray = new Uint8ClampedArray(wasmTurtle.memory.buffer, pointer, byteSize);
+          const img = new ImageData(pixelArray, width, height);
+
+          web_update_canvas_delegate = () => {
+              ctx.putImageData(img, 0, 0)
+          };
 
           wasmTurtle.start(pointer, width, height);
-
-          ctx.putImageData(img, 0, 0);
-
       })
   </script>
 </head>

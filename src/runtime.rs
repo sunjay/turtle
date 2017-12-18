@@ -1,3 +1,5 @@
+use rand;
+
 use query::{Query, Response};
 use clock;
 
@@ -8,6 +10,7 @@ use clock;
 pub trait Runtime {
     /// An abstraction around the clock available in the implementation's specific environment.
     type Clock: clock::Clock;
+    type Rng: rand::Rng;
 
     /// Sends a query to the rendering logic and automatically decides whether or not to wait
     /// for a response.
@@ -18,4 +21,6 @@ pub trait Runtime {
 
     /// Write to some form of logging (for environments where eprintln doesn't work, like wasm)
     fn debug_log(s: &str);
+
+    fn rng() -> Self::Rng;
 }

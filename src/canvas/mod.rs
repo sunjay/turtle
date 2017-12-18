@@ -32,6 +32,7 @@ impl CanvasRuntime {
 
 impl Runtime for CanvasRuntime {
     type Clock = WebClock;
+    type Rng = WebRng;
 
     fn send_query(&mut self, query: Query) -> Option<Response> {
         match query {
@@ -68,6 +69,10 @@ impl Runtime for CanvasRuntime {
 
         self.renderer.render(self.context, &mut self.graphics, center, &drawing, &temporary_path, &turtle);
 
+        unsafe {
+            web_update_canvas();
+        }
+
         None
     }
 
@@ -83,6 +88,10 @@ impl Runtime for CanvasRuntime {
         // ensure v lives until here so the pointer is valid when read above
         mem::drop(v);
     }
+
+    fn rng() -> Self::Rng {
+        WebRng{}
+    }
 }
 
 extern "C" {
@@ -90,6 +99,12 @@ extern "C" {
     /// Log the UTF8 null-terminated string at this pointer.
     /// The pointer will be freed on this end once the call is complete.
     fn web_debug_log(c_str_utf8: *const u8);
+
+    /// A non-cryptographically secure "js number" in [0, u32 max].
+    fn web_prng() -> u32;
+
+    /// Copy pixels from the buffer to the canvas element
+    fn web_update_canvas();
 }
 
 pub struct WebTimestamp {
@@ -119,6 +134,17 @@ impl clock::Clock for WebClock {
     }
 }
 
+// Rng backed by JS's random
+pub struct WebRng;
+
+impl ::rand::Rng for WebRng {
+    fn next_u32(&mut self) -> u32 {
+        unsafe {
+            web_prng()
+        }
+    }
+}
+
 // functions used from js
 
 #[no_mangle]
@@ -126,8 +152,13 @@ pub fn web_turtle_start(pointer: *mut u8, max_width: usize, max_height: usize) {
     let mut turtle =
         ::turtle::Turtle::new(CanvasRuntime::new(max_width, max_height, pointer));
 
+    use ::rand::Rng;
     use ::color::Color;
-    turtle.set_background_color(Color::from("green").opaque());
+    let mut rng = turtle.rng();
+
+    for _ in 0..360 {
+        turtle.set_background_color(rng.gen::<Color>().opaque());
+    }
 }
 
 

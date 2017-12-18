@@ -30,6 +30,7 @@ impl DesktopRuntime {
 
 impl Runtime for DesktopRuntime {
     type Clock = SystemClock;
+    type Rng = ::rand::ThreadRng;
 
     fn send_query(&mut self, query: Query) -> Option<Response> {
         self.renderer_process.send_query(query)
@@ -37,6 +38,10 @@ impl Runtime for DesktopRuntime {
 
     fn debug_log(s: &str) {
         eprintln!("{}", s);
+    }
+
+    fn rng() -> Self::Rng {
+        ::rand::thread_rng()
     }
 }
 

@@ -1121,6 +1121,10 @@ impl<R: Runtime> GenericTurtle<R> {
     pub fn poll_event(&mut self) -> Option<Event> {
         self.window.poll_event()
     }
+
+    pub fn rng(&self) -> R::Rng {
+        R::rng()
+    }
 }
 
 #[cfg(test)]
