@@ -9,16 +9,22 @@
           exampleForm.onsubmit = (_) => {
               const worker = new Worker('worker.js');
 
-              const ctx = document.getElementById('screen').getContext('2d');
+              const canvas = document.getElementById('screen');
+              const ctx = canvas.getContext('2d');
 
               worker.onmessage = (e) => {
                   if (e.data['type'] === 'updateCanvas') {
-                      const img = new ImageData(e.data['pixels'], 500, 500);
+                      const img = new ImageData(e.data['pixels'], canvas.width, canvas.height);
                       ctx.putImageData(img, 0, 0);
                   }
               };
 
-              worker.postMessage({'type': 'start', 'exampleName': exampleInput.value});
+              worker.postMessage({
+                  'type':        'start',
+                  'exampleName': exampleInput.value,
+                  'width': canvas.width,
+                  'height': canvas.height
+              });
 
               return false;
           };
@@ -32,6 +38,6 @@
   <input type="submit"/>
 </form>
 
-<canvas id="screen" width="500px" height="500px" style="border: black 1px solid"></canvas>
+<canvas id="screen" width="800px" height="600px" style="border: black 1px solid"></canvas>
 </body>
 </html>

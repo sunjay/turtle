@@ -75,8 +75,8 @@ onmessage = (e) => {
                 }
             ).then(wasmTurtle => {
 
-            const width = 500;
-            const height = 500;
+            const width = e.data['width'];
+            const height = e.data['height'];
 
             let byteSize = width * height * 4;
             const pointer = wasmTurtle.alloc(byteSize);
