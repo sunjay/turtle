@@ -1,7 +1,5 @@
 use std::ops::{Index, IndexMut};
 
-use turtle::random;
-
 use cell::Cell;
 use wall::Wall;
 
@@ -159,16 +157,6 @@ impl IndexMut<usize> for Grid {
 impl Grid {
     pub fn new() -> Grid {
         Grid([Cells::default(); GRID_SIZE])
-    }
-
-    pub fn random_walls() -> Grid {
-        let mut grid = [Cells::default(); GRID_SIZE];
-        for row in &mut grid {
-            for cell in row {
-                *cell = random();
-            }
-        }
-        Grid(grid)
     }
 
     /// Returns true if there is NO wall between two adjacent cells

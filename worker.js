@@ -11,6 +11,7 @@ let wasmEnv = {
     env: {
         cos:                   Math.cos,
         sin:                   Math.sin,
+        pow:                   Math.pow,
         web_current_timestamp: () => {
             return performance.now()
         },
@@ -51,7 +52,7 @@ onmessage = (e) => {
     if (e.data['type'] === 'start') {
         const exampleName = e.data['exampleName'];
 
-        console.log("Looking for example " + exampleName);
+        console.log("Starting example " + exampleName);
 
         fetch(`target/wasm32-unknown-unknown/release/examples/${exampleName}.wasm`)
             .then(response => response.arrayBuffer())

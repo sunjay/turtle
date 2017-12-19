@@ -2,13 +2,13 @@ Turtle for the web!
 
 # Building
 
-To build a wasm file (here for the randomcolors example), run:
+To build wasm files for all examples, run:
 
 ```
 find . -name '*.wasm' -delete && cargo +nightly build \
     --no-default-features --features=canvas \
     --target=wasm32-unknown-unknown --release \
-    --example randomcolors
+    --examples
 
 ```
 

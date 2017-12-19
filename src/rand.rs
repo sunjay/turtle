@@ -193,32 +193,3 @@
 //! [`Point`]: ../type.Point.html
 
 pub use rand_crate::*;
-
-use self::distributions::range::SampleRange;
-
-/// Generates a random value in the given range.
-///
-/// The value `x` that is returned will be such that low &le; x &lt; high.
-///
-/// # Panics
-/// Panics if low &ge; high
-///
-/// # Example:
-/// ```rust
-/// # extern crate turtle;
-/// # use turtle::random_range;
-/// # fn main() {
-/// // Generates an f64 value between 100 and 199
-/// let value: f64 = random_range(100.0, 200.0);
-/// assert!(value >= 100.0 && value < 200.0);
-/// // Generates a u64 value between 1000 and 3000000
-/// let value = random_range::<u64>(1000, 3000001);
-/// assert!(value >= 1000 && value < 3000001);
-/// // You do not need to specify the type if the compiler has enough information:
-/// fn foo(a: u64) {}
-/// foo(random_range(432, 1938));
-/// # }
-/// ```
-pub fn random_range<T: PartialOrd + SampleRange>(low: T, high: T) -> T {
-    thread_rng().gen_range(low, high)
-}

@@ -74,7 +74,6 @@ pub use turtle::{Turtle, Point, Distance, Angle};
 pub use speed::{Speed};
 pub use color::{Color};
 pub use event::{Event};
-pub use rand::{random, random_range};
 
 #[cfg(feature = "desktop")]
 type DefaultRuntime = ::desktop::DesktopRuntime;

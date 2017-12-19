@@ -6,6 +6,7 @@ use turtle_window::TurtleWindow;
 use event::MouseButton;
 use {Speed, Color, Event, DefaultRuntime};
 use runtime::Runtime;
+use ::rand::Rng;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -1122,8 +1123,40 @@ impl<R: Runtime> GenericTurtle<R> {
         self.window.poll_event()
     }
 
+    /// An RNG suitable for the current runtime environment (desktop, wasm, etc).
     pub fn rng(&self) -> R::Rng {
         R::rng()
+    }
+
+    pub fn random<T: ::rand::Rand>(&self) -> T {
+        self.rng().gen::<T>()
+    }
+
+    /// Generates a random value in the given range.
+    ///
+    /// The value `x` that is returned will be such that low &le; x &lt; high.
+    ///
+    /// # Panics
+    /// Panics if low &ge; high
+    ///
+    /// # Example:
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::random_range;
+    /// # fn main() {
+    /// // Generates an f64 value between 100 and 199
+    /// let value: f64 = random_range(100.0, 200.0);
+    /// assert!(value >= 100.0 && value < 200.0);
+    /// // Generates a u64 value between 1000 and 3000000
+    /// let value = random_range::<u64>(1000, 3000001);
+    /// assert!(value >= 1000 && value < 3000001);
+    /// // You do not need to specify the type if the compiler has enough information:
+    /// fn foo(a: u64) {}
+    /// foo(random_range(432, 1938));
+    /// # }
+    /// ```
+    pub fn random_range<T: PartialOrd + ::rand::distributions::range::SampleRange>(&self, low: T, high: T) -> T {
+        self.rng().gen_range::<T>(low, high)
     }
 }
 
