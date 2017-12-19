@@ -6,81 +6,70 @@ extern crate turtle;
 use turtle::Turtle;
 use std::env;
 use std::fs::File;
-use std::io::Read;
-use std::path::Path;
+use std::io::{BufRead, BufReader};
+use std::collections::VecDeque;
+
 
 fn main() {
     let mut turtle = Turtle::new();
-    turtle.set_speed(4);
 
     let args: Vec<String> = env::args().collect();
-    
-    if args.len() == 2 {
-        let source= parse_source(&parse_file(&args[1]));
-        parse_string(&source, &mut turtle);
+
+    if args.len() != 2 {
+        println!("No file provided");
+        return
     }
-    else {
-        println!("Pass in a LOGO command txt file.");
-    }
-}
 
-fn parse_string(source: &str, turtle: &mut Turtle) {
-    let ops: Vec<&str> = source.split(' ').collect();
-
-    let mut ins_pointer = 0;
-
-    while let Some(op) = ops.get(ins_pointer) {
-        match *op {
-            "fd" | "forward" => if let Some(dist) = ops.get(ins_pointer + 1) {
-                let dist: f64 = dist.parse().unwrap();
-                turtle.forward(dist as f64);
-                ins_pointer += 1;
-            },
-            "bk" | "back" => if let Some(dist) = ops.get(ins_pointer + 1) {
-                let dist: f64 = dist.parse().unwrap();
-                turtle.backward(dist as f64);
-                ins_pointer += 1;
-            },
-            "lt" | "left" => if let Some(dist) = ops.get(ins_pointer + 1) {
-                let dist: f64 = dist.parse().unwrap();
-                turtle.left(dist as f64);
-                ins_pointer += 1;
-            },
-            "rt" | "right" => if let Some(dist) = ops.get(ins_pointer + 1) {
-                let dist: f64 = dist.parse().unwrap();
-                turtle.right(dist as f64);
-                ins_pointer += 1;
-            },
-            _ => println!("command: {}", op),
+    let path = &args[1];
+    let file = File::open(path).expect("Could not open provided program");
+    let mut reader = BufReader::new(file);
+    loop {
+        let mut buffer = String::new();
+        let read_bytes = reader.read_line(&mut buffer)
+            .expect("Unable read input from stdin");
+        if read_bytes == 0 {
+            // Reached EOF, stop interpreter
+            break;
         }
-        ins_pointer += 1;
+
+        let mut cmd_args = buffer.split_whitespace().collect();
+        handle_command(&mut turtle, &mut cmd_args);
     }
 }
 
-fn parse_file(file_name: &str) -> String {
-    let path = Path::new(file_name);
-    let mut file = match File::open(&path) {
-        Err(why) => {
-            println!("FILE ERROR");
-            panic!("Error: {}", why);
+fn handle_command(turtle: &mut Turtle, args: &mut VecDeque<&str>) {
+    if args.is_empty() {
+        return;
+    }
+    // We already checked if args is empty, so we can unwrap here without fear
+    match args.pop_front().unwrap() {
+        "fd" | "forward" => {
+            let distance = parse_distance(args.pop_front()
+                .expect("Expected a distance value after fd/forward command"));
+            turtle.forward(distance)
         },
-        Ok(file) => file,
-    };
-    let mut text = String::new();
-    match file.read_to_string(&mut text) {
-        Ok(_) => {},
-        Err(why) => {
-            println!("READ ERROR");
-            panic!("Error: {}", why);
+        "bk" | "back" => {
+            let distance = parse_distance(args.pop_front()
+                .expect("Expect a distance value after bk/back command"));
+            turtle.backward(distance)
         },
-    };
-    text
+        "lt" | "left" => {
+            let distance = parse_distance(args.pop_front()
+                .expect("Expect a distance value after lt/left command"));
+            turtle.left(distance)
+        }
+        "rt" | "right" => {
+            let distance = parse_distance(args.pop_front()
+                .expect("Expect a distance value after rt/right command"));
+            turtle.right(distance)
+        }
+        _ => unimplemented!(), //TODO: a couple more commands (no need to do everything)
+    }
+    // Parse any remaining commands on this line
+    handle_command(turtle, args);
 }
 
-fn parse_source(source: &str) -> String {
-    // Transform the single string to a vector of strings by splitting at whitespaces.
-    let src: Vec<&str> = source.split_whitespace().collect();
-    // Join the Vector to form a single String with even spaces.
-    let src = src.join(" ").to_string();
-    src
+fn parse_distance(s: &str) -> f64 {
+    let dist: f64 = s.parse().unwrap();
+    dist 
 }
