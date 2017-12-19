@@ -48,9 +48,12 @@ function copyCStr(wasmInstance, ptr) {
 }
 
 onmessage = (e) => {
-    if (e.data === 'start') {
+    if (e.data['type'] === 'start') {
+        const exampleName = e.data['exampleName'];
 
-        fetch('target/wasm32-unknown-unknown/release/examples/randomcolors.wasm')
+        console.log("Looking for example " + exampleName);
+
+        fetch(`target/wasm32-unknown-unknown/release/examples/${exampleName}.wasm`)
             .then(response => response.arrayBuffer())
             // Rust lacks a wasm cos, so provide JS's
             .then(bytes => WebAssembly.instantiate(bytes, wasmEnv))
@@ -90,6 +93,9 @@ onmessage = (e) => {
             };
 
             wasmTurtle.start(pointer, width, height);
+            console.log(`Done with ${exampleName}`)
+        }).catch(e => {
+            console.log("uh oh: " + e);
         });
     }
 };
