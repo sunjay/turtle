@@ -12,6 +12,9 @@ let wasmEnv = {
         cos:                   Math.cos,
         sin:                   Math.sin,
         pow:                   Math.pow,
+        fmod:                  (a, b) => {
+            return a % b
+        },
         web_current_timestamp: () => {
             return performance.now()
         },
