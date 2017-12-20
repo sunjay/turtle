@@ -4,6 +4,7 @@ use std::sync::mpsc::{self, TryRecvError};
 use piston_window::{
     PistonWindow,
     WindowSettings,
+    AdvancedWindow,
     G2d,
     context,
     clear,
@@ -17,6 +18,13 @@ use extensions::ConvertScreenCoordinates;
 use query::DrawingCommand;
 use state::{Path, Polygon, Pen, TurtleState, DrawingState};
 use {Point, Event, Color, color};
+
+fn update_window(window: &mut PistonWindow, current: DrawingState, next: DrawingState) -> DrawingState {
+    if next.title != current.title {
+        window.set_title(next.title.clone());
+    }
+    next
+}
 
 #[derive(Debug)]
 pub enum Drawing {
@@ -53,8 +61,12 @@ impl Renderer {
             unreachable!("bug: windows can only be created on the main thread");
         }
         let mut window: PistonWindow = WindowSettings::new(
-            "Turtle", [800, 600]
+            &*state.drawing().title,
+            [800, 600]
         ).exit_on_esc(true).build().unwrap();
+        // We keep a copy of the DrawingState so that we can tell when it is updated and we need
+        // to change something on the window
+        let mut current_drawing = DrawingState::default();
 
         let mut center = state.drawing().center;
 
@@ -77,6 +89,9 @@ impl Renderer {
                     Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
                 }
             }
+
+            // Update the window based on any changes in the DrawingState
+            current_drawing = update_window(&mut window, current_drawing, state.drawing().clone());
 
             window.draw_2d(&e, |c, g| {
                 let view = c.get_view_size();
