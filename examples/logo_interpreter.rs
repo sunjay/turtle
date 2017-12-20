@@ -7,7 +7,6 @@ use turtle::Turtle;
 use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::collections::VecDeque;
 
 fn main() {
     let mut turtle = Turtle::new();
@@ -24,48 +23,53 @@ fn main() {
     let mut reader = BufReader::new(file);
     loop {
         let mut buffer = String::new();
-        let read_bytes = reader.read_line(&mut buffer)
+        let read_bytes = reader
+            .read_line(&mut buffer)
             .expect("Unable read input file");
         if read_bytes == 0 {
             // Reached EOF, stop interpreter
             break;
         }
 
-        let mut cmd_args = buffer.split_whitespace().collect();
-        handle_command(&mut turtle, &mut cmd_args);
+        let cmd_args = buffer.split_whitespace();
+        handle_command(&mut turtle, cmd_args);
     }
 }
 
-fn handle_command(turtle: &mut Turtle, args: &mut VecDeque<&str>) {
-    if args.is_empty() {
-        return;
+fn handle_command<'a, A: Iterator<Item = &'a str>>(turtle: &mut Turtle, mut args: A) {
+    while let Some(command) = args.next() {
+        match command {
+            "fd" | "forward" => {
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expected a distance value after fd/forward command"),
+                );
+                turtle.forward(distance);
+            },
+            "bk" | "back" => {
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expect a distance value after bk/back command"),
+                );
+                turtle.backward(distance);
+            },
+            "lt" | "left" => {
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expect a distance value after lt/left command"),
+                );
+                turtle.left(distance);
+            },
+            "rt" | "right" => {
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expect a distance value after rt/right command"),
+                );
+                turtle.right(distance);
+            },
+            _ => unimplemented!("Use of invalid or unsupported LOGO command"),
+        }
     }
-    // We already checked if args is empty, so we can unwrap here without fear
-    match args.pop_front().unwrap() {
-        "fd" | "forward" => {
-            let distance = parse_distance(args.pop_front()
-                .expect("Expected a distance value after fd/forward command"));
-            turtle.forward(distance);
-        },
-        "bk" | "back" => {
-            let distance = parse_distance(args.pop_front()
-                .expect("Expect a distance value after bk/back command"));
-            turtle.backward(distance);
-        },
-        "lt" | "left" => {
-            let distance = parse_distance(args.pop_front()
-                .expect("Expect a distance value after lt/left command"));
-            turtle.left(distance);
-        },
-        "rt" | "right" => {
-            let distance = parse_distance(args.pop_front()
-                .expect("Expect a distance value after rt/right command"));
-            turtle.right(distance);
-        },
-        _ => unimplemented!("Use of invalid or unsupported LOGO command"),
-    }
-    // Parse any remaining commands on this line
-    handle_command(turtle, args);
 }
 
 fn parse_distance(s: &str) -> f64 {
