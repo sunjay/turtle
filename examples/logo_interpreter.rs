@@ -1,5 +1,5 @@
 //! To run a LOGO program, run:
-//!     cargo run --example logo_interpreter -- .\examples\my_logo_program.txt
+//!     cargo run --example logo_interpreter -- my_logo_program.txt
 
 extern crate turtle;
 
@@ -9,15 +9,14 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::collections::VecDeque;
 
-
 fn main() {
     let mut turtle = Turtle::new();
 
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 2 {
-        println!("No file provided");
-        return
+        eprintln!("No file provided");
+        std::process::exit(1);
     }
 
     let path = &args[1];
@@ -26,7 +25,7 @@ fn main() {
     loop {
         let mut buffer = String::new();
         let read_bytes = reader.read_line(&mut buffer)
-            .expect("Unable read input from stdin");
+            .expect("Unable read input file");
         if read_bytes == 0 {
             // Reached EOF, stop interpreter
             break;
@@ -46,30 +45,30 @@ fn handle_command(turtle: &mut Turtle, args: &mut VecDeque<&str>) {
         "fd" | "forward" => {
             let distance = parse_distance(args.pop_front()
                 .expect("Expected a distance value after fd/forward command"));
-            turtle.forward(distance)
+            turtle.forward(distance);
         },
         "bk" | "back" => {
             let distance = parse_distance(args.pop_front()
                 .expect("Expect a distance value after bk/back command"));
-            turtle.backward(distance)
+            turtle.backward(distance);
         },
         "lt" | "left" => {
             let distance = parse_distance(args.pop_front()
                 .expect("Expect a distance value after lt/left command"));
-            turtle.left(distance)
-        }
+            turtle.left(distance);
+        },
         "rt" | "right" => {
             let distance = parse_distance(args.pop_front()
                 .expect("Expect a distance value after rt/right command"));
-            turtle.right(distance)
-        }
-        _ => unimplemented!(), //TODO: a couple more commands (no need to do everything)
+            turtle.right(distance);
+        },
+        _ => unimplemented!("Use of invalid or unsupported LOGO command"),
     }
     // Parse any remaining commands on this line
     handle_command(turtle, args);
 }
 
 fn parse_distance(s: &str) -> f64 {
-    let dist: f64 = s.parse().unwrap();
-    dist 
+    let dist: f64 = s.parse().expect("Not a valide number");
+    dist
 }
