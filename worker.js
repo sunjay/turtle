@@ -15,6 +15,7 @@ let wasmEnv = {
         fmod:                  (a, b) => {
             return a % b
         },
+        round:                 Math.round,
         web_current_timestamp: () => {
             return performance.now()
         },
