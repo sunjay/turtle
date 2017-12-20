@@ -27,7 +27,7 @@ fn main() {
 
     end_loop(&mut turtle);
 
-    turtle.set_background_color("pink");
+    turtle.drawing_mut().set_background_color("pink");
 }
 
 fn curve(turtle: &mut Turtle) {
