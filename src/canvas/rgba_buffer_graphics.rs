@@ -104,9 +104,9 @@ impl graphics::Graphics for RgbaBufferGraphics {
     fn tri_list<F>(&mut self, _draw_state: &graphics::DrawState, color: &[f32; 4], mut f: F) where F: FnMut(&mut FnMut(&[[f32; 2]])) {
         f(&mut |verts: &[[f32; 2]]| {
             for t in 0..verts.len() / 3 {
-                let v1 = verts[t];
-                let v2 = verts[t + 1];
-                let v3 = verts[t + 2];
+                let v1 = verts[t * 3];
+                let v2 = verts[t * 3 + 1];
+                let v3 = verts[t * 3 + 2];
 
                 let tri = Triangle::new(self.vertex_to_pixel_coords(v1),
                                         self.vertex_to_pixel_coords(v2),
