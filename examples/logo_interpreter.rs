@@ -6,7 +6,7 @@ extern crate turtle;
 use turtle::Turtle;
 use std::env;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{self, BufRead, BufReader};
 
 fn main() {
     let mut turtle = Turtle::new();
@@ -14,8 +14,17 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 2 {
-        eprintln!("No file provided");
-        std::process::exit(1);
+        println!("Interactive LOGO Mode.\nType the commands in stdin.\nPress '^C' (cmd/ctrl+C) to exit");
+        let stdin = io::stdin();
+        let mut reader = BufReader::new(stdin);
+        loop {
+            let mut buffer = String::new();
+            let _ = reader
+                .read_line(&mut buffer)
+                .expect("Unable read input from stdin");
+                let cmd_args = buffer.split_whitespace();
+                handle_command(&mut turtle, cmd_args);
+        }
     }
 
     let path = &args[1];
