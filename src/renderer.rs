@@ -56,7 +56,7 @@ impl Renderer {
             "Turtle", [800, 600]
         ).exit_on_esc(true).build().unwrap();
 
-        let mut center = [0.0, 0.0];
+        let mut center = state.drawing().center;
 
         'renderloop:
         while let Some(e) = window.next() {
@@ -82,7 +82,7 @@ impl Renderer {
                 let view = c.get_view_size();
                 let width = view[0] as f64;
                 let height = view[1] as f64;
-                center = [width * 0.5, height * 0.5];
+                center = state.drawing().center.to_screen_coords([width * 0.5, height * 0.5]);
 
                 // We clone the relevant state before rendering so that the rendering thread
                 // doesn't need to keep locking, waiting or making the main thread wait

@@ -57,12 +57,14 @@ impl Default for TurtleState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DrawingState {
     pub background: Color,
+    pub center: Point,
 }
 
 impl Default for DrawingState {
     fn default() -> Self {
         Self {
             background: color::WHITE,
+            center: [0.0, 0.0],
         }
     }
 }
