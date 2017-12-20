@@ -2,13 +2,6 @@
 //!
 //! See [`Event`](enum.Event.html) for more information.
 
-use input::{
-    Event as PistonEvent,
-    Input, ButtonArgs,
-    ButtonState,
-    Button,
-    Motion,
-};
 pub use input::{
     Key,
     MouseButton,
@@ -16,8 +9,6 @@ pub use input::{
     ControllerAxisArgs as ControllerAxis,
     TouchArgs as Touch,
 };
-
-use {Point};
 
 /// Possible events returned from [`Turtle::poll_event()`](../struct.Turtle.html#method.poll_event).
 ///
@@ -67,48 +58,4 @@ pub enum Event {
     WindowCursor(bool),
     /// Sent when the window is closed
     WindowClosed,
-}
-
-/// Attempts to convert a piston Event to our event type
-pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> Option<Event>
-    where F: FnOnce(Point) -> Point {
-    use self::Event::*;
-
-    let input_event = match *event {
-        PistonEvent::Input(ref input_event) => input_event,
-        _ => return None,
-    };
-
-    Some(match *input_event {
-        Input::Button(ButtonArgs {state, button, scancode: _}) => match state {
-            ButtonState::Press => match button {
-                Button::Keyboard(key) => KeyPressed(key),
-                Button::Mouse(button) => MouseButtonPressed(button),
-                Button::Controller(button) => ControllerButtonPressed(button),
-            },
-            ButtonState::Release => match button {
-                Button::Keyboard(key) => KeyReleased(key),
-                Button::Mouse(button) => MouseButtonReleased(button),
-                Button::Controller(button) => ControllerButtonReleased(button),
-            },
-        },
-        Input::Move(motion) => match motion {
-            Motion::MouseCursor(x, y) => {
-                let local = to_local_coords([x, y]);
-                MouseMove {x: local[0], y: local[1]}
-            },
-            // Ignored in favor of MouseCursor
-            Motion::MouseRelative(..) => return None,
-            Motion::MouseScroll(x, y) => MouseScroll {x, y},
-            Motion::ControllerAxis(axis) => ControllerAxisChange(axis),
-            Motion::Touch(touch) => Touch(touch),
-        },
-        // Ignored because this value doesn't produce text reliably for all keys
-        // (especially when ctrl is pressed)
-        Input::Text(_) => return None,
-        Input::Resize(x, y) => WindowResized {x, y},
-        Input::Focus(focused) => WindowFocused(focused),
-        Input::Cursor(cursor) => WindowCursor(cursor),
-        Input::Close(_) => WindowClosed,
-    })
 }
