@@ -4,5 +4,5 @@ rt 90 fd 100
 rt 90 fd 100
 rt 90 fd 100
 
-lt 135
-fd 125
+lt 315
+bk 125
