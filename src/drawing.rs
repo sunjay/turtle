@@ -16,6 +16,42 @@ impl Drawing {
         }
     }
 
+    /// Returns the title of the drawing
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.drawing_mut().set_title("Hello, world!");
+    /// assert_eq!(&*turtle.drawing().title(), "Hello, world!");
+    /// # }
+    /// ```
+    pub fn title(&self) -> String {
+        self.window.borrow().fetch_drawing().title
+    }
+
+    /// Sets the title of the drawing to the given text
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// extern crate turtle;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///     turtle.drawing_mut().set_title("My Fancy Title! - Yay!");
+    /// }
+    /// ```
+    ///
+    /// This will produce the following:
+    ///
+    /// ![turtle set title](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/changed_title.png)
+    pub fn set_title(&mut self, title: &str) {
+        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.title = title.to_owned());
+    }
+
     /// Returns the color of the background.
     ///
     /// ```rust
