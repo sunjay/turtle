@@ -356,10 +356,13 @@ impl Drawing {
     ///
     /// # Unstable
     ///
-    /// This method is currently unstable and unreliable. Unfortunately, we cannot currently detect
-    /// when the window is maximized using the maximize button on the window. This is a limitation
-    /// that will eventually be lifted. Until then, consider the return value of this method
-    /// unreliable.
+    /// **This method is currently unstable and unreliable.**
+    /// ([GitHub Issue](https://github.com/sunjay/turtle/issues/49))
+    ///
+    /// Unfortunately, we cannot currently detect when the window is maximized using the maximize
+    /// button on the window. This method is reliable until that button is pressed. Since there is
+    /// no way to tell when that is, treat the value returned from this method as unreliable and
+    /// potentially inaccurate.
     pub fn is_maximized(&self) -> bool {
         self.window.borrow().fetch_drawing().maximized
     }
@@ -383,9 +386,13 @@ impl Drawing {
     ///
     /// # Unstable
     ///
-    /// This method is currently unstable and unreliable. Unfortunately, we cannot currently detect
-    /// when the window is maximized using the maximize button on the window. This is a limitation
-    /// that will eventually be lifted. Until then, consider the behaviour of this method unreliable.
+    /// **This method is currently unstable and unreliable.**
+    /// ([GitHub Issue](https://github.com/sunjay/turtle/issues/49))
+    ///
+    /// Unfortunately, we cannot currently detect when the window is maximized using the maximize
+    /// button on the window. This method is reliable until that button is pressed. Since there is
+    /// no way to tell when that is, treat the value returned from this method as unreliable and
+    /// potentially inaccurate.
     ///
     /// It is usually okay to use this method right when the turtle is created, but don't rely on
     /// it after that because by then the user may have pressed the maximize button on the window.
@@ -415,9 +422,13 @@ impl Drawing {
     ///
     /// # Unstable
     ///
-    /// This method is currently unstable and unreliable. Unfortunately, we cannot currently detect
-    /// when the window is maximized using the maximize button on the window. This is a limitation
-    /// that will eventually be lifted. Until then, consider the behaviour of this method unreliable.
+    /// **This method is currently unstable and unreliable.**
+    /// ([GitHub Issue](https://github.com/sunjay/turtle/issues/49))
+    ///
+    /// Unfortunately, we cannot currently detect when the window is maximized using the maximize
+    /// button on the window. This method is reliable until that button is pressed. Since there is
+    /// no way to tell when that is, treat the value returned from this method as unreliable and
+    /// potentially inaccurate.
     pub fn unmaximize(&mut self) {
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = false);
     }
