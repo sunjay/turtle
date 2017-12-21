@@ -68,7 +68,7 @@ impl TurtleWindow {
         self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::TemporaryPath(path)));
     }
 
-    /// See [`Turtle::poll_event()`](struct.Turtle.html#method.poll_event).
+    /// See [`Drawing::poll_event()`](struct.Drawing.html#method.poll_event).
     pub fn poll_event(&mut self) -> Option<Event> {
         match self.renderer.borrow_mut().send_query(Query::Request(Request::Event)) {
             Some(Response::Event(event)) => event,
