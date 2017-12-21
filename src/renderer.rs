@@ -23,6 +23,9 @@ fn update_window(window: &mut PistonWindow, current: DrawingState, next: Drawing
     if next.title != current.title {
         window.set_title(next.title.clone());
     }
+    if next.width != current.width || next.height != current.height {
+        window.window.window.set_inner_size(next.width, next.height);
+    }
     next
 }
 
@@ -62,7 +65,7 @@ impl Renderer {
         }
         let mut window: PistonWindow = WindowSettings::new(
             &*state.drawing().title,
-            [800, 600]
+            (state.drawing().width, state.drawing().height),
         ).exit_on_esc(true).build().unwrap();
         // We keep a copy of the DrawingState so that we can tell when it is updated and we need
         // to change something on the window
