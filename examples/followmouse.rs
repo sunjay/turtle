@@ -20,7 +20,7 @@ fn main() {
         turtle.turn_towards(target);
         turtle.set_speed(8);
 
-        while let Some(MouseMove {x, y}) = turtle.poll_event() {
+        while let Some(MouseMove {x, y}) = turtle.drawing_mut().poll_event() {
             target = [x, y];
         }
     }
