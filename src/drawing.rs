@@ -421,4 +421,72 @@ impl Drawing {
     pub fn unmaximize(&mut self) {
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = false);
     }
+
+    /// Returns true if the drawing is currently full screen.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// let mut turtle = Turtle::new();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    ///
+    /// turtle.drawing_mut().enter_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
+    ///
+    /// turtle.drawing_mut().exit_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    ///
+    /// // Calling the same method again doesn't change the result
+    /// turtle.drawing_mut().exit_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// # }
+    /// ```
+    pub fn is_fullscreen(&self) -> bool {
+        self.window.borrow().fetch_drawing().fullscreen
+    }
+
+    /// Makes the drawing take up the entire screen hiding everything else that would have been
+    /// shown on screen otherwise.
+    ///
+    /// If the drawing is already fullscreen, this method does nothing.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.drawing_mut().enter_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
+    /// // Calling this method again does nothing
+    /// turtle.drawing_mut().enter_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
+    /// # }
+    /// ```
+    pub fn enter_fullscreen(&mut self) {
+        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.fullscreen = true);
+    }
+
+    /// Returns the size of the drawing to its value before it became fullscreen.
+    ///
+    /// If the drawing is already not fullscreen, this method does nothing.
+    ///
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.drawing_mut().enter_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
+    /// turtle.drawing_mut().exit_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// // Calling this again does nothing because the drawing is already not fullscreen
+    /// turtle.drawing_mut().exit_fullscreen();
+    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// # }
+    /// ```
+    pub fn exit_fullscreen(&mut self) {
+        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.fullscreen = false);
+    }
 }

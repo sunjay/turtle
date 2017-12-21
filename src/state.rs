@@ -62,6 +62,7 @@ pub struct DrawingState {
     pub width: u32,
     pub height: u32,
     pub maximized: bool,
+    pub fullscreen: bool,
 }
 
 impl Default for DrawingState {
@@ -73,6 +74,7 @@ impl Default for DrawingState {
             width: 800,
             height: 600,
             maximized: false,
+            fullscreen: false,
         }
     }
 }
