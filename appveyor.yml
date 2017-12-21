@@ -33,6 +33,10 @@ os: Visual Studio 2015
 # channels to enable unstable features when building for nightly. Or you could add additional
 # matrix entries to test different combinations of features.
 environment:
+  # -D warnings denies all warnings so that we always know when some code
+  # introduces new ones
+  RUSTFLAGS: "-D warnings"
+
   matrix:
 
 ### MSVC Toolchains ###
@@ -119,10 +123,6 @@ build: false
 #directly or perform other testing commands. Rust will automatically be placed in the PATH
 # environment variable.
 test_script:
-  # -D warnings denies all warnings so that we always know when some code
-  # introduces new ones
-  - set RUSTFLAGS="-D warnings"
-
   - cargo build --verbose %cargoflags% --all
   # We unfortunately can't actually run any examples because of the bug below,
   # but we can at least make sure they compile on Windows.
