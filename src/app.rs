@@ -31,7 +31,11 @@ impl ReadOnly {
 }
 
 /// Container for all the state of a turtle application
+#[derive(Clone)]
 pub struct TurtleApp {
+    //NOTE: All of these fields must be Shared or else cloning between threads will leave the two
+    // threads out of sync
+
     turtle: Shared<TurtleState>,
     drawing: Shared<DrawingState>,
     /// A temporary path for use during animations

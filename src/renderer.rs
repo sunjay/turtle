@@ -5,6 +5,8 @@ use piston_window::{
     PistonWindow,
     WindowSettings,
     AdvancedWindow,
+    Event as PistonEvent,
+    Input,
     G2d,
     context,
     clear,
@@ -12,7 +14,7 @@ use piston_window::{
     polygon,
 };
 
-use app::ReadOnly;
+use app::TurtleApp;
 use event::from_piston_event;
 use extensions::ConvertScreenCoordinates;
 use query::DrawingCommand;
@@ -39,6 +41,7 @@ pub enum Drawing {
 }
 
 pub struct Renderer {
+    app: TurtleApp,
     drawings: Vec<Drawing>,
     /// Polygon that is currently in the process of being filled
     /// Removed when EndFill is sent
@@ -46,8 +49,9 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new() -> Renderer {
+    pub fn new(app: TurtleApp) -> Renderer {
         Self {
+            app,
             drawings: Vec::new(),
             fill_polygon: None,
         }
@@ -57,8 +61,9 @@ impl Renderer {
         &mut self,
         drawing_rx: mpsc::Receiver<DrawingCommand>,
         events_tx: mpsc::Sender<Event>,
-        state: ReadOnly,
     ) {
+        let state = self.app.read_only();
+
         // This check isn't foolproof. Someone can always create a thread named "main".
         if thread::current().name().unwrap_or("") != "main" {
             // In order to maintain compatibility with MacOS, we need to make sure that windows are
@@ -77,8 +82,17 @@ impl Renderer {
         let mut center = state.drawing().center;
 
         'renderloop:
-        while let Some(e) = window.next() {
-            if let Some(event) = from_piston_event(&e, |pt| pt.to_local_coords(center)) {
+        while let Some(event) = window.next() {
+            match event {
+                PistonEvent::Input(Input::Resize(width, height)) => {
+                    let mut drawing = self.app.drawing_mut();
+                    drawing.width = width;
+                    drawing.height = height;
+                },
+                _ => {},
+            }
+
+            if let Some(event) = from_piston_event(&event, |pt| pt.to_local_coords(center)) {
                 match events_tx.send(event) {
                     Ok(_) => {},
                     // Quit - the server thread must have quit
@@ -99,7 +113,7 @@ impl Renderer {
             // Update the window based on any changes in the DrawingState
             current_drawing = update_window(&mut window, current_drawing, state.drawing().clone());
 
-            window.draw_2d(&e, |c, g| {
+            window.draw_2d(&event, |c, g| {
                 let view = c.get_view_size();
                 let width = view[0] as f64;
                 let height = view[1] as f64;

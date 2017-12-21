@@ -70,7 +70,6 @@ pub fn start() {
 /// This function must run in the main thread ONLY
 fn main() {
     let app = TurtleApp::new();
-    let read_only = app.read_only();
     let (drawing_tx, drawing_rx) = mpsc::channel();
     let (events_tx, events_rx) = mpsc::channel();
 
@@ -78,12 +77,14 @@ fn main() {
     // We need to check because while we can exit while that thread is still running, we want
     // any errors caused in that thread to be reported.
     let (running_tx, running_rx) = mpsc::channel();
+
+    let thread_app = app.clone();
     let handle = thread::spawn(move || {
-        read_queries_forever(app, drawing_tx, events_rx, running_tx);
+        read_queries_forever(thread_app, drawing_tx, events_rx, running_tx);
     });
 
     // Renderer MUST run on the main thread or else it will panic on MacOS
-    Renderer::new().run(drawing_rx, events_tx, read_only);
+    Renderer::new(app).run(drawing_rx, events_tx);
 
     // Quit immediately when the window is closed
 
