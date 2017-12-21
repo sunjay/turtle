@@ -1,5 +1,10 @@
 Turtle for the web!
 
+# Setup
+
+- `rustup update`
+- `rustup target add wasm32-unknown-unknown --toolchain nightly`
+
 # Building
 
 To build wasm files for all examples, run:
