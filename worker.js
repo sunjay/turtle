@@ -84,9 +84,10 @@ onmessage = (e) => {
 
             let byteSize = width * height * 4;
             const pointer = wasmTurtle.alloc(byteSize);
-            const pixelArray = new Uint8ClampedArray(wasmTurtle.memory.buffer, pointer, byteSize);
 
             web_update_canvas_delegate = () => {
+                // need to re-read the memory buffer every time, otherwise it will break as the heap grows
+                const pixelArray = new Uint8ClampedArray(wasmTurtle.memory.buffer, pointer, byteSize);
                 // copy pixel data
                 const copy = Uint8ClampedArray.from(pixelArray);
 
