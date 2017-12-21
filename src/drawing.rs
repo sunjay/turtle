@@ -165,9 +165,11 @@ impl Drawing {
 
     /// Sets the center of the drawing to the given point
     ///
-    /// The center represents the offset from the center of the window at which to draw the
+    /// The center represents the offset from the center of the viewport at which to draw the
     /// drawing. The default center is (0, 0) which means that the drawing is centered at the
-    /// center of the window.
+    /// middle of the viewport.
+    ///
+    /// Use this method to move the canvas that the turtle is drawing on.
     ///
     /// # Example
     ///
@@ -326,5 +328,97 @@ impl Drawing {
     pub fn reset_size(&mut self) {
         let default = DrawingState::default();
         self.set_size((default.width, default.height));
+    }
+
+    /// Returns true if the drawing is currently maximized.
+    ///
+    /// Note: Even if you set the drawing to the width and height of the current display, it won't
+    /// be maximized unless [`maximize()`](struct.Drawing.html#method.maximize) is called.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// let mut turtle = Turtle::new();
+    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    ///
+    /// turtle.drawing_mut().maximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), true);
+    ///
+    /// turtle.drawing_mut().unmaximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    ///
+    /// // Calling the same method again doesn't change the result
+    /// turtle.drawing_mut().unmaximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// # }
+    /// ```
+    ///
+    /// # Unstable
+    ///
+    /// This method is currently unstable and unreliable. Unfortunately, we cannot currently detect
+    /// when the window is maximized using the maximize button on the window. This is a limitation
+    /// that will eventually be lifted. Until then, consider the return value of this method
+    /// unreliable.
+    pub fn is_maximized(&self) -> bool {
+        self.window.borrow().fetch_drawing().maximized
+    }
+
+    /// Maximizes the size of the drawing so that it takes up the entire display.
+    ///
+    /// If the drawing is already maximized, this method does nothing.
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.drawing_mut().maximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), true);
+    /// // Calling this method again does nothing
+    /// turtle.drawing_mut().maximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), true);
+    /// # }
+    /// ```
+    ///
+    /// # Unstable
+    ///
+    /// This method is currently unstable and unreliable. Unfortunately, we cannot currently detect
+    /// when the window is maximized using the maximize button on the window. This is a limitation
+    /// that will eventually be lifted. Until then, consider the behaviour of this method unreliable.
+    ///
+    /// It is usually okay to use this method right when the turtle is created, but don't rely on
+    /// it after that because by then the user may have pressed the maximize button on the window.
+    pub fn maximize(&mut self) {
+        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = true);
+    }
+
+    /// Returns the size of the drawing to its value before it was maximized
+    ///
+    /// If the drawing is already unmaximized, this method does nothing.
+    ///
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::*;
+    /// # fn main() {
+    /// # let mut turtle = Turtle::new();
+    /// turtle.drawing_mut().maximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), true);
+    /// turtle.drawing_mut().unmaximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// // Calling this again does nothing because the drawing is already unmaximized
+    /// turtle.drawing_mut().unmaximize();
+    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// # }
+    /// ```
+    ///
+    /// # Unstable
+    ///
+    /// This method is currently unstable and unreliable. Unfortunately, we cannot currently detect
+    /// when the window is maximized using the maximize button on the window. This is a limitation
+    /// that will eventually be lifted. Until then, consider the behaviour of this method unreliable.
+    pub fn unmaximize(&mut self) {
+        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = false);
     }
 }
