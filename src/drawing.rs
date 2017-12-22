@@ -32,7 +32,7 @@ use {Point, Color, Event};
 /// assert_eq!(size.height, 600);
 /// # }
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Size {
     /// The width in pixels
     pub width: u32,
