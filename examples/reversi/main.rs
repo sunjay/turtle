@@ -25,7 +25,7 @@ struct Dimensions {
 
 fn main() {
     let mut turtle = Turtle::new();
-    turtle.set_background_color("#B3E5FC");
+    turtle.drawing_mut().set_background_color("#B3E5FC");
     turtle.set_pen_color("#757575");
     turtle.set_pen_size(2.0);
     turtle.set_speed(8);
@@ -106,7 +106,7 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
 
     let mut mouse = [0.0, 0.0];
     loop {
-        let event = turtle.poll_event();
+        let event = turtle.drawing_mut().poll_event();
         // Sometimes it is more convenient to use `if let` instead of `match`. In this case, it's
         // really up to your personal preference. We chose to demonstrate what `if let` would look
         // like if used for this code.
@@ -132,7 +132,7 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
                 move_to_tile(turtle, (row, col), &dim);
                 draw_piece(turtle, current, &dim);
 
-                let background = turtle.background_color();
+                let background = turtle.drawing().background_color();
                 draw_tile_circles(turtle, 0.9, background, dim, flipped.iter());
                 draw_tile_circles(turtle, 0.8, current.color(), dim, flipped.iter());
 
@@ -162,7 +162,7 @@ fn move_to_tile(turtle: &mut Turtle, (row, col): (usize, usize), dim: &Dimension
 }
 
 fn erase_valid_moves(turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
-    let background = turtle.background_color();
+    let background = turtle.drawing().background_color();
     draw_tile_circles(
         turtle,
         0.5,
@@ -239,5 +239,5 @@ fn circle(turtle: &mut Turtle, radius: f64) {
 
 /// Clear out all events that may have accumulated
 fn drain_events(turtle: &mut Turtle) {
-    while let Some(_) = turtle.poll_event() {}
+    while let Some(_) = turtle.drawing_mut().poll_event() {}
 }
