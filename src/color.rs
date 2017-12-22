@@ -106,6 +106,16 @@ pub struct Color {
 }
 
 impl Color {
+    /// Returns true if the values for each field are valid.
+    ///
+    /// The documentation above lists the valid range for each field.
+    pub fn is_valid(&self) -> bool {
+        self.red >= 0.0 && self.red <= 255.0 && self.red.is_finite() &&
+            self.green >= 0.0 && self.green <= 255.0 && self.green.is_finite() &&
+            self.blue >= 0.0 && self.blue <= 255.0 && self.blue.is_finite() &&
+            self.alpha >= 0.0 && self.alpha <= 1.0 && self.alpha.is_finite()
+    }
+
     /// Return a new color with all of the same values except with opacity (alpha) set to 1.0
     ///
     /// ```rust
@@ -267,6 +277,8 @@ color_consts! {
 mod tests {
     use super::*;
 
+    use std::f64::{NAN, INFINITY as INF, EPSILON};
+
     #[test]
     fn color_equivalence() {
         let c = Color {red: 51.0, green: 85.0, blue: 255.0, alpha: 1.0};
@@ -292,6 +304,66 @@ mod tests {
     fn invalid_color2() {
         // Invalid hex character
         Color::from("#www");
+    }
+
+    #[test]
+    fn valid_colors() {
+        // Test that all colors in their valid ranges are valid
+        // Floating-point numbers have infinite ranges, so this is not an exhaustive test
+        for i in 0..(255*2 + 1) {
+            let i = i as f64 / 2.0;
+
+            let color = Color {red: i, green: 0.0, blue: 0.0, alpha: 0.0};
+            assert!(color.is_valid(), "{:?}", color);
+            let color = Color {red: 0.0, green: i, blue: 0.0, alpha: 0.0};
+            assert!(color.is_valid(), "{:?}", color);
+            let color = Color {red: 0.0, green: 0.0, blue: i, alpha: 0.0};
+            assert!(color.is_valid(), "{:?}", color);
+            let color = Color {red: 0.0, green: 0.0, blue: 0.0, alpha: i / 255.0};
+            assert!(color.is_valid(), "{:?}", color);
+
+            let color = Color {
+                red: 255.0 - i,
+                green: i,
+                blue: 255.0 - i,
+                alpha: i / 255.0
+            };
+            assert!(color.is_valid(), "{:?}", color);
+        }
+    }
+
+    #[test]
+    fn invalid_color3() {
+        assert!(!Color {red: NAN, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: NAN, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: NAN, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: NAN}.is_valid());
+        assert!(!Color {red: NAN, green: NAN, blue: NAN, alpha: NAN}.is_valid());
+
+        assert!(!Color {red: INF, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: INF, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: INF, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: INF}.is_valid());
+        assert!(!Color {red: INF, green: INF, blue: INF, alpha: INF}.is_valid());
+
+        assert!(!Color {red: -INF, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: -INF, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: -INF, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: -INF}.is_valid());
+        assert!(!Color {red: -INF, green: -INF, blue: -INF, alpha: -INF}.is_valid());
+
+        // Out of valid range
+        assert!(!Color {red: -EPSILON, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: -EPSILON, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: -EPSILON, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: -EPSILON}.is_valid());
+        assert!(!Color {red: -EPSILON, green: -EPSILON, blue: -EPSILON, alpha: -EPSILON}.is_valid());
+
+        assert!(!Color {red: 255.0001, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 255.0001, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 255.0001, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0001}.is_valid());
+        assert!(!Color {red: 255.0001, green: 255.0001, blue: 255.0001, alpha: 1.0001}.is_valid());
     }
 }
 

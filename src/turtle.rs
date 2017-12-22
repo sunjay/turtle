@@ -2,6 +2,7 @@ use std::thread;
 use std::time::Duration;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::fmt::Debug;
 
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
@@ -753,8 +754,11 @@ impl Turtle {
     /// This will produce the following:
     ///
     /// ![turtle pen color](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/colored_circle.png)
-    pub fn set_pen_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.color = color.into());
+    pub fn set_pen_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
+        let pen_color = color.into();
+        assert!(pen_color.is_valid(),
+            "Invalid color: {:?}. See the color module documentation for more information.", color);
+        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.color = pen_color);
     }
 
     /// Returns the current fill color.
@@ -789,8 +793,11 @@ impl Turtle {
     /// # Example
     ///
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for an example.
-    pub fn set_fill_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.fill_color = color.into());
+    pub fn set_fill_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
+        let fill_color = color.into();
+        assert!(fill_color.is_valid(),
+            "Invalid color: {:?}. See the color module documentation for more information.", color);
+        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.fill_color = fill_color);
     }
 
     /// Begin filling the shape drawn by the turtle's movements.
@@ -1108,5 +1115,19 @@ mod tests {
     fn set_pen_size_rejects_neg_inf() {
         let mut turtle = Turtle::new();
         turtle.set_pen_size(-::std::f64::INFINITY);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
+    fn rejects_invalid_pen_color() {
+        let mut turtle = Turtle::new();
+        turtle.set_pen_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
+    fn rejects_invalid_fill_color() {
+        let mut turtle = Turtle::new();
+        turtle.set_fill_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
     }
 }

@@ -131,7 +131,7 @@ fn draw_row<I: Iterator<Item=bool>>(turtle: &mut Turtle, wall_size: f64, walls: 
     }
 }
 
-fn draw_marker<C: Into<Color>>(
+fn draw_marker<C: Into<Color> + ::std::fmt::Debug + Copy>(
     turtle: &mut Turtle,
     (row, col): (usize, usize),
     cell_width: f64,

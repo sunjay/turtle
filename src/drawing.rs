@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::fmt::Debug;
 
 use turtle_window::TurtleWindow;
 use state::DrawingState;
@@ -143,8 +144,11 @@ impl Drawing {
     /// This will produce the following:
     ///
     /// ![turtle background](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/orange_background.png)
-    pub fn set_background_color<C: Into<Color>>(&mut self, color: C) {
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.background = color.into());
+    pub fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
+        let bg_color = color.into();
+        assert!(bg_color.is_valid(),
+            "Invalid color: {:?}. See the color module documentation for more information.", color);
+        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.background = bg_color);
     }
 
     /// Returns the center of the drawing
@@ -577,5 +581,19 @@ impl Drawing {
     /// ```
     pub fn poll_event(&mut self) -> Option<Event> {
         self.window.borrow_mut().poll_event()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use turtle::*;
+
+    #[test]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
+    fn rejects_invalid_background_color() {
+        let mut turtle = Turtle::new();
+        turtle.drawing_mut().set_background_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
     }
 }
