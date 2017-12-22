@@ -701,6 +701,9 @@ impl Turtle {
     /// Notice that while the turtle travels in a straight line, it produces different thicknesses
     /// of lines which appear like large rectangles.
     pub fn set_pen_size(&mut self, thickness: f64) {
+        assert!(thickness >= 0.0 && thickness.is_finite(),
+            "Invalid thickness: {}. The pen thickness must be greater than or equal to zero",
+            thickness);
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.thickness = thickness);
     }
 
@@ -1077,5 +1080,33 @@ mod tests {
                 assert_eq!(turtle.heading().ceil(), target_angle.to_degrees().ceil());
             }
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid thickness: -10. The pen thickness must be greater than or equal to zero")]
+    fn set_pen_size_rejects_negative() {
+        let mut turtle = Turtle::new();
+        turtle.set_pen_size(-10.0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid thickness: NaN. The pen thickness must be greater than or equal to zero")]
+    fn set_pen_size_rejects_nan() {
+        let mut turtle = Turtle::new();
+        turtle.set_pen_size(::std::f64::NAN);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid thickness: inf. The pen thickness must be greater than or equal to zero")]
+    fn set_pen_size_rejects_inf() {
+        let mut turtle = Turtle::new();
+        turtle.set_pen_size(::std::f64::INFINITY);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid thickness: -inf. The pen thickness must be greater than or equal to zero")]
+    fn set_pen_size_rejects_neg_inf() {
+        let mut turtle = Turtle::new();
+        turtle.set_pen_size(-::std::f64::INFINITY);
     }
 }
