@@ -84,6 +84,44 @@
 //!
 //! Note that when creating a color this way, we **do not** check if the values of each property are
 //! within their valid ranges.
+//!
+//! A more ergonomic syntax can also be used when passing a color to a method that supports any
+//! type that implements `Into<Color>`.
+//!
+//! ```rust
+//! # extern crate turtle;
+//! # use turtle::*;
+//! # fn main() {
+//! # let mut turtle = Turtle::new();
+//! // A solid color with alpha = 1.0
+//! // Syntax is [red, green, blue] and doesn't require explicitly writing the field names
+//! turtle.set_pen_color([133.0, 23.0, 96.0]);
+//! turtle.set_fill_color([133.0, 23.0, 96.0]);
+//! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0]);
+//! // This is a little easier to type than the equivalent:
+//! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 1.0});
+//!
+//! // Add an additional element to the array to specify the alpha
+//! // Syntax is [red, green, blue, alpha]
+//! turtle.set_pen_color([133.0, 23.0, 96.0, 0.5]);
+//! turtle.set_fill_color([133.0, 23.0, 96.0, 0.5]);
+//! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0, 0.5]);
+//! // This is a little easier to type than the equivalent:
+//! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
+//! # }
+//! ```
+//!
+//! When creating a color this way, we **will** check whether or not the color is valid and provide
+//! an error message to let you know what happened.
+//!
+//! ```rust,should_panic
+//! # extern crate turtle;
+//! # fn main() {
+//! # let mut turtle = turtle::Turtle::new();
+//! // Color values must only go up to 255.0
+//! turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
+//! # }
+//! ```
 
 use std::iter::repeat;
 
@@ -191,6 +229,36 @@ impl From<Color> for types::Color {
     }
 }
 
+impl From<[f64; 3]> for Color {
+    fn from(color_values: [f64; 3]) -> Self {
+        let color = Color {
+            red: color_values[0],
+            green: color_values[1],
+            blue: color_values[2],
+            alpha: 1.0,
+        };
+        assert!(color.is_valid(),
+            "Invalid color: {:?}. See the Color struct documentation for more information.",
+            color_values);
+        color
+    }
+}
+
+impl From<[f64; 4]> for Color {
+    fn from(color_values: [f64; 4]) -> Self {
+        let color = Color {
+            red: color_values[0],
+            green: color_values[1],
+            blue: color_values[2],
+            alpha: color_values[3],
+        };
+        assert!(color.is_valid(),
+            "Invalid color: {:?}. See the Color struct documentation for more information.",
+            color_values);
+        color
+    }
+}
+
 impl<'a> From<&'a str> for Color {
     fn from(s: &'a str) -> Self {
         if s.starts_with('#') {
@@ -290,6 +358,16 @@ mod tests {
         assert_eq!(c1, c2);
         assert_eq!(c2, c3);
         assert_eq!(c3, c4);
+    }
+
+    #[test]
+    fn fields_mapped_correctly() {
+        // Check if array syntax maps color values to the correct fields
+        let c: Color = [2.4, 3.2, 4.6, 0.67].into();
+        assert_eq!(c, Color {red: 2.4, green: 3.2, blue: 4.6, alpha: 0.67});
+
+        let c: Color = [2.4, 3.2, 4.6].into();
+        assert_eq!(c, Color {red: 2.4, green: 3.2, blue: 4.6, alpha: 1.0});
     }
 
     #[test]
