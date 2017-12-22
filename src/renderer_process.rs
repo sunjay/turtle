@@ -4,7 +4,7 @@ use std::{env, thread, process};
 
 use query::{Query, Response};
 #[cfg(not(any(feature = "test", test)))]
-use messenger;
+use messenger::{self, Disconnected};
 
 /// Manages the renderer process and all communication with it
 #[cfg(not(any(feature = "test", test)))]
@@ -41,7 +41,7 @@ impl RendererProcess {
                 renderer_stdout,
                 "bug: unable to read data from renderer process",
                 "bug: failed to read response from renderer process",
-                |resp| response_tx.send(resp).map_err(|_| ()),
+                |resp| response_tx.send(resp).map_err(|_| Disconnected),
             );
         });
 
