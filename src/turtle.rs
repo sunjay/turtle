@@ -262,6 +262,9 @@ impl Turtle {
     /// # }
     /// ```
     pub fn wait(&mut self, secs: f64) {
+        if !secs.is_normal() {
+            return;
+        }
         thread::sleep(Duration::from_millis((secs * 1000.0) as u64));
     }
 

@@ -8,7 +8,7 @@ use renderer_process::RendererProcess;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
-use radians::{self, Radians};
+use radians::Radians;
 use {Point, Distance, Event};
 
 use self::DrawingCommand::*;
@@ -97,6 +97,9 @@ impl TurtleWindow {
         let TurtleState {position: start, speed, pen, ..} = self.fetch_turtle();
 
         let distance = math::square_len(math::sub(start, end)).sqrt();
+        if !distance.is_normal() {
+            return;
+        }
         let speed = speed.to_absolute(); // px per second
         // We take the absolute value because the time is always positive, even if distance is negative
         let total_millis = (distance / speed * 1000.).abs();
@@ -114,7 +117,7 @@ impl TurtleWindow {
     ///
     /// The turtle's motion will be animated based on the speed
     pub fn forward(&mut self, distance: Distance) {
-        if distance == 0. {
+        if !distance.is_normal() {
             return;
         }
 
@@ -138,7 +141,7 @@ impl TurtleWindow {
 
     /// Rotate the turtle in place by the given angle in the given direction of rotation
     pub fn rotate(&mut self, angle: Radians, clockwise: bool) {
-        if angle == radians::ZERO {
+        if !angle.is_normal() {
             return;
         }
 

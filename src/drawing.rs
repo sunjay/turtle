@@ -201,6 +201,9 @@ impl Drawing {
     ///
     /// ![turtle center offset](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/circle_offset_center.png)
     pub fn set_center(&mut self, center: Point) {
+        if !center[0].is_finite() || !center[1].is_finite() {
+            return;
+        }
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.center = center);
     }
 
