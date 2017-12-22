@@ -1,14 +1,15 @@
-//! The API Documentation below will help you learn about the various things you can do with this
-//! crate.
+//! Use the API Documentation below to learn about the various things you can do with this crate.
 //!
 //! **If this is your first time using Rust or using this crate, read the Guide on
 //! [turtle.rs](http://turtle.rs) to learn how to start.**
 //!
-//! The documentation for the [`Turtle` struct](struct.Turtle.html) contains a listing of all of the
-//! various drawing commands that you can use on the Turtles that you create. The [`color`
-//! module](color/index.html) and its submodules contain hundreds of predefined color names that you
-//! can use to set the pen, background and fill color of a turtle. That module also explains how to
-//! use any arbitrary color, including ones that may not be defined in this crate.
+//! * The [`Turtle` struct](struct.Turtle.html) - lists of all the various drawing commands that the
+//!   turtle supports
+//! * The [`Drawing` struct](struct.Drawing.html) - allows you to manipulate the title, size,
+//!   background and more of the drawing that you are creating
+//! * The [`color` module](color/index.html) - describes the different ways to create colors and
+//!   includes a list of the hundreds of predefined color names that you can use to easily set the
+//!   pen, fill, and background color of your drawings
 //!
 //! Note: Call [`turtle::start()`](fn.start.html) if you do not create a turtle with
 //! [`Turtle::new()`](struct.Turtle.html#method.new) right at the beginning of your program. Most

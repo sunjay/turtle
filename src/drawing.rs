@@ -60,6 +60,10 @@ impl From<[u32; 2]> for Size {
 }
 
 /// Represents the drawing that the turtle is creating
+///
+/// This struct is usually accessed using the [`drawing()`](struct.Turtle.html#method.drawing)
+/// and [`drawing_mut()`](struct.Turtle.html#method.drawing_mut) methods on the
+/// [`Turtle` struct](struct.Turtle.html).
 pub struct Drawing {
     window: Rc<RefCell<TurtleWindow>>,
 }
