@@ -10,29 +10,32 @@
 //! You can refer to a color by using its color name as a string literal. For example:
 //!
 //! ```rust
+//! # #[macro_use]
 //! # extern crate turtle;
 //! # use turtle::color;
 //! # fn main() {
-//! # let mut turtle = turtle::Turtle::new();
+//! # // this weird nesting is to work around rust doc heuristics
+//! # run_turtle!(|mut turtle| {
 //! // This will set the turtle's pen color to BLACK
 //! turtle.set_pen_color("black");
 //! // This is the same as the previous line
 //! turtle.set_pen_color(color::BLACK);
 //! // You can use any of the supported color names (including the ones from extended)
 //! turtle.set_pen_color("deep lilac");
-//! # }
+//! # });}
 //! ```
 //!
 //! You can also use hexadecimal color strings to get any color you want
 //! (even ones that aren't listed here).
 //!
 //! ```rust
+//! # #[macro_use]
 //! # extern crate turtle;
 //! # fn main() {
-//! # let mut turtle = turtle::Turtle::new();
+//! # run_turtle!(|mut turtle| {
 //! turtle.set_pen_color("#3366ff");
 //! turtle.set_pen_color("#36f");
-//! # }
+//! # });}
 //! ```
 //!
 //! Each color's constant name is in uppercase in the list below. The color name you should use to
@@ -49,12 +52,15 @@
 //! You can also generate random colors. Here's an example:
 //!
 //! ```rust
+//! # #[macro_use]
 //! # extern crate turtle;
 //! # fn main() {
-//! # let mut turtle = turtle::Turtle::new();
-//! use turtle::{random, Color};
-//! turtle.set_pen_color(random::<Color>().opaque());
-//! # }
+//! # run_turtle!(|mut turtle| {
+//! use turtle::Color;
+//! use turtle::rand::Rng;
+//! let mut rng = turtle.rng();
+//! turtle.set_pen_color(rng.gen::<Color>().opaque());
+//! # });}
 //! ```
 //!
 //! The syntax used in `random::<Color>()` is referred to as

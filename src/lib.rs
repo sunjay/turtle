@@ -96,7 +96,7 @@ pub fn start_desktop<F>(f: F) where F: FnOnce(Turtle) {
 #[cfg(feature = "canvas")]
 pub fn start_web<F>(pointer: *mut u8, width: usize, height: usize, f: F) where F: FnOnce(Turtle) {
     let turtle =
-        ::turtle::Turtle::new(canvas::CanvasRuntime::new(width, height, pointer));
+        Turtle::new(canvas::CanvasRuntime::new(width, height, pointer));
 
     f(turtle);
 }
