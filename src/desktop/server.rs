@@ -256,7 +256,7 @@ fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> Option<Event
         // Ignored because this value doesn't produce text reliably for all keys
         // (especially when ctrl is pressed)
         Input::Text(_) => return None,
-        Input::Resize(x, y) => WindowResized {x, y},
+        Input::Resize(width, height) => WindowResized {width, height},
         Input::Focus(focused) => WindowFocused(focused),
         Input::Cursor(cursor) => WindowCursor(cursor),
         Input::Close(_) => WindowClosed,

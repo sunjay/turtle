@@ -46,7 +46,7 @@ pub enum Event {
     Touch(Touch),
 
     /// Sent when the window gets resized
-    WindowResized {x: u32, y: u32},
+    WindowResized {width: u32, height: u32},
 
     /// Sent when the window focus changes
     ///
