@@ -94,8 +94,8 @@ pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> O
         },
         Input::Move(motion) => match motion {
             Motion::MouseCursor(x, y) => {
-                let local = to_local_coords([x, y]);
-                MouseMove {x: local[0], y: local[1]}
+                let local = to_local_coords(Point {x, y});
+                MouseMove {x: local.x, y: local.y}
             },
             // Ignored in favor of MouseCursor
             Motion::MouseRelative(..) => return None,

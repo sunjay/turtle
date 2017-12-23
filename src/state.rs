@@ -46,7 +46,7 @@ impl Default for TurtleState {
         Self {
             pen: Pen::default(),
             fill_color: color::BLACK,
-            position: [0.0, 0.0],
+            position: Point::origin(),
             heading: Radians::from_degrees_value(90.0),
             speed: Speed::Five,
             visible: true,
@@ -70,7 +70,7 @@ impl Default for DrawingState {
         Self {
             title: "Turtle".to_owned(),
             background: color::WHITE,
-            center: [0.0, 0.0],
+            center: Point::origin(),
             width: 800,
             height: 600,
             maximized: false,
