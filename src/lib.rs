@@ -34,6 +34,9 @@
 // wasm needs an alloc and dealloc
 #![cfg_attr(target_arch = "wasm32", feature(allocator_api))]
 
+#[cfg(all(test, not(feature = "test")))]
+compile_error!("Make sure you run tests with `cargo test --features test`");
+
 #[macro_use]
 extern crate serde_derive;
 
