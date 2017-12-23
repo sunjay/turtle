@@ -22,11 +22,17 @@ pub trait ConvertScreenCoordinates {
 
 impl ConvertScreenCoordinates for Point {
     fn to_screen_coords(self, center: Self) -> Self {
-        [center[0] + self[0], center[1] - self[1]]
+        Point {
+            x: center.x + self.x,
+            y: center.y - self.y,
+        }
     }
 
     fn to_local_coords(self, center: Self) -> Self {
-        [self[0] - center[0], center[1] - self[1]]
+        Point {
+            x: self.x - center.x,
+            y: center.y - self.y,
+        }
     }
 }
 
@@ -50,10 +56,10 @@ mod tests {
 
     #[test]
     fn to_screen_coords() {
-        let center: Point = [300.0, 400.0];
+        let center = Point {x: 300.0, y: 400.0};
 
-        let point: Point = [20.0, 30.0];
-        assert_eq!(point.to_screen_coords(center), [320.0, 370.0]);
-        assert_eq!(point.to_local_coords(center), [-280.0, 370.0]);
+        let point = Point {x: 20.0, y: 30.0};
+        assert_eq!(point.to_screen_coords(center), Point {x: 320.0, y: 370.0});
+        assert_eq!(point.to_local_coords(center), Point {x: -280.0, y: 370.0});
     }
 }

@@ -162,16 +162,17 @@ impl Drawing {
     /// # use turtle::*;
     /// # fn main() {
     /// let mut turtle = Turtle::new();
-    /// assert_eq!(turtle.drawing().center(), [0.0, 0.0]);
-    /// turtle.drawing_mut().set_center([4.0, 3.0]);
-    /// assert_eq!(turtle.drawing().center(), [4.0, 3.0]);
+    /// assert_eq!(turtle.drawing().center(), Point {x: 0.0, y: 0.0});
+    /// turtle.drawing_mut().set_center(Point {x: 4.0, y: 3.0});
+    /// assert_eq!(turtle.drawing().center(), Point {x: 4.0, y: 3.0});
     /// # }
     /// ```
     pub fn center(&self) -> Point {
         self.window.borrow().fetch_drawing().center
     }
 
-    /// Sets the center of the drawing to the given point
+    /// Sets the center of the drawing to the given point. See the [`Point` struct](struct.Point.html)
+    /// documentation for more information.
     ///
     /// The center represents the offset from the center of the viewport at which to draw the
     /// drawing. The default center is (0, 0) which means that the drawing is centered at the
@@ -208,8 +209,9 @@ impl Drawing {
     /// Once you click on the window:
     ///
     /// ![turtle center offset](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/circle_offset_center.png)
-    pub fn set_center(&mut self, center: Point) {
-        if !center[0].is_finite() || !center[1].is_finite() {
+    pub fn set_center<P: Into<Point>>(&mut self, center: P) {
+        let center = center.into();
+        if !center.is_finite() {
             return;
         }
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.center = center);
