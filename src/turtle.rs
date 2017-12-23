@@ -1163,11 +1163,12 @@ impl<R: Runtime> GenericTurtle<R> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ::desktop::DesktopRuntime;
 
     #[test]
     fn is_using_radians_degrees() {
         // is_using_radians and is_using_degrees should be inverses of each other
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         assert!(!turtle.is_using_radians());
         assert!(turtle.is_using_degrees());
         turtle.use_radians();
@@ -1180,7 +1181,7 @@ mod tests {
 
     #[test]
     fn clear_leaves_position_and_heading() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         assert_eq!(turtle.position(), [0.0, 0.0]);
         assert_eq!(turtle.heading(), 90.0);
         turtle.forward(100.0);
