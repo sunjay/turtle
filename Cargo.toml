@@ -25,12 +25,6 @@ appveyor = { repository = "sunjay/turtle" }
 # Travis CI: `repository` in format "<user>/<project>" is required.
 travis-ci = { repository = "sunjay/turtle" }
 
-# Is it maintained resolution time: `repository` is required.
-is-it-maintained-issue-resolution = { repository = "sunjay/turtle" }
-
-# Is it maintained percentage of open issues: `repository` is required.
-is-it-maintained-open-issues = { repository = "sunjay/turtle" }
-
 [dependencies]
 serde = "^1.0.23"
 serde_derive = "^1.0.23"
