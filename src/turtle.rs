@@ -1197,7 +1197,7 @@ mod tests {
 
     #[test]
     fn turn_towards() {        
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         
         // Turn from each cardinal direction to each cardinal direction
         for n in 0..16 as u32 {
