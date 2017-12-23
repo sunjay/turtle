@@ -140,6 +140,28 @@ impl Div<f64> for Point {
     }
 }
 
+impl Index<usize> for Point {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            _ => panic!("Invalid coordinate for Point: {}", index),
+        }
+    }
+}
+
+impl IndexMut<usize> for Point {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            _ => panic!("Invalid coordinate for Point: {}", index),
+        }
+    }
+}
+
 impl Spatial for Point {
     type Scalar = f64;
 
