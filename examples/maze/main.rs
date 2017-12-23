@@ -19,7 +19,7 @@ const HEIGHT: f64 = 600.0; // px
 
 run_turtle!(|mut turtle| {
 
-    let maze = Maze::generate();
+    let maze = maze::generate(&mut turtle.rng());
 
     turtle.set_speed(8);
     turtle.set_background_color("#BDBDBD");
