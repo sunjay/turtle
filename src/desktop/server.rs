@@ -177,6 +177,13 @@ fn update_window(window: &mut PistonWindow, current: DrawingState, next: Drawing
     if next.maximized != current.maximized {
         window.window.window.set_maximized(next.maximized);
     }
+    if next.fullscreen != current.fullscreen {
+        if next.fullscreen {
+            window.window.window.set_fullscreen(Some(window.window.window.get_current_monitor()));
+        } else {
+            window.window.window.set_fullscreen(None);
+        }
+    }
     next
 }
 
