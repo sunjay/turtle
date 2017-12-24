@@ -81,13 +81,15 @@ impl<R: Runtime> GenericTurtle<R> {
     ///
     /// ```rust,no_run
     /// # #![allow(unused_variables, unused_mut)]
+    /// #[macro_use]
     /// extern crate turtle;
     /// use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    /// # fn main() { // work around rust doc heuristics
+    /// run_turtle!(|mut turtle| {
     ///     // Do things with the turtle...
-    /// }
+    /// });
+    /// # }
     /// ```
     ///
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
@@ -113,7 +115,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::Turtle;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Move forward 10 tiny turtle steps, drawing a line as you move
     /// turtle.forward(10.0);
     ///
@@ -124,7 +126,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// turtle.pen_up();
     /// turtle.forward(-223.0);
     /// # assert_eq!(turtle.position()[1].round(), -113.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn forward(&mut self, distance: Distance) {
         self.window.forward(distance);
@@ -144,7 +146,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::Turtle;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Move backward 10 tiny turtle steps, drawing a line as you move
     /// turtle.backward(10.0);
     ///
@@ -155,7 +157,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// turtle.pen_up();
     /// turtle.backward(-179.0);
     /// # assert_eq!(turtle.position()[1].round(), 69.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn backward(&mut self, distance: Distance) {
         // Moving backwards is essentially moving forwards with a negative distance
@@ -177,7 +179,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // rotate right by 30 degrees
     /// turtle.right(30.0);
     ///
@@ -196,7 +198,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # let expected = expected - (2.0*PI) * (expected / (2.0*PI)).floor();
     /// # let expected = (expected * 1e5).trunc();
     /// # assert_eq!((turtle.heading() * 1e5).trunc(), expected);
-    /// # }
+    /// # });}
     /// ```
     pub fn right(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -219,7 +221,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // rotate left by 30 degrees
     /// turtle.left(30.0);
     ///
@@ -234,7 +236,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// #     (turtle.heading() * 1e5).trunc(),
     /// #     (((90f64 + 30f64).to_radians() + 1.0 + PI/4.0) * 1e5).trunc()
     /// # );
-    /// # }
+    /// # });}
     /// ```
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -247,12 +249,12 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.forward(100.0);
     /// turtle.wait(2.0);
     /// // The turtle will stop for 2 seconds before proceeding to this line
     /// turtle.forward(50.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn wait(&mut self, secs: f64) {
         // TODO handle sleep for wasm
@@ -265,10 +267,10 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_speed(8);
     /// assert_eq!(turtle.speed(), Speed::Eight);
-    /// # }
+    /// # });}
     /// ```
     pub fn speed(&self) -> Speed {
         self.window.fetch_turtle().speed
@@ -285,14 +287,14 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_speed("normal");
     /// turtle.set_speed("fast");
     /// turtle.set_speed(2);
     /// turtle.set_speed(10);
     /// // Directly using a Speed variant works, but the methods above are usually more convenient.
     /// turtle.set_speed(Speed::Six);
-    /// # }
+    /// # });}
     /// ```
     ///
     /// If input is a number greater than 10 or smaller than 1,
@@ -341,13 +343,13 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.forward(100.0);
     /// let pos = turtle.position();
     /// # // Cheating a bit here for rounding...
     /// # let pos = [pos[0].round(), pos[1].round()];
     /// assert_eq!(pos, [0.0, 100.0]);
-    /// # }
+    /// # });}
     /// ```
     pub fn position(&self) -> Point {
         self.window.fetch_turtle().position
@@ -363,14 +365,14 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// let heading = turtle.heading();
     /// assert_eq!(turtle.position(), [0.0, 0.0]);
     /// turtle.go_to([100.0, -150.0]);
     /// // The heading has not changed, but the turtle has moved to the new position
     /// assert_eq!(turtle.heading(), heading);
     /// assert_eq!(turtle.position(), [100.0, -150.0]);
-    /// # }
+    /// # });}
     /// ```
     pub fn go_to(&mut self, position: Point) {
         self.window.go_to(position);
@@ -396,7 +398,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// let start_position = turtle.position();
     /// let start_heading = turtle.heading().round();
     /// turtle.right(55.0);
@@ -408,7 +410,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// assert_eq!(turtle.heading().round(), start_heading);
     /// assert_eq!(turtle.position()[0].round(), start_position[0].round());
     /// assert_eq!(turtle.position()[1].round(), start_position[1].round());
-    /// # }
+    /// # });}
     /// ```
     pub fn home(&mut self) {
         self.window.with_turtle_mut(|turtle| {
@@ -441,8 +443,8 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Turtles start facing north
-    /// let mut turtle = Turtle::new();
     /// // The rounding is to account for floating-point error
     /// assert_eq!(turtle.heading().round(), 90.0);
     /// turtle.right(31.0);
@@ -452,7 +454,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// turtle.left(130.0);
     /// // Angles should not exceed 360.0
     /// assert_eq!(turtle.heading().round(), 22.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn heading(&self) -> Angle {
         let heading = self.window.fetch_turtle().heading;
@@ -486,8 +488,8 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Turtles start facing north
-    /// let mut turtle = Turtle::new();
     /// // The rounding is to account for floating-point error
     /// assert_eq!(turtle.heading().round(), 90.0);
     /// turtle.set_heading(31.0);
@@ -499,7 +501,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// // Angles should not exceed 360.0, even when we set them to values larger than that
     /// turtle.set_heading(367.0);
     /// assert_eq!(turtle.heading().round(), 7.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn set_heading(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -532,7 +534,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// # turtle.use_radians();
     /// assert!(!turtle.is_using_degrees());
     /// turtle.use_degrees();
@@ -540,7 +542,7 @@ impl<R: Runtime> GenericTurtle<R> {
     ///
     /// // This will now be interpreted as 1.0 degree
     /// turtle.right(1.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn use_degrees(&mut self) {
         self.angle_unit = AngleUnit::Degrees;
@@ -552,14 +554,14 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(!turtle.is_using_radians());
     /// turtle.use_radians();
     /// assert!(turtle.is_using_radians());
     ///
     /// // This will now be interpreted as 1.0 radian
     /// turtle.right(1.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn use_radians(&mut self) {
         self.angle_unit = AngleUnit::Radians;
@@ -571,13 +573,13 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_pen_down());
     /// turtle.pen_up();
     /// assert!(!turtle.is_pen_down());
     /// turtle.pen_down();
     /// assert!(turtle.is_pen_down());
-    /// # }
+    /// # });}
     /// ```
     pub fn is_pen_down(&self) -> bool {
         self.window.fetch_turtle().pen.enabled
@@ -589,7 +591,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// # turtle.pen_up();
     /// assert!(!turtle.is_pen_down());
     /// // This will move the turtle, but not draw any lines
@@ -598,7 +600,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// assert!(turtle.is_pen_down());
     /// // The turtle will now draw lines again
     /// turtle.forward(100.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn pen_down(&mut self) {
         self.window.with_turtle_mut(|turtle| turtle.pen.enabled = true);
@@ -610,7 +612,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_pen_down());
     /// // The turtle will move and draw a line
     /// turtle.forward(100.0);
@@ -618,7 +620,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// assert!(!turtle.is_pen_down());
     /// // Now, the turtle will move, but not draw anything
     /// turtle.forward(100.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn pen_up(&mut self) {
         self.window.with_turtle_mut(|turtle| turtle.pen.enabled = false);
@@ -630,10 +632,10 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_pen_size(25.0);
     /// assert_eq!(turtle.pen_size(), 25.0);
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
@@ -650,29 +652,28 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.pen_up();
+    /// turtle.right(90.0);
+    /// turtle.backward(300.0);
+    /// turtle.pen_down();
     ///
-    ///     turtle.pen_up();
-    ///     turtle.right(90.0);
-    ///     turtle.backward(300.0);
-    ///     turtle.pen_down();
+    /// turtle.set_pen_color("#2196F3"); // blue
+    /// turtle.set_pen_size(1.0);
+    /// turtle.forward(200.0);
     ///
-    ///     turtle.set_pen_color("#2196F3"); // blue
-    ///     turtle.set_pen_size(1.0);
-    ///     turtle.forward(200.0);
+    /// turtle.set_pen_color("#f44336"); // red
+    /// turtle.set_pen_size(50.0);
+    /// turtle.forward(200.0);
     ///
-    ///     turtle.set_pen_color("#f44336"); // red
-    ///     turtle.set_pen_size(50.0);
-    ///     turtle.forward(200.0);
-    ///
-    ///     turtle.set_pen_color("#4CAF50"); // green
-    ///     turtle.set_pen_size(100.0);
-    ///     turtle.forward(200.0);
-    /// }
+    /// turtle.set_pen_color("#4CAF50"); // green
+    /// turtle.set_pen_size(100.0);
+    /// turtle.forward(200.0);
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -691,10 +692,10 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_pen_color("blue");
     /// assert_eq!(turtle.pen_color(), "blue".into());
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -710,22 +711,22 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.set_background_color("light grey");
-    ///     turtle.set_pen_size(3.0);
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.set_background_color("light grey");
+    /// turtle.set_pen_size(3.0);
     ///
-    ///     let colors = ["red", "green", "blue"];
+    /// let colors = ["red", "green", "blue"];
     ///
-    ///     for i in 0..36 {
-    ///         turtle.set_pen_color(colors[i % colors.len()]);
-    ///         turtle.forward(25.0);
-    ///         turtle.right(10.0);
-    ///     }
+    /// for i in 0..36 {
+    ///     turtle.set_pen_color(colors[i % colors.len()]);
+    ///     turtle.forward(25.0);
+    ///     turtle.right(10.0);
     /// }
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -741,10 +742,10 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_background_color("purple");
     /// assert_eq!(turtle.background_color(), "purple".into());
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -760,13 +761,13 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.set_background_color("orange");
-    /// }
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.set_background_color("orange");
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -786,10 +787,10 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_fill_color("coral");
     /// assert_eq!(turtle.fill_color(), "coral".into());
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -826,32 +827,32 @@ impl<R: Runtime> GenericTurtle<R> {
     /// used when filling the shape.
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.right(90.0);
-    ///     turtle.set_pen_size(3.0);
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.right(90.0);
+    /// turtle.set_pen_size(3.0);
     ///
-    ///     turtle.set_pen_color("blue");
-    ///     turtle.set_fill_color("red");
-    ///     turtle.begin_fill();
-    ///     for _ in 0..360 {
-    ///         turtle.forward(2.0);
-    ///         turtle.right(1.0);
-    ///     }
-    ///     turtle.end_fill();
-    ///
-    ///     turtle.set_pen_color("green");
-    ///     turtle.forward(120.0);
-    ///     for _ in 0..3 {
-    ///         turtle.right(90.0);
-    ///         turtle.forward(240.0);
-    ///     }
-    ///     turtle.right(90.0);
-    ///     turtle.forward(120.0);
+    /// turtle.set_pen_color("blue");
+    /// turtle.set_fill_color("red");
+    /// turtle.begin_fill();
+    /// for _ in 0..360 {
+    ///     turtle.forward(2.0);
+    ///     turtle.right(1.0);
     /// }
+    /// turtle.end_fill();
+    ///
+    /// turtle.set_pen_color("green");
+    /// turtle.forward(120.0);
+    /// for _ in 0..3 {
+    ///     turtle.right(90.0);
+    ///     turtle.forward(240.0);
+    /// }
+    /// turtle.right(90.0);
+    /// turtle.forward(120.0);
+    /// # });}
     /// ```
     ///
     /// This will result in the following:
@@ -877,13 +878,13 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_visible());
     /// turtle.hide();
     /// assert!(!turtle.is_visible());
     /// turtle.show();
     /// assert!(turtle.is_visible());
-    /// # }
+    /// # });}
     /// ```
     pub fn is_visible(&self) -> bool {
         self.window.fetch_turtle().visible
@@ -897,11 +898,11 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_visible());
     /// turtle.hide();
     /// assert!(!turtle.is_visible());
-    /// # }
+    /// # });}
     /// ```
     pub fn hide(&mut self) {
         self.window.with_turtle_mut(|turtle| turtle.visible = false);
@@ -913,12 +914,12 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// # turtle.hide();
     /// assert!(!turtle.is_visible());
     /// turtle.show();
     /// assert!(turtle.is_visible());
-    /// # }
+    /// # });}
     /// ```
     pub fn show(&mut self) {
         self.window.with_turtle_mut(|turtle| turtle.visible = true);
@@ -931,7 +932,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.left(43.0);
     /// turtle.forward(289.0);
     /// turtle.set_pen_color("red");
@@ -943,7 +944,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// assert_eq!(turtle.position(), [0.0, 0.0]);
     /// assert_ne!(turtle.pen_color(), "red".into());
     /// assert_ne!(turtle.background_color(), "green".into());
-    /// # }
+    /// # });}
     /// ```
     pub fn reset(&mut self) {
         self.clear();
@@ -959,17 +960,17 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.right(32.0);
-    ///     turtle.forward(150.0);
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.right(32.0);
+    /// turtle.forward(150.0);
     ///
-    ///     turtle.wait_for_click();
-    ///     turtle.clear();
-    /// }
+    /// turtle.wait_for_click();
+    /// turtle.clear();
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -1032,15 +1033,15 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.wait_for_click();
-    ///     // The turtle will wait for the screen to be clicked before continuing
-    ///     turtle.forward(100.0);
-    /// }
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.wait_for_click();
+    /// // The turtle will wait for the screen to be clicked before continuing
+    /// turtle.forward(100.0);
+    /// # });}
     /// ```
     pub fn wait_for_click(&mut self) {
         loop {
@@ -1082,15 +1083,15 @@ impl<R: Runtime> GenericTurtle<R> {
     /// further movements take place.
     ///
     /// ```rust,no_run
+    /// # #[macro_use]
     /// extern crate turtle;
     ///
     /// use turtle::Turtle;
     /// use turtle::event::Key::{Left, Right};
     /// use turtle::Event::KeyPressed;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///
+    /// # fn main() {
+    /// run_turtle!(|mut turtle| {
     ///     loop {
     ///         turtle.forward(1.0);
     ///
@@ -1119,13 +1120,14 @@ impl<R: Runtime> GenericTurtle<R> {
     ///             }
     ///         }
     ///     }
-    /// }
+    /// });
+    /// # }
     /// ```
     pub fn poll_event(&mut self) -> Option<Event> {
         self.window.poll_event()
     }
 
-    /// An RNG suitable for the current runtime environment (desktop, wasm, etc).
+    /// An RNG suitable for the current runtime environment (desktop, web, etc).
     pub fn rng(&self) -> R::Rng {
         R::rng()
     }
@@ -1144,18 +1146,18 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # Example:
     /// ```rust
     /// # extern crate turtle;
-    /// # use turtle::random_range;
     /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Generates an f64 value between 100 and 199
-    /// let value: f64 = random_range(100.0, 200.0);
+    /// let value: f64 = turtle.random_range(100.0, 200.0);
     /// assert!(value >= 100.0 && value < 200.0);
     /// // Generates a u64 value between 1000 and 3000000
-    /// let value = random_range::<u64>(1000, 3000001);
+    /// let value = turtle.random_range::<u64>(1000, 3000001);
     /// assert!(value >= 1000 && value < 3000001);
     /// // You do not need to specify the type if the compiler has enough information:
     /// fn foo(a: u64) {}
-    /// foo(random_range(432, 1938));
-    /// # }
+    /// foo(turtle.random_range(432, 1938));
+    /// # });}
     /// ```
     pub fn random_range<T: PartialOrd + ::rand::distributions::range::SampleRange>(&self, low: T, high: T) -> T {
         self.rng().gen_range::<T>(low, high)

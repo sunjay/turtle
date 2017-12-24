@@ -86,7 +86,7 @@ type DefaultRuntime = ::canvas::CanvasRuntime;
 #[cfg(feature = "canvas")]
 pub use canvas::{alloc, dealloc};
 
-#[cfg(feature = "desktop")]
+#[cfg(any(feature = "desktop", feature = "test"))]
 pub fn start_desktop<F>(f: F) where F: FnOnce(Turtle) {
     let turtle = Turtle::new(desktop::DesktopRuntime::new());
 

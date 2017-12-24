@@ -12,29 +12,9 @@
 //! ```
 //!
 //! The [`random()`] function is the most common function you will use. In fact,
-//! it's exported from the turtle crate directly so you don't even have to use the `rand` module
-//! in order to access it.
-//!
-//! Instead of this:
-//!
-//! ```rust,no_run
-//! extern crate turtle;
-//! use turtle::Turtle;
-//! use turtle::rand::random;
-//! # fn main() {}
-//! ```
-//!
-//! You can do this:
-//!
-//! ```rust,no_run
-//! extern crate turtle;
-//! use turtle::{Turtle, random};
-//! # fn main() {}
-//! ```
-//!
-//! This means that for the most part, unless you are doing something very advanced, you won't need
-//! to import this module. The [`random()`] function should be enough for
-//! most cases. See the next section for more information on that.
+//! it's available on the Turtle type directly. This means that for the most part, unless you
+//! are doing something very advanced, you won't need to import this module. The [`random()`]
+//! function should be enough for most cases. See the next section for more information on that.
 //!
 //! # Generating Random Values
 //!
@@ -55,11 +35,12 @@
 //!
 //! ```rust,compile_fail,E0283
 //! # extern crate turtle;
-//! # use turtle::{Turtle, random};
+//! # use turtle::Turtle;
 //! # fn main() {
-//! let mut turtle = Turtle::new();
-//! turtle.set_speed(random());
-//! # }
+//! # turtle::start_desktop(|mut turtle| {
+//! let speed = turtle.random();
+//! turtle.set_speed(speed);
+//! # });}
 //! ```
 //!
 //! This will produce an error that looks something like the following:
@@ -77,15 +58,17 @@
 //!
 //! ```rust
 //! # extern crate turtle;
-//! # use turtle::{Turtle, Speed, random};
+//! # use turtle::Speed;
 //! # fn main() {
-//! let mut turtle = Turtle::new();
+//! # turtle::start_desktop(|mut turtle| {
 //! // 1. Separate out into a variable, then annotate the desired type
-//! let speed: Speed = random();
+//! let speed: Speed = turtle.random();
 //! turtle.set_speed(speed);
 //! // 2. Turbofish syntax ::<T>
-//! turtle.set_speed(random::<Speed>());
-//! # }
+//! use turtle::rand::Rng;
+//! let mut rng = turtle.rng();
+//! turtle.set_speed(rng.gen::<Speed>());
+//! # });}
 //! ```
 //!
 //! # More Functions for Generating Random Values
@@ -96,18 +79,18 @@
 //!
 //! ```rust
 //! # extern crate turtle;
-//! # use turtle::random_range;
 //! # fn main() {
+//! # turtle::start_desktop(|mut turtle| {
 //! // Generates an f64 value between 394.0 and 499.99999...
-//! let value: f64 = random_range(394.0, 500.0);
+//! let value: f64 = turtle.random_range(394.0, 500.0);
 //! assert!(value >= 394.0 && value < 500.0);
 //! // Generates a u64 value between 32 and 64
-//! let value = random_range::<u64>(32, 65);
+//! let value = turtle.random_range::<u64>(32, 65);
 //! assert!(value >= 32 && value <= 64);
 //! // You do not need to specify the type if the compiler has enough information:
 //! fn foo(a: u64) {}
-//! foo(random_range(381, 920));
-//! # }
+//! foo(turtle.random_range(381, 920));
+//! # });}
 //! ```
 //!
 //! ## How can one function generate so many different return types?
@@ -151,10 +134,11 @@
 //!
 //! ```rust
 //! # extern crate turtle;
-//! # use turtle::{Speed, random};
+//! # use turtle::Speed;
 //! # fn main() {
-//! let speed: Speed = random();
-//! # }
+//! # turtle::start_desktop(|mut turtle| {
+//! let speed: Speed = turtle.random();
+//! # });}
 //! ```
 //!
 //! If we were passing the value to a function that is known to take [`Speed`] as its type, the
@@ -163,12 +147,13 @@
 //!
 //! ```rust
 //! # extern crate turtle;
-//! # use turtle::{Speed, random};
+//! # use turtle::Speed;
 //! # fn main() {
+//! # turtle::start_desktop(|mut turtle| {
 //! fn foo(speed: Speed) {}
 //! // No type annotations required!
-//! foo(random());
-//! # }
+//! foo(turtle.random());
+//! # });}
 //! ```
 //!
 //! This generates a random speed using the implementation of [`Rand`] for the [`Speed`] type in this

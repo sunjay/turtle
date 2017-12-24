@@ -10,12 +10,10 @@
 //! You can refer to a color by using its color name as a string literal. For example:
 //!
 //! ```rust
-//! # #[macro_use]
 //! # extern crate turtle;
 //! # use turtle::color;
 //! # fn main() {
-//! # // this weird nesting is to work around rust doc heuristics
-//! # run_turtle!(|mut turtle| {
+//! # turtle::start_desktop(|mut turtle| {
 //! // This will set the turtle's pen color to BLACK
 //! turtle.set_pen_color("black");
 //! // This is the same as the previous line
@@ -29,10 +27,9 @@
 //! (even ones that aren't listed here).
 //!
 //! ```rust
-//! # #[macro_use]
 //! # extern crate turtle;
 //! # fn main() {
-//! # run_turtle!(|mut turtle| {
+//! # turtle::start_desktop(|mut turtle| {
 //! turtle.set_pen_color("#3366ff");
 //! turtle.set_pen_color("#36f");
 //! # });}
@@ -52,10 +49,9 @@
 //! You can also generate random colors. Here's an example:
 //!
 //! ```rust
-//! # #[macro_use]
 //! # extern crate turtle;
 //! # fn main() {
-//! # run_turtle!(|mut turtle| {
+//! # turtle::start_desktop(|mut turtle| {
 //! use turtle::Color;
 //! use turtle::rand::Rng;
 //! let mut rng = turtle.rng();
