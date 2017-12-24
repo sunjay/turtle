@@ -5,6 +5,7 @@ use std::io::{self, Write};
 use std::sync::mpsc::{self, TryRecvError};
 
 use piston_window::{
+    AdvancedWindow,
     PistonWindow,
     WindowSettings,
 };
@@ -22,6 +23,7 @@ use app::{ReadOnly, TurtleApp};
 use renderer::Renderer;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
 use {Event};
+use state::DrawingState;
 use extensions::ConvertScreenCoordinates;
 
 /// If this process is the child rendering process, enter the rendering loop and do not pass
@@ -164,6 +166,16 @@ fn send_response<W: Write>(writer: W, response: &Response) -> Result<(), ()> {
     messenger::send(writer, response, "bug: unable to write final newline when sending response")
 }
 
+fn update_window(window: &mut PistonWindow, current: DrawingState, next: DrawingState) -> DrawingState {
+    if next.title != current.title {
+        window.set_title(next.title.clone());
+    }
+    if next.width != current.width || next.height != current.height {
+        window.window.window.set_inner_size(next.width, next.height);
+    }
+    next
+}
+
 fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
                    events_tx: mpsc::Sender<Event>,
                    state: ReadOnly) {
@@ -177,8 +189,12 @@ fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
         unreachable!("bug: windows can only be created on the main thread");
     }
     let mut window: PistonWindow = WindowSettings::new(
-        "Turtle", [800, 600]
+        &*state.drawing().title,
+        [800, 600]
     ).exit_on_esc(true).build().unwrap();
+    // We keep a copy of the DrawingState so that we can tell when it is updated and we need
+    // to change something on the window
+    let mut current_drawing = DrawingState::default();
 
     let mut center = state.drawing().center;
 
@@ -201,6 +217,9 @@ fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
                 Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
             }
         }
+
+        // Update the window based on any changes in the DrawingState
+        current_drawing = update_window(&mut window, current_drawing, state.drawing().clone());
 
         window.draw_2d(&e, |c, g| {
             let view = c.get_view_size();

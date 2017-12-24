@@ -56,15 +56,21 @@ impl Default for TurtleState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DrawingState {
+    pub title: String,
     pub background: Color,
     pub center: Point,
+    pub width: u32,
+    pub height: u32,
 }
 
 impl Default for DrawingState {
     fn default() -> Self {
         Self {
+            title: "Turtle".to_owned(),
             background: color::WHITE,
             center: [0.0, 0.0],
+            width: 800,
+            height: 600,
         }
     }
 }
