@@ -8,7 +8,7 @@ use turtle::Turtle;
 
 run_turtle!(|mut turtle| {
 
-    turtle.set_background_color("#29B6F6");
+    turtle.drawing_mut().set_background_color("#29B6F6");
     turtle.set_pen_color("#B2EBF2");
 
     turtle.pen_up();

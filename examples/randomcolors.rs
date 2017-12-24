@@ -9,7 +9,7 @@ run_turtle!(|mut turtle| {
     turtle.set_pen_size(2.0);
     for i in 0..300 {
         let bg_color = turtle.random::<Color>().opaque();
-        turtle.set_background_color(bg_color);
+        turtle.drawing_mut().set_background_color(bg_color);
 
         let pen_color = turtle.random::<Color>().opaque();
         turtle.set_pen_color(pen_color);

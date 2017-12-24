@@ -17,7 +17,7 @@ run_turtle!(|mut turtle| {
     turtle.backward(width / 2.0);
     turtle.pen_down();
 
-    turtle.set_background_color("grey");
+    turtle.drawing_mut().set_background_color("grey");
 
     turtle.set_speed("normal");
     for i in 0..(width / step) as i32 {

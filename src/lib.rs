@@ -55,6 +55,7 @@ mod turtle_window;
 
 mod app;
 mod turtle;
+mod drawing;
 mod speed;
 mod radians;
 mod animation;
@@ -74,6 +75,7 @@ pub mod event;
 pub mod rand;
 
 pub use turtle::{Turtle, Point, Distance, Angle};
+pub use drawing::Drawing;
 pub use speed::{Speed};
 pub use color::{Color};
 pub use event::{Event};

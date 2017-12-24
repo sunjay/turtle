@@ -5,7 +5,7 @@ use turtle::Color;
 
 run_turtle!(|mut turtle| {
 
-    turtle.set_background_color("light grey");
+    turtle.drawing_mut().set_background_color("light grey");
     turtle.set_speed(10);
     turtle.set_pen_size(2.0);
     for i in 0..290 {

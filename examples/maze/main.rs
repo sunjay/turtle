@@ -22,7 +22,7 @@ run_turtle!(|mut turtle| {
     let maze = maze::generate(&mut turtle.rng());
 
     turtle.set_speed(8);
-    turtle.set_background_color("#BDBDBD");
+    turtle.drawing_mut().set_background_color("#BDBDBD");
     turtle.set_pen_color("#03A9F4");
     turtle.set_pen_size(2.0);
 

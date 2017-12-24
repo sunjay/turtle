@@ -42,7 +42,7 @@ use turtle::Color;
 
 run_turtle!(|mut turtle| {
 
-    turtle.set_background_color("#112244");
+    turtle.drawing_mut().set_background_color("#112244");
 
     turtle.pen_up();
     turtle.backward(160.0);

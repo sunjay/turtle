@@ -6,7 +6,7 @@ run_turtle!(|mut turtle| {
     let points = 5.0;
     let angle = 180.0 / points;
 
-    turtle.set_background_color("#424242");
+    turtle.drawing_mut().set_background_color("#424242");
     turtle.set_pen_size(2.0);
     turtle.set_pen_color("yellow");
 
