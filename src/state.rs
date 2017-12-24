@@ -61,6 +61,7 @@ pub struct DrawingState {
     pub center: Point,
     pub width: u32,
     pub height: u32,
+    pub maximized: bool,
 }
 
 impl Default for DrawingState {
@@ -71,6 +72,7 @@ impl Default for DrawingState {
             center: [0.0, 0.0],
             width: 800,
             height: 600,
+            maximized: false,
         }
     }
 }

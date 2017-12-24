@@ -173,6 +173,9 @@ fn update_window(window: &mut PistonWindow, current: DrawingState, next: Drawing
     if next.width != current.width || next.height != current.height {
         window.window.window.set_inner_size(next.width, next.height);
     }
+    if next.maximized != current.maximized {
+        window.window.window.set_maximized(next.maximized);
+    }
     next
 }
 
