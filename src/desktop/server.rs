@@ -19,7 +19,7 @@ use input::{
 };
 
 use super::messenger;
-use app::{ReadOnly, TurtleApp};
+use app::TurtleApp;
 use renderer::Renderer;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
 use {Event};
@@ -50,7 +50,6 @@ pub fn start() {
 /// This function must run in the main thread ONLY
 fn main() {
     let app = TurtleApp::new();
-    let read_only = app.read_only();
     let (drawing_tx, drawing_rx) = mpsc::channel();
     let (events_tx, events_rx) = mpsc::channel();
 
@@ -58,12 +57,14 @@ fn main() {
     // We need to check because while we can exit while that thread is still running, we want
     // any errors caused in that thread to be reported.
     let (running_tx, running_rx) = mpsc::channel();
+
+    let thread_app = app.clone();
     let handle = thread::spawn(move || {
-        read_queries_forever(app, drawing_tx, events_rx, running_tx);
+        read_queries_forever(thread_app, drawing_tx, events_rx, running_tx);
     });
 
     // Renderer MUST run on the main thread or else it will panic on MacOS
-    run_render_loop(drawing_rx, events_tx, read_only);
+    run_render_loop(drawing_rx, events_tx, app);
 
     // Quit immediately when the window is closed
 
@@ -181,7 +182,9 @@ fn update_window(window: &mut PistonWindow, current: DrawingState, next: Drawing
 
 fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
                    events_tx: mpsc::Sender<Event>,
-                   state: ReadOnly) {
+                   mut app: TurtleApp) {
+    let state = app.read_only();
+
     let mut renderer = Renderer::new();
 
     // This check isn't foolproof. Someone can always create a thread named "main".
@@ -202,8 +205,17 @@ fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
     let mut center = state.drawing().center;
 
     'renderloop:
-        while let Some(e) = window.next() {
-        if let Some(event) = from_piston_event(&e, |pt| pt.to_local_coords(center)) {
+        while let Some(event) = window.next() {
+        match event {
+            PistonEvent::Input(Input::Resize(width, height)) => {
+                let mut drawing = app.drawing_mut();
+                drawing.width = width;
+                drawing.height = height;
+            },
+            _ => {},
+        }
+
+        if let Some(event) = from_piston_event(&event, |pt| pt.to_local_coords(center)) {
             match events_tx.send(event) {
                 Ok(_) => {},
                 // Quit - the server thread must have quit
@@ -224,7 +236,7 @@ fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
         // Update the window based on any changes in the DrawingState
         current_drawing = update_window(&mut window, current_drawing, state.drawing().clone());
 
-        window.draw_2d(&e, |c, g| {
+        window.draw_2d(&event, |c, g| {
             let view = c.get_view_size();
             let width = view[0] as f64;
             let height = view[1] as f64;
