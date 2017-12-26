@@ -132,7 +132,7 @@ impl Point {
     ///
     /// For our "cartesian" coordinate system, this is always (0.0, 0.0)
     pub fn origin() -> Self {
-        Point {x: 0.0, y: 0.0}
+        Self {x: 0.0, y: 0.0}
     }
 
     /// Returns true if both x and y are finite (neither infinite nor `NaN`).
@@ -154,13 +154,13 @@ impl Point {
 
     /// Computes the absolute value of x and y and returns a new `Point`
     pub fn abs(self) -> Self {
-        Point {x: self.x.abs(), y: self.y.abs()}
+        Self {x: self.x.abs(), y: self.y.abs()}
     }
 
     /// Returns a new `Point` with x and y set to the nearest integer to each of their values.
     /// Rounds half-way cases away from 0.0.
     pub fn round(self) -> Self {
-        Point {x: self.x.round(), y: self.y.round()}
+        Self {x: self.x.round(), y: self.y.round()}
     }
 
     /// Returns the square of the length of this point.
@@ -185,13 +185,13 @@ impl Point {
 
 impl From<(f64, f64)> for Point {
     fn from(pt: (f64, f64)) -> Self {
-        Point {x: pt.0, y: pt.1}
+        Self {x: pt.0, y: pt.1}
     }
 }
 
 impl From<[f64; 2]> for Point {
     fn from(pt: [f64; 2]) -> Self {
-        Point {x: pt[0], y: pt[1]}
+        Self {x: pt[0], y: pt[1]}
     }
 }
 
@@ -202,10 +202,10 @@ impl From<Point> for [f64; 2] {
 }
 
 impl Add for Point {
-    type Output = Point;
+    type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        Point {
+        Self {
             x: self.x + other.x,
             y: self.y + other.y,
         }
@@ -213,10 +213,10 @@ impl Add for Point {
 }
 
 impl Sub for Point {
-    type Output = Point;
+    type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        Point {
+        Self {
             x: self.x - other.x,
             y: self.y - other.y,
         }
@@ -224,10 +224,10 @@ impl Sub for Point {
 }
 
 impl Mul<f64> for Point {
-    type Output = Point;
+    type Output = Self;
 
     fn mul(self, other: f64) -> Self::Output {
-        Point {
+        Self {
             x: self.x * other,
             y: self.y * other,
         }
@@ -235,10 +235,10 @@ impl Mul<f64> for Point {
 }
 
 impl Div<f64> for Point {
-    type Output = Point;
+    type Output = Self;
 
     fn div(self, other: f64) -> Self::Output {
-        Point {
+        Self {
             x: self.x / other,
             y: self.y / other,
         }
