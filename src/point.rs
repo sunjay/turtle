@@ -1,5 +1,6 @@
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 
+use rand::{Rng, Rand, RandomRange};
 use interpolation::Spatial;
 
 /// A point in 2D space
@@ -116,6 +117,22 @@ use interpolation::Spatial;
 /// # }
 /// ```
 ///
+/// # Generating Random Points
+///
+/// ```rust
+/// # extern crate turtle;
+/// # use turtle::{Point, random};
+/// # fn main() {
+/// let pt: Point = random();
+/// assert!(pt.x >= 0.0 && pt.x < 1.0);
+/// assert!(pt.y >= 0.0 && pt.y < 1.0);
+/// # }
+/// ```
+///
+/// See the documentation for the [`rand`](rand/index.html) module and the section
+/// [Generating Random Values in a Range](rand/index.html#generating-random-values-in-a-range)
+/// for more information.
+///
 /// [`Turtle::go_to()`]: struct.Turtle.html#method.go_to
 /// [`Turtle::turn_towards()`]: struct.Turtle.html#method.turn_towards
 /// [`Drawing::set_center()`]: struct.Drawing.html#method.set_center
@@ -161,6 +178,42 @@ impl Point {
     /// Rounds half-way cases away from 0.0.
     pub fn round(self) -> Self {
         Self {x: self.x.round(), y: self.y.round()}
+    }
+
+    /// Returns the minimum x and y coordinates of the two points
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::Point;
+    /// # fn main() {
+    /// let p1 = Point {x: 100.0, y: 203.18};
+    /// let p2 = Point {x: 3.0, y: 1029.677};
+    /// assert_eq!(p1.min(p2), Point {x: 3.0, y: 203.18});
+    /// # }
+    /// ```
+    pub fn min(self, other: Self) -> Self {
+        Self {
+            x: self.x.min(other.x),
+            y: self.y.min(other.y),
+        }
+    }
+
+    /// Returns the maximum x and y coordinates of the two points
+    ///
+    /// ```rust
+    /// # extern crate turtle;
+    /// # use turtle::Point;
+    /// # fn main() {
+    /// let p1 = Point {x: 100.0, y: 203.18};
+    /// let p2 = Point {x: 3.0, y: 1029.677};
+    /// assert_eq!(p1.max(p2), Point {x: 100.0, y: 1029.677});
+    /// # }
+    /// ```
+    pub fn max(self, other: Self) -> Self {
+        Self {
+            x: self.x.max(other.x),
+            y: self.y.max(other.y),
+        }
     }
 
     /// Returns the square of the length of this point.
@@ -283,5 +336,26 @@ impl Spatial for Point {
     #[inline(always)]
     fn scale(&self, scalar: &Self::Scalar) -> Self {
         *self * *scalar
+    }
+}
+
+impl Rand for Point {
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        Self {
+            x: rng.gen(),
+            y: rng.gen(),
+        }
+    }
+}
+
+impl RandomRange for Point {
+    fn random_range<R: Rng>(rng: &mut R, p1: Self, p2: Self) -> Self {
+        let min = p1.min(p2);
+        let max = p1.max(p2);
+
+        Point {
+            x: RandomRange::random_range(rng, min.x, max.x),
+            y: RandomRange::random_range(rng, min.y, max.y),
+        }
     }
 }

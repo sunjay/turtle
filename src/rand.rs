@@ -110,6 +110,26 @@
 //! # }
 //! ```
 //!
+//! Most types that can be used with [`random()`] can also be used with [`random_range()`]. This
+//! includes all of the types listed above.
+//!
+//! When [`random_range()`] is used to generate a [`Point`], it creates a random point within the
+//! rectangle formed by the two points given as arguments to [`random_range()`]. This is
+//! illustrated in the example below:
+//!
+//! ```rust
+//! # extern crate turtle;
+//! # use turtle::{Point, random_range};
+//! # fn main() {
+//! // Generates a Point value with:
+//! //   x-coordinate between 46.0 and 99932.0
+//! //   y-coordinate between 309.0 and 1803.0
+//! let value: Point = random_range([99932.0, 309.0].into(), [46.0, 1803.0].into());
+//! assert!(value.x >= 46.0 && value.x < 99932.0);
+//! assert!(value.y >= 309.0 && value.y < 1803.0);
+//! # }
+//! ```
+//!
 //! # How can one function generate so many different return types?
 //!
 //! Knowing how [`random()`] works is **not required** in order to be able to use it. That being said,
@@ -178,7 +198,7 @@
 //! Not all of the implementations of [`Rand`] for the types above are implemented in this
 //! crate. There is a rule known as the [orphan rule](https://doc.rust-lang.org/book/second-edition/ch10-02-traits.html#implementing-a-trait-on-a-type)
 //! which prevents anyone from implementing a trait on a type that they do not define. That is why
-//! we implemented [`Rand`] for [`Speed`] and [`Color`], but not for type aliases like
+//! we implemented [`Rand`] for [`Speed`], [`Color`], and [`Point`], but not for type aliases like
 //! [`Distance`]. [`Distance`] is a type alias for `f64`. `f64` is provided by the standard
 //! library, so we cannot implement any traits for it. The implementations of [`Rand`] for types
 //! like that come from the `rand` crate itself.
@@ -190,15 +210,28 @@
 //! [`Angle`]: ../type.Angle.html
 //! [`Speed`]: ../speed/enum.Speed.html
 //! [`Color`]: ../color/struct.Color.html
-//! [`Point`]: ../type.Point.html
+//! [`Point`]: ../struct.Point.html
 
 pub use rand_crate::*;
 
 use self::distributions::range::SampleRange;
 
+pub trait RandomRange {
+    fn random_range<R: Rng>(rng: &mut R, low: Self, high: Self) -> Self;
+}
+
+impl<T> RandomRange for T where T: PartialOrd + SampleRange {
+    fn random_range<R: Rng>(rng: &mut R, low: T, high: T) -> T {
+        rng.gen_range(low, high)
+    }
+}
+
 /// Generates a random value in the given range.
 ///
 /// The value `x` that is returned will be such that low &le; x &lt; high.
+///
+/// See [Generating Random Values in a Range](index.html#generating-random-values-in-a-range)
+/// for more information.
 ///
 /// # Panics
 /// Panics if low &ge; high
@@ -219,6 +252,7 @@ use self::distributions::range::SampleRange;
 /// foo(random_range(432, 1938));
 /// # }
 /// ```
-pub fn random_range<T: PartialOrd + SampleRange>(low: T, high: T) -> T {
-    thread_rng().gen_range(low, high)
+pub fn random_range<T: RandomRange>(low: T, high: T) -> T {
+    let mut rng = thread_rng();
+    RandomRange::random_range(&mut rng, low, high)
 }
