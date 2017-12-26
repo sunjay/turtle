@@ -14,7 +14,7 @@ run_turtle!(|mut turtle| {
     loop {
         turtle.forward(1.0);
 
-        while let Some(event) = turtle.poll_event() {
+        while let Some(event) = turtle.drawing_mut().poll_event() {
             match event {
                 KeyPressed(key) => match key {
                     Left => {

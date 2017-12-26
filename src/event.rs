@@ -10,7 +10,7 @@ pub use input::{
     TouchArgs as Touch,
 };
 
-/// Possible events returned from [`Turtle::poll_event()`](../struct.Turtle.html#method.poll_event).
+/// Possible events returned from [`Drawing::poll_event()`](../struct.Drawing.html#method.poll_event).
 ///
 /// Events are used to make programs more interactive.
 /// See that method's documentation for more information about how to use events.
