@@ -163,7 +163,7 @@ impl Drawing {
     /// # fn main() {
     /// let mut turtle = Turtle::new();
     /// assert_eq!(turtle.drawing().center(), Point {x: 0.0, y: 0.0});
-    /// turtle.drawing_mut().set_center(Point {x: 4.0, y: 3.0});
+    /// turtle.drawing_mut().set_center([4.0, 3.0]);
     /// assert_eq!(turtle.drawing().center(), Point {x: 4.0, y: 3.0});
     /// # }
     /// ```
