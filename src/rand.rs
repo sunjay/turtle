@@ -88,7 +88,7 @@
 //! # }
 //! ```
 //!
-//! # More Functions for Generating Random Values
+//! # Generating Random Values in a Range
 //!
 //! The [`random_range()`] function allows you to generate values in a given range. You provide
 //! a lower bound and an upper bound. The number generated will be greater than or equal to the
@@ -110,7 +110,7 @@
 //! # }
 //! ```
 //!
-//! ## How can one function generate so many different return types?
+//! # How can one function generate so many different return types?
 //!
 //! Knowing how [`random()`] works is **not required** in order to be able to use it. That being said,
 //! it is an excellent example of combing the concepts of "generics" and "traits". If you are not
@@ -174,7 +174,7 @@
 //! This generates a random speed using the implementation of [`Rand`] for the [`Speed`] type in this
 //! crate.
 //!
-//! ### The Orphan Rule
+//! # The Orphan Rule
 //! Not all of the implementations of [`Rand`] for the types above are implemented in this
 //! crate. There is a rule known as the [orphan rule](https://doc.rust-lang.org/book/second-edition/ch10-02-traits.html#implementing-a-trait-on-a-type)
 //! which prevents anyone from implementing a trait on a type that they do not define. That is why

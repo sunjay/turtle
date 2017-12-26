@@ -319,14 +319,14 @@ impl Turtle {
     ///
     /// Anything else will cause the program to `panic!` at runtime.
     ///
-    /// ## Moving Instantly
+    /// # Moving Instantly
     ///
     /// A speed of zero (`Speed::Instant`) results in no animation. The turtle moves instantly
     /// and turns instantly. This is very useful for moving the turtle from its "home" position
     /// before you start drawing. By setting the speed to instant, you don't have to wait for
     /// the turtle to move into position.
     ///
-    /// ## Learning About Conversion Traits
+    /// # Learning About Conversion Traits
     ///
     /// Using this method is an excellent way to learn about conversion
     /// traits `From` and `Into`. This method takes a *generic type* as its speed parameter. That type
