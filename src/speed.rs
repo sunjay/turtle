@@ -6,61 +6,35 @@ use radians::Radians;
 use rand::{Rand, Rng};
 use {Distance};
 
-/// Represents the supported movement and rotation speeds
-///
-/// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
-#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Speed {
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
-    Nine,
-    Ten,
+const MAX_SPEED: u8 = 25;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub(crate) enum SpeedLevel {
+    Value(u8),
     Instant,
 }
 
+/// Represents the supported movement and rotation speeds
+///
+/// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Speed(SpeedLevel);
+
 impl Speed {
-    /// Converts a speed to its value as pixels per second
-    pub(crate) fn to_absolute(self) -> Distance {
-        use self::Speed::*;
-        // Arbitrary values that can be tweaked
-        // Just make sure to keep invariants like Five > Three, etc.
-        match self {
-            One => 50.,
-            Two => 100.,
-            Three => 200.,
-            Four => 300.,
-            Five => 500.,
-            Six => 600.,
-            Seven => 1000.,
-            Eight => 2000.,
-            Nine => 3000.,
-            Ten => 5000.,
+    /// Converts a speed to its value as a movement speed in pixels per second
+    pub fn to_movement(self) -> Distance {
+        use self::SpeedLevel::*;
+        match self.0 {
+            Value(speed) => speed as f64 * 500.0,
             Instant => f64::INFINITY,
         }
     }
 
     /// Converts a speed to its value as radians per second
     pub(crate) fn to_rotation(self) -> Radians {
-        use self::Speed::*;
-        // Arbitrary values that can be tweaked
-        // Just make sure to keep invariants like Five > Three, etc.
-        Radians::from_radians_value(match self {
-            One => 0.7 * PI,
-            Two => 0.9 * PI,
-            Three => 1.0 * PI,
-            Four => 2.0 * PI,
-            Five =>  3.0 * PI,
-            Six => 6.0 * PI,
-            Seven => 8.0 * PI,
-            Eight => 12.0 * PI,
-            Nine => 14.0 * PI,
-            Ten => 16.0 * PI,
+        use self::SpeedLevel::*;
+        Radians::from_radians_value(match self.0 {
+            Value(speed) => speed as f64 * (2.0*PI),
             Instant => f64::INFINITY,
         })
     }
@@ -68,18 +42,9 @@ impl Speed {
 
 impl fmt::Display for Speed {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use self::Speed::*;
-        write!(f, "{}", match *self {
-            One => 1,
-            Two => 2,
-            Three => 3,
-            Four => 4,
-            Five => 5,
-            Six => 6,
-            Seven => 7,
-            Eight => 8,
-            Nine => 9,
-            Ten => 10,
+        use self::SpeedLevel::*;
+        write!(f, "{}", match self.0 {
+            Value(speed) => speed,
             Instant => 0,
         })
     }
@@ -87,43 +52,36 @@ impl fmt::Display for Speed {
 
 impl Rand for Speed {
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        (rng.gen::<i32>() % 10).into()
+        (rng.gen::<i32>() % MAX_SPEED as i32).into()
     }
 }
 
 impl<'a> From<&'a str> for Speed {
     fn from(s: &'a str) -> Self {
-        use self::Speed::*;
+        use self::SpeedLevel::*;
 
-        match s {
-            "slowest" => One,
-            "slow" => Three,
-            "normal" => Six,
-            "fast" => Eight,
-            "fastest" => Ten,
+        Speed(match s {
+            "slowest" => Value(1),
+            "slower" => Value(5),
+            "slow" => Value(8),
+            "normal" => Value(10),
+            "fast" => Value(12),
+            "faster" => Value(15),
             "instant" => Instant,
-            _ => panic!("Invalid speed specified, use one of the words: 'slowest', 'slow', 'normal', 'fast', 'fastest', 'instant'"),
-        }
+            _ => panic!("Invalid speed specified, use one of the words: 'slowest', 'slower', 'slow', 'normal', 'fast', 'faster', 'instant'"),
+        })
     }
 }
 
 impl From<i32> for Speed {
     fn from(n: i32) -> Self {
-        use self::Speed::*;
+        use self::SpeedLevel::*;
 
-        match n {
-            1 => One,
-            2 => Two,
-            3 => Three,
-            4 => Four,
-            5 => Five,
-            6 => Six,
-            7 => Seven,
-            8 => Eight,
-            9 => Nine,
-            10 => Ten,
-            _ => Instant,
-        }
+        Speed(match n {
+            0 => Instant,
+            n if n as u8 <= MAX_SPEED => Value(n as u8),
+            n => panic!("Invalid speed: {}. Must be a value between 0 and {}", n, MAX_SPEED),
+        })
     }
 }
 

@@ -48,7 +48,7 @@ impl Default for TurtleState {
             fill_color: color::BLACK,
             position: Point::origin(),
             heading: Radians::from_degrees_value(90.0),
-            speed: Speed::Five,
+            speed: "normal".into(),
             visible: true,
         }
     }
