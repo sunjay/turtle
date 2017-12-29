@@ -1,3 +1,4 @@
+use std::fmt;
 use std::f64;
 use std::f64::consts::PI;
 
@@ -8,7 +9,7 @@ use {Distance};
 /// Represents the supported movement and rotation speeds
 ///
 /// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
-#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Speed {
     One,
     Two,
@@ -61,6 +62,25 @@ impl Speed {
             Nine => 14.0 * PI,
             Ten => 16.0 * PI,
             Instant => f64::INFINITY,
+        })
+    }
+}
+
+impl fmt::Display for Speed {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::Speed::*;
+        write!(f, "{}", match *self {
+            One => 1,
+            Two => 2,
+            Three => 3,
+            Four => 4,
+            Five => 5,
+            Six => 6,
+            Seven => 7,
+            Eight => 8,
+            Nine => 9,
+            Ten => 10,
+            Instant => 0,
         })
     }
 }

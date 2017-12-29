@@ -18,7 +18,7 @@ use input::{
     Motion,
 };
 
-use super::messenger;
+use super::messenger::{self, Disconnected};
 use app::TurtleApp;
 use renderer::Renderer;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
@@ -111,23 +111,21 @@ pub(crate) fn handle_query_for_test_use_only(
     app: &mut TurtleApp,
     events_rx: &mpsc::Receiver<Event>,
     drawing_tx: &mpsc::Sender<DrawingCommand>,
-) -> Result<Option<Response>, ()> {
+) -> Result<Option<Response>, Disconnected> {
     handle_query(query, app, events_rx, drawing_tx)
 }
 
 /// Returns the appropriate Response (if any) to the given Query
-///
-/// Returns Err(()) if it is time to quit because we have been disconnected.
 fn handle_query(
     query: Query,
     app: &mut TurtleApp,
     events_rx: &mpsc::Receiver<Event>,
     drawing_tx: &mpsc::Sender<DrawingCommand>,
-) -> Result<Option<Response>, ()> {
+) -> Result<Option<Response>, Disconnected> {
     match query {
         Query::Request(req) => handle_request(req, &app, &events_rx),
         Query::Update(update) => handle_update(update, app),
-        Query::Drawing(cmd) => drawing_tx.send(cmd).map(|_| None).map_err(|_| ()),
+        Query::Drawing(cmd) => drawing_tx.send(cmd).map(|_| None).map_err(|_| Disconnected),
     }
 }
 
@@ -135,7 +133,7 @@ fn handle_request(
     request: Request,
     app: &TurtleApp,
     events_rx: &mpsc::Receiver<Event>,
-) -> Result<Option<Response>, ()> {
+) -> Result<Option<Response>, Disconnected> {
     use self::Request::*;
     Ok(Some(match request {
         TurtleState => Response::TurtleState((*app.turtle()).clone()),
@@ -143,7 +141,7 @@ fn handle_request(
         Event => Response::Event(match events_rx.try_recv() {
             Ok(event) => Some(event),
             Err(TryRecvError::Empty) => None,
-            Err(TryRecvError::Disconnected) => return Err(()),
+            Err(TryRecvError::Disconnected) => return Err(Disconnected),
         }),
     }))
 }
@@ -151,7 +149,7 @@ fn handle_request(
 fn handle_update(
     update: StateUpdate,
     app: &mut TurtleApp,
-) -> Result<Option<Response>, ()> {
+) -> Result<Option<Response>, Disconnected> {
     use self::StateUpdate::*;
     match update {
         TurtleState(turtle) => *app.turtle_mut() = turtle,
@@ -163,7 +161,7 @@ fn handle_update(
 }
 
 /// Sends a response to stdout
-fn send_response<W: Write>(writer: W, response: &Response) -> Result<(), ()> {
+fn send_response<W: Write>(writer: W, response: &Response) -> Result<(), Disconnected> {
     messenger::send(writer, response, "bug: unable to write final newline when sending response")
 }
 
