@@ -1,6 +1,7 @@
 //! To run a LOGO program, run:
 //!     cargo run --example logo_interpreter -- my_logo_program.txt
 
+#[macro_use]
 extern crate turtle;
 
 use turtle::Turtle;
@@ -8,9 +9,7 @@ use std::env;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 
-fn main() {
-    let mut turtle = Turtle::new();
-
+run_turtle!(|mut turtle| {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 2 {
@@ -23,7 +22,7 @@ fn main() {
         let file = File::open(path).expect("Could not open provided program");
         interpret(&mut turtle, file)
     }
-}
+});
 
 fn interpret<R: io::Read>(turtle: &mut Turtle, input: R) {
     let mut reader = BufReader::new(input);

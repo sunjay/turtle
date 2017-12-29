@@ -270,12 +270,17 @@ impl<R: Runtime> GenericTurtle<R> {
         thread::sleep(Duration::from_millis((secs * 1000.0) as u64));
     }
 
-    /// Retrieve a read-only reference to the drawing
+    /// Retrieve a read-only reference to the drawing.
+    ///
+    /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
+    /// listing of the information that you can retrieve from the drawing.pub fn drawing(&self) -> &Drawing<R> {
     pub fn drawing(&self) -> &Drawing<R> {
         &self.drawing
     }
 
-    /// Retrieve a mutable reference to the drawing
+    ///
+    /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
+    /// listing of the ways that you can manipulate the drawing.
     pub fn drawing_mut(&mut self) -> &mut Drawing<R> {
         &mut self.drawing
     }

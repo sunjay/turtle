@@ -1,6 +1,6 @@
 [package]
 name = "turtle"
-version = "1.0.0-alpha.8"
+version = "1.0.0-alpha.9"
 authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
 description = "Learn the Rust language by creating animated drawings!"
 homepage = "http://turtle.rs"
@@ -15,8 +15,8 @@ license = "MPL-2.0"
 # the package
 exclude = ["*"]
 include = ["README.md", "LICENSE", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md",
-  "CHANGELOG.md", "src/**/*.rs", "examples/**/*.rs", "tests/**/*.rs",
-  "Cargo.toml", ".rustfmt.toml", "rust-toolchain"]
+  "CHANGELOG.md", "src/**/*.rs", "examples/**/*.rs", "examples/**/*.txt",
+  "tests/**/*.rs", "Cargo.toml", ".rustfmt.toml", "rust-toolchain"]
 
 [badges]
 # Appveyor: `repository` is required. `branch` is optional; default is `master`
