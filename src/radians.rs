@@ -5,6 +5,7 @@ use interpolation::Spatial;
 
 pub const PI: Radians = Radians(fPI);
 pub const TWO_PI: Radians = Radians(2.*fPI);
+#[cfg_attr(any(feature = "test", test), allow(dead_code))]
 pub const ZERO: Radians = Radians(0.0);
 
 /// Represents an angle in radians.
@@ -48,14 +49,14 @@ impl Radians {
         self.0.sin()
     }
 
-    /// Returns true if this value is positive infinity or negative infinity and false otherwise.
-    pub fn is_infinite(self) -> bool {
-        self.0.is_infinite()
+    /// Returns true if the number is neither zero, infinite, subnormal, or NaN.
+    pub fn is_normal(self) -> bool {
+        self.0.is_normal()
     }
 
     /// Returns true if this value is `NaN` and false otherwise.
     pub fn is_nan(self) -> bool {
-        self.0.is_infinite()
+        self.0.is_nan()
     }
 
     /// See [`std::f64::signum()`](https://doc.rust-lang.org/std/primitive.f64.html#method.signum)

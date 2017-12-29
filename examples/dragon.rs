@@ -74,7 +74,7 @@ fn dragon(
     if num_folds == 0 {
         // mapping a color number 0-255 to an rgb gradient.
         turtle.set_pen_color(Color {
-            red: (color_mid - 128.).abs() * 2.,
+            red: (color_mid - 127.5).abs() * 2.,
             green: color_mid,
             blue: 160.,
             alpha: 1.,

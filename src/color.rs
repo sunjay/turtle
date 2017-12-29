@@ -86,6 +86,44 @@
 //!
 //! Note that when creating a color this way, we **do not** check if the values of each property are
 //! within their valid ranges.
+//!
+//! A more ergonomic syntax can also be used when passing a color to a method that supports any
+//! type that implements `Into<Color>`.
+//!
+//! ```rust
+//! # extern crate turtle;
+//! # use turtle::*;
+//! # fn main() {
+//! # turtle::start_desktop(|mut turtle| {
+//! // A solid color with alpha = 1.0
+//! // Syntax is [red, green, blue] and doesn't require explicitly writing the field names
+//! turtle.set_pen_color([133.0, 23.0, 96.0]);
+//! turtle.set_fill_color([133.0, 23.0, 96.0]);
+//! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0]);
+//! // This is a little easier to type than the equivalent:
+//! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 1.0});
+//!
+//! // Add an additional element to the array to specify the alpha
+//! // Syntax is [red, green, blue, alpha]
+//! turtle.set_pen_color([133.0, 23.0, 96.0, 0.5]);
+//! turtle.set_fill_color([133.0, 23.0, 96.0, 0.5]);
+//! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0, 0.5]);
+//! // This is a little easier to type than the equivalent:
+//! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
+//! # });}
+//! ```
+//!
+//! When creating a color this way, we **will** check whether or not the color is valid and provide
+//! an error message to let you know what happened.
+//!
+//! ```rust,should_panic
+//! # extern crate turtle;
+//! # fn main() {
+//! # turtle::start_desktop(|mut turtle| {
+//! // Color values must only go up to 255.0
+//! turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
+//! # });}
+//! ```
 
 use std::iter::repeat;
 
@@ -108,6 +146,16 @@ pub struct Color {
 }
 
 impl Color {
+    /// Returns true if the values for each field are valid.
+    ///
+    /// The documentation above lists the valid range for each field.
+    pub fn is_valid(&self) -> bool {
+        self.red >= 0.0 && self.red <= 255.0 && self.red.is_finite() &&
+            self.green >= 0.0 && self.green <= 255.0 && self.green.is_finite() &&
+            self.blue >= 0.0 && self.blue <= 255.0 && self.blue.is_finite() &&
+            self.alpha >= 0.0 && self.alpha <= 1.0 && self.alpha.is_finite()
+    }
+
     /// Return a new color with all of the same values except with opacity (alpha) set to 1.0
     ///
     /// ```rust
@@ -180,6 +228,36 @@ impl From<Color> for types::Color {
             color.blue as f32 / 255.0,
             color.alpha as f32,
         ]
+    }
+}
+
+impl From<[f64; 3]> for Color {
+    fn from(color_values: [f64; 3]) -> Self {
+        let color = Color {
+            red: color_values[0],
+            green: color_values[1],
+            blue: color_values[2],
+            alpha: 1.0,
+        };
+        assert!(color.is_valid(),
+            "Invalid color: {:?}. See the Color struct documentation for more information.",
+            color_values);
+        color
+    }
+}
+
+impl From<[f64; 4]> for Color {
+    fn from(color_values: [f64; 4]) -> Self {
+        let color = Color {
+            red: color_values[0],
+            green: color_values[1],
+            blue: color_values[2],
+            alpha: color_values[3],
+        };
+        assert!(color.is_valid(),
+            "Invalid color: {:?}. See the Color struct documentation for more information.",
+            color_values);
+        color
     }
 }
 
@@ -269,6 +347,8 @@ color_consts! {
 mod tests {
     use super::*;
 
+    use std::f64::{NAN, INFINITY as INF, EPSILON};
+
     #[test]
     fn color_equivalence() {
         let c = Color {red: 51.0, green: 85.0, blue: 255.0, alpha: 1.0};
@@ -283,6 +363,16 @@ mod tests {
     }
 
     #[test]
+    fn fields_mapped_correctly() {
+        // Check if array syntax maps color values to the correct fields
+        let c: Color = [2.4, 3.2, 4.6, 0.67].into();
+        assert_eq!(c, Color {red: 2.4, green: 3.2, blue: 4.6, alpha: 0.67});
+
+        let c: Color = [2.4, 3.2, 4.6].into();
+        assert_eq!(c, Color {red: 2.4, green: 3.2, blue: 4.6, alpha: 1.0});
+    }
+
+    #[test]
     #[should_panic(expected = "Invalid color literal: #fffff")]
     fn invalid_color1() {
         // Wrong number of digits
@@ -294,6 +384,66 @@ mod tests {
     fn invalid_color2() {
         // Invalid hex character
         Color::from("#www");
+    }
+
+    #[test]
+    fn valid_colors() {
+        // Test that all colors in their valid ranges are valid
+        // Floating-point numbers have infinite ranges, so this is not an exhaustive test
+        for i in 0..(255*2 + 1) {
+            let i = i as f64 / 2.0;
+
+            let color = Color {red: i, green: 0.0, blue: 0.0, alpha: 0.0};
+            assert!(color.is_valid(), "{:?}", color);
+            let color = Color {red: 0.0, green: i, blue: 0.0, alpha: 0.0};
+            assert!(color.is_valid(), "{:?}", color);
+            let color = Color {red: 0.0, green: 0.0, blue: i, alpha: 0.0};
+            assert!(color.is_valid(), "{:?}", color);
+            let color = Color {red: 0.0, green: 0.0, blue: 0.0, alpha: i / 255.0};
+            assert!(color.is_valid(), "{:?}", color);
+
+            let color = Color {
+                red: 255.0 - i,
+                green: i,
+                blue: 255.0 - i,
+                alpha: i / 255.0
+            };
+            assert!(color.is_valid(), "{:?}", color);
+        }
+    }
+
+    #[test]
+    fn invalid_color3() {
+        assert!(!Color {red: NAN, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: NAN, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: NAN, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: NAN}.is_valid());
+        assert!(!Color {red: NAN, green: NAN, blue: NAN, alpha: NAN}.is_valid());
+
+        assert!(!Color {red: INF, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: INF, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: INF, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: INF}.is_valid());
+        assert!(!Color {red: INF, green: INF, blue: INF, alpha: INF}.is_valid());
+
+        assert!(!Color {red: -INF, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: -INF, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: -INF, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: -INF}.is_valid());
+        assert!(!Color {red: -INF, green: -INF, blue: -INF, alpha: -INF}.is_valid());
+
+        // Out of valid range
+        assert!(!Color {red: -EPSILON, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: -EPSILON, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: -EPSILON, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: -EPSILON}.is_valid());
+        assert!(!Color {red: -EPSILON, green: -EPSILON, blue: -EPSILON, alpha: -EPSILON}.is_valid());
+
+        assert!(!Color {red: 255.0001, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 255.0001, blue: 0.0, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 255.0001, alpha: 0.0}.is_valid());
+        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0001}.is_valid());
+        assert!(!Color {red: 255.0001, green: 255.0001, blue: 255.0001, alpha: 1.0001}.is_valid());
     }
 }
 
