@@ -36,10 +36,6 @@ impl Runtime for DesktopRuntime {
         self.renderer_process.send_query(query)
     }
 
-    fn debug_log(s: &str) {
-        eprintln!("{}", s);
-    }
-
     fn rng() -> Self::Rng {
         ::rand::thread_rng()
     }

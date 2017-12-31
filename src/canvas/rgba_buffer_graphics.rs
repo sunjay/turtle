@@ -2,7 +2,6 @@ use std::{slice, fmt};
 use std::cmp::Ordering;
 
 use graphics::{self, types};
-use ::runtime::Runtime;
 
 // TODO textures
 pub struct RgbaTexture {}

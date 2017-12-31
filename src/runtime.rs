@@ -19,8 +19,5 @@ pub trait Runtime {
     /// sending the query
     fn send_query(&mut self, query: Query) -> Option<Response>;
 
-    /// Write to some form of logging (for environments where eprintln doesn't work, like wasm)
-    fn debug_log(s: &str);
-
     fn rng() -> Self::Rng;
 }

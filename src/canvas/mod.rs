@@ -28,6 +28,19 @@ impl CanvasRuntime {
             graphics: rgba_buffer_graphics::RgbaBufferGraphics::new(width, height, pixel_buffer),
         }
     }
+
+    fn debug_log(s: &str) {
+        let mut v = Vec::new();
+        v.extend(s.as_bytes().iter());
+        v.push(0);
+
+        unsafe {
+            web_debug_log(v.as_ptr() as *const u8)
+        }
+
+        // ensure v lives until here so the pointer is valid when read above
+        mem::drop(v);
+    }
 }
 
 impl Runtime for CanvasRuntime {
@@ -74,19 +87,6 @@ impl Runtime for CanvasRuntime {
         }
 
         None
-    }
-
-    fn debug_log(s: &str) {
-        let mut v = Vec::new();
-        v.extend(s.as_bytes().iter());
-        v.push(0);
-
-        unsafe {
-            web_debug_log(v.as_ptr() as *const u8)
-        }
-
-        // ensure v lives until here so the pointer is valid when read above
-        mem::drop(v);
     }
 
     fn rng() -> Self::Rng {
