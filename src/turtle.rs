@@ -9,7 +9,7 @@ use turtle_window::TurtleWindow;
 use event::MouseButton;
 use {Point, Speed, Color, Event, Drawing, DefaultRuntime};
 use runtime::Runtime;
-use ::rand::Rng;
+use ::rand::{Rng, RandomRange};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -1029,9 +1029,13 @@ impl<R: Runtime> GenericTurtle<R> {
         self.rng().gen::<T>()
     }
 
+
     /// Generates a random value in the given range.
     ///
     /// The value `x` that is returned will be such that low &le; x &lt; high.
+    ///
+    /// See [Generating Random Values in a Range](index.html#generating-random-values-in-a-range)
+    /// for more information.
     ///
     /// # Panics
     /// Panics if low &ge; high
@@ -1052,8 +1056,9 @@ impl<R: Runtime> GenericTurtle<R> {
     /// foo(turtle.random_range(432, 1938));
     /// # });}
     /// ```
-    pub fn random_range<T: PartialOrd + ::rand::distributions::range::SampleRange>(&self, low: T, high: T) -> T {
-        self.rng().gen_range::<T>(low, high)
+    pub fn random_range<T: RandomRange>(&self, low: T, high: T) -> T {
+        let mut rng = self.rng();
+        RandomRange::random_range(&mut rng, low, high)
     }
 }
 
