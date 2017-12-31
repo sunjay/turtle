@@ -128,7 +128,7 @@ impl Renderer {
         let end = end.to_screen_coords(center);
 
         graphics::line(color.into(), thickness,
-            [start[0], start[1], end[0], end[1]],
+            [start.x, start.y, end.x, end.y],
             c.transform, g);
     }
 
@@ -156,7 +156,7 @@ impl Renderer {
         // See the commit before this comment was added for the approach that would have required
         // branching in every iteration of the loop where render_polygon is called over and over
         // again.
-        let verts = verts.map(|p| p.to_screen_coords(center)).collect::<Vec<_>>();
+        let verts = verts.map(|p| p.to_screen_coords(center).into()).collect::<Vec<_>>();
         graphics::polygon(fill_color.into(), &verts, c.transform, g);
     }
 
@@ -171,8 +171,8 @@ impl Renderer {
 
         let cos = heading.cos();
         let sin = heading.sin();
-        let turtle_x = position[0];
-        let turtle_y = position[1];
+        let turtle_x = position.x;
+        let turtle_y = position.y;
         let shell: Vec<_> = [
             [0., 15.],
             [10., 0.],
@@ -181,7 +181,7 @@ impl Renderer {
             // Rotate each point by the heading and add the current turtle position
             let x = cos * pt[0] - sin * pt[1] + turtle_x;
             let y = sin * pt[0] + cos * pt[1] + turtle_y;
-            [x, y].to_screen_coords(center)
+            Point {x, y}.to_screen_coords(center).into()
         }).collect();
 
         // Draw the turtle shell with its background first, then its border
@@ -191,8 +191,8 @@ impl Renderer {
             let end = shell[(i + 1) % shell.len()];
 
             graphics::line(color::BLACK.into(), 1.,
-            [start[0], start[1], end[0], end[1]],
-            c.transform, g);
+                [start[0], start[1], end[0], end[1]],
+                c.transform, g);
         }
     }
 }

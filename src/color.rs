@@ -44,7 +44,7 @@
 //! module. The [`extended`](extended/index.html) module has its own static `COLOR` and
 //! `COLOR_NAMES` variables.
 //!
-//! ## Random Colors
+//! # Random Colors
 //!
 //! You can also generate random colors. Here's an example:
 //!
@@ -70,7 +70,7 @@
 //! See the [examples directory on GitHub](https://github.com/sunjay/turtle/tree/master/examples)
 //! for more information.
 //!
-//! ## Creating a Color from Values
+//! # Creating a Color from Values
 //!
 //! Usually, you won't need to initialize a color this way since the above methods are quite
 //! convenient. However, in some situations it may be necessary to create a color with specific

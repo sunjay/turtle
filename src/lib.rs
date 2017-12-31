@@ -58,6 +58,7 @@ mod app;
 mod turtle;
 mod drawing;
 mod speed;
+mod point;
 mod radians;
 mod animation;
 mod extensions;
@@ -75,7 +76,8 @@ pub mod color;
 pub mod event;
 pub mod rand;
 
-pub use turtle::{Turtle, Point, Distance, Angle};
+pub use turtle::{Turtle, Distance, Angle};
+pub use point::Point;
 pub use drawing::{Drawing, Size};
 pub use speed::{Speed};
 pub use color::{Color};

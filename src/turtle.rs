@@ -7,7 +7,7 @@ use std::fmt::Debug;
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
 use event::MouseButton;
-use {Speed, Color, Event, Drawing, DefaultRuntime};
+use {Point, Speed, Color, Event, Drawing, DefaultRuntime};
 use runtime::Runtime;
 use ::rand::Rng;
 
@@ -32,22 +32,6 @@ impl AngleUnit {
         }
     }
 }
-
-/// A point in 2D space: [x, y]
-///
-/// ```rust
-/// # extern crate turtle;
-/// # use turtle::Point;
-/// # fn main() {
-/// let p: Point = [100., 120.];
-/// // get x coordinate
-/// let x = p[0];
-/// assert_eq!(x, 100.);
-/// // get y coordinate
-/// let y = p[1];
-/// assert_eq!(y, 120.);
-/// # }
-pub type Point = [f64; 2];
 
 /// Any distance value (positive or negative)
 pub type Distance = f64;
@@ -131,7 +115,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// // Move backward 223 tiny turtle steps, without drawing anything
     /// turtle.pen_up();
     /// turtle.forward(-223.0);
-    /// # assert_eq!(turtle.position()[1].round(), -113.0);
+    /// # assert_eq!(turtle.position().y.round(), -113.0);
     /// # });}
     /// ```
     pub fn forward(&mut self, distance: Distance) {
@@ -162,7 +146,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// // Move forward 179 tiny turtle steps, without drawing anything
     /// turtle.pen_up();
     /// turtle.backward(-179.0);
-    /// # assert_eq!(turtle.position()[1].round(), 69.0);
+    /// # assert_eq!(turtle.position().y.round(), 69.0);
     /// # });}
     /// ```
     pub fn backward(&mut self, distance: Distance) {
@@ -335,14 +319,14 @@ impl<R: Runtime> GenericTurtle<R> {
     ///
     /// Anything else will cause the program to `panic!` at runtime.
     ///
-    /// ## Moving Instantly
+    /// # Moving Instantly
     ///
     /// A speed of zero (`Speed::Instant`) results in no animation. The turtle moves instantly
     /// and turns instantly. This is very useful for moving the turtle from its "home" position
     /// before you start drawing. By setting the speed to instant, you don't have to wait for
     /// the turtle to move into position.
     ///
-    /// ## Learning About Conversion Traits
+    /// # Learning About Conversion Traits
     ///
     /// Using this method is an excellent way to learn about conversion
     /// traits `From` and `Into`. This method takes a *generic type* as its speed parameter. That type
@@ -370,16 +354,15 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # turtle::start_desktop(|mut turtle| {
     /// turtle.forward(100.0);
     /// let pos = turtle.position();
-    /// # // Cheating a bit here for rounding...
-    /// # let pos = [pos[0].round(), pos[1].round()];
-    /// assert_eq!(pos, [0.0, 100.0]);
+    /// assert_eq!(pos.round(), Point {x: 0.0, y: 100.0});
     /// # });}
     /// ```
     pub fn position(&self) -> Point {
         self.window.borrow().fetch_turtle().position
     }
 
-    /// Moves the turtle directly to the given position.
+    /// Moves the turtle directly to the given position. See the [`Point` struct](struct.Point.html)
+    /// documentation for more information.
     ///
     /// If the pen is down, this will draw a line. The turtle will not turn to face the direction
     /// in which it is moving. It's heading will stay the same.
@@ -391,28 +374,28 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # fn main() {
     /// # turtle::start_desktop(|mut turtle| {
     /// let heading = turtle.heading();
-    /// assert_eq!(turtle.position(), [0.0, 0.0]);
+    /// assert_eq!(turtle.position(), Point {x: 0.0, y: 0.0});
     /// turtle.go_to([100.0, -150.0]);
     /// // The heading has not changed, but the turtle has moved to the new position
     /// assert_eq!(turtle.heading(), heading);
-    /// assert_eq!(turtle.position(), [100.0, -150.0]);
+    /// assert_eq!(turtle.position(), Point {x: 100.0, y: -150.0});
     /// # });}
     /// ```
-    pub fn go_to(&mut self, position: Point) {
-        self.window.borrow_mut().go_to(position);
+    pub fn go_to<P: Into<Point>>(&mut self, position: P) {
+        self.window.borrow_mut().go_to(position.into());
     }
 
     /// Goes to the given x-coordinate, keeping the y-coordinate and heading of the turtle the
     /// same. See [`go_to()`](struct.Turtle.html#method.go_to) for more information.
     pub fn set_x(&mut self, x: f64) {
-        let y = self.position()[1];
+        let y = self.position().y;
         self.go_to([x, y]);
     }
 
     /// Goes to the given y-coordinate, keeping the x-coordinate and heading of the turtle the
     /// same. See [`go_to()`](struct.Turtle.html#method.go_to) for more information.
     pub fn set_y(&mut self, y: f64) {
-        let x = self.position()[0];
+        let x = self.position().x;
         self.go_to([x, y]);
     }
 
@@ -423,22 +406,20 @@ impl<R: Runtime> GenericTurtle<R> {
     /// # use turtle::*;
     /// # fn main() {
     /// # turtle::start_desktop(|mut turtle| {
-    /// let start_position = turtle.position();
+    /// let start_position = turtle.position().round();
     /// let start_heading = turtle.heading().round();
     /// turtle.right(55.0);
     /// turtle.forward(127.0);
     /// assert_ne!(turtle.heading().round(), start_heading);
-    /// assert_ne!(turtle.position()[0].round(), start_position[0].round());
-    /// assert_ne!(turtle.position()[1].round(), start_position[1].round());
+    /// assert_ne!(turtle.position().round(), start_position);
     /// turtle.home();
     /// assert_eq!(turtle.heading().round(), start_heading);
-    /// assert_eq!(turtle.position()[0].round(), start_position[0].round());
-    /// assert_eq!(turtle.position()[1].round(), start_position[1].round());
+    /// assert_eq!(turtle.position().round(), start_position);
     /// # });}
     /// ```
     pub fn home(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| {
-            turtle.position = [0.0, 0.0];
+            turtle.position = Point::origin();
             turtle.heading = radians::PI/2.0;
         });
     }
@@ -933,7 +914,7 @@ impl<R: Runtime> GenericTurtle<R> {
     /// let heading = turtle.heading();
     /// turtle.reset();
     /// assert_eq!(turtle.heading(), 90.0);
-    /// assert_eq!(turtle.position(), [0.0, 0.0]);
+    /// assert_eq!(turtle.position(), Point {x: 0.0, y: 0.0});
     /// assert_ne!(turtle.pen_color(), "red".into());
     /// assert_ne!(turtle.drawing().background_color(), "green".into());
     /// # });}
@@ -976,28 +957,24 @@ impl<R: Runtime> GenericTurtle<R> {
         self.window.borrow_mut().clear();
     }
 
-    /// Rotates the turtle to face the given coordinates.
-    /// Coordinates are relative to the center of the window.
+    /// Rotates the turtle to face the given point. See the [`Point` struct](struct.Point.html)
+    /// documentation for more information.
     ///
     /// If the coordinates are the same as the turtle's current position, no rotation takes place.
     /// Always rotates the least amount necessary in order to face the given point.
-    pub fn turn_towards(&mut self, target: Point) {
-        let target_x = target[0];
-        let target_y = target[1];
-
+    pub fn turn_towards<P: Into<Point>>(&mut self, target: P) {
+        let target: Point = target.into();
         let position = self.position();
-        let x = position[0];
-        let y = position[1];
 
         // If the target is (approximately) on the turtle don't turn
-        if (target_x - x).abs() < 0.1 && (target_y - y).abs() < 0.1 {
+        if (target - position).is_not_normal() {
             return;
         }
 
         let heading = self.window.borrow().fetch_turtle().heading;
 
         // Calculate the target angle to reach
-        let angle = (target_y - y).atan2(target_x - x);
+        let angle = (target - position).atan2();
         let angle = Radians::from_radians_value(angle);
         // Calculate how much turning will be needed (angle - heading)
         // And clamp it make sure the turtle doesn't turn more than 360 degrees
@@ -1102,14 +1079,13 @@ mod tests {
     #[test]
     fn clear_leaves_position_and_heading() {
         let mut turtle = Turtle::new(DesktopRuntime::new());
-        assert_eq!(turtle.position(), [0.0, 0.0]);
+        assert_eq!(turtle.position(), Point::origin());
         assert_eq!(turtle.heading(), 90.0);
         turtle.forward(100.0);
         turtle.set_heading(51.0);
         turtle.clear();
         // The rounding is to account for floating-point error
-        assert_eq!(turtle.position()[0].round(), 0.0);
-        assert_eq!(turtle.position()[1].round(), 100.0);
+        assert_eq!(turtle.position().round(), Point {x: 0.0, y: 100.0});
         assert_eq!(turtle.heading(), 51.0);
     }
 

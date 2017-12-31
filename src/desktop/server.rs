@@ -22,7 +22,7 @@ use super::messenger::{self, Disconnected};
 use app::TurtleApp;
 use renderer::Renderer;
 use query::{Query, DrawingCommand, Request, StateUpdate, Response};
-use {Event};
+use {Event, Point};
 use state::DrawingState;
 use extensions::ConvertScreenCoordinates;
 
@@ -245,7 +245,10 @@ fn run_render_loop(drawing_rx: mpsc::Receiver<DrawingCommand>,
             let view = c.get_view_size();
             let width = view[0] as f64;
             let height = view[1] as f64;
-            center = state.drawing().center.to_screen_coords([width * 0.5, height * 0.5]);
+            center = state.drawing().center.to_screen_coords(Point {
+                x: width * 0.5,
+                y: height * 0.5,
+            });
 
             // We clone the relevant state before rendering so that the rendering thread
             // doesn't need to keep locking, waiting or making the main thread wait
@@ -283,8 +286,8 @@ fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> Option<Event
         },
         Input::Move(motion) => match motion {
             Motion::MouseCursor(x, y) => {
-                let local = to_local_coords([x, y]);
-                MouseMove {x: local[0], y: local[1]}
+                let local = to_local_coords(Point {x, y});
+                MouseMove {x: local.x, y: local.y}
             },
             // Ignored in favor of MouseCursor
             Motion::MouseRelative(..) => return None,

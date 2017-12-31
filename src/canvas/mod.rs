@@ -7,7 +7,7 @@ use query::{Query, Request, Response, StateUpdate};
 use renderer::Renderer;
 use runtime::Runtime;
 use app::TurtleApp;
-use clock;
+use ::{clock, Point};
 
 pub mod rgba_buffer_graphics;
 
@@ -78,7 +78,7 @@ impl Runtime for CanvasRuntime {
         let width = view[0] as f64;
         let height = view[1] as f64;
 
-        let center = [width * 0.5, height * 0.5];
+        let center = Point {x: width * 0.5, y: height * 0.5};
 
         self.renderer.render(self.context, &mut self.graphics, center, &drawing, &temporary_path, &turtle);
 

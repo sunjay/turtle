@@ -30,7 +30,7 @@ impl RgbaBufferGraphics {
     }
 
     #[inline]
-    fn coords_to_pixel_index(&self, p: &Point) -> usize {
+    fn coords_to_pixel_index(&self, p: &BufferPoint) -> usize {
         assert!(p.x < self.width);
         assert!(p.y < self.height);
         p.x + p.y * self.width
@@ -54,7 +54,7 @@ impl RgbaBufferGraphics {
         slice[byte_index + 3] = alpha;
     }
 
-    fn vertex_to_pixel_coords(&self, v: [f32; 2]) -> Point {
+    fn vertex_to_pixel_coords(&self, v: [f32; 2]) -> BufferPoint {
         let vx = v[0];
         let vy = v[1];
 
@@ -81,7 +81,7 @@ impl RgbaBufferGraphics {
         assert!(x < self.width);
         assert!(y < self.height);
 
-        Point::new(x, y)
+        BufferPoint::new(x, y)
     }
 }
 
@@ -129,21 +129,21 @@ fn piston_color_channel_to_byte(f: f32) -> u8 {
 
 /// A point in 2d space
 #[derive(Clone, Copy)]
-struct Point {
+struct BufferPoint {
     x: usize,
     y: usize,
 }
 
-impl Point {
-    fn new(x: usize, y: usize) -> Point {
-        Point {
+impl BufferPoint {
+    fn new(x: usize, y: usize) -> BufferPoint {
+        BufferPoint {
             x,
             y,
         }
     }
 }
 
-impl fmt::Debug for Point {
+impl fmt::Debug for BufferPoint {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
     }
@@ -152,11 +152,11 @@ impl fmt::Debug for Point {
 /// A triangle in pixel coordinates
 struct Triangle {
     // vertices ordered by increasing y (top to bottom) then x coordinate (left to right)
-    vertices: [Point; 3]
+    vertices: [BufferPoint; 3]
 }
 
 impl Triangle {
-    fn new(v1: Point, v2: Point, v3: Point) -> Triangle {
+    fn new(v1: BufferPoint, v2: BufferPoint, v3: BufferPoint) -> Triangle {
         let mut buf = [v1, v2, v3];
         buf.sort_unstable_by(|p1, p2| {
             match p1.y.cmp(&p2.y) {
@@ -190,7 +190,7 @@ impl Triangle {
             if edge.0.y == edge.1.y {
                 // the edge is horizontal so just draw it as a line
                 for x in (edge.0.x)..(edge.1.x + 1) {
-                    let pixel_index = graphics.coords_to_pixel_index(&Point::new(x, edge.0.y));
+                    let pixel_index = graphics.coords_to_pixel_index(&BufferPoint::new(x, edge.0.y));
                     graphics.write_color(pixel_index, color);
                 }
 
@@ -229,7 +229,7 @@ impl Triangle {
                     let end_x = edge_1_x.max(edge_2_x);
 
                     for x in start_x..(end_x + 1) {
-                        let pixel_index = graphics.coords_to_pixel_index(&Point::new(x, y));
+                        let pixel_index = graphics.coords_to_pixel_index(&BufferPoint::new(x, y));
                         graphics.write_color(pixel_index, color);
                     }
                 }

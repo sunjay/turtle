@@ -1,7 +1,5 @@
 use std::cell::RefCell;
 
-use graphics::math;
-
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
@@ -90,7 +88,7 @@ impl<R: Runtime> TurtleWindow<R> {
     pub fn go_to(&mut self, end: Point) {
         let TurtleState {position: start, speed, pen, ..} = self.fetch_turtle();
 
-        let distance = math::square_len(math::sub(start, end)).sqrt();
+        let distance = (end - start).len();
         if !distance.is_normal() {
             return;
         }
@@ -116,9 +114,11 @@ impl<R: Runtime> TurtleWindow<R> {
         }
 
         let TurtleState {position: start, speed, heading, pen, ..} = self.fetch_turtle();
-        let x = distance * heading.cos();
-        let y = distance * heading.sin();
-        let end = math::add(start, [x, y]);
+        let movement = Point {
+            x: distance * heading.cos(),
+            y: distance * heading.sin(),
+        };
+        let end = start + movement;
 
         let speed = speed.to_absolute(); // px per second
         // We take the absolute value because the time is always positive, even if distance is negative
