@@ -60,7 +60,6 @@ onmessage = (e) => {
 
         fetch(`target/wasm32-unknown-unknown/release/examples/${exampleName}.wasm`)
             .then(response => response.arrayBuffer())
-            // Rust lacks a wasm cos, so provide JS's
             .then(bytes => WebAssembly.instantiate(bytes, wasmEnv))
             .then(results => results.instance)
             .then(instance => {
