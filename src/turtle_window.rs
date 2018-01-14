@@ -1,34 +1,28 @@
-use std::time::Instant;
 use std::cell::RefCell;
 
-use server;
-use renderer_process::RendererProcess;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
 use radians::Radians;
 use {Point, Distance, Event};
+use runtime::Runtime;
+use clock::Clock;
 
 use self::DrawingCommand::*;
 
-pub struct TurtleWindow {
-    renderer: RefCell<RendererProcess>,
+pub struct TurtleWindow<R: Runtime> {
+    runtime: RefCell<R>,
 }
 
-impl TurtleWindow {
-    pub fn new() -> TurtleWindow {
-        // This needs to be called as close to the start of the program as possible
-        // Since Turtle::new() is called at the beginning of many turtle programs, we do so here
-        // to make sure this call occurs when it should.
-        server::start();
-
+impl<R: Runtime> TurtleWindow<R> {
+    pub fn new(runtime: R) -> TurtleWindow<R> {
         Self {
-            renderer: RefCell::new(RendererProcess::new()),
+            runtime: RefCell::new(runtime),
         }
     }
 
     pub fn fetch_turtle(&self) -> TurtleState {
-        match self.renderer.borrow_mut().send_query(Query::Request(Request::TurtleState)) {
+        match self.runtime.borrow_mut().send_query(Query::Request(Request::TurtleState)) {
             Some(Response::TurtleState(state)) => state,
             _ => panic!("bug: the renderer process did not sent back TurtleState"),
         }
@@ -40,12 +34,12 @@ impl TurtleWindow {
         where F: FnOnce(&mut TurtleState) -> T {
         let mut turtle = self.fetch_turtle();
         let result = update(&mut turtle);
-        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::TurtleState(turtle)));
+        self.runtime.borrow_mut().send_query(Query::Update(StateUpdate::TurtleState(turtle)));
         result
     }
 
     pub fn fetch_drawing(&self) -> DrawingState {
-        match self.renderer.borrow_mut().send_query(Query::Request(Request::DrawingState)) {
+        match self.runtime.borrow_mut().send_query(Query::Request(Request::DrawingState)) {
             Some(Response::DrawingState(state)) => state,
             _ => panic!("bug: the renderer process did not sent back DrawingState"),
         }
@@ -57,18 +51,18 @@ impl TurtleWindow {
         where F: FnOnce(&mut DrawingState) -> T {
         let mut drawing = self.fetch_drawing();
         let result = update(&mut drawing);
-        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::DrawingState(drawing)));
+        self.runtime.borrow_mut().send_query(Query::Update(StateUpdate::DrawingState(drawing)));
         result
     }
 
 
     fn set_temporary_path(&mut self, path: Option<Path>) {
-        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::TemporaryPath(path)));
+        self.runtime.borrow_mut().send_query(Query::Update(StateUpdate::TemporaryPath(path)));
     }
 
     /// See [`Drawing::poll_event()`](struct.Drawing.html#method.poll_event).
     pub fn poll_event(&mut self) -> Option<Event> {
-        match self.renderer.borrow_mut().send_query(Query::Request(Request::Event)) {
+        match self.runtime.borrow_mut().send_query(Query::Request(Request::Event)) {
             Some(Response::Event(event)) => event,
             _ => panic!("bug: the renderer process did not sent back an Event"),
         }
@@ -104,7 +98,7 @@ impl TurtleWindow {
 
         let animation = MoveAnimation {
             path: Path {start, end, pen},
-            timer: Instant::now(),
+            timer: R::Clock::now(),
             total_millis,
         };
 
@@ -132,7 +126,7 @@ impl TurtleWindow {
 
         let animation = MoveAnimation {
             path: Path {start, end, pen},
-            timer: Instant::now(),
+            timer: R::Clock::now(),
             total_millis,
         };
 
@@ -155,7 +149,7 @@ impl TurtleWindow {
             start: heading,
             delta_angle: angle,
             clockwise,
-            timer: Instant::now(),
+            timer: R::Clock::now(),
             total_millis,
         };
 
@@ -181,6 +175,6 @@ impl TurtleWindow {
     }
 
     fn send_drawing_command(&self, command: DrawingCommand) {
-        self.renderer.borrow_mut().send_query(Query::Drawing(command));
+        self.runtime.borrow_mut().send_query(Query::Drawing(command));
     }
 }

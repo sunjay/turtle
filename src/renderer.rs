@@ -1,46 +1,9 @@
-use std::thread;
-use std::sync::mpsc::{self, TryRecvError};
+use graphics;
 
-use piston_window::{
-    PistonWindow,
-    WindowSettings,
-    AdvancedWindow,
-    Event as PistonEvent,
-    Input,
-    G2d,
-    context,
-    clear,
-    line,
-    polygon,
-};
-
-use app::TurtleApp;
-use event::from_piston_event;
 use extensions::ConvertScreenCoordinates;
 use query::DrawingCommand;
 use state::{Path, Polygon, Pen, TurtleState, DrawingState};
-use {Point, Event, Color, color};
-
-fn update_window(window: &mut PistonWindow, current: DrawingState, next: DrawingState) -> DrawingState {
-    if next.title != current.title {
-        window.set_title(next.title.clone());
-    }
-    if next.width != current.width || next.height != current.height {
-        window.window.window.set_inner_size(next.width, next.height);
-    }
-    if next.maximized != current.maximized {
-        window.window.window.set_maximized(next.maximized);
-    }
-    if next.fullscreen != current.fullscreen {
-        if next.fullscreen {
-            window.window.window.set_fullscreen(Some(window.window.window.get_current_monitor()));
-        }
-        else {
-            window.window.window.set_fullscreen(None);
-        }
-    }
-    next
-}
+use {Point, Color, color};
 
 #[derive(Debug)]
 pub enum Drawing {
@@ -48,8 +11,8 @@ pub enum Drawing {
     Polygon(Polygon),
 }
 
+/// Render the accumulated drawing commands into a piston `Graphics`.
 pub struct Renderer {
-    app: TurtleApp,
     drawings: Vec<Drawing>,
     /// Polygon that is currently in the process of being filled
     /// Removed when EndFill is sent
@@ -57,92 +20,15 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new(app: TurtleApp) -> Renderer {
+    pub fn new() -> Renderer {
         Self {
-            app,
             drawings: Vec::new(),
             fill_polygon: None,
         }
     }
 
-    pub fn run(
-        &mut self,
-        drawing_rx: mpsc::Receiver<DrawingCommand>,
-        events_tx: mpsc::Sender<Event>,
-    ) {
-        let state = self.app.read_only();
-
-        // This check isn't foolproof. Someone can always create a thread named "main".
-        if thread::current().name().unwrap_or("") != "main" {
-            // In order to maintain compatibility with MacOS, we need to make sure that windows are
-            // only created on the main thread. We do this check on all platforms so that no one
-            // can accidentally make a change that creates the window off of the main thread.
-            unreachable!("bug: windows can only be created on the main thread");
-        }
-        let mut window: PistonWindow = WindowSettings::new(
-            &*state.drawing().title,
-            (state.drawing().width, state.drawing().height),
-        ).exit_on_esc(true).build().unwrap();
-        // We keep a copy of the DrawingState so that we can tell when it is updated and we need
-        // to change something on the window
-        let mut current_drawing = DrawingState::default();
-
-        let mut center = state.drawing().center;
-
-        'renderloop:
-        while let Some(event) = window.next() {
-            match event {
-                PistonEvent::Input(Input::Resize(width, height)) => {
-                    let mut drawing = self.app.drawing_mut();
-                    drawing.width = width;
-                    drawing.height = height;
-                },
-                _ => {},
-            }
-
-            if let Some(event) = from_piston_event(&event, |pt| pt.to_local_coords(center)) {
-                match events_tx.send(event) {
-                    Ok(_) => {},
-                    // Quit - the server thread must have quit
-                    Err(_) => break,
-                }
-            }
-
-            // Need to handle all of the queries we receive at once so that any lag caused by
-            // how long rendering takes doesn't cause any problems
-            loop {
-                match drawing_rx.try_recv() {
-                    Ok(cmd) => self.handle_drawing_command(cmd),
-                    Err(TryRecvError::Empty) => break, // Do nothing
-                    Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
-                }
-            }
-
-            // Update the window based on any changes in the DrawingState
-            current_drawing = update_window(&mut window, current_drawing, state.drawing().clone());
-
-            window.draw_2d(&event, |c, g| {
-                let view = c.get_view_size();
-                let width = view[0] as f64;
-                let height = view[1] as f64;
-                center = state.drawing().center.to_screen_coords(Point {
-                    x: width * 0.5,
-                    y: height * 0.5,
-                });
-
-                // We clone the relevant state before rendering so that the rendering thread
-                // doesn't need to keep locking, waiting or making the main thread wait
-                let drawing = state.drawing().clone();
-                let temporary_path = state.temporary_path().clone();
-                let turtle = state.turtle().clone();
-
-                self.render(c, g, center, &drawing, &temporary_path, &turtle);
-            });
-        }
-    }
-
-    /// Handles a drawing command sent from the main thread
-    fn handle_drawing_command(&mut self, command: DrawingCommand) {
+    /// Handles a drawing command
+    pub fn handle_drawing_command(&mut self, command: DrawingCommand) {
         //NOTE: Do not pass the ReadOnly state to this function. By the time a DrawingCommand is
         // handled, that state may be completely out of date
         use self::DrawingCommand::*;
@@ -167,7 +53,7 @@ impl Renderer {
                 // end_fill is called
                 self.fill_polygon = self.fill_polygon.take().or_else(|| Some((Vec::new(), Polygon {
                     vertices: Vec::new(),
-                    fill_color: fill_color,
+                    fill_color,
                 })));
             },
             // Calling end_fill multiple times is not a problem
@@ -189,10 +75,10 @@ impl Renderer {
     }
 
     /// The main rendering route. Dispatches to other functions as needed.
-    fn render(&self, c: context::Context, g: &mut G2d, center: Point,
+    pub fn render<G: graphics::Graphics>(&self, c: graphics::Context, g: &mut G, center: Point,
         drawing: &DrawingState, temporary_path: &Option<Path>, turtle: &TurtleState) {
         let background = drawing.background;
-        clear(background.into(), g);
+        graphics::clear(background.into(), g);
 
         for drawing in &self.drawings {
             match *drawing {
@@ -233,7 +119,7 @@ impl Renderer {
     }
 
     /// Render a path assuming that its pen is enabled
-    fn render_path(&self, c: context::Context, g: &mut G2d, center: Point, path: &Path) {
+    fn render_path<G: graphics::Graphics>(&self, c: graphics::Context, g: &mut G, center: Point, path: &Path) {
         let &Path {start, end, ref pen} = path;
         let &Pen {thickness, color, enabled} = pen;
         debug_assert!(enabled, "bug: attempt to render path when pen was not enabled");
@@ -241,16 +127,16 @@ impl Renderer {
         let start = start.to_screen_coords(center);
         let end = end.to_screen_coords(center);
 
-        line(color.into(), thickness,
+        graphics::line(color.into(), thickness,
             [start.x, start.y, end.x, end.y],
             c.transform, g);
     }
 
     /// Render a polygon given its vertices
-    fn render_polygon<'a, T: Iterator<Item=&'a Point>>(
+    fn render_polygon<'a, G: graphics::Graphics, T: Iterator<Item=&'a Point>>(
         &self,
-        c: context::Context,
-        g: &mut G2d,
+        c: graphics::Context,
+        g: &mut G,
         center: Point,
         fill_color: Color,
         verts: T,
@@ -271,11 +157,11 @@ impl Renderer {
         // branching in every iteration of the loop where render_polygon is called over and over
         // again.
         let verts = verts.map(|p| p.to_screen_coords(center).into()).collect::<Vec<_>>();
-        polygon(fill_color.into(), &verts, c.transform, g);
+        graphics::polygon(fill_color.into(), &verts, c.transform, g);
     }
 
     /// Draw the turtle's shell
-    fn render_shell(&self, c: context::Context, g: &mut G2d, center: Point,
+    fn render_shell<G: graphics::Graphics>(&self, c: graphics::Context, g: &mut G, center: Point,
         &TurtleState {position, heading, visible, ..}: &TurtleState) {
         // Calculate all the points on the shell by rotating the shell shape by the turtle's
         // heading and moving it to the turtle's position
@@ -299,12 +185,12 @@ impl Renderer {
         }).collect();
 
         // Draw the turtle shell with its background first, then its border
-        polygon(color::WHITE.into(), &shell, c.transform, g);
+        graphics::polygon(color::WHITE.into(), &shell, c.transform, g);
         for i in 0..shell.len() {
             let start = shell[i];
             let end = shell[(i + 1) % shell.len()];
 
-            line(color::BLACK.into(), 1.,
+            graphics::line(color::BLACK.into(), 1.,
                 [start[0], start[1], end[0], end[1]],
                 c.transform, g);
         }

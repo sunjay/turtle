@@ -7,7 +7,9 @@ use std::fmt::Debug;
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
 use event::MouseButton;
-use {Point, Speed, Color, Event, Drawing};
+use {Point, Speed, Color, Event, Drawing, DefaultRuntime};
+use runtime::Runtime;
+use ::rand::{Rng, RandomRange};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -51,19 +53,15 @@ pub type Angle = f64;
 ///
 /// See the documentation for the methods below to learn about the different drawing commands you
 /// can use with the turtle.
-pub struct Turtle {
-    window: Rc<RefCell<TurtleWindow>>,
-    drawing: Drawing,
+pub struct GenericTurtle<R: Runtime> {
+    window: Rc<RefCell<TurtleWindow<R>>>,
+    drawing: Drawing<R>,
     angle_unit: AngleUnit,
 }
 
-impl Default for Turtle {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+pub type Turtle = GenericTurtle<DefaultRuntime>;
 
-impl Turtle {
+impl<R: Runtime> GenericTurtle<R> {
     /// Create a new turtle.
     ///
     /// This will immediately open a new window with the turtle at the center. As each line in
@@ -71,20 +69,22 @@ impl Turtle {
     ///
     /// ```rust,no_run
     /// # #![allow(unused_variables, unused_mut)]
+    /// #[macro_use]
     /// extern crate turtle;
     /// use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    /// # fn main() { // work around rust doc heuristics
+    /// run_turtle!(|mut turtle| {
     ///     // Do things with the turtle...
-    /// }
+    /// });
+    /// # }
     /// ```
     ///
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
     /// [`turtle::start()`](fn.start.html) in order to avoid any problems.
-    pub fn new() -> Turtle {
-        let window = Rc::new(RefCell::new(TurtleWindow::new()));
-        Turtle {
+    pub(crate) fn new(runtime: R) -> GenericTurtle<R> {
+        let window = Rc::new(RefCell::new(TurtleWindow::new(runtime)));
+        GenericTurtle {
             window: window.clone(),
             drawing: Drawing::with_window(window),
             angle_unit: AngleUnit::Degrees,
@@ -105,7 +105,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::Turtle;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Move forward 10 tiny turtle steps, drawing a line as you move
     /// turtle.forward(10.0);
     ///
@@ -116,7 +116,7 @@ impl Turtle {
     /// turtle.pen_up();
     /// turtle.forward(-223.0);
     /// # assert_eq!(turtle.position().y.round(), -113.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn forward(&mut self, distance: Distance) {
         self.window.borrow_mut().forward(distance);
@@ -136,7 +136,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::Turtle;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Move backward 10 tiny turtle steps, drawing a line as you move
     /// turtle.backward(10.0);
     ///
@@ -147,7 +147,7 @@ impl Turtle {
     /// turtle.pen_up();
     /// turtle.backward(-179.0);
     /// # assert_eq!(turtle.position().y.round(), 69.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn backward(&mut self, distance: Distance) {
         // Moving backwards is essentially moving forwards with a negative distance
@@ -169,7 +169,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // rotate right by 30 degrees
     /// turtle.right(30.0);
     ///
@@ -188,7 +188,7 @@ impl Turtle {
     /// # let expected = expected - (2.0*PI) * (expected / (2.0*PI)).floor();
     /// # let expected = (expected * 1e5).trunc();
     /// # assert_eq!((turtle.heading() * 1e5).trunc(), expected);
-    /// # }
+    /// # });}
     /// ```
     pub fn right(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -211,7 +211,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // rotate left by 30 degrees
     /// turtle.left(30.0);
     ///
@@ -226,7 +226,7 @@ impl Turtle {
     /// #     (turtle.heading() * 1e5).trunc(),
     /// #     (((90f64 + 30f64).to_radians() + 1.0 + PI/4.0) * 1e5).trunc()
     /// # );
-    /// # }
+    /// # });}
     /// ```
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -239,14 +239,15 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.forward(100.0);
     /// turtle.wait(2.0);
     /// // The turtle will stop for 2 seconds before proceeding to this line
     /// turtle.forward(50.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn wait(&mut self, secs: f64) {
+        // TODO handle sleep for wasm
         if !secs.is_normal() {
             return;
         }
@@ -256,16 +257,15 @@ impl Turtle {
     /// Retrieve a read-only reference to the drawing.
     ///
     /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
-    /// listing of the information that you can retrieve from the drawing.
-    pub fn drawing(&self) -> &Drawing {
+    /// listing of the information that you can retrieve from the drawing.pub fn drawing(&self) -> &Drawing<R> {
+    pub fn drawing(&self) -> &Drawing<R> {
         &self.drawing
     }
 
-    /// Retrieve a mutable reference to the drawing
     ///
     /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
     /// listing of the ways that you can manipulate the drawing.
-    pub fn drawing_mut(&mut self) -> &mut Drawing {
+    pub fn drawing_mut(&mut self) -> &mut Drawing<R> {
         &mut self.drawing
     }
 
@@ -275,10 +275,10 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_speed(8);
     /// assert_eq!(turtle.speed(), Speed::Eight);
-    /// # }
+    /// # });}
     /// ```
     pub fn speed(&self) -> Speed {
         self.window.borrow().fetch_turtle().speed
@@ -295,14 +295,14 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_speed("normal");
     /// turtle.set_speed("fast");
     /// turtle.set_speed(2);
     /// turtle.set_speed(10);
     /// // Directly using a Speed variant works, but the methods above are usually more convenient.
     /// turtle.set_speed(Speed::Six);
-    /// # }
+    /// # });}
     /// ```
     ///
     /// If input is a number greater than 10 or smaller than 1, speed is set to 0
@@ -351,11 +351,11 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.forward(100.0);
     /// let pos = turtle.position();
     /// assert_eq!(pos.round(), Point {x: 0.0, y: 100.0});
-    /// # }
+    /// # });}
     /// ```
     pub fn position(&self) -> Point {
         self.window.borrow().fetch_turtle().position
@@ -372,14 +372,14 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// let heading = turtle.heading();
     /// assert_eq!(turtle.position(), Point {x: 0.0, y: 0.0});
     /// turtle.go_to([100.0, -150.0]);
     /// // The heading has not changed, but the turtle has moved to the new position
     /// assert_eq!(turtle.heading(), heading);
     /// assert_eq!(turtle.position(), Point {x: 100.0, y: -150.0});
-    /// # }
+    /// # });}
     /// ```
     pub fn go_to<P: Into<Point>>(&mut self, position: P) {
         self.window.borrow_mut().go_to(position.into());
@@ -405,7 +405,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// let start_position = turtle.position().round();
     /// let start_heading = turtle.heading().round();
     /// turtle.right(55.0);
@@ -415,7 +415,7 @@ impl Turtle {
     /// turtle.home();
     /// assert_eq!(turtle.heading().round(), start_heading);
     /// assert_eq!(turtle.position().round(), start_position);
-    /// # }
+    /// # });}
     /// ```
     pub fn home(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| {
@@ -448,8 +448,8 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Turtles start facing north
-    /// let mut turtle = Turtle::new();
     /// // The rounding is to account for floating-point error
     /// assert_eq!(turtle.heading().round(), 90.0);
     /// turtle.right(31.0);
@@ -459,7 +459,7 @@ impl Turtle {
     /// turtle.left(130.0);
     /// // Angles should not exceed 360.0
     /// assert_eq!(turtle.heading().round(), 22.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn heading(&self) -> Angle {
         let heading = self.window.borrow().fetch_turtle().heading;
@@ -493,8 +493,8 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
     /// // Turtles start facing north
-    /// let mut turtle = Turtle::new();
     /// // The rounding is to account for floating-point error
     /// assert_eq!(turtle.heading().round(), 90.0);
     /// turtle.set_heading(31.0);
@@ -506,7 +506,7 @@ impl Turtle {
     /// // Angles should not exceed 360.0, even when we set them to values larger than that
     /// turtle.set_heading(367.0);
     /// assert_eq!(turtle.heading().round(), 7.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn set_heading(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -539,7 +539,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// # turtle.use_radians();
     /// assert!(!turtle.is_using_degrees());
     /// turtle.use_degrees();
@@ -547,7 +547,7 @@ impl Turtle {
     ///
     /// // This will now be interpreted as 1.0 degree
     /// turtle.right(1.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn use_degrees(&mut self) {
         self.angle_unit = AngleUnit::Degrees;
@@ -559,14 +559,14 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(!turtle.is_using_radians());
     /// turtle.use_radians();
     /// assert!(turtle.is_using_radians());
     ///
     /// // This will now be interpreted as 1.0 radian
     /// turtle.right(1.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn use_radians(&mut self) {
         self.angle_unit = AngleUnit::Radians;
@@ -578,13 +578,13 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_pen_down());
     /// turtle.pen_up();
     /// assert!(!turtle.is_pen_down());
     /// turtle.pen_down();
     /// assert!(turtle.is_pen_down());
-    /// # }
+    /// # });}
     /// ```
     pub fn is_pen_down(&self) -> bool {
         self.window.borrow().fetch_turtle().pen.enabled
@@ -596,7 +596,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// # turtle.pen_up();
     /// assert!(!turtle.is_pen_down());
     /// // This will move the turtle, but not draw any lines
@@ -605,7 +605,7 @@ impl Turtle {
     /// assert!(turtle.is_pen_down());
     /// // The turtle will now draw lines again
     /// turtle.forward(100.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn pen_down(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.enabled = true);
@@ -617,7 +617,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_pen_down());
     /// // The turtle will move and draw a line
     /// turtle.forward(100.0);
@@ -625,7 +625,7 @@ impl Turtle {
     /// assert!(!turtle.is_pen_down());
     /// // Now, the turtle will move, but not draw anything
     /// turtle.forward(100.0);
-    /// # }
+    /// # });}
     /// ```
     pub fn pen_up(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.enabled = false);
@@ -637,10 +637,10 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_pen_size(25.0);
     /// assert_eq!(turtle.pen_size(), 25.0);
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
@@ -657,29 +657,28 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.pen_up();
+    /// turtle.right(90.0);
+    /// turtle.backward(300.0);
+    /// turtle.pen_down();
     ///
-    ///     turtle.pen_up();
-    ///     turtle.right(90.0);
-    ///     turtle.backward(300.0);
-    ///     turtle.pen_down();
+    /// turtle.set_pen_color("#2196F3"); // blue
+    /// turtle.set_pen_size(1.0);
+    /// turtle.forward(200.0);
     ///
-    ///     turtle.set_pen_color("#2196F3"); // blue
-    ///     turtle.set_pen_size(1.0);
-    ///     turtle.forward(200.0);
+    /// turtle.set_pen_color("#f44336"); // red
+    /// turtle.set_pen_size(50.0);
+    /// turtle.forward(200.0);
     ///
-    ///     turtle.set_pen_color("#f44336"); // red
-    ///     turtle.set_pen_size(50.0);
-    ///     turtle.forward(200.0);
-    ///
-    ///     turtle.set_pen_color("#4CAF50"); // green
-    ///     turtle.set_pen_size(100.0);
-    ///     turtle.forward(200.0);
-    /// }
+    /// turtle.set_pen_color("#4CAF50"); // green
+    /// turtle.set_pen_size(100.0);
+    /// turtle.forward(200.0);
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -701,10 +700,10 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_pen_color("blue");
     /// assert_eq!(turtle.pen_color(), "blue".into());
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -720,22 +719,22 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.drawing_mut().set_background_color("light grey");
-    ///     turtle.set_pen_size(3.0);
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.drawing_mut().set_background_color("light grey");
+    /// turtle.set_pen_size(3.0);
     ///
-    ///     let colors = ["red", "green", "blue"];
+    /// let colors = ["red", "green", "blue"];
     ///
-    ///     for i in 0..36 {
-    ///         turtle.set_pen_color(colors[i % colors.len()]);
-    ///         turtle.forward(25.0);
-    ///         turtle.right(10.0);
-    ///     }
+    /// for i in 0..36 {
+    ///     turtle.set_pen_color(colors[i % colors.len()]);
+    ///     turtle.forward(25.0);
+    ///     turtle.right(10.0);
     /// }
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -758,10 +757,10 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.set_fill_color("coral");
     /// assert_eq!(turtle.fill_color(), "coral".into());
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -801,32 +800,32 @@ impl Turtle {
     /// used when filling the shape.
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.right(90.0);
-    ///     turtle.set_pen_size(3.0);
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.right(90.0);
+    /// turtle.set_pen_size(3.0);
     ///
-    ///     turtle.set_pen_color("blue");
-    ///     turtle.set_fill_color("red");
-    ///     turtle.begin_fill();
-    ///     for _ in 0..360 {
-    ///         turtle.forward(2.0);
-    ///         turtle.right(1.0);
-    ///     }
-    ///     turtle.end_fill();
-    ///
-    ///     turtle.set_pen_color("green");
-    ///     turtle.forward(120.0);
-    ///     for _ in 0..3 {
-    ///         turtle.right(90.0);
-    ///         turtle.forward(240.0);
-    ///     }
-    ///     turtle.right(90.0);
-    ///     turtle.forward(120.0);
+    /// turtle.set_pen_color("blue");
+    /// turtle.set_fill_color("red");
+    /// turtle.begin_fill();
+    /// for _ in 0..360 {
+    ///     turtle.forward(2.0);
+    ///     turtle.right(1.0);
     /// }
+    /// turtle.end_fill();
+    ///
+    /// turtle.set_pen_color("green");
+    /// turtle.forward(120.0);
+    /// for _ in 0..3 {
+    ///     turtle.right(90.0);
+    ///     turtle.forward(240.0);
+    /// }
+    /// turtle.right(90.0);
+    /// turtle.forward(120.0);
+    /// # });}
     /// ```
     ///
     /// This will result in the following:
@@ -852,13 +851,13 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_visible());
     /// turtle.hide();
     /// assert!(!turtle.is_visible());
     /// turtle.show();
     /// assert!(turtle.is_visible());
-    /// # }
+    /// # });}
     /// ```
     pub fn is_visible(&self) -> bool {
         self.window.borrow().fetch_turtle().visible
@@ -872,11 +871,11 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert!(turtle.is_visible());
     /// turtle.hide();
     /// assert!(!turtle.is_visible());
-    /// # }
+    /// # });}
     /// ```
     pub fn hide(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.visible = false);
@@ -888,12 +887,12 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// # turtle.hide();
     /// assert!(!turtle.is_visible());
     /// turtle.show();
     /// assert!(turtle.is_visible());
-    /// # }
+    /// # });}
     /// ```
     pub fn show(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.visible = true);
@@ -906,7 +905,7 @@ impl Turtle {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.left(43.0);
     /// turtle.forward(289.0);
     /// turtle.set_pen_color("red");
@@ -918,7 +917,7 @@ impl Turtle {
     /// assert_eq!(turtle.position(), Point {x: 0.0, y: 0.0});
     /// assert_ne!(turtle.pen_color(), "red".into());
     /// assert_ne!(turtle.drawing().background_color(), "green".into());
-    /// # }
+    /// # });}
     /// ```
     pub fn reset(&mut self) {
         self.clear();
@@ -934,17 +933,17 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.right(32.0);
-    ///     turtle.forward(150.0);
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.right(32.0);
+    /// turtle.forward(150.0);
     ///
-    ///     turtle.wait_for_click();
-    ///     turtle.clear();
-    /// }
+    /// turtle.wait_for_click();
+    /// turtle.clear();
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -1003,15 +1002,15 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.wait_for_click();
-    ///     // The turtle will wait for the screen to be clicked before continuing
-    ///     turtle.forward(100.0);
-    /// }
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.wait_for_click();
+    /// // The turtle will wait for the screen to be clicked before continuing
+    /// turtle.forward(100.0);
+    /// # });}
     /// ```
     pub fn wait_for_click(&mut self) {
         loop {
@@ -1020,16 +1019,58 @@ impl Turtle {
             }
         }
     }
+
+    /// An RNG suitable for the current runtime environment (desktop, web, etc).
+    pub fn rng(&self) -> R::Rng {
+        R::rng()
+    }
+
+    pub fn random<T: ::rand::Rand>(&self) -> T {
+        self.rng().gen::<T>()
+    }
+
+
+    /// Generates a random value in the given range.
+    ///
+    /// The value `x` that is returned will be such that low &le; x &lt; high.
+    ///
+    /// See [Generating Random Values in a Range](index.html#generating-random-values-in-a-range)
+    /// for more information.
+    ///
+    /// # Panics
+    /// Panics if low &ge; high
+    ///
+    /// # Example:
+    /// ```rust
+    /// # extern crate turtle;
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// // Generates an f64 value between 100 and 199
+    /// let value: f64 = turtle.random_range(100.0, 200.0);
+    /// assert!(value >= 100.0 && value < 200.0);
+    /// // Generates a u64 value between 1000 and 3000000
+    /// let value = turtle.random_range::<u64>(1000, 3000001);
+    /// assert!(value >= 1000 && value < 3000001);
+    /// // You do not need to specify the type if the compiler has enough information:
+    /// fn foo(a: u64) {}
+    /// foo(turtle.random_range(432, 1938));
+    /// # });}
+    /// ```
+    pub fn random_range<T: RandomRange>(&self, low: T, high: T) -> T {
+        let mut rng = self.rng();
+        RandomRange::random_range(&mut rng, low, high)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ::desktop::DesktopRuntime;
 
     #[test]
     fn is_using_radians_degrees() {
         // is_using_radians and is_using_degrees should be inverses of each other
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         assert!(!turtle.is_using_radians());
         assert!(turtle.is_using_degrees());
         turtle.use_radians();
@@ -1042,7 +1083,7 @@ mod tests {
 
     #[test]
     fn clear_leaves_position_and_heading() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         assert_eq!(turtle.position(), Point::origin());
         assert_eq!(turtle.heading(), 90.0);
         turtle.forward(100.0);
@@ -1055,7 +1096,7 @@ mod tests {
 
     #[test]
     fn turn_towards() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
 
         // Turn from each cardinal direction to each cardinal direction
         for n in 0..16 as u32 {
@@ -1074,42 +1115,42 @@ mod tests {
     #[test]
     #[should_panic(expected = "Invalid thickness: -10. The pen thickness must be greater than or equal to zero")]
     fn set_pen_size_rejects_negative() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_pen_size(-10.0);
     }
 
     #[test]
     #[should_panic(expected = "Invalid thickness: NaN. The pen thickness must be greater than or equal to zero")]
     fn set_pen_size_rejects_nan() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_pen_size(::std::f64::NAN);
     }
 
     #[test]
     #[should_panic(expected = "Invalid thickness: inf. The pen thickness must be greater than or equal to zero")]
     fn set_pen_size_rejects_inf() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_pen_size(::std::f64::INFINITY);
     }
 
     #[test]
     #[should_panic(expected = "Invalid thickness: -inf. The pen thickness must be greater than or equal to zero")]
     fn set_pen_size_rejects_neg_inf() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_pen_size(-::std::f64::INFINITY);
     }
 
     #[test]
     #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
     fn rejects_invalid_pen_color() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_pen_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
     }
 
     #[test]
     #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
     fn rejects_invalid_fill_color() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_fill_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
     }
 }

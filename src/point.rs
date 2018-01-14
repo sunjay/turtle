@@ -15,14 +15,14 @@ use interpolation::Spatial;
 /// # extern crate turtle;
 /// # use turtle::Turtle;
 /// # fn main() {
-/// # let mut turtle = Turtle::new();
+/// # turtle::start_desktop(|mut turtle| {
 /// // These are equivalent
 /// turtle.go_to([100.0, 40.0]);
 /// turtle.go_to((100.0, 40.0));
 /// // This is equivalent too, but the above examples are easier to type
 /// use turtle::Point;
 /// turtle.go_to(Point {x: 100.0, y: 40.0});
-/// # }
+/// # });}
 /// ```
 ///
 /// Each of these different styles works because the methods call
@@ -121,12 +121,13 @@ use interpolation::Spatial;
 ///
 /// ```rust
 /// # extern crate turtle;
-/// # use turtle::{Point, random};
+/// # use turtle::Point;
 /// # fn main() {
-/// let pt: Point = random();
+/// # turtle::start_desktop(|mut turtle| {
+/// let pt: Point = turtle.random();
 /// assert!(pt.x >= 0.0 && pt.x < 1.0);
 /// assert!(pt.y >= 0.0 && pt.y < 1.0);
-/// # }
+/// # });}
 /// ```
 ///
 /// See the documentation for the [`rand`](rand/index.html) module and the section

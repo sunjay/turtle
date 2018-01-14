@@ -1,18 +1,20 @@
+#[macro_use]
 extern crate turtle;
 
-use turtle::{Turtle, Color, random};
+use turtle::{Color};
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.set_speed(8);
     turtle.set_pen_size(2.0);
     for i in 0..300 {
-        turtle.drawing_mut().set_background_color(random::<Color>().opaque());
+        let bg_color = turtle.random::<Color>().opaque();
+        turtle.drawing_mut().set_background_color(bg_color);
 
-        turtle.set_pen_color(random::<Color>().opaque());
+        let pen_color = turtle.random::<Color>().opaque();
+        turtle.set_pen_color(pen_color);
         turtle.forward(i as f64);
 
         turtle.right(60.0);
     }
-}
+});

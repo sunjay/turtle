@@ -34,13 +34,13 @@
 //! function, passing the direction of the turn for this fold as an angle
 //! (+90 for a right turn, -90 for a left turn).
 
+#[macro_use]
 extern crate turtle;
 
 use turtle::Turtle;
 use turtle::Color;
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.drawing_mut().set_background_color("#112244");
 
@@ -54,7 +54,7 @@ fn main() {
     dragon(&mut turtle, -90., 11, 0., 255.);
 
     turtle.hide();
-}
+});
 
 /// Draw the dragon curve by simulating folding a strip of paper
 ///
@@ -74,7 +74,7 @@ fn dragon(
     if num_folds == 0 {
         // mapping a color number 0-255 to an rgb gradient.
         turtle.set_pen_color(Color {
-            red: (color_mid - 128.).abs() * 2.,
+            red: (color_mid - 127.5).abs() * 2.,
             green: color_mid,
             blue: 160.,
             alpha: 1.,

@@ -1,11 +1,10 @@
+#[macro_use]
 extern crate turtle;
 
-use turtle::Turtle;
 use turtle::event::Key::{Left, Right};
 use turtle::Event::KeyPressed;
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     println!("Turn using the left and right arrow keys");
 
@@ -40,4 +39,4 @@ fn main() {
             }
         }
     }
-}
+});

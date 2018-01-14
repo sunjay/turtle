@@ -32,6 +32,9 @@
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
 
+// wasm needs an alloc and dealloc
+#![cfg_attr(target_arch = "wasm32", feature(allocator_api))]
+
 #[cfg(all(test, not(feature = "test")))]
 compile_error!("Make sure you run tests with `cargo test --features test`");
 
@@ -41,8 +44,12 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 
+#[cfg(feature = "desktop")]
 extern crate piston_window;
+extern crate graphics;
+extern crate input;
 extern crate interpolation;
+
 extern crate rand as rand_crate;
 
 mod turtle_window;
@@ -55,22 +62,68 @@ mod point;
 mod radians;
 mod animation;
 mod extensions;
-mod renderer;
 mod state;
 mod query;
-mod server;
-mod renderer_process;
-mod messenger;
+mod renderer;
+mod runtime;
+mod clock;
+#[cfg(feature = "desktop")]
+mod desktop;
+#[cfg(feature = "canvas")]
+mod canvas;
 
 pub mod color;
 pub mod event;
 pub mod rand;
 
-pub use server::start;
-pub use point::Point;
 pub use turtle::{Turtle, Distance, Angle};
+pub use point::Point;
 pub use drawing::{Drawing, Size};
 pub use speed::{Speed};
 pub use color::{Color};
-pub use event::Event;
-pub use rand::{random, random_range};
+pub use event::{Event};
+
+#[cfg(feature = "desktop")]
+type DefaultRuntime = ::desktop::DesktopRuntime;
+#[cfg(feature = "canvas")]
+type DefaultRuntime = ::canvas::CanvasRuntime;
+
+#[cfg(feature = "canvas")]
+pub use canvas::{alloc, dealloc};
+
+#[cfg(any(feature = "desktop", feature = "test"))]
+pub fn start_desktop<F>(f: F) where F: FnOnce(Turtle) {
+    let turtle = Turtle::new(desktop::DesktopRuntime::new());
+
+    f(turtle);
+}
+
+#[cfg(feature = "canvas")]
+pub fn start_web<F>(pointer: *mut u8, width: usize, height: usize, f: F) where F: FnOnce(Turtle) {
+    let turtle =
+        Turtle::new(canvas::CanvasRuntime::new(width, height, pointer));
+
+    f(turtle);
+}
+
+#[macro_export]
+macro_rules! run_turtle {
+    ($f:expr) => {
+        #[cfg(feature = "desktop")]
+        fn main() {
+            turtle::start_desktop($f);
+        }
+
+        #[cfg(feature = "canvas")]
+        fn main() {
+            println!("unused in wasm");
+        }
+
+        #[cfg(feature = "canvas")]
+        #[allow(dead_code)]
+        #[no_mangle]
+        pub extern "C" fn web_turtle_start(pointer: *mut u8, width: usize, height: usize) {
+            turtle::start_web(pointer, width, height, $f);
+        }
+    }
+}

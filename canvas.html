@@ -1,0 +1,43 @@
+<html>
+<head>
+  <title>turtle via canvas</title>
+  <meta charset="utf-8"/>
+  <script type="text/javascript">
+      window.onload = (_) => {
+          const exampleForm = document.getElementById("example");
+          const exampleInput = document.getElementById("example-name");
+          exampleForm.onsubmit = (_) => {
+              const worker = new Worker('worker.js');
+
+              const canvas = document.getElementById('screen');
+              const ctx = canvas.getContext('2d');
+
+              worker.onmessage = (e) => {
+                  if (e.data['type'] === 'updateCanvas') {
+                      const img = new ImageData(e.data['pixels'], canvas.width, canvas.height);
+                      ctx.putImageData(img, 0, 0);
+                  }
+              };
+
+              worker.postMessage({
+                  'type':        'start',
+                  'exampleName': exampleInput.value,
+                  'width': canvas.width,
+                  'height': canvas.height
+              });
+
+              return false;
+          };
+      }
+  </script>
+</head>
+<body>
+
+<form id="example">
+  <input type="text" placeholder="example name" value="randomcolors" id="example-name"/>
+  <input type="submit"/>
+</form>
+
+<canvas id="screen" width="800px" height="600px" style="border: black 1px solid"></canvas>
+</body>
+</html>

@@ -13,14 +13,14 @@
 //! # extern crate turtle;
 //! # use turtle::color;
 //! # fn main() {
-//! # let mut turtle = turtle::Turtle::new();
+//! # turtle::start_desktop(|mut turtle| {
 //! // This will set the turtle's pen color to BLACK
 //! turtle.set_pen_color("black");
 //! // This is the same as the previous line
 //! turtle.set_pen_color(color::BLACK);
 //! // You can use any of the supported color names (including the ones from extended)
 //! turtle.set_pen_color("deep lilac");
-//! # }
+//! # });}
 //! ```
 //!
 //! You can also use hexadecimal color strings to get any color you want
@@ -29,10 +29,10 @@
 //! ```rust
 //! # extern crate turtle;
 //! # fn main() {
-//! # let mut turtle = turtle::Turtle::new();
+//! # turtle::start_desktop(|mut turtle| {
 //! turtle.set_pen_color("#3366ff");
 //! turtle.set_pen_color("#36f");
-//! # }
+//! # });}
 //! ```
 //!
 //! Each color's constant name is in uppercase in the list below. The color name you should use to
@@ -51,10 +51,12 @@
 //! ```rust
 //! # extern crate turtle;
 //! # fn main() {
-//! # let mut turtle = turtle::Turtle::new();
-//! use turtle::{random, Color};
-//! turtle.set_pen_color(random::<Color>().opaque());
-//! # }
+//! # turtle::start_desktop(|mut turtle| {
+//! use turtle::Color;
+//! use turtle::rand::Rng;
+//! let mut rng = turtle.rng();
+//! turtle.set_pen_color(rng.gen::<Color>().opaque());
+//! # });}
 //! ```
 //!
 //! The syntax used in `random::<Color>()` is referred to as
@@ -92,7 +94,7 @@
 //! # extern crate turtle;
 //! # use turtle::*;
 //! # fn main() {
-//! # let mut turtle = Turtle::new();
+//! # turtle::start_desktop(|mut turtle| {
 //! // A solid color with alpha = 1.0
 //! // Syntax is [red, green, blue] and doesn't require explicitly writing the field names
 //! turtle.set_pen_color([133.0, 23.0, 96.0]);
@@ -108,7 +110,7 @@
 //! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0, 0.5]);
 //! // This is a little easier to type than the equivalent:
 //! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
-//! # }
+//! # });}
 //! ```
 //!
 //! When creating a color this way, we **will** check whether or not the color is valid and provide
@@ -117,15 +119,15 @@
 //! ```rust,should_panic
 //! # extern crate turtle;
 //! # fn main() {
-//! # let mut turtle = turtle::Turtle::new();
+//! # turtle::start_desktop(|mut turtle| {
 //! // Color values must only go up to 255.0
 //! turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
-//! # }
+//! # });}
 //! ```
 
 use std::iter::repeat;
 
-use piston_window::types;
+use graphics::types;
 use rand::{Rand, Rng};
 
 /// Type for representing a color.

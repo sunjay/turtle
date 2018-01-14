@@ -4,7 +4,7 @@ use std::{env, thread, process};
 
 use query::{Query, Response};
 #[cfg(not(any(feature = "test", test)))]
-use messenger::{self, Disconnected};
+use super::messenger::{self, Disconnected};
 
 /// Manages the renderer process and all communication with it
 #[cfg(not(any(feature = "test", test)))]
@@ -52,10 +52,6 @@ impl RendererProcess {
         }
     }
 
-    /// Sends a query and automatically decides whether or not to wait for a response.
-    ///
-    /// If a query does not require a response, this function will return immediately after
-    /// sending the query
     pub fn send_query(&mut self, query: Query) -> Option<Response> {
         messenger::send(
             match self.process.stdin {
@@ -175,7 +171,7 @@ impl RendererProcess {
     }
 
     pub fn send_query(&mut self, query: Query) -> Option<Response> {
-        ::server::handle_query_for_test_use_only(query, &mut self.app, &self.events.1, &self.drawing.0)
+        super::server::handle_query_for_test_use_only(query, &mut self.app, &self.events.1, &self.drawing.0)
             .expect("test bug: a query failed to be successful")
     }
 }

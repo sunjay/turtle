@@ -4,6 +4,7 @@ mod maze;
 mod grid;
 mod solver;
 
+#[macro_use]
 extern crate turtle;
 
 use turtle::{Turtle, Color};
@@ -16,12 +17,10 @@ use solver::solve;
 const WIDTH: f64 = 600.0; // px
 const HEIGHT: f64 = 600.0; // px
 
-fn main() {
-    turtle::start();
+run_turtle!(|mut turtle| {
 
-    let maze = Maze::generate();
+    let maze = maze::generate(&mut turtle.rng());
 
-    let mut turtle = Turtle::new();
     turtle.set_speed(8);
     turtle.drawing_mut().set_background_color("#BDBDBD");
     turtle.set_pen_color("#03A9F4");
@@ -74,7 +73,7 @@ fn main() {
     turtle.set_speed(5);
     turtle.set_pen_size(2.0);
     solve(&mut turtle, maze, cell_width, cell_height);
-}
+});
 
 fn draw_rows<
     'a,

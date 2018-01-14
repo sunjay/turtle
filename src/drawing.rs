@@ -3,6 +3,7 @@ use std::rc::Rc;
 use std::fmt::Debug;
 
 use turtle_window::TurtleWindow;
+use runtime::Runtime;
 use state::DrawingState;
 use {Point, Color, Event};
 
@@ -59,17 +60,16 @@ impl From<[u32; 2]> for Size {
     }
 }
 
-/// Represents the drawing that the turtle is creating
 ///
 /// This struct is usually accessed using the [`drawing()`](struct.Turtle.html#method.drawing)
 /// and [`drawing_mut()`](struct.Turtle.html#method.drawing_mut) methods on the
 /// [`Turtle` struct](struct.Turtle.html).
-pub struct Drawing {
-    window: Rc<RefCell<TurtleWindow>>,
+pub struct Drawing<R: Runtime> {
+    window: Rc<RefCell<TurtleWindow<R>>>,
 }
 
-impl Drawing {
-    pub(crate) fn with_window(window: Rc<RefCell<TurtleWindow>>) -> Self {
+impl<R: Runtime> Drawing<R> {
+    pub(crate) fn with_window(window: Rc<RefCell<TurtleWindow<R>>>) -> Self {
         Self {
             window,
         }
@@ -81,10 +81,10 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.drawing_mut().set_title("Hello, world!");
     /// assert_eq!(&*turtle.drawing().title(), "Hello, world!");
-    /// # }
+    /// # });}
     /// ```
     pub fn title(&self) -> String {
         self.window.borrow().fetch_drawing().title
@@ -95,13 +95,15 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
+    /// #[macro_use]
     /// extern crate turtle;
     /// use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    /// # fn main() {
+    /// run_turtle!(|mut turtle| {
     ///     turtle.drawing_mut().set_title("My Fancy Title! - Yay!");
-    /// }
+    /// });
+    /// # }
     /// ```
     ///
     /// This will produce the following:
@@ -117,10 +119,10 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.drawing_mut().set_background_color("purple");
     /// assert_eq!(turtle.drawing().background_color(), "purple".into());
-    /// # }
+    /// # });}
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -136,13 +138,13 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    /// use turtle::Turtle;
+    /// # extern crate turtle;
+    /// # use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.drawing_mut().set_background_color("orange");
-    /// }
+    /// # fn main() {
+    /// # turtle::start_desktop(|mut turtle| {
+    /// turtle.drawing_mut().set_background_color("orange");
+    /// # });}
     /// ```
     ///
     /// This will produce the following:
@@ -161,11 +163,11 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert_eq!(turtle.drawing().center(), Point {x: 0.0, y: 0.0});
     /// turtle.drawing_mut().set_center([4.0, 3.0]);
     /// assert_eq!(turtle.drawing().center(), Point {x: 4.0, y: 3.0});
-    /// # }
+    /// # });}
     /// ```
     pub fn center(&self) -> Point {
         self.window.borrow().fetch_drawing().center
@@ -183,13 +185,13 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
+    /// #[macro_use]
     /// extern crate turtle;
     ///
     /// use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///
+    /// # fn main() {
+    /// run_turtle!(|mut turtle| {
     ///     for _ in 0..360 {
     ///         // Move forward three steps
     ///         turtle.forward(3.0);
@@ -199,7 +201,8 @@ impl Drawing {
     ///
     ///     turtle.wait_for_click();
     ///     turtle.drawing_mut().set_center([50.0, 100.0]);
-    /// }
+    /// });
+    /// # }
     /// ```
     ///
     /// This will produce the following:
@@ -223,13 +226,13 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// let default_center = turtle.drawing().center();
     /// turtle.drawing_mut().set_center([400.0, -30.0]);
     /// assert_ne!(turtle.drawing().center(), default_center);
     /// turtle.drawing_mut().reset_center();
     /// assert_eq!(turtle.drawing().center(), default_center);
-    /// # }
+    /// # });}
     /// ```
     pub fn reset_center(&mut self) {
         let default = DrawingState::default();
@@ -242,14 +245,14 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// # assert_eq!(turtle.drawing().size(), Size {width: 800, height: 600});
     /// // 1080p is 1920x1080
     /// turtle.drawing_mut().set_size((1920, 1080));
     /// let size = turtle.drawing().size();
     /// assert_eq!(size.width, 1920);
     /// assert_eq!(size.height, 1080);
-    /// # }
+    /// # });}
     /// ```
     pub fn size(&self) -> Size {
         let drawing = self.window.borrow().fetch_drawing();
@@ -268,7 +271,7 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::Turtle;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// // These are all equivalent to each other
     /// turtle.drawing_mut().set_size((640, 480));
     /// # assert_eq!(turtle.drawing().size(), Size {width: 640, height: 480});
@@ -279,19 +282,19 @@ impl Drawing {
     /// use turtle::Size; // Size must be imported
     /// turtle.drawing_mut().set_size(Size {width: 640, height: 480});
     /// # assert_eq!(turtle.drawing().size(), Size {width: 640, height: 480});
-    /// # }
+    /// # });}
     /// ```
     ///
     /// # Example
     ///
     /// ```rust,no_run
+    /// #[macro_use]
     /// extern crate turtle;
     ///
     /// use turtle::Turtle;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///
+    /// # fn main() {
+    /// run_turtle!(|mut turtle| {
     ///     for _ in 0..360 {
     ///         // Move forward three steps
     ///         turtle.forward(3.0);
@@ -301,7 +304,8 @@ impl Drawing {
     ///
     ///     turtle.wait_for_click();
     ///     turtle.drawing_mut().set_size((300, 300));
-    /// }
+    /// });
+    /// # }
     /// ```
     ///
     /// This will produce the following:
@@ -328,7 +332,7 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// let default_size = turtle.drawing().size();
     ///
     /// turtle.drawing_mut().set_size([920, 680]);
@@ -336,7 +340,7 @@ impl Drawing {
     ///
     /// turtle.drawing_mut().reset_size();
     /// assert_eq!(turtle.drawing().size(), default_size);
-    /// # }
+    /// # });}
     /// ```
     pub fn reset_size(&mut self) {
         let default = DrawingState::default();
@@ -352,7 +356,7 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert_eq!(turtle.drawing().is_maximized(), false);
     ///
     /// turtle.drawing_mut().maximize();
@@ -364,7 +368,7 @@ impl Drawing {
     /// // Calling the same method again doesn't change the result
     /// turtle.drawing_mut().unmaximize();
     /// assert_eq!(turtle.drawing().is_maximized(), false);
-    /// # }
+    /// # });}
     /// ```
     ///
     /// # Unstable
@@ -388,13 +392,13 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.drawing_mut().maximize();
     /// assert_eq!(turtle.drawing().is_maximized(), true);
     /// // Calling this method again does nothing
     /// turtle.drawing_mut().maximize();
     /// assert_eq!(turtle.drawing().is_maximized(), true);
-    /// # }
+    /// # });}
     /// ```
     ///
     /// # Unstable
@@ -422,7 +426,7 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.drawing_mut().maximize();
     /// assert_eq!(turtle.drawing().is_maximized(), true);
     /// turtle.drawing_mut().unmaximize();
@@ -430,7 +434,7 @@ impl Drawing {
     /// // Calling this again does nothing because the drawing is already unmaximized
     /// turtle.drawing_mut().unmaximize();
     /// assert_eq!(turtle.drawing().is_maximized(), false);
-    /// # }
+    /// # });}
     /// ```
     ///
     /// # Unstable
@@ -452,7 +456,7 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// assert_eq!(turtle.drawing().is_fullscreen(), false);
     ///
     /// turtle.drawing_mut().enter_fullscreen();
@@ -464,7 +468,7 @@ impl Drawing {
     /// // Calling the same method again doesn't change the result
     /// turtle.drawing_mut().exit_fullscreen();
     /// assert_eq!(turtle.drawing().is_fullscreen(), false);
-    /// # }
+    /// # });}
     /// ```
     pub fn is_fullscreen(&self) -> bool {
         self.window.borrow().fetch_drawing().fullscreen
@@ -479,13 +483,13 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.drawing_mut().enter_fullscreen();
     /// assert_eq!(turtle.drawing().is_fullscreen(), true);
     /// // Calling this method again does nothing
     /// turtle.drawing_mut().enter_fullscreen();
     /// assert_eq!(turtle.drawing().is_fullscreen(), true);
-    /// # }
+    /// # });}
     /// ```
     pub fn enter_fullscreen(&mut self) {
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.fullscreen = true);
@@ -500,7 +504,7 @@ impl Drawing {
     /// # extern crate turtle;
     /// # use turtle::*;
     /// # fn main() {
-    /// # let mut turtle = Turtle::new();
+    /// # turtle::start_desktop(|mut turtle| {
     /// turtle.drawing_mut().enter_fullscreen();
     /// assert_eq!(turtle.drawing().is_fullscreen(), true);
     /// turtle.drawing_mut().exit_fullscreen();
@@ -508,7 +512,7 @@ impl Drawing {
     /// // Calling this again does nothing because the drawing is already not fullscreen
     /// turtle.drawing_mut().exit_fullscreen();
     /// assert_eq!(turtle.drawing().is_fullscreen(), false);
-    /// # }
+    /// # });}
     /// ```
     pub fn exit_fullscreen(&mut self) {
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.fullscreen = false);
@@ -546,14 +550,15 @@ impl Drawing {
     /// further movements take place.
     ///
     /// ```rust,no_run
+    /// #[macro_use]
     /// extern crate turtle;
     ///
     /// use turtle::Turtle;
     /// use turtle::event::Key::{Left, Right};
     /// use turtle::Event::KeyPressed;
     ///
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    /// # fn main() {
+    /// run_turtle!(|mut turtle| {
     ///
     ///     loop {
     ///         turtle.forward(1.0);
@@ -583,7 +588,8 @@ impl Drawing {
     ///             }
     ///         }
     ///     }
-    /// }
+    /// });
+    /// # }
     /// ```
     pub fn poll_event(&mut self) -> Option<Event> {
         self.window.borrow_mut().poll_event()
@@ -595,11 +601,12 @@ mod tests {
     use super::*;
 
     use turtle::*;
+    use ::desktop::DesktopRuntime;
 
     #[test]
     #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
     fn rejects_invalid_background_color() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.drawing_mut().set_background_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
     }
 }

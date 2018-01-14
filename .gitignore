@@ -25,3 +25,6 @@ _site/
 .jekyll-metadata
 
 # End of https://www.gitignore.io/api/jekyll
+
+.idea
+*.iml

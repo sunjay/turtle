@@ -140,10 +140,11 @@ impl From<f64> for Speed {
 mod tests {
     use super::*;
     use {Turtle};
+    use ::desktop::DesktopRuntime;
 
     #[test]
     fn speed_names() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_speed("slowest");
         assert_eq!(turtle.speed(), Speed::One);
         turtle.set_speed("slow");
@@ -161,13 +162,13 @@ mod tests {
     #[test]
     #[should_panic(expected = "Invalid speed specified, use one of the words: 'slowest', 'slow', 'normal', 'fast', 'fastest', 'instant'")]
     fn invalid_speed() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_speed("wrong");
     }
 
     #[test]
     fn speed_values() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_speed(0);
         assert_eq!(turtle.speed(), Speed::Instant);
         turtle.set_speed(1);
@@ -198,7 +199,7 @@ mod tests {
 
     #[test]
     fn speed_values_f64() {
-        let mut turtle = Turtle::new();
+        let mut turtle = Turtle::new(DesktopRuntime::new());
         turtle.set_speed(0.4);
         assert_eq!(turtle.speed(), Speed::Instant);
         turtle.set_speed(1.4);

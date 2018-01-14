@@ -1,11 +1,11 @@
+#[macro_use]
 extern crate turtle;
 
 use std::f64::consts::PI;
 
 use turtle::Turtle;
 
-fn main() {
-    let mut turtle = Turtle::new();
+run_turtle!(|mut turtle| {
 
     turtle.pen_up();
     turtle.set_speed("instant");
@@ -27,7 +27,7 @@ fn main() {
     }
 
     turtle.hide();
-}
+});
 
 fn circle(turtle: &mut Turtle, radius: f64) {
     let degrees = 180.0;
