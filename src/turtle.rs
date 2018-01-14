@@ -285,9 +285,9 @@ impl Turtle {
     }
 
     /// Set the turtle's movement speed to the given setting. This speed affects the animation of
-    /// the turtle's movement and rotation. The turtle's speed is limited to values between 0 and
-    /// 10. If you pass in values that are not integers or outside of that range, the closest
-    /// possible value will be chosen.
+    /// the turtle's movement and rotation. The turtle's speed is limited to values from 0 to 10.
+    /// If you pass in values that are not integers or outside of that range, the closest possible
+    /// value will be chosen.
     ///
     /// This method's types make it so that it can be called in a number of different ways:
     ///
@@ -305,8 +305,8 @@ impl Turtle {
     /// # }
     /// ```
     ///
-    /// If input is a number greater than 10 or smaller than 1,
-    /// speed is set to 0 (`Speed::Instant`). Strings are converted as follows:
+    /// If input is a number greater than 10 or smaller than 1, speed is set to 0
+    /// (`Speed::Instant`). Strings are converted as follows:
     ///
     /// | String      | Value          |
     /// | ----------- | -------------- |
