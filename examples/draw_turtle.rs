@@ -1,11 +1,17 @@
+//! https://arkada38.github.io/2018/01/14/creating-a-turtle/
+//!
+//! Inspired by child's drawing of turtle we are going to draw and paint figures
+//! which consists of arcs and straight lines.
+//! To draw arcs we need to use the loops which are determine tilt angle and the length.
+//! The more sophisticated the figure is the more loops it requires to make.
 extern crate turtle;
 
-use turtle::Turtle;
+use turtle::{Turtle, Color, color};
 
 const SIZE: f64 = 1.0;
-const FIRST_COLOR: [f64; 4] = [62.0, 114.0, 29.0, 1.0];
-const SECOND_COLOR: [f64; 4] = [119.0, 178.0, 85.0, 1.0];
-const EYE_COLOR: &str = "black";
+const SHELL_COLOR: Color = Color {red: 62.0, green: 114.0, blue: 29.0, alpha: 1.0};
+const BODY_COLOR: Color = Color {red: 119.0, green: 178.0, blue: 85.0, alpha: 1.0};
+const EYE_COLOR: Color = color::BLACK;
 
 fn main() {
     let mut turtle = Turtle::new();
@@ -15,7 +21,7 @@ fn main() {
     turtle.set_x(-280.0);
     turtle.set_y(-90.0);
 
-    draw_panther(&mut turtle);
+    draw_shell(&mut turtle);
 
     draw_tail(&mut turtle);
 
@@ -50,7 +56,7 @@ fn main() {
 
     draw_eye(&mut turtle);
 
-    turtle.set_fill_color(SECOND_COLOR);
+    turtle.set_fill_color(BODY_COLOR);
 
     turtle.left(175.0);
     turtle.forward(SIZE * 43.0);
@@ -67,11 +73,11 @@ fn main() {
     turtle.forward(SIZE * 36.0);
     turtle.set_heading(180.0);
 
-    draw_left_highlight(&mut turtle);
+    draw_left_highlight(&mut turtle);/**/
 }
 
-fn draw_panther(turtle: &mut Turtle) {
-    turtle.set_fill_color(FIRST_COLOR);
+fn draw_shell(turtle: &mut Turtle) {
+    turtle.set_fill_color(SHELL_COLOR);
     turtle.begin_fill();
 
     for _ in 0..180 {
@@ -98,7 +104,7 @@ fn draw_panther(turtle: &mut Turtle) {
 }
 
 fn draw_tail(turtle: &mut Turtle) {
-    turtle.set_fill_color(SECOND_COLOR);
+    turtle.set_fill_color(BODY_COLOR);
     turtle.begin_fill();
 
     turtle.left(90.0);
@@ -178,6 +184,9 @@ fn draw_neck(turtle: &mut Turtle) {
     turtle.end_fill();
 }
 
+// In our case the most difficult part of the turtle is head. It requires six loops to draw.
+// There was a way to draw it as one circle but
+// I've decided to make it look a like a real turtle's head.
 fn draw_head(turtle: &mut Turtle) {
     turtle.begin_fill();
 
