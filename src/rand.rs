@@ -54,12 +54,9 @@
 //! information about the type that you want to generate:
 //!
 //! ```rust,compile_fail,E0283
-//! # extern crate turtle;
 //! # use turtle::{Turtle, random};
-//! # fn main() {
 //! let mut turtle = Turtle::new();
 //! turtle.set_speed(random());
-//! # }
 //! ```
 //!
 //! This will produce an error that looks something like the following:
@@ -76,16 +73,13 @@
 //! variable, or use Rust's "turbofish" syntax.
 //!
 //! ```rust
-//! # extern crate turtle;
 //! # use turtle::{Turtle, Speed, random};
-//! # fn main() {
 //! let mut turtle = Turtle::new();
 //! // 1. Separate out into a variable, then annotate the desired type
 //! let speed: Speed = random();
 //! turtle.set_speed(speed);
 //! // 2. Turbofish syntax ::<T>
 //! turtle.set_speed(random::<Speed>());
-//! # }
 //! ```
 //!
 //! # Generating Random Values in a Range
@@ -95,9 +89,7 @@
 //! lower bound and strictly less than the upper bound.
 //!
 //! ```rust
-//! # extern crate turtle;
 //! # use turtle::random_range;
-//! # fn main() {
 //! // Generates an f64 value between 394.0 and 499.99999...
 //! let value: f64 = random_range(394.0, 500.0);
 //! assert!(value >= 394.0 && value < 500.0);
@@ -107,7 +99,6 @@
 //! // You do not need to specify the type if the compiler has enough information:
 //! fn foo(a: u64) {}
 //! foo(random_range(381, 920));
-//! # }
 //! ```
 //!
 //! Most types that can be used with [`random()`] can also be used with [`random_range()`]. This
@@ -118,16 +109,13 @@
 //! illustrated in the example below:
 //!
 //! ```rust
-//! # extern crate turtle;
 //! # use turtle::{Point, random_range};
-//! # fn main() {
 //! // Generates a Point value with:
 //! //   x-coordinate between 46.0 and 99932.0
 //! //   y-coordinate between 309.0 and 1803.0
 //! let value: Point = random_range([99932.0, 309.0].into(), [46.0, 1803.0].into());
 //! assert!(value.x >= 46.0 && value.x < 99932.0);
 //! assert!(value.y >= 309.0 && value.y < 1803.0);
-//! # }
 //! ```
 //!
 //! # How can one function generate so many different return types?
@@ -141,10 +129,8 @@
 //! The type signature of the [`random()`] function is similar to the following:
 //!
 //! ```rust,compile_fail,E0308
-//! # extern crate turtle;
 //! # use turtle::rand::Rand;
 //! fn random<T: Rand>() -> T { /* ... */ }
-//! # fn main() {}
 //! ```
 //!
 //! This tells us the following:
@@ -170,11 +156,8 @@
 //! random value to.
 //!
 //! ```rust
-//! # extern crate turtle;
 //! # use turtle::{Speed, random};
-//! # fn main() {
 //! let speed: Speed = random();
-//! # }
 //! ```
 //!
 //! If we were passing the value to a function that is known to take [`Speed`] as its type, the
@@ -182,13 +165,10 @@
 //! example compiles without any additional annotations:
 //!
 //! ```rust
-//! # extern crate turtle;
 //! # use turtle::{Speed, random};
-//! # fn main() {
 //! fn foo(speed: Speed) {}
 //! // No type annotations required!
 //! foo(random());
-//! # }
 //! ```
 //!
 //! This generates a random speed using the implementation of [`Rand`] for the [`Speed`] type in this
@@ -238,9 +218,7 @@ impl<T> RandomRange for T where T: PartialOrd + SampleRange {
 ///
 /// # Example:
 /// ```rust
-/// # extern crate turtle;
 /// # use turtle::random_range;
-/// # fn main() {
 /// // Generates an f64 value between 100 and 199
 /// let value: f64 = random_range(100.0, 200.0);
 /// assert!(value >= 100.0 && value < 200.0);
@@ -250,7 +228,6 @@ impl<T> RandomRange for T where T: PartialOrd + SampleRange {
 /// // You do not need to specify the type if the compiler has enough information:
 /// fn foo(a: u64) {}
 /// foo(random_range(432, 1938));
-/// # }
 /// ```
 pub fn random_range<T: RandomRange>(low: T, high: T) -> T {
     let mut rng = thread_rng();

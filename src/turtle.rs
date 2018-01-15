@@ -101,10 +101,7 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust
-    /// # #![allow(unused_variables, unused_mut)]
-    /// # extern crate turtle;
     /// # use turtle::Turtle;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// // Move forward 10 tiny turtle steps, drawing a line as you move
     /// turtle.forward(10.0);
@@ -116,7 +113,6 @@ impl Turtle {
     /// turtle.pen_up();
     /// turtle.forward(-223.0);
     /// # assert_eq!(turtle.position().y.round(), -113.0);
-    /// # }
     /// ```
     pub fn forward(&mut self, distance: Distance) {
         self.window.borrow_mut().forward(distance);
@@ -132,10 +128,7 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust
-    /// # #![allow(unused_variables, unused_mut)]
-    /// # extern crate turtle;
     /// # use turtle::Turtle;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// // Move backward 10 tiny turtle steps, drawing a line as you move
     /// turtle.backward(10.0);
@@ -147,7 +140,6 @@ impl Turtle {
     /// turtle.pen_up();
     /// turtle.backward(-179.0);
     /// # assert_eq!(turtle.position().y.round(), 69.0);
-    /// # }
     /// ```
     pub fn backward(&mut self, distance: Distance) {
         // Moving backwards is essentially moving forwards with a negative distance
@@ -166,9 +158,7 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// // rotate right by 30 degrees
     /// turtle.right(30.0);
@@ -188,7 +178,6 @@ impl Turtle {
     /// # let expected = expected - (2.0*PI) * (expected / (2.0*PI)).floor();
     /// # let expected = (expected * 1e5).trunc();
     /// # assert_eq!((turtle.heading() * 1e5).trunc(), expected);
-    /// # }
     /// ```
     pub fn right(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -208,9 +197,7 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// // rotate left by 30 degrees
     /// turtle.left(30.0);
@@ -226,7 +213,6 @@ impl Turtle {
     /// #     (turtle.heading() * 1e5).trunc(),
     /// #     (((90f64 + 30f64).to_radians() + 1.0 + PI/4.0) * 1e5).trunc()
     /// # );
-    /// # }
     /// ```
     pub fn left(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -236,15 +222,12 @@ impl Turtle {
     /// Waits for the specified number of seconds before executing the next command.
     ///
     /// ```rust,no_run
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.forward(100.0);
     /// turtle.wait(2.0);
     /// // The turtle will stop for 2 seconds before proceeding to this line
     /// turtle.forward(50.0);
-    /// # }
     /// ```
     pub fn wait(&mut self, secs: f64) {
         if !secs.is_normal() {
@@ -272,13 +255,10 @@ impl Turtle {
     /// Returns the current speed of the turtle
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.set_speed(8);
     /// assert_eq!(turtle.speed(), Speed::Eight);
-    /// # }
     /// ```
     pub fn speed(&self) -> Speed {
         self.window.borrow().fetch_turtle().speed
@@ -292,9 +272,7 @@ impl Turtle {
     /// This method's types make it so that it can be called in a number of different ways:
     ///
     /// ```rust,no_run
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.set_speed("normal");
     /// turtle.set_speed("fast");
@@ -302,7 +280,6 @@ impl Turtle {
     /// turtle.set_speed(10);
     /// // Directly using a Speed variant works, but the methods above are usually more convenient.
     /// turtle.set_speed(Speed::Six);
-    /// # }
     /// ```
     ///
     /// If input is a number greater than 10 or smaller than 1, speed is set to 0
@@ -348,14 +325,11 @@ impl Turtle {
     /// Returns the turtle's current location (x, y)
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.forward(100.0);
     /// let pos = turtle.position();
     /// assert_eq!(pos.round(), Point {x: 0.0, y: 100.0});
-    /// # }
     /// ```
     pub fn position(&self) -> Point {
         self.window.borrow().fetch_turtle().position
@@ -369,9 +343,7 @@ impl Turtle {
     /// Use [`set_speed()`](struct.Turtle.html#method.set_speed) to control the animation speed.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// let heading = turtle.heading();
     /// assert_eq!(turtle.position(), Point {x: 0.0, y: 0.0});
@@ -379,7 +351,6 @@ impl Turtle {
     /// // The heading has not changed, but the turtle has moved to the new position
     /// assert_eq!(turtle.heading(), heading);
     /// assert_eq!(turtle.position(), Point {x: 100.0, y: -150.0});
-    /// # }
     /// ```
     pub fn go_to<P: Into<Point>>(&mut self, position: P) {
         self.window.borrow_mut().go_to(position.into());
@@ -402,9 +373,7 @@ impl Turtle {
     /// Moves instantaneously to the origin and resets the heading to face north.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// let mut turtle = Turtle::new();
     /// let start_position = turtle.position().round();
     /// let start_heading = turtle.heading().round();
@@ -415,7 +384,6 @@ impl Turtle {
     /// turtle.home();
     /// assert_eq!(turtle.heading().round(), start_heading);
     /// assert_eq!(turtle.position().round(), start_position);
-    /// # }
     /// ```
     pub fn home(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| {
@@ -445,9 +413,7 @@ impl Turtle {
     /// a certain direction.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// // Turtles start facing north
     /// let mut turtle = Turtle::new();
     /// // The rounding is to account for floating-point error
@@ -459,7 +425,6 @@ impl Turtle {
     /// turtle.left(130.0);
     /// // Angles should not exceed 360.0
     /// assert_eq!(turtle.heading().round(), 22.0);
-    /// # }
     /// ```
     pub fn heading(&self) -> Angle {
         let heading = self.window.borrow().fetch_turtle().heading;
@@ -490,9 +455,7 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// // Turtles start facing north
     /// let mut turtle = Turtle::new();
     /// // The rounding is to account for floating-point error
@@ -506,7 +469,6 @@ impl Turtle {
     /// // Angles should not exceed 360.0, even when we set them to values larger than that
     /// turtle.set_heading(367.0);
     /// assert_eq!(turtle.heading().round(), 7.0);
-    /// # }
     /// ```
     pub fn set_heading(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
@@ -536,9 +498,7 @@ impl Turtle {
     /// Change the angle unit to degrees.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// # turtle.use_radians();
     /// assert!(!turtle.is_using_degrees());
@@ -547,7 +507,6 @@ impl Turtle {
     ///
     /// // This will now be interpreted as 1.0 degree
     /// turtle.right(1.0);
-    /// # }
     /// ```
     pub fn use_degrees(&mut self) {
         self.angle_unit = AngleUnit::Degrees;
@@ -556,9 +515,7 @@ impl Turtle {
     /// Change the angle unit to radians.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// assert!(!turtle.is_using_radians());
     /// turtle.use_radians();
@@ -566,7 +523,6 @@ impl Turtle {
     ///
     /// // This will now be interpreted as 1.0 radian
     /// turtle.right(1.0);
-    /// # }
     /// ```
     pub fn use_radians(&mut self) {
         self.angle_unit = AngleUnit::Radians;
@@ -575,16 +531,13 @@ impl Turtle {
     /// Return true if pen is down, false if it’s up.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// assert!(turtle.is_pen_down());
     /// turtle.pen_up();
     /// assert!(!turtle.is_pen_down());
     /// turtle.pen_down();
     /// assert!(turtle.is_pen_down());
-    /// # }
     /// ```
     pub fn is_pen_down(&self) -> bool {
         self.window.borrow().fetch_turtle().pen.enabled
@@ -593,9 +546,7 @@ impl Turtle {
     /// Pull the pen down so that the turtle draws while moving.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// # turtle.pen_up();
     /// assert!(!turtle.is_pen_down());
@@ -605,7 +556,6 @@ impl Turtle {
     /// assert!(turtle.is_pen_down());
     /// // The turtle will now draw lines again
     /// turtle.forward(100.0);
-    /// # }
     /// ```
     pub fn pen_down(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.enabled = true);
@@ -614,9 +564,7 @@ impl Turtle {
     /// Pick the pen up so that the turtle does not draw while moving
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// assert!(turtle.is_pen_down());
     /// // The turtle will move and draw a line
@@ -625,7 +573,6 @@ impl Turtle {
     /// assert!(!turtle.is_pen_down());
     /// // Now, the turtle will move, but not draw anything
     /// turtle.forward(100.0);
-    /// # }
     /// ```
     pub fn pen_up(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.enabled = false);
@@ -634,13 +581,10 @@ impl Turtle {
     /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.set_pen_size(25.0);
     /// assert_eq!(turtle.pen_size(), 25.0);
-    /// # }
     /// ```
     ///
     /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
@@ -698,13 +642,10 @@ impl Turtle {
     /// Returns the color of the pen.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.set_pen_color("blue");
     /// assert_eq!(turtle.pen_color(), "blue".into());
-    /// # }
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -755,13 +696,10 @@ impl Turtle {
     /// [`end_fill()`](struct.Turtle.html#method.end_fill) are called.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.set_fill_color("coral");
     /// assert_eq!(turtle.fill_color(), "coral".into());
-    /// # }
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -849,16 +787,13 @@ impl Turtle {
     /// Returns true if the turtle is visible.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// let mut turtle = Turtle::new();
     /// assert!(turtle.is_visible());
     /// turtle.hide();
     /// assert!(!turtle.is_visible());
     /// turtle.show();
     /// assert!(turtle.is_visible());
-    /// # }
     /// ```
     pub fn is_visible(&self) -> bool {
         self.window.borrow().fetch_turtle().visible
@@ -869,14 +804,11 @@ impl Turtle {
     /// Useful for some complex drawings.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// assert!(turtle.is_visible());
     /// turtle.hide();
     /// assert!(!turtle.is_visible());
-    /// # }
     /// ```
     pub fn hide(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.visible = false);
@@ -885,15 +817,12 @@ impl Turtle {
     /// Makes the turtle visible.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// # turtle.hide();
     /// assert!(!turtle.is_visible());
     /// turtle.show();
     /// assert!(turtle.is_visible());
-    /// # }
     /// ```
     pub fn show(&mut self) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.visible = true);
@@ -903,9 +832,7 @@ impl Turtle {
     /// turtle's state (speed, color, etc.) back to the default.
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::*;
-    /// # fn main() {
     /// # let mut turtle = Turtle::new();
     /// turtle.left(43.0);
     /// turtle.forward(289.0);
@@ -918,7 +845,6 @@ impl Turtle {
     /// assert_eq!(turtle.position(), Point {x: 0.0, y: 0.0});
     /// assert_ne!(turtle.pen_color(), "red".into());
     /// assert_ne!(turtle.drawing().background_color(), "green".into());
-    /// # }
     /// ```
     pub fn reset(&mut self) {
         self.clear();

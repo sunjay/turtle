@@ -10,9 +10,7 @@
 //! You can refer to a color by using its color name as a string literal. For example:
 //!
 //! ```rust
-//! # extern crate turtle;
 //! # use turtle::color;
-//! # fn main() {
 //! # let mut turtle = turtle::Turtle::new();
 //! // This will set the turtle's pen color to BLACK
 //! turtle.set_pen_color("black");
@@ -20,19 +18,15 @@
 //! turtle.set_pen_color(color::BLACK);
 //! // You can use any of the supported color names (including the ones from extended)
 //! turtle.set_pen_color("deep lilac");
-//! # }
 //! ```
 //!
 //! You can also use hexadecimal color strings to get any color you want
 //! (even ones that aren't listed here).
 //!
 //! ```rust
-//! # extern crate turtle;
-//! # fn main() {
 //! # let mut turtle = turtle::Turtle::new();
 //! turtle.set_pen_color("#3366ff");
 //! turtle.set_pen_color("#36f");
-//! # }
 //! ```
 //!
 //! Each color's constant name is in uppercase in the list below. The color name you should use to
@@ -49,12 +43,9 @@
 //! You can also generate random colors. Here's an example:
 //!
 //! ```rust
-//! # extern crate turtle;
-//! # fn main() {
 //! # let mut turtle = turtle::Turtle::new();
 //! use turtle::{random, Color};
 //! turtle.set_pen_color(random::<Color>().opaque());
-//! # }
 //! ```
 //!
 //! The syntax used in `random::<Color>()` is referred to as
@@ -75,11 +66,8 @@
 //! red, green, and blue values. The following example illustrates how to do that.
 //!
 //! ```rust
-//! # extern crate turtle;
-//! # fn main() {
 //! use turtle::Color;
 //! let my_color = Color {red: 255.0, green: 55.0, blue: 11.0, alpha: 1.0};
-//! # }
 //! ```
 //!
 //! Note that when creating a color this way, we **do not** check if the values of each property are
@@ -89,9 +77,7 @@
 //! type that implements `Into<Color>`.
 //!
 //! ```rust
-//! # extern crate turtle;
 //! # use turtle::*;
-//! # fn main() {
 //! # let mut turtle = Turtle::new();
 //! // A solid color with alpha = 1.0
 //! // Syntax is [red, green, blue] and doesn't require explicitly writing the field names
@@ -108,19 +94,15 @@
 //! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0, 0.5]);
 //! // This is a little easier to type than the equivalent:
 //! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
-//! # }
 //! ```
 //!
 //! When creating a color this way, we **will** check whether or not the color is valid and provide
 //! an error message to let you know what happened.
 //!
 //! ```rust,should_panic
-//! # extern crate turtle;
-//! # fn main() {
 //! # let mut turtle = turtle::Turtle::new();
 //! // Color values must only go up to 255.0
 //! turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
-//! # }
 //! ```
 
 use std::iter::repeat;
@@ -157,15 +139,12 @@ impl Color {
     /// Return a new color with all of the same values except with opacity (alpha) set to 1.0
     ///
     /// ```rust
-    /// # extern crate turtle;
-    /// # fn main() {
     /// use turtle::Color;
     /// let color = Color {red: 43.0, green: 79.0, blue: 23.0, alpha: 0.5};
     /// assert_eq!(color.alpha, 0.5);
     /// let color2 = color.opaque();
     /// assert_eq!(color.alpha, 0.5);
     /// assert_eq!(color2.alpha, 1.0);
-    /// # }
     /// ```
     pub fn opaque(self) -> Color {
         self.with_alpha(1.0)
@@ -174,15 +153,12 @@ impl Color {
     /// Return a new color with all of the same values except with opacity (alpha) set to 0.0
     ///
     /// ```rust
-    /// # extern crate turtle;
-    /// # fn main() {
     /// use turtle::Color;
     /// let color = Color {red: 43.0, green: 79.0, blue: 23.0, alpha: 0.5};
     /// assert_eq!(color.alpha, 0.5);
     /// let color2 = color.transparent();
     /// assert_eq!(color.alpha, 0.5);
     /// assert_eq!(color2.alpha, 0.0);
-    /// # }
     /// ```
     pub fn transparent(self) -> Color {
         self.with_alpha(0.0)
@@ -191,15 +167,12 @@ impl Color {
     /// Return a new color with alpha set to the given value
     ///
     /// ```rust
-    /// # extern crate turtle;
-    /// # fn main() {
     /// use turtle::Color;
     /// let color = Color {red: 43.0, green: 79.0, blue: 23.0, alpha: 0.5};
     /// assert_eq!(color.alpha, 0.5);
     /// let color2 = color.with_alpha(0.2);
     /// assert_eq!(color.alpha, 0.5);
     /// assert_eq!(color2.alpha, 0.2);
-    /// # }
     /// ```
     pub fn with_alpha(mut self, alpha: f64) -> Color {
         self.alpha = alpha;

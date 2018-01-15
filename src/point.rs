@@ -12,9 +12,7 @@ use interpolation::Spatial;
 /// same value into those methods in several different ways depending on what you prefer:
 ///
 /// ```rust
-/// # extern crate turtle;
 /// # use turtle::Turtle;
-/// # fn main() {
 /// # let mut turtle = Turtle::new();
 /// // These are equivalent
 /// turtle.go_to([100.0, 40.0]);
@@ -22,32 +20,25 @@ use interpolation::Spatial;
 /// // This is equivalent too, but the above examples are easier to type
 /// use turtle::Point;
 /// turtle.go_to(Point {x: 100.0, y: 40.0});
-/// # }
 /// ```
 ///
 /// Each of these different styles works because the methods call
 /// [`.into()`](https://doc.rust-lang.org/std/convert/trait.Into.html) internally.
 ///
 /// ```rust
-/// # extern crate turtle;
 /// # use turtle::Point;
-/// # fn main() {
 /// assert_eq!(Point {x: 100.0, y: 40.0}, [100.0, 40.0].into());
 /// assert_eq!(Point {x: 100.0, y: 40.0}, (100.0, 40.0).into());
-/// # }
 /// ```
 ///
 /// Notice that we need to convert the right side using `into()` before it can be compared
 /// in `assert_eq!()`.
 ///
 /// ```rust,compile_fail,E0308
-/// # extern crate turtle;
 /// # use turtle::Point;
-/// # fn main() {
 /// // This will not compile
 /// assert_eq!(Point {x: 100.0, y: 40.0}, [100.0, 40.0]);
 /// assert_eq!(Point {x: 100.0, y: 40.0}, (100.0, 40.0));
-/// # }
 /// ```
 ///
 /// # Manipulating Points
@@ -57,9 +48,7 @@ use interpolation::Spatial;
 /// documentation below that provide even more operations.
 ///
 /// ```rust
-/// # extern crate turtle;
 /// # use turtle::Point;
-/// # fn main() {
 /// # let a = 320.0; let b = 400.0; let c = 70.0; let d = 95.0;
 /// // Let's say you have two points with f64 values a, b, c, and d
 /// let pt = Point {x: a, y: b};
@@ -69,7 +58,6 @@ use interpolation::Spatial;
 /// assert_eq!(pt * 2.0, Point {x: a * 2.0, y: b * 2.0});
 /// assert_eq!(pt2 / 5.0, Point {x: c / 5.0, y: d / 5.0});
 /// assert_eq!(pt2 * 2.0 - pt, Point {x: c * 2.0 - a, y: d * 2.0 - b});
-/// # }
 /// ```
 ///
 /// # Accessing Point Components
@@ -78,9 +66,7 @@ use interpolation::Spatial;
 /// indexing if you prefer that style.
 ///
 /// ```rust
-/// # extern crate turtle;
 /// # use turtle::Point;
-/// # fn main() {
 /// let p = Point {x: 100.0, y: 120.0};
 ///
 /// // Get x coordinate
@@ -114,19 +100,15 @@ use interpolation::Spatial;
 /// pt2[1] = pt.y;
 /// assert_eq!(pt2.x, 73.0);
 /// assert_eq!(pt2.y, 89.0);
-/// # }
 /// ```
 ///
 /// # Generating Random Points
 ///
 /// ```rust
-/// # extern crate turtle;
 /// # use turtle::{Point, random};
-/// # fn main() {
 /// let pt: Point = random();
 /// assert!(pt.x >= 0.0 && pt.x < 1.0);
 /// assert!(pt.y >= 0.0 && pt.y < 1.0);
-/// # }
 /// ```
 ///
 /// See the documentation for the [`rand`](rand/index.html) module and the section
@@ -183,13 +165,10 @@ impl Point {
     /// Returns the minimum x and y coordinates of the two points
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::Point;
-    /// # fn main() {
     /// let p1 = Point {x: 100.0, y: 203.18};
     /// let p2 = Point {x: 3.0, y: 1029.677};
     /// assert_eq!(p1.min(p2), Point {x: 3.0, y: 203.18});
-    /// # }
     /// ```
     pub fn min(self, other: Self) -> Self {
         Self {
@@ -201,13 +180,10 @@ impl Point {
     /// Returns the maximum x and y coordinates of the two points
     ///
     /// ```rust
-    /// # extern crate turtle;
     /// # use turtle::Point;
-    /// # fn main() {
     /// let p1 = Point {x: 100.0, y: 203.18};
     /// let p2 = Point {x: 3.0, y: 1029.677};
     /// assert_eq!(p1.max(p2), Point {x: 100.0, y: 1029.677});
-    /// # }
     /// ```
     pub fn max(self, other: Self) -> Self {
         Self {
