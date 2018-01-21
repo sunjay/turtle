@@ -1,9 +1,9 @@
 //! https://arkada38.github.io/2018/01/14/creating-a-turtle/
 //!
-//! Inspired by child's drawing of turtle we are going to draw and paint figures
-//! which consists of arcs and straight lines.
-//! To draw arcs we need to use the loops which are determine tilt angle and the length.
-//! The more sophisticated the figure is the more loops it requires to make.
+//! This is inspired by a child's drawing of a turtle.
+//! We are going to draw the turtle using arcs and straight lines.
+//! To draw arcs, we use multiple Rust for-loops to create different tilt angles and
+//! lengths. The more sophisticated the figure is, the more loops we need to make it.
 extern crate turtle;
 
 use turtle::{Turtle, Color, color};
@@ -60,6 +60,9 @@ fn main() {
 
     turtle.left(175.0);
     turtle.forward(SIZE * 43.0);
+    
+    // Here we start to draw highlights on the shell.
+    // We have 3 highlights: on the right, in the middle and on the left.
 
     draw_right_highlight(&mut turtle);
 
