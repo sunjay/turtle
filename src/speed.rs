@@ -6,23 +6,57 @@ use radians::Radians;
 use rand::{Rand, Rng};
 use {Distance};
 
-const MAX_SPEED: u8 = 25;
+const MAX_SPEED: i32 = 25;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub(crate) enum SpeedLevel {
-    Value(u8),
+    Value(i32),
     Instant,
 }
 
-/// Represents the supported movement and rotation speeds
+/// Represents both the movement and rotation speed of the turtle.
 ///
-/// See [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
+/// You can create a `Speed` value by converting it from a number of different types. `Speed`
+/// values can be compared for equality with `i32` values. This is a little more convenient than
+/// converting the `i32` to `Speed` every time you want to make a comparison.
+///
+/// ```rust
+/// # use turtle::Speed;
+/// // This value is of type `Speed` and it is converted from an `i32`
+/// let speed: Speed = 1.into();
+/// // Speed values can be compared to integers
+/// assert_eq!(speed, 1);
+/// // This is equivalent to the following
+/// assert_eq!(speed, Speed::from(1));
+/// ```
+///
+/// There is no need to call `.into()` when passing a speed into the
+/// [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed).
+///
+/// ```rust
+/// # use turtle::{Turtle};
+/// let mut turtle = Turtle::new();
+/// turtle.set_speed(22);
+/// ```
+///
+/// See the [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Speed(SpeedLevel);
 
 impl Speed {
+    /// Returns the speed value that represents instantly moving and rotating with no further
+    /// animation
+    ///
+    /// ```rust
+    /// use turtle::{Speed};
+    /// assert_eq!(Speed::instant(), 0);
+    /// ```
+    pub fn instant() -> Self {
+        Speed(SpeedLevel::Instant)
+    }
+
     /// Converts a speed to its value as a movement speed in pixels per second
-    pub fn to_movement(self) -> Distance {
+    pub(crate) fn to_movement(self) -> Distance {
         use self::SpeedLevel::*;
         match self.0 {
             Value(speed) => speed as f64 * 500.0,
@@ -52,7 +86,7 @@ impl fmt::Display for Speed {
 
 impl Rand for Speed {
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        (rng.gen::<i32>() % MAX_SPEED as i32).into()
+        (rng.gen::<i32>() % MAX_SPEED).into()
     }
 }
 
@@ -73,13 +107,19 @@ impl<'a> From<&'a str> for Speed {
     }
 }
 
+impl PartialEq<i32> for Speed {
+    fn eq(&self, other: &i32) -> bool {
+        self.eq(&Speed::from(*other))
+    }
+}
+
 impl From<i32> for Speed {
     fn from(n: i32) -> Self {
         use self::SpeedLevel::*;
 
         Speed(match n {
             0 => Instant,
-            n if n as u8 <= MAX_SPEED => Value(n as u8),
+            n if n <= MAX_SPEED => Value(n),
             n => panic!("Invalid speed: {}. Must be a value between 0 and {}", n, MAX_SPEED),
         })
     }
@@ -100,24 +140,34 @@ mod tests {
     use {Turtle};
 
     #[test]
-    fn speed_names() {
-        let mut turtle = Turtle::new();
-        turtle.set_speed("slowest");
-        assert_eq!(turtle.speed(), Speed::One);
-        turtle.set_speed("slow");
-        assert_eq!(turtle.speed(), Speed::Three);
-        turtle.set_speed("normal");
-        assert_eq!(turtle.speed(), Speed::Six);
-        turtle.set_speed("fast");
-        assert_eq!(turtle.speed(), Speed::Eight);
-        turtle.set_speed("fastest");
-        assert_eq!(turtle.speed(), Speed::Ten);
-        turtle.set_speed("instant");
-        assert_eq!(turtle.speed(), Speed::Instant);
+    fn display() {
+        for value in 0..MAX_SPEED {
+            let speed: Speed = value.into();
+            assert_eq!(format!("{}", speed), value.to_string());
+        }
     }
 
     #[test]
-    #[should_panic(expected = "Invalid speed specified, use one of the words: 'slowest', 'slow', 'normal', 'fast', 'fastest', 'instant'")]
+    fn speed_strings() {
+        let mut turtle = Turtle::new();
+        turtle.set_speed("slowest");
+        assert_eq!(turtle.speed(), 1);
+        turtle.set_speed("slower");
+        assert_eq!(turtle.speed(), 5);
+        turtle.set_speed("slow");
+        assert_eq!(turtle.speed(), 8);
+        turtle.set_speed("normal");
+        assert_eq!(turtle.speed(), 10);
+        turtle.set_speed("fast");
+        assert_eq!(turtle.speed(), 12);
+        turtle.set_speed("faster");
+        assert_eq!(turtle.speed(), 15);
+        turtle.set_speed("instant");
+        assert_eq!(turtle.speed(), 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid speed specified, use one of the words: 'slowest', 'slower', 'slow', 'normal', 'fast', 'faster', 'instant'")]
     fn invalid_speed() {
         let mut turtle = Turtle::new();
         turtle.set_speed("wrong");
@@ -126,62 +176,34 @@ mod tests {
     #[test]
     fn speed_values() {
         let mut turtle = Turtle::new();
-        turtle.set_speed(0);
-        assert_eq!(turtle.speed(), Speed::Instant);
-        turtle.set_speed(1);
-        assert_eq!(turtle.speed(), Speed::One);
-        turtle.set_speed(2);
-        assert_eq!(turtle.speed(), Speed::Two);
-        turtle.set_speed(3);
-        assert_eq!(turtle.speed(), Speed::Three);
-        turtle.set_speed(4);
-        assert_eq!(turtle.speed(), Speed::Four);
-        turtle.set_speed(5);
-        assert_eq!(turtle.speed(), Speed::Five);
-        turtle.set_speed(6);
-        assert_eq!(turtle.speed(), Speed::Six);
-        turtle.set_speed(7);
-        assert_eq!(turtle.speed(), Speed::Seven);
-        turtle.set_speed(8);
-        assert_eq!(turtle.speed(), Speed::Eight);
-        turtle.set_speed(9);
-        assert_eq!(turtle.speed(), Speed::Nine);
-        turtle.set_speed(10);
-        assert_eq!(turtle.speed(), Speed::Ten);
-        turtle.set_speed(11);
-        assert_eq!(turtle.speed(), Speed::Instant);
+        for speed in 0..MAX_SPEED {
+            turtle.set_speed(speed);
+            assert_eq!(turtle.speed(), speed);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid speed: 26. Must be a value between 0 and 25")]
+    fn speed_value_out_of_range() {
+        let mut turtle = Turtle::new();
+        turtle.set_speed(26);
+        assert_eq!(turtle.speed(), 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid speed: 20394. Must be a value between 0 and 25")]
+    fn speed_value_out_of_range2() {
+        let mut turtle = Turtle::new();
         turtle.set_speed(20394);
-        assert_eq!(turtle.speed(), Speed::Instant);
+        assert_eq!(turtle.speed(), 0);
     }
 
     #[test]
     fn speed_values_f64() {
         let mut turtle = Turtle::new();
-        turtle.set_speed(0.4);
-        assert_eq!(turtle.speed(), Speed::Instant);
-        turtle.set_speed(1.4);
-        assert_eq!(turtle.speed(), Speed::One);
-        turtle.set_speed(2.4);
-        assert_eq!(turtle.speed(), Speed::Two);
-        turtle.set_speed(3.4);
-        assert_eq!(turtle.speed(), Speed::Three);
-        turtle.set_speed(4.4);
-        assert_eq!(turtle.speed(), Speed::Four);
-        turtle.set_speed(5.4);
-        assert_eq!(turtle.speed(), Speed::Five);
-        turtle.set_speed(6.4);
-        assert_eq!(turtle.speed(), Speed::Six);
-        turtle.set_speed(7.4);
-        assert_eq!(turtle.speed(), Speed::Seven);
-        turtle.set_speed(8.4);
-        assert_eq!(turtle.speed(), Speed::Eight);
-        turtle.set_speed(9.4);
-        assert_eq!(turtle.speed(), Speed::Nine);
-        turtle.set_speed(10.4);
-        assert_eq!(turtle.speed(), Speed::Ten);
-        turtle.set_speed(11.4);
-        assert_eq!(turtle.speed(), Speed::Instant);
-        turtle.set_speed(20394.4);
-        assert_eq!(turtle.speed(), Speed::Instant);
+        for speed in 0..MAX_SPEED {
+            turtle.set_speed(speed as f64 + 0.4);
+            assert_eq!(turtle.speed(), speed);
+        }
     }
 }
