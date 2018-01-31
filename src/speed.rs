@@ -30,6 +30,17 @@ pub(crate) enum SpeedLevel {
 /// assert_eq!(speed, Speed::from(1));
 /// ```
 ///
+/// To check if a speed is instant, use the `is_instant()` method or compare the speed to
+/// [`Speed::instant()`](struct.Speed.html#method.instant).
+///
+/// ```rust
+/// # use turtle::Speed;
+/// let speed = Speed::instant();
+/// if speed.is_instant() {
+///     println!("Super fast!!");
+/// }
+/// ```
+///
 /// There is no need to call `.into()` when passing a speed into the
 /// [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed).
 ///
@@ -49,10 +60,25 @@ impl Speed {
     ///
     /// ```rust
     /// use turtle::{Speed};
-    /// assert_eq!(Speed::instant(), 0);
+    /// let speed = Speed::instant();
+    /// assert!(speed.is_instant());
     /// ```
     pub fn instant() -> Self {
         Speed(SpeedLevel::Instant)
+    }
+
+    /// Returns true if this speed is the same as `Speed::instant()`
+    ///
+    /// ```rust
+    /// use turtle::{Speed};
+    /// let speed: Speed = "instant".into();
+    /// assert!(speed.is_instant());
+    /// ```
+    pub fn is_instant(self) -> bool {
+        match self {
+            Speed(SpeedLevel::Instant) => true,
+            _ => false,
+        }
     }
 
     /// Converts a speed to its value as a movement speed in pixels per second
@@ -77,10 +103,10 @@ impl Speed {
 impl fmt::Display for Speed {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use self::SpeedLevel::*;
-        write!(f, "{}", match self.0 {
-            Value(speed) => speed,
-            Instant => 0,
-        })
+        match self.0 {
+            Value(speed) => write!(f, "Speed::from({})", speed),
+            Instant => write!(f, "Speed::instant()"),
+        }
     }
 }
 
@@ -118,9 +144,9 @@ impl From<i32> for Speed {
         use self::SpeedLevel::*;
 
         Speed(match n {
-            0 => Instant,
+            0 => panic!("Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()"),
             n if n <= MAX_SPEED => Value(n),
-            n => panic!("Invalid speed: {}. Must be a value between 0 and {}", n, MAX_SPEED),
+            n => panic!("Invalid speed: {}. Must be a value between 1 and {}", n, MAX_SPEED),
         })
     }
 }
@@ -141,9 +167,11 @@ mod tests {
 
     #[test]
     fn display() {
-        for value in 0..MAX_SPEED {
+        let speed: Speed = "instant".into();
+        assert_eq!(format!("{}", speed), "Speed::instant()");
+        for value in 1..MAX_SPEED {
             let speed: Speed = value.into();
-            assert_eq!(format!("{}", speed), value.to_string());
+            assert_eq!(format!("{}", speed), format!("Speed::from({})", value));
         }
     }
 
@@ -163,7 +191,7 @@ mod tests {
         turtle.set_speed("faster");
         assert_eq!(turtle.speed(), 15);
         turtle.set_speed("instant");
-        assert_eq!(turtle.speed(), 0);
+        assert_eq!(turtle.speed(), Speed::instant());
     }
 
     #[test]
@@ -176,32 +204,30 @@ mod tests {
     #[test]
     fn speed_values() {
         let mut turtle = Turtle::new();
-        for speed in 0..MAX_SPEED {
+        for speed in 1..MAX_SPEED {
             turtle.set_speed(speed);
             assert_eq!(turtle.speed(), speed);
         }
     }
 
     #[test]
-    #[should_panic(expected = "Invalid speed: 26. Must be a value between 0 and 25")]
+    #[should_panic(expected = "Invalid speed: 26. Must be a value between 1 and 25")]
     fn speed_value_out_of_range() {
         let mut turtle = Turtle::new();
         turtle.set_speed(26);
-        assert_eq!(turtle.speed(), 0);
     }
 
     #[test]
-    #[should_panic(expected = "Invalid speed: 20394. Must be a value between 0 and 25")]
+    #[should_panic(expected = "Invalid speed: 20394. Must be a value between 1 and 25")]
     fn speed_value_out_of_range2() {
         let mut turtle = Turtle::new();
         turtle.set_speed(20394);
-        assert_eq!(turtle.speed(), 0);
     }
 
     #[test]
     fn speed_values_f64() {
         let mut turtle = Turtle::new();
-        for speed in 0..MAX_SPEED {
+        for speed in 1..MAX_SPEED {
             turtle.set_speed(speed as f64 + 0.4);
             assert_eq!(turtle.speed(), speed);
         }
