@@ -30,8 +30,8 @@ pub(crate) enum SpeedLevel {
 /// assert_eq!(speed, Speed::from(1));
 /// ```
 ///
-/// To check if a speed is instant, use the `is_instant()` method or compare the speed to
-/// [`Speed::instant()`](struct.Speed.html#method.instant).
+/// To check if a speed is instant, use the [`is_instant()` method] or compare the speed to
+/// [`Speed::instant()`].
 ///
 /// ```rust
 /// # use turtle::Speed;
@@ -41,8 +41,7 @@ pub(crate) enum SpeedLevel {
 /// }
 /// ```
 ///
-/// There is no need to call `.into()` when passing a speed into the
-/// [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed).
+/// There is no need to call `.into()` when passing a speed into the [`set_speed` method].
 ///
 /// ```rust
 /// # use turtle::{Turtle};
@@ -50,7 +49,11 @@ pub(crate) enum SpeedLevel {
 /// turtle.set_speed(22);
 /// ```
 ///
-/// See the [`Turtle::set_speed` method](struct.Turtle.html#method.set_speed) for more information.
+/// See the [`set_speed` method] for more information.
+///
+/// [`set_speed` method]: struct.Turtle.html#method.set_speed
+/// [`Speed::instant()`]: struct.Speed.html#method.instant
+/// [`is_instant()` method]: struct.Speed.html#method.is_instant
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Speed(SpeedLevel);
 
