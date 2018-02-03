@@ -60,7 +60,7 @@ fn main() {
 
     turtle.left(175.0);
     turtle.forward(SIZE * 43.0);
-    
+
     // Here we start to draw highlights on the shell.
     // We have 3 highlights: on the right, in the middle and on the left.
 
@@ -76,7 +76,7 @@ fn main() {
     turtle.forward(SIZE * 36.0);
     turtle.set_heading(180.0);
 
-    draw_left_highlight(&mut turtle);/**/
+    draw_left_highlight(&mut turtle);
 }
 
 fn draw_shell(turtle: &mut Turtle) {
