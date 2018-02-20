@@ -552,7 +552,7 @@ mod tests {
     use turtle::*;
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
     fn rejects_invalid_background_color() {
         let mut turtle = Turtle::new();
         turtle.drawing_mut().set_background_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});

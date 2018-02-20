@@ -1026,14 +1026,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
     fn rejects_invalid_pen_color() {
         let mut turtle = Turtle::new();
         turtle.set_pen_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0, blue: 0, alpha: 0 }. See the color module documentation for more information.")]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
     fn rejects_invalid_fill_color() {
         let mut turtle = Turtle::new();
         turtle.set_fill_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
