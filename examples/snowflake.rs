@@ -12,7 +12,7 @@ fn main() {
     turtle.set_pen_color("#B2EBF2");
 
     turtle.pen_up();
-    turtle.set_speed(11);
+    turtle.set_speed("instant");
     turtle.backward(200.0);
     turtle.right(30.0);
     turtle.pen_down();
