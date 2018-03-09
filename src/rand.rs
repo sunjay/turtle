@@ -43,7 +43,7 @@
 //!
 //! * [`Distance`] - `f64` values greater than or equal to `0.0` and less than `1.0`
 //! * [`Angle`] - `f64` values greater than or equal to `0.0` and less than `1.0`
-//! * [`Speed`] - any of the speed values including instant
+//! * [`Speed`] - any speed value in the valid range, not including instant
 //! * [`Color`] - colors with random red, green, blue and alpha values (use
 //!   [`opaque()`](../color/struct.Color.html#method.opaque) to get a solid random color)
 //! * [`Point`] - a random point with two `f64` values greater than or equal to `0.0` and less than `1.0`
