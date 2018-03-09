@@ -71,7 +71,6 @@ fn get_color(position: Point) -> Color {
 
 fn main() {
     let mut turtle = Turtle::new();
-    turtle.set_speed(10);
 
     // The side of the first large square
     let side = 100.0;

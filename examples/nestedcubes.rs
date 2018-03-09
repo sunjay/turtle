@@ -6,7 +6,7 @@ fn main() {
     let mut turtle = Turtle::new();
 
     turtle.drawing_mut().set_background_color("light grey");
-    turtle.set_speed(10);
+    turtle.set_speed(20);
     turtle.set_pen_size(2.0);
     for i in 0..290 {
         turtle.set_pen_color(Color {

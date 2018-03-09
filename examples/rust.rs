@@ -12,7 +12,6 @@ use turtle::Turtle;
 fn main() {
     let mut turtle = Turtle::new();
 
-    turtle.set_speed(5);
     turtle.set_fill_color("black");
 
     turtle.begin_fill();
