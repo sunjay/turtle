@@ -172,7 +172,7 @@ impl Speed {
     /// you direct it to go.
     ///
     /// ```rust
-    /// # use turtle::{Turtle};
+    /// # use turtle::{Turtle, Speed};
     /// let mut turtle = Turtle::new();
     /// turtle.set_speed(Speed::instant());
     /// turtle.forward(100.0); // A line will be drawn instantly!
@@ -250,7 +250,7 @@ impl PartialOrd<i32> for Speed {
 
 impl Rand for Speed {
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        (rng.gen::<i32>() % MAX_SPEED).into()
+        rng.gen_range(MIN_SPEED, MAX_SPEED + 1).into()
     }
 }
 
