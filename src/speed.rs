@@ -72,13 +72,13 @@ impl PartialOrd for SpeedLevel {
 ///
 /// | String      | Value |
 /// | ----------- | ----- |
-/// | `"slowest"`   | `1`   |
-/// | `"slower"`    | `5`   |
-/// | `"slow"`      | `8`   |
-/// | `"normal"`    | `10`  |
-/// | `"fast"`      | `12`  |
-/// | `"faster"`    | `15`  |
-/// | `"instant"`   | [see below](#instant) |
+/// | `"slowest"` | `1`   |
+/// | `"slower"`  | `5`   |
+/// | `"slow"`    | `8`   |
+/// | `"normal"`  | `10`  |
+/// | `"fast"`    | `12`  |
+/// | `"faster"`  | `15`  |
+/// | `"instant"` | [see below](#instant) |
 ///
 /// You can use strings to create `Speed` values in the same way numbers were used above. All
 /// three of the following are equivalent:
@@ -125,20 +125,23 @@ impl PartialOrd for SpeedLevel {
 /// assert_eq!(speed, Speed::from("slowest"));
 /// ```
 ///
-/// ```rust
-/// # use turtle::Speed;
-/// let speed: Speed = 12.into();
+/// You can use the `<`, `<=`, `==`, `>=`, `>` with `Speed` values and `i32` values or other
+/// `Speed` values.
+///
+/// ```rust,no_run
+/// # use turtle::{Turtle, Speed};
+/// let turtle = Turtle::new();
+/// let speed = turtle.speed();
 /// if speed == 12 && speed >= 5 && speed < Speed::instant() {
 ///     println!("Super fast!!");
 /// }
-/// # else { panic!("Unable to compare a speed value!"); }
 /// // This is equivalent, but requires more typing
 /// if speed == Speed::from(12) && speed >= Speed::from(5) && speed < Speed::from("instant") {
 ///     println!("Super fast!!");
 /// }
 /// ```
 ///
-/// Notice that you can compare `Speed` values to numeric values, not the other way around.
+/// Notice that you can compare `Speed` values to numeric values, but not the other way around.
 ///
 /// ```rust,compile_fail
 /// # use turtle::Speed;
