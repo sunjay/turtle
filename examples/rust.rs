@@ -9,12 +9,10 @@ extern crate turtle;
 
 use turtle::Turtle;
 
-const SPEED: i32 = 7;
-
 fn main() {
     let mut turtle = Turtle::new();
 
-    turtle.set_speed(SPEED);
+    turtle.set_speed(5);
     turtle.set_fill_color("black");
 
     turtle.begin_fill();
@@ -145,7 +143,6 @@ fn letter(turtle: &mut Turtle) {
         turtle.right(1.5);
     }
 
-    turtle.set_speed(SPEED);
     turtle.forward(52.0);
     turtle.right(90.0);
     turtle.forward(50.0);

@@ -15,11 +15,13 @@ const EYE_COLOR: Color = color::BLACK;
 
 fn main() {
     let mut turtle = Turtle::new();
+    turtle.drawing_mut().set_size([250, 250]);
+
     turtle.set_speed(8);
 
     turtle.pen_up();
-    turtle.set_x(-280.0);
-    turtle.set_y(-90.0);
+    turtle.set_x(-70.0);
+    turtle.set_y(-20.0);
 
     draw_shell(&mut turtle);
 
