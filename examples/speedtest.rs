@@ -10,13 +10,13 @@ fn main() {
     turtle.pen_up();
     turtle.set_speed("instant");
     turtle.left(90.0);
-    turtle.forward(300.0);
+    turtle.forward(350.0);
     turtle.right(90.0);
     turtle.pen_down();
 
     let length = 200.0;
 
-    for i in 1..12 {
+    for i in 1..25 {
         turtle.set_speed(i);
         turtle.forward(length);
 
@@ -24,7 +24,7 @@ fn main() {
         turtle.set_speed("instant");
         turtle.backward(length);
         turtle.right(90.0);
-        turtle.forward(60.0);
+        turtle.forward(30.0);
         turtle.left(90.0);
         turtle.pen_down();
     }
