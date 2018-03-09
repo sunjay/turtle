@@ -17,7 +17,7 @@ fn main() {
     turtle.right(30.0);
     turtle.pen_down();
 
-    turtle.set_speed(10);
+    turtle.set_speed("fast");
     fractal(&mut turtle, 350.0, 3);
     turtle.left(120.0);
     fractal(&mut turtle, 350.0, 3);

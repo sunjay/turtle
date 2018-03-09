@@ -22,12 +22,12 @@ fn main() {
 /// These are cases that need to be checked in a real, running turtle instance and cannot be
 /// checked in the test environment
 fn run_tests(turtle: &mut Turtle) {
-    move_rotate_ignores_nan_inf_zero(turtle);
+    ignores_nan_inf_zero(turtle);
     ignores_nan_inf(turtle);
     ignores_zero(turtle);
 }
 
-fn move_rotate_ignores_nan_inf_zero(turtle: &mut Turtle) {
+fn ignores_nan_inf_zero(turtle: &mut Turtle) {
     turtle.forward(0.0);
     turtle.forward(::std::f64::NAN);
     turtle.forward(::std::f64::INFINITY);
@@ -52,11 +52,6 @@ fn move_rotate_ignores_nan_inf_zero(turtle: &mut Turtle) {
     turtle.wait(::std::f64::NAN);
     turtle.wait(::std::f64::INFINITY);
     turtle.wait(-::std::f64::INFINITY);
-
-    turtle.set_speed(0.0);
-    turtle.set_speed(::std::f64::NAN);
-    turtle.set_speed(::std::f64::INFINITY);
-    turtle.set_speed(-::std::f64::INFINITY);
 }
 
 fn ignores_nan_inf(turtle: &mut Turtle) {

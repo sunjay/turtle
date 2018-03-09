@@ -211,7 +211,7 @@ impl Speed {
     pub(crate) fn to_movement(self) -> Distance {
         use self::SpeedLevel::*;
         match self.0 {
-            Value(speed) => speed as f64 * 500.0,
+            Value(speed) => speed as f64 * 50.0,
             Instant => f64::INFINITY,
         }
     }
@@ -220,7 +220,7 @@ impl Speed {
     pub(crate) fn to_rotation(self) -> Radians {
         use self::SpeedLevel::*;
         Radians::from_radians_value(match self.0 {
-            Value(speed) => speed as f64 * (2.0*PI),
+            Value(speed) => speed as f64 * (3.0*PI),
             Instant => f64::INFINITY,
         })
     }

@@ -8,22 +8,18 @@ fn main() {
     let mut turtle = Turtle::new();
 
     turtle.pen_up();
-    turtle.set_speed("instant");
     turtle.backward(250.0);
     turtle.left(90.0);
     turtle.pen_down();
-    turtle.set_speed(6);
 
     for &radius in [120.0, 80.0, 60.0].into_iter() {
         circle(&mut turtle, radius);
 
-        turtle.set_speed("instant");
         turtle.pen_up();
         turtle.right(90.0);
         turtle.forward(radius * 2.0);
         turtle.left(90.0);
         turtle.pen_down();
-        turtle.set_speed(6);
     }
 
     turtle.hide();

@@ -22,7 +22,7 @@ fn main() {
     let maze = Maze::generate();
 
     let mut turtle = Turtle::new();
-    turtle.set_speed(8);
+    turtle.set_speed(20);
     turtle.drawing_mut().set_background_color("#BDBDBD");
     turtle.set_pen_color("#03A9F4");
     turtle.set_pen_size(2.0);
@@ -71,7 +71,7 @@ fn main() {
     turtle.left(90.0);
     turtle.pen_down();
 
-    turtle.set_speed(5);
+    turtle.set_speed(8);
     turtle.set_pen_size(2.0);
     solve(&mut turtle, maze, cell_width, cell_height);
 }
