@@ -252,24 +252,26 @@ impl Turtle {
         &mut self.drawing
     }
 
-    /// Returns the current speed of the turtle
+    /// Returns the current speed of the turtle.
     ///
     /// ```rust
     /// # use turtle::*;
     /// # let mut turtle = Turtle::new();
     /// turtle.set_speed(8);
-    /// assert_eq!(turtle.speed(), Speed::Eight);
+    /// assert_eq!(turtle.speed(), 8);
     /// ```
+    ///
+    /// See the documentation for the [`Speed` struct](struct.Speed.html) for more information.
     pub fn speed(&self) -> Speed {
         self.window.borrow().fetch_turtle().speed
     }
 
-    /// Set the turtle's movement speed to the given setting. This speed affects the animation of
-    /// the turtle's movement and rotation. The turtle's speed is limited to values from 0 to 10.
-    /// If you pass in values that are not integers or outside of that range, the closest possible
-    /// value will be chosen.
+    /// Set the turtle's movement and rotation speed to the given value. A higher value will make
+    /// the turtle's walking and turning animations faster.
     ///
-    /// This method's types make it so that it can be called in a number of different ways:
+    /// You can pass either a number or certain strings like `"slow"`, `"normal"`, and `"fast"`.
+    /// See the documentation for the [`Speed` struct](struct.Speed.html) for all of the different
+    /// options as well as the valid range of numbers that can be used for speeds.
     ///
     /// ```rust,no_run
     /// # use turtle::*;
@@ -277,47 +279,93 @@ impl Turtle {
     /// turtle.set_speed("normal");
     /// turtle.set_speed("fast");
     /// turtle.set_speed(2);
-    /// turtle.set_speed(10);
-    /// // Directly using a Speed variant works, but the methods above are usually more convenient.
-    /// turtle.set_speed(Speed::Six);
+    /// turtle.set_speed(12);
+    /// turtle.set_speed("slower");
+    /// // Constructing a Speed directly works too, but the syntax above is often more convenient
+    /// turtle.set_speed(Speed::from(2));
     /// ```
     ///
-    /// If input is a number greater than 10 or smaller than 1, speed is set to 0
-    /// (`Speed::Instant`). Strings are converted as follows:
-    ///
-    /// | String      | Value          |
-    /// | ----------- | -------------- |
-    /// | `"slowest"` | `Speed::One`     |
-    /// | `"slow"`    | `Speed::Three`   |
-    /// | `"normal"`  | `Speed::Six`     |
-    /// | `"fast"`    | `Speed::Eight`   |
-    /// | `"fastest"` | `Speed::Ten`     |
-    /// | `"instant"` | `Speed::Instant` |
-    ///
-    /// Anything else will cause the program to `panic!` at runtime.
+    /// Any invalid string or numeric value outside of the valid range will cause the program to
+    /// `panic!` at runtime.
     ///
     /// # Moving Instantly
     ///
-    /// A speed of zero (`Speed::Instant`) results in no animation. The turtle moves instantly
-    /// and turns instantly. This is very useful for moving the turtle from its "home" position
-    /// before you start drawing. By setting the speed to instant, you don't have to wait for
-    /// the turtle to move into position.
+    /// Setting the speed to `"instant"` results in no animation. The turtle moves instantly
+    /// and turns instantly. This is often used to position the turtle before you start to draw
+    /// something. You can set the speed to instant, move the turtle into the position you want to
+    /// start your drawing from and then set the speed back to `"normal"`.
     ///
-    /// # Learning About Conversion Traits
+    /// ```rust,no_run
+    /// # use turtle::*;
+    /// let mut turtle = Turtle::new();
+    /// turtle.set_speed("instant");
+    /// // Move to a position 300 steps to the left of the start position
+    /// turtle.right(90.0);
+    /// turtle.backward(300.0);
     ///
-    /// Using this method is an excellent way to learn about conversion
-    /// traits `From` and `Into`. This method takes a *generic type* as its speed parameter. That type
-    /// is specified to implement the `Into` trait for the type `Speed`. That means that *any* type
-    /// that can be converted into a `Speed` can be passed to this method.
+    /// // The turtle is in position we want it to start at,
+    /// // so let's set the speed back to normal
+    /// turtle.set_speed("normal");
+    /// // Start drawing from here...
+    /// ```
     ///
-    /// We have implemented that trait for several types like strings and 32-bit integers so that
-    /// those values can be passed into this method.
-    /// Rather than calling this function and passing `Speed::Six` directly, you can use just `6`.
-    /// Rust will then allow us to call `.into()` as provided by the `Into<Speed>` trait to get the
-    /// corresponding `Speed` value.
+    /// # Conversion Traits
     ///
-    /// You can pass in strings, 32-bit integers, and even `Speed` enum variants because they all
-    /// implement the `Into<Speed>` trait.
+    /// So how does this method work? Why can it accept completely different types as input to the
+    /// same function?
+    ///
+    /// Using this method is an excellent way to learn about the conversion traits [`From`] and
+    /// [`Into`]. This method takes a *generic type* as its speed parameter. By specifying the type
+    /// as `S: Into<Speed>`, we are telling the Rust compiler that we want to accept any type
+    /// that can be converted into a [`Speed`].
+    ///
+    /// ```rust,no_run
+    /// # use turtle::*;
+    /// # struct T {speed: Speed} impl T {
+    /// // This is (essentially) how Turtle::set_speed is implemented
+    /// fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
+    ///     // Calling `.into()` converts the value of `speed` into type `Speed`.
+    ///     // The `.into()` method is defined in the `Into` trait and is implemented by `Speed`
+    ///     // for `i32` and `&str`
+    ///     // `S: Into<Speed>` makes the compiler guarantee that this method exists and returns
+    ///     // exactly the type that we expect
+    ///     let speed: Speed = speed.into();
+    ///     self.speed = speed;
+    /// }
+    /// # }
+    ///
+    /// // This makes it possible to pass in any type that can be converted into a `Speed`
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///
+    ///     // The following works because `Speed` defined a conversion from `i32`
+    ///     turtle.set_speed(1);
+    ///
+    ///     // The following works because `Speed` defined a conversion from `&str`
+    ///     turtle.set_speed("fast");
+    /// }
+    /// ```
+    ///
+    /// The [`Speed`] documentation describes the different types that it can be converted from in
+    /// detail. For other types and in other crates where this may not be explicitly documented,
+    /// you can always find this information by looking for implementations of the [`From`] trait.
+    ///
+    /// [`Speed`] implements [`From`] for several types:
+    ///
+    /// * [`impl From<&str> for Speed`](struct.Speed.html#impl-From%3C%26%27a%20str%3E)
+    /// * [`impl From<i32> for Speed`](struct.Speed.html#impl-From%3Ci32%3E)
+    /// * etc.
+    ///
+    /// Why look for [`From`] and not [`Into`]? It turns out that the Rust compiler knows a rule that says
+    /// "if some type A can be converted **from** type B, type B can be converted **into** type A."
+    /// That is why most types only implement [`From`] and leave [`Into`] to automatically be
+    /// derived based on the rule.
+    /// See the documentation of the [`Into`] trait for the "blanket implementation" which defines
+    /// that rule.
+    ///
+    /// [`Speed`]: struct.Speed.html
+    /// [`From`]: https://doc.rust-lang.org/std/convert/trait.From.html
+    /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.speed = speed.into());
     }

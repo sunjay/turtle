@@ -188,7 +188,7 @@
 //! [`random_range()`]: fn.random_range.html
 //! [`Distance`]: ../type.Distance.html
 //! [`Angle`]: ../type.Angle.html
-//! [`Speed`]: ../speed/enum.Speed.html
+//! [`Speed`]: ../speed/struct.Speed.html
 //! [`Color`]: ../color/struct.Color.html
 //! [`Point`]: ../struct.Point.html
 
