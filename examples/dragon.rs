@@ -49,7 +49,7 @@ fn main() {
     turtle.right(90.);
     turtle.forward(110.);
     turtle.pen_down();
-    turtle.set_speed(10);
+    turtle.set_speed("faster");
 
     dragon(&mut turtle, -90., 11, 0., 255.);
 
@@ -74,7 +74,7 @@ fn dragon(
     if num_folds == 0 {
         // mapping a color number 0-255 to an rgb gradient.
         turtle.set_pen_color(Color {
-            red: (color_mid - 128.).abs() * 2.,
+            red: ((color_mid - 128.).abs() * 2.).floor(),
             green: color_mid,
             blue: 160.,
             alpha: 1.,
