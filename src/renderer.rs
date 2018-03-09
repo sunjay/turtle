@@ -107,9 +107,11 @@ impl Renderer {
         while let Some(event) = window.next() {
             match event {
                 PistonEvent::Input(Input::Resize(width, height)) => {
-                    let mut drawing = self.app.drawing_mut();
-                    drawing.width = width;
-                    drawing.height = height;
+                    if width != current_drawing.width || height != current_drawing.height {
+                        let mut drawing = self.app.drawing_mut();
+                        drawing.width = width;
+                        drawing.height = height;
+                    }
                 },
                 _ => {},
             }
