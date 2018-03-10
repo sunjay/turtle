@@ -41,7 +41,7 @@ impl PartialOrd for SpeedLevel {
 ///
 /// // This value is of type `Speed` and it is converted from a `&str`
 /// let slowest_speed: Speed = "slowest".into();
-/// assert_eq!(speed, slowest_speed);
+/// # assert_eq!(speed, slowest_speed);
 /// ```
 ///
 /// There is no need to call `.into()` when passing a speed into the [`set_speed` method].
@@ -80,14 +80,15 @@ impl PartialOrd for SpeedLevel {
 /// | `"faster"`  | `15`  |
 /// | `"instant"` | [see below](#instant) |
 ///
-/// You can use strings to create `Speed` values in the same way numbers were used above. All
-/// three of the following are equivalent:
+/// You can use strings to create `Speed` values in the same way numbers were used above. Each of
+/// the following is an equivalent way to set the speed to `5`:
 ///
 /// ```rust
 /// # use turtle::{Turtle, Speed};
 /// # let mut turtle = Turtle::new();
 /// turtle.set_speed(5);
 /// turtle.set_speed("slower");
+/// turtle.set_speed(Speed::from(5)); // Not recommended!
 /// turtle.set_speed(Speed::from("slower")); // Not recommended!
 /// ```
 ///
@@ -119,14 +120,14 @@ impl PartialOrd for SpeedLevel {
 ///
 /// // This value is of type `Speed` and it is converted from a `&str`
 /// let speed: Speed = "slowest".into();
-/// // Speed values can be compared to integers
-/// assert_eq!(speed, 1);
-/// // This is equivalent to the following
+/// // Speed values can be compared to other speed values
 /// assert_eq!(speed, Speed::from("slowest"));
+/// // This is equivalent to the following since the slowest speed is 1
+/// assert_eq!(speed, 1);
 /// ```
 ///
-/// You can use the `<`, `<=`, `==`, `>=`, `>` with `Speed` values and `i32` values or other
-/// `Speed` values.
+/// You can use the `<`, `<=`, `==`, `>=`, `>` with `Speed` values and `i32` values (or other
+/// `Speed` values).
 ///
 /// ```rust,no_run
 /// # use turtle::{Turtle, Speed};
