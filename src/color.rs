@@ -126,6 +126,145 @@ pub struct Color {
 }
 
 impl Color {
+
+    /// Create a new `Color` from the given RGB values and alpha set to 1.0. 
+    /// The given values must adhere to those laid out in the documentation 
+    /// for [`Color`]. Thus:
+    /// 
+    /// * 0.0 <= red <= 255.0
+    /// * 0.0 <= green <= 255.0
+    /// * 0.0 <= blue <= 255.0
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// let expected = Color { red: 35.0, green: 200.0, blue: 180.0, alpha: 1.0 };
+    /// let actual = Color::rgb(35.0, 200.0, 180.0);
+    /// assert_eq!(expected, actual);
+    /// ```
+    /// 
+    /// Values that are outside the standard RGB range will result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// // This will not work
+    /// let color = Color::rgb(255.0, 255.0, 256.0);
+    /// ```
+    /// [`Color`]: ./index.html
+    pub fn rgb(red: f64, green: f64, blue: f64) -> Self {
+        Color::rgba(red, green, blue, 1.0)        
+    }
+
+    /// Create a new `Color` from the given RGB values and the provided alpha setting.
+    /// The given values must adhere to those laid out in the documentation for [`Color`].
+    /// Thus:
+    /// 
+    /// * 0.0 <= red <= 255.0
+    /// * 0.0 <= green <= 255.0
+    /// * 0.0 <= blue <= 255.0
+    /// * 0.0 <= alpha <= 1.0
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// let expected = Color { red: 35.0, green: 200.0, blue: 180.0, alpha: 0.5 };
+    /// let actual = Color::rgba(35.0, 200.0, 180.0, 0.5);
+    /// assert_eq!(expected, actual);
+    /// ```
+    /// 
+    /// Values that are outside the standard RGB or alpha range will result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// // This will not work
+    /// let color = Color::rgba(255.0, 255.0, 255.0, 1.1);
+    /// ```
+    /// [`Color`]: ./index.html
+    pub fn rgba(red: f64, green: f64, blue: f64, alpha: f64) -> Self {
+        let color = Color { red, green, blue, alpha };
+        assert!(color.is_valid(), "Invalid color: {:?}. See the Color struct documentation for more information.", color);
+        color
+    }
+
+    /// Create a new `Color` from the given HSL values.
+    /// 
+    /// **NOTE:** The values given are similar to those used by [`sass`] but are only floating point values. 
+    /// This means:
+    /// 
+    /// * 0.0 <= hue <= 360.0
+    /// * 0.0 <= saturation <= 1.0
+    /// * 0.0 <= lightness <= 1.0
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// let color_rgb = Color::rgb(148.0, 139.0, 193.0);
+    /// let color_hsl = Color::hsl(250.0, 0.3, 0.65);
+    /// assert_eq!(color_rgb, color_hsl);
+    /// ```
+    /// [`sass`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#hsl-instance_method
+    pub fn hsl(hue: f64, saturation: f64, lightness: f64) -> Self {
+        Color::hsla(hue, saturation, lightness, 1.0)
+    }
+
+    /// Create a new `Color` from the given HSL values and the given alpha value.
+    /// 
+    /// **NOTE:** The values given are similar to those used by [`sass`] but are only floating point values. 
+    /// This means:
+    /// 
+    /// * 0.0 <= hue <= 360.0
+    /// * 0.0 <= saturation <= 1.0
+    /// * 0.0 <= lightness <= 1.0
+    /// * 0.0 <= alpha <= 1.0
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// let color_rgba = Color::rgba(148.0, 139.0, 193.0, 1.0);
+    /// let color_hsla = Color::hsla(250.0, 0.3, 0.65, 1.0);
+    /// assert_eq!(color_rgba, color_hsla);
+    /// ```
+    /// [`sass`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#hsla-instance_method
+    pub fn hsla(hue: f64, saturation: f64, lightness: f64, alpha: f64) -> Self {
+        // Most of this code comes courtesy of work done by 'killercup' on GitHub (MIT Licensed) and
+        // the answer here: https://stackoverflow.com/a/9493060.
+        // Link: http://killercup.github.io/hsl-rs/src/hsl/lib.rs.html#111
+        if saturation == 0.0 {
+            let achromatic = (lightness * 255.).round();
+            return Color::rgba(achromatic, achromatic, achromatic, alpha)
+        }
+
+        let hue_to_rgb = |p, q, t| {
+            let t = if t < 0. {
+                t + 1.
+            } else if t > 1. {
+                t - 1.
+            } else { t };
+
+            if t < 1./6. {
+                p + (q - p) * 6. * t
+            } else if t < 1./2. {
+                q
+            } else if t < 2./3. {
+                p + (q - p) * (2./3. - t) * 6.
+            } else {
+                p
+            }
+        };
+
+        let q = if lightness < 0.5 {
+            lightness * (1. + saturation)
+        } else {
+            lightness + saturation - lightness * saturation
+        };
+
+        let p = 2. * lightness - q;
+        let h = hue / 360.;
+
+        let red: f64 = (hue_to_rgb(p, q, h + 1./3.) * 255.).round();
+        let green: f64 = (hue_to_rgb(p, q, h) * 255.).round();
+        let blue: f64 = (hue_to_rgb(p, q, h - 1./3.) * 255.).round();
+
+        let color = Color::rgba(red, green, blue, alpha);
+        color
+    }
+
     /// Returns true if the values for each field are valid.
     ///
     /// The documentation above lists the valid range for each field.
@@ -415,6 +554,36 @@ mod tests {
         assert!(!Color {red: 0.0, green: 0.0, blue: 255.0001, alpha: 0.0}.is_valid());
         assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0001}.is_valid());
         assert!(!Color {red: 255.0001, green: 255.0001, blue: 255.0001, alpha: 1.0001}.is_valid());
+    }
+
+    #[test]
+    fn ensure_value_mapping() {
+        let expected = Color { red: 65., green: 122., blue: 200., alpha: 1.};
+        let actual_rgb = Color::rgb(65., 122., 200.);
+        let actual_rgba = Color::rgba(65., 122., 200., 1.);
+        assert_eq!(expected, actual_rgb);
+        assert_eq!(expected, actual_rgba);
+    }
+
+    #[test]
+    fn ensure_hsl() {
+        let expected = Color { red: 148., green: 139., blue: 193., alpha: 1.};
+        let actual = Color::hsl(250., 0.3, 0.65);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn ensure_hsla() {
+        let expected = Color { red: 148., green: 139., blue: 193., alpha: 1.};
+        let actual = Color::hsla(250., 0.3, 0.65, 1.0);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn ensure_achromatic_hsl() {
+        let expected = Color { red: 26., green: 26., blue: 26., alpha: 1.};
+        let actual = Color::hsl(180., 0., 0.1);
+        assert_eq!(expected, actual);
     }
 }
 
