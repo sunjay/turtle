@@ -127,13 +127,16 @@ pub struct Color {
 
 impl Color {
 
-    /// Create a new `Color` from the given RGB values and alpha set to 1.0. 
+    /// Create a new `Color` from the given [`RGB`] values and alpha set to 1.0.
+    /// This provides a more concise way to create `Color` values, instead
+    /// of using the manual `Color {...}` style.
+    /// 
     /// The given values must adhere to those laid out in the documentation 
     /// for [`Color`]. Thus:
     /// 
-    /// * 0.0 <= red <= 255.0
-    /// * 0.0 <= green <= 255.0
-    /// * 0.0 <= blue <= 255.0
+    /// * 0.0 &le; `red` &le; 255.0
+    /// * 0.0 &le; `green` &le; 255.0
+    /// * 0.0 &le; `blue` &le; 255.0
     /// 
     /// ```rust
     /// use turtle::Color;
@@ -142,26 +145,29 @@ impl Color {
     /// assert_eq!(expected, actual);
     /// ```
     /// 
-    /// Values that are outside the standard RGB range will result in a panic
+    /// Values that are outside the accepted RGB range will result in a panic
     /// 
     /// ```should_panic
     /// use turtle::Color;
-    /// // This will not work
+    /// // This will not work as 256.0 is greater than the maximum allowed value for blue
     /// let color = Color::rgb(255.0, 255.0, 256.0);
     /// ```
     /// [`Color`]: ./index.html
+    /// [`RGB`]: https://developer.mozilla.org/en-US/docs/Glossary/RGB
     pub fn rgb(red: f64, green: f64, blue: f64) -> Self {
         Color::rgba(red, green, blue, 1.0)        
     }
 
-    /// Create a new `Color` from the given RGB values and the provided alpha setting.
+    /// Create a new `Color` from the given [`RGB`] values and the provided alpha setting.
+    /// This provides a more concise way to create `Color` values instead of using
+    /// the manual `Color {...}` style.
     /// The given values must adhere to those laid out in the documentation for [`Color`].
     /// Thus:
     /// 
-    /// * 0.0 <= red <= 255.0
-    /// * 0.0 <= green <= 255.0
-    /// * 0.0 <= blue <= 255.0
-    /// * 0.0 <= alpha <= 1.0
+    /// * 0.0 &le; `red` &le; 255.0
+    /// * 0.0 &le; `green` &le; 255.0
+    /// * 0.0 &le; `blue` &le; 255.0
+    /// * 0.0 &le; `alpha` &le; 1.0
     /// 
     /// ```rust
     /// use turtle::Color;
@@ -170,93 +176,113 @@ impl Color {
     /// assert_eq!(expected, actual);
     /// ```
     /// 
-    /// Values that are outside the standard RGB or alpha range will result in a panic
+    /// Values that are outside the accepted RGB or alpha range will result in a panic
     /// 
     /// ```should_panic
     /// use turtle::Color;
-    /// // This will not work
+    /// // This will not work as 1.1 is greater than the maximum allowed value for alpha
     /// let color = Color::rgba(255.0, 255.0, 255.0, 1.1);
     /// ```
     /// [`Color`]: ./index.html
+    /// [`RGB`]: https://developer.mozilla.org/en-US/docs/Glossary/RGB
     pub fn rgba(red: f64, green: f64, blue: f64, alpha: f64) -> Self {
         let color = Color { red, green, blue, alpha };
-        assert!(color.is_valid(), "Invalid color: {:?}. See the Color struct documentation for more information.", color);
+        assert!(color.is_valid(), "Invalid color: {:?}. See the color module documentation for more information.", color);
         color
     }
 
-    /// Create a new `Color` from the given HSL values.
+    /// Create a new `Color` from the given [`HSL`] values with alpha set to 1.0.
     /// 
-    /// **NOTE:** The values given are similar to those used by [`sass`] but are only floating point values. 
-    /// This means:
+    /// The expected value ranges are:
     /// 
-    /// * 0.0 <= hue <= 360.0
-    /// * 0.0 <= saturation <= 1.0
-    /// * 0.0 <= lightness <= 1.0
+    /// * 0.0 &le; `hue` &le; 360.0
+    /// * 0.0 &le; `saturation` &le; 1.0
+    /// * 0.0 &le; `lightness` &le; 1.0
     /// 
     /// ```rust
     /// use turtle::Color;
-    /// let color_rgb = Color::rgb(148.0, 139.0, 193.0);
-    /// let color_hsl = Color::hsl(250.0, 0.3, 0.65);
-    /// assert_eq!(color_rgb, color_hsl);
+    /// let black = Color::from("black");
+    /// let black_hsl = Color::hsl(0.0, 0.0, 0.0);
+    /// assert_eq!(black, black_hsl);
+    /// 
+    /// let white = Color::from("white");
+    /// let white_hsl = Color::hsl(0.0, 1.0, 1.0);
+    /// assert_eq!(white, white_hsl);
     /// ```
-    /// [`sass`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#hsl-instance_method
+    /// [`HSL`]: https://en.wikipedia.org/wiki/HSL_and_HSV
     pub fn hsl(hue: f64, saturation: f64, lightness: f64) -> Self {
         Color::hsla(hue, saturation, lightness, 1.0)
     }
 
-    /// Create a new `Color` from the given HSL values and the given alpha value.
+    /// Create a new `Color` from the given [`HSL`] values and the given alpha value.
     /// 
-    /// **NOTE:** The values given are similar to those used by [`sass`] but are only floating point values. 
-    /// This means:
+    /// The expected value ranges are:
     /// 
-    /// * 0.0 <= hue <= 360.0
-    /// * 0.0 <= saturation <= 1.0
-    /// * 0.0 <= lightness <= 1.0
-    /// * 0.0 <= alpha <= 1.0
+    /// * 0.0 &le; `hue` &le; 360.0
+    /// * 0.0 &le; `saturation` &le; 1.0
+    /// * 0.0 &le; `lightness` &le; 1.0
+    /// * 0.0 &le; `alpha` &le; 1.0
     /// 
     /// ```rust
     /// use turtle::Color;
-    /// let color_rgba = Color::rgba(148.0, 139.0, 193.0, 1.0);
-    /// let color_hsla = Color::hsla(250.0, 0.3, 0.65, 1.0);
-    /// assert_eq!(color_rgba, color_hsla);
+    /// let black = Color::from("black").with_alpha(0.5);
+    /// let black_hsla = Color::hsla(0.0, 0.0, 0.0, 0.5);
+    /// assert_eq!(black, black_hsla);
+    /// 
+    /// let white = Color::from("white").with_alpha(0.75);
+    /// let white_hsla = Color::hsla(0.0, 1.0, 1.0, 0.75);
+    /// assert_eq!(white, white_hsla);
     /// ```
-    /// [`sass`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#hsla-instance_method
+    /// [`HSL`]: https://en.wikipedia.org/wiki/HSL_and_HSV
     pub fn hsla(hue: f64, saturation: f64, lightness: f64, alpha: f64) -> Self {
+        if hue < 0. || hue > 360. {
+            panic!("{} is not a valid value for hue, values must be between 0.0 and 360.0");
+        }
+
+        if saturation < 0. || saturation > 1. {
+            panic!("{} is not a valid value for saturation, values must be between 0.0 and 1.0");
+        }
+
+        if lightness < 0. || lightness > 1. {
+            panic!("{} is not a valid value for lightness, values must be between 0.0 and 1.0");
+        }
+
         // Most of this code comes courtesy of work done by 'killercup' on GitHub (MIT Licensed) and
-        // the answer here: https://stackoverflow.com/a/9493060.
-        // Link: http://killercup.github.io/hsl-rs/src/hsl/lib.rs.html#111
+        // the answer here: https://stackoverflow.com/a/9493060
+        // Link: https://github.com/killercup/hsl-rs/blob/d3b0ff50091f45bc5cf28a765be1aa52a70461d3/src/lib.rs#L111
         if saturation == 0.0 {
             let achromatic = (lightness * 255.).round();
             return Color::rgba(achromatic, achromatic, achromatic, alpha)
         }
 
-        let hue_to_rgb = |p, q, t| {
-            let t = if t < 0. {
-                t + 1.
-            } else if t > 1. {
-                t - 1.
-            } else { t };
+        // Given a hue value, convert it to the percentage of a given RGB color
+        // it should be.
+        fn hue_to_rgb(p: f64, q: f64, t: f64) -> f64 {
+            let t = match t {
+                t if t < 0. => t + 1.,
+                t if t > 1. => t - 1.,
+                _ => t,
+            };
 
-            if t < 1./6. {
-                p + (q - p) * 6. * t
-            } else if t < 1./2. {
-                q
-            } else if t < 2./3. {
-                p + (q - p) * (2./3. - t) * 6.
-            } else {
-                p
+            match t {
+                t if t < 1./6. => p + (q - p) * 6. * t,
+                t if t < 1./2. => q,
+                t if t < 2./3. => p + (q - p) * (2./3. - t) * 6.,
+                _ => p,
             }
         };
 
         let q = if lightness < 0.5 {
             lightness * (1. + saturation)
         } else {
-            lightness + saturation - lightness * saturation
+            lightness + saturation - (lightness * saturation)
         };
 
         let p = 2. * lightness - q;
         let h = hue / 360.;
 
+        // Change the percentage value returned from hue_to_rgb to an actual
+        // rgb value between 0 and 255
         let red: f64 = (hue_to_rgb(p, q, h + 1./3.) * 255.).round();
         let green: f64 = (hue_to_rgb(p, q, h) * 255.).round();
         let blue: f64 = (hue_to_rgb(p, q, h - 1./3.) * 255.).round();
@@ -584,6 +610,91 @@ mod tests {
         let expected = Color { red: 26., green: 26., blue: 26., alpha: 1.};
         let actual = Color::hsl(180., 0., 0.1);
         assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn check_rgb_values() {
+        rgb_mapping_values().iter().for_each(|t| assert_eq!(Color::from(t.0), Color::rgb((t.1).0, (t.1).1, (t.1).2)));
+    }
+
+    #[test]
+    fn check_rgba_values() {
+        rgb_mapping_values().iter().for_each(|t| assert_eq!(Color::from(t.0), Color::rgba((t.1).0, (t.1).1, (t.1).2, 1.0)));
+    }
+
+    #[test]
+    fn check_hsl_values() {
+        hsl_mapping_values().iter().for_each(|t| assert_eq!(Color::rgb((t.0).0, (t.0).1, (t.0).2), Color::hsl((t.1).0, (t.1).1, (t.1).2)));
+    }
+
+    #[test]
+    fn check_hsla_values() {
+        hsl_mapping_values().iter().for_each(|t| assert_eq!(Color::rgba((t.0).0, (t.0).1, (t.0).2, 1.0), Color::hsla((t.1).0, (t.1).1, (t.1).2, 1.0)));
+    }
+
+    /// Some mappings from color name to rgb values to pass through the rgb(a) constructor methods
+    fn rgb_mapping_values() -> Vec<(&'static str, (f64, f64, f64))> {        
+        vec![
+            ("red", (230.0, 25.0, 75.0)),
+            ("green", (60.0, 180.0, 75.0)),
+            ("yellow", (255.0, 225.0, 25.0)),
+            ("blue", (0.0, 130.0, 200.0)),
+            ("orange", (245.0, 130.0, 48.0)),
+            ("purple", (145.0, 30.0, 180.0)),
+            ("cyan", (70.0, 240.0, 240.0)),
+            ("magenta", (240.0, 50.0, 230.0)),
+            ("lime", (210.0, 245.0, 60.0)),
+            ("pink", (250.0, 190.0, 190.0)),
+            ("teal", (0.0, 128.0, 128.0)),
+            ("lavender", (230.0, 190.0, 255.0)),
+            ("brown", (170.0, 110.0, 40.0)),
+            ("beige", (255.0, 250.0, 200.0)),
+            ("maroon", (128.0, 0.0, 0.0)),
+            ("mint", (170.0, 255.0, 195.0)),
+            ("olive", (128.0, 128.0, 0.0)),
+            ("coral", (255.0, 215.0, 180.0)),
+            ("navy", (0.0, 0.0, 128.0)),
+            ("grey", (128.0, 128.0, 128.0)),
+            ("white", (255.0, 255.0, 255.0)),
+            ("black", (0.0, 0.0, 0.0)),
+        ]
+    }
+
+    /// Some mappings from rgb values to hsl to pass into the hsl(a) constructor methods.
+    /// N.B. There is some wiggle for HSL -> RGB on some values, so these colors end up not being
+    /// exact as if rgb values were given. 
+    /// 
+    /// This can be seen by going to 
+    /// https://www.rapidtables.com/convert/color/rgb-to-hsl.html and entering (for rgb)
+    /// 230, 25, 75 (turtle Red) and getting the HSL (345, 80.4, 50.0) then going to 
+    /// https://www.rapidtables.com/convert/color/hsl-to-rgb.html and entering (for hsl)
+    /// 345, 80.4, 50.0 and noting that the returned RGB is (230, 25, 76)
+    fn hsl_mapping_values() -> Vec<((f64, f64, f64), (f64, f64, f64))> {
+        // All hsl colors converted by hand at https://www.rapidtables.com/convert/color/rgb-to-hsl.html
+        vec![
+            ((230.0, 25.0, 76.0), (345.0, 0.804, 0.5)),
+            ((60.0, 180.0, 76.0), (128.0, 0.5, 0.471)),
+            ((255.0, 224.0, 25.0), (52.0, 1.0, 0.549)),
+            ((0.0, 130.0, 200.0), (201.0, 1.0, 0.392)),            
+            ((245.0, 130.0, 48.0), (25.0, 0.908, 0.575)),            
+            ((145.0, 30.0, 180.0), (286.0, 0.714, 0.412)),            
+            ((70.0, 240.0, 240.0), (180.0, 0.85, 0.608)),
+            ((240.0, 50.0, 231.0), (303.0, 0.864, 0.569)),            
+            ((211.0, 245.0, 60.0), (71.0, 0.902, 0.598)),            
+            ((250.0, 190.0, 190.0), (0.0, 0.857, 0.863)),            
+            ((0.0, 128.0, 128.0), (180.0, 1.0, 0.251)),
+            ((230.0, 190.0, 255.0), (277.0, 1.0, 0.873)),
+            ((170.0, 109.0, 40.0), (32.0, 0.619, 0.412)),            
+            ((255.0, 250.0, 200.0), (55.0, 1.0, 0.892)),            
+            ((128.0, 0.0, 0.0), (0.0, 1.0, 0.251)),            
+            ((170.0, 255.0, 195.0), (138.0, 1.0, 0.833)),            
+            ((128.0, 128.0, 0.0), (60.0, 1.0, 0.251)),            
+            ((255.0, 215.0, 180.0), (28.0, 1.0, 0.853)),            
+            ((0.0, 0.0, 128.0), (240.0, 1.0, 0.251)),            
+            ((128.0, 128.0, 128.0), (0.0, 0.0, 0.502)),            
+            ((255.0, 255.0, 255.0), (0.0, 0.0, 1.0)),
+            ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
+        ]
     }
 }
 
