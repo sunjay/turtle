@@ -356,7 +356,7 @@ impl Color {
             lightness + saturation - (lightness * saturation)
         };
 
-        let p = 2. * lightness - q;
+        let p = lightness.mul_add(2., -q);
         let h = hue / 360.;
 
         // Change the percentage value returned from hue_to_rgb to an actual
@@ -419,6 +419,153 @@ impl Color {
     pub fn with_alpha(mut self, alpha: f64) -> Color {
         self.alpha = alpha;
         self
+    }
+
+    /// Mix this color with the other given color, with the given weighting .
+    /// 
+    /// The weight determines the amount of the first color that will be used
+    /// in mixing as a percentage. So 50% means use each color equally, while 
+    /// 25% indicates to use one-quarter of this color, and seventy-five percent 
+    /// of the second.
+    /// 
+    /// The alpha channel of both colors are also combined in this way.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let c1 = Color::rgba(18., 55., 125., 1.0);
+    /// let mixed = c1.mix(&Color::rgba(125., 33., 200., 0.8), 40);
+    /// assert_eq!(mixed, Color::rgba(72., 44., 163., 0.88));
+    /// ```
+    /// 
+    /// Passing a value for `weight` that is not between 0 and 100 will result
+    /// in `Err(String)` being returned.
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let c1 = Color::rgba(18., 55., 125., 1.0);
+    /// // This will panic
+    /// let mixed = c1.mix(&Color::rgba(125., 33., 200., 0.8), 101);
+    /// ```
+    pub fn mix(&self, with: &Color, weight: u32) -> Self {
+        if weight > 100 {
+            assert!(weight <= 100, "{} is not a valid value for weight. Must be within 0-100 inclusive", weight);
+        }
+        // This algorighm cribbed from Sass (http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method)
+        // with some modifications to use floating point facilities provided by Rust
+        let p = weight as f64 / 100.0;
+        let w = p.mul_add(2., -1.);
+        let a = self.alpha - with.alpha;
+
+        let w1 = if w * a == -1. {
+            (w + 1.) / 2.
+        } else {
+            ((w + a) / a.mul_add(w, 1.) + 1.) / 2.
+        };
+
+        let w2 = 1. - w1;
+
+        let r_mod = self.red.mul_add(w1, with.red.mul_add(w2, 0.)).round();
+        let g_mod = self.green.mul_add(w1, with.green.mul_add(w2, 0.)).round();
+        let b_mod = self.blue.mul_add(w1, with.blue.mul_add(w2, 0.)).round();
+        let a_mod = self.alpha * p + with.alpha * (1. - p);
+        Color::rgba(r_mod, g_mod, b_mod, a_mod)
+    }
+
+    /// Retrieve the hue for this `Color`. The returned value is in degrees 
+    /// between 0° and 360° that represents its position on the color wheel. 
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let c: Color = "blue".into();
+    /// assert_eq!(201.0, c.hue());
+    /// ```
+    pub fn hue(&self) -> f64 {
+        self.to_hsl().0
+    }
+
+    /// Retrieve the saturation value for this `Color`. The returned value is 
+    /// between 0.0 and 1.0 (inclusive) that indicates the saturation percentage.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let c: Color = "blue".into();
+    /// assert_eq!(1.0, c.saturation());
+    /// ```
+    pub fn saturation(&self) -> f64 {
+        self.to_hsl().1
+    }
+
+    /// Retrieve the lightness value for this `Color`. The returned value is between
+    /// 0.0 and 1.0 (inclusive) that indicates the lightness percentage.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let c: Color = "blue".into();
+    /// assert_eq!(0.39215686274509803, c.lightness());
+    /// ```
+    pub fn lightness(&self) -> f64 {
+        self.to_hsl().2
+    }
+
+    /// Create a new `Color` by shifting the hue of this `Color` by the specified amount.
+    /// The hue is specified in degrees, ranging from -360 to 360 degrees.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// // Positive values
+    /// let c: Color = "orange".into();
+    /// assert_eq!(c.with_hue(70.), Color::rgb(130.0, 245.0, 48.0));
+    /// 
+    /// // Negative values
+    /// assert_eq!(c.with_hue(-70.), Color::rgb(245.0, 48.0, 196.0));
+    /// ```
+    pub fn with_hue(&self, hue: f64) -> Self {
+        // Normalize the hue to within -360 and +360
+        let (h, s, l) = self.to_hsl();
+        let mut hue_mod = (h + hue) % 360.;
+        if hue_mod < 0. {
+            hue_mod += 360.;
+        }
+
+        Color::hsla(hue_mod, s, l, self.alpha)
+    }
+
+    /// Helper to switch a given RGB `Color` to HSL values.
+    fn to_hsl(&self) -> (f64, f64, f64) {
+        let div_color = |c| { c / 255.0 };
+        let (r, g, b) = (div_color(self.red), div_color(self.green), div_color(self.blue));
+
+        let max = r.max(g.max(b));
+        let min = r.min(g.min(b));
+        let h: f64;
+        let s: f64;
+        let l = (max + min) * 0.5;
+
+        if max == min {
+            h = 0.;
+            s = 0.;
+        } else {
+            let d = max - min;
+            s = if l > 0.5 {
+                d / (2. - max - min)
+            } else {
+                d / (max + min)
+            };
+
+            h = match max {
+                _ if max == r => (g - b) / d + if g < b { 6. } else { 0. },
+                _ if max == g => (b - r) / d + 2.,
+                _ => (r - g) / d + 4.
+            } * 60.;            
+        }
+
+        (h.round(), s, l)
     }
 }
 
@@ -990,6 +1137,51 @@ mod tests {
             ((255.0, 255.0, 255.0), (0.0, 0.0, 1.0)),
             ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
         ]
+    }
+
+    #[test]
+    fn ensure_color_mix() {
+        let mix_1 = Color::rgba(18., 55., 125., 1.0);
+        let mix_2 = Color::rgba(125., 33., 200., 0.8);
+        let expected = Color::rgba(72., 44., 163., 0.88);
+        let mix_res = mix_1.mix(&mix_2, 40);
+        assert_eq!(expected, mix_res);
+    }
+
+    #[test]
+    #[should_panic(expected = "101 is not a valid value for weight. Must be within 0-100 inclusive")]
+    fn invalid_mix_weight() {
+        let c1 = Color::rgb(1., 1., 1.);
+        let _ = c1.mix(&Color::rgb(2., 2., 2.), 101);
+    }
+
+    #[test]
+    fn check_rgb_to_hsl() {
+        let c = Color::rgb(251., 206., 33.);
+        let result = c.to_hsl();
+
+        assert_eq!((48., 0.9646017699115044, 0.5568627450980392), result);
+    }
+
+    #[test]
+    fn check_color_hue() {
+        let c = Color::rgb(250., 206., 33.);
+        assert_eq!(48., c.hue());
+
+        let d = Color::rgb(38., 128., 208.);
+        assert_eq!(208., d.hue());
+    }
+
+    #[test]
+    fn check_with_hue_positive() {
+        let c = Color::rgb(245.0, 130.0, 48.0);
+        assert_eq!(c.with_hue(70.), Color::rgb(130., 245., 48.));
+    }
+
+    #[test]
+    fn check_with_hue_negative() {
+        let c = Color::rgb(245.0, 130.0, 48.0);
+        assert_eq!(c.with_hue(-70.), Color::rgb(245., 48., 196.));
     }
 }
 
