@@ -69,11 +69,39 @@
 //! use turtle::Color;
 //! let my_color = Color {red: 255.0, green: 55.0, blue: 11.0, alpha: 1.0};
 //! ```
-//!
+//! 
 //! Note that when creating a color this way, we **do not** check if the values of each property are
 //! within their valid ranges.
 //!
-//! A more ergonomic syntax can also be used when passing a color to a method that supports any
+//! There are also constructor methods available for `Color` that allow you to create a new
+//! color using provided values. These are:
+//! 
+//! * `rgb`: Create from the given red, green, and blue values with an alpha value of 1.0
+//! * `rgba`: Similar to `rgb` but also accepts an alpha value
+//! * `hsl`: Create from the given hue, saturation, and lightness values with an alpha of 1.0
+//! * `hsla`: Similar to `hsl` but also accepts an alpha value
+//! 
+//! These methods provide a concise syntax for creating a new `Color` while also providing
+//! validation. All values provided and any color created is checked for correctness.
+//! More information about each can be found on its dedicated documentation.
+//! 
+//! ```rust
+//! use turtle::Color;
+//! 
+//! // These are equivalent
+//! let white_manual = Color { red: 255.0, green: 255.0, blue: 255.0, alpha: 1.0 };
+//! let white_rgb = Color::rgb(255.0, 255.0, 255.0);
+//! let white_rgba = Color::rgba(255.0, 255.0, 255.0, 1.0);
+//! let white_hsl = Color::hsl(0.0, 0.0, 1.0);
+//! let white_hsla = Color::hsla(0.0, 0.0, 1.0, 1.0);
+//! 
+//! assert_eq!(white_manual, white_rgb);
+//! assert_eq!(white_rgb, white_rgba);
+//! assert_eq!(white_rgba, white_hsl);
+//! assert_eq!(white_hsl, white_hsla);
+//! ```
+//! 
+//! Another ergonomic syntax can also be used when passing a color to a method that supports any
 //! type that implements `Into<Color>`.
 //!
 //! ```rust
