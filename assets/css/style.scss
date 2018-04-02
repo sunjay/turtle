@@ -177,6 +177,7 @@ h6 {
     background: #2e7d32;
     border-color: #4caf50;
     text-align: left;
+    z-index: 5;
 
     input:checked ~ .trigger {
       min-width: 250px;
