@@ -73,7 +73,6 @@ h6 {
     background: #424242;
     border: 0;
     border-radius: 5px;
-    color: #9e9e9e;
     margin-bottom: 0;
     padding: 2px;
     text-align: left;
@@ -84,10 +83,18 @@ h6 {
     }
 
     .rouge-table {
+      border: 0;
+      color: #9e9e9e;
+      margin-bottom: 0;
       width: 100%;
 
       tr {
         display: flex;
+      }
+
+      td {
+        border: 0;
+        padding: 0;
       }
 
       .code,
