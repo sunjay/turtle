@@ -73,33 +73,6 @@
 //! Note that when creating a color this way, we **do not** check if the values of each property are
 //! within their valid ranges.
 //!
-//! There are also constructor methods available for `Color` that allow you to create a new
-//! color using provided values. These are:
-//! 
-//! * `rgb`: Create from the given red, green, and blue values with an alpha value of 1.0
-//! * `rgba`: Similar to `rgb` but also accepts an alpha value
-//! * `hsl`: Create from the given hue, saturation, and lightness values with an alpha of 1.0
-//! * `hsla`: Similar to `hsl` but also accepts an alpha value
-//! 
-//! These methods provide a concise syntax for creating a new `Color` while also providing
-//! validation. All values provided and any color created is checked for correctness.
-//! More information about each can be found on its dedicated documentation.
-//! 
-//! ```rust
-//! use turtle::Color;
-//! 
-//! // These are equivalent
-//! let white_manual = Color { red: 255.0, green: 255.0, blue: 255.0, alpha: 1.0 };
-//! let white_rgb = Color::rgb(255.0, 255.0, 255.0);
-//! let white_rgba = Color::rgba(255.0, 255.0, 255.0, 1.0);
-//! let white_hsl = Color::hsl(0.0, 0.0, 1.0);
-//! let white_hsla = Color::hsla(0.0, 0.0, 1.0, 1.0);
-//! 
-//! assert_eq!(white_manual, white_rgb);
-//! assert_eq!(white_rgb, white_rgba);
-//! assert_eq!(white_rgba, white_hsl);
-//! assert_eq!(white_hsl, white_hsla);
-//! ```
 //! 
 //! Another ergonomic syntax can also be used when passing a color to a method that supports any
 //! type that implements `Into<Color>`.
@@ -131,6 +104,50 @@
 //! # let mut turtle = turtle::Turtle::new();
 //! // Color values must only go up to 255.0
 //! turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
+//! ```
+//! //! There are also constructor methods available for `Color` that allow you to create a new
+//! color using provided values. These are:
+//! 
+//! * `rgb`: Create from the given red, green, and blue values with an alpha value of 1.0
+//! * `rgba`: Similar to `rgb` but also accepts an alpha value
+//! * `hsl`: Create from the given hue, saturation, and lightness values with an alpha of 1.0
+//! * `hsla`: Similar to `hsl` but also accepts an alpha value
+//! 
+//! These methods provide a concise syntax for creating a new `Color` while also providing
+//! validation. All values provided and any color created is checked for correctness.
+//! More information about each can be found on its dedicated documentation.
+//! 
+//! ```rust
+//! use turtle::Color;
+//! 
+//! // These are equivalent
+//! let white_manual = Color { red: 255.0, green: 255.0, blue: 255.0, alpha: 1.0 };
+//! let white_rgb = Color::rgb(255.0, 255.0, 255.0);
+//! let white_rgba = Color::rgba(255.0, 255.0, 255.0, 1.0);
+//! let white_hsl = Color::hsl(0.0, 0.0, 1.0);
+//! let white_hsla = Color::hsla(0.0, 0.0, 1.0, 1.0);
+//! 
+//! assert_eq!(white_manual, white_rgb);
+//! assert_eq!(white_rgb, white_rgba);
+//! assert_eq!(white_rgba, white_hsl);
+//! assert_eq!(white_hsl, white_hsla);
+//! ```
+//! 
+//! So, you can incorporate these constructors into your turtle code along with
+//! other methods of color creation if you like:
+//! 
+//! ```rust
+//! # use turtle::*;
+//! # let mut turtle = Turtle::new();
+//! 
+//! // Set the pen color to blue
+//! turtle.set_pen_color(Color::rgb(0.0, 130.0, 200.0));
+//! 
+//! // And the same color can be set for the fill color via the array syntax.
+//! turtle.set_fill_color([0.0, 130.0, 200.0, 1.0]);
+//! 
+//! // Then, we can set the background to black
+//! turtle.drawing_mut().set_background_color("black");
 //! ```
 
 use std::iter::repeat;
@@ -214,9 +231,23 @@ impl Color {
     /// [`Color`]: ./index.html
     /// [`RGB`]: https://developer.mozilla.org/en-US/docs/Glossary/RGB
     pub fn rgba(red: f64, green: f64, blue: f64, alpha: f64) -> Self {
-        let color = Color { red, green, blue, alpha };
-        assert!(color.is_valid(), "Invalid color: {:?}. See the color module documentation for more information.", color);
-        color
+        if red < 0. || red > 255. {
+            panic!("{} is not a valid value for red, values must be between 0.0 and 255.0", red);
+        }
+
+        if green < 0. || green > 255. {
+            panic!("{} is not a valid value for green, values must be between 0.0 and 255.0", green);
+        }
+
+        if blue < 0. || blue > 255. {
+            panic!("{} is not a valid value for blue, values must be between 0.0 and 255.0", blue);
+        }
+
+        if alpha < 0. || alpha > 1. {
+            panic!("{} is not a valid value for alpha, values must be between 0.0 and 1.0", alpha);
+        }
+
+        Color { red, green, blue, alpha }
     }
 
     /// Create a new `Color` from the given [`HSL`] values with alpha set to 1.0.
@@ -229,13 +260,17 @@ impl Color {
     /// 
     /// ```rust
     /// use turtle::Color;
-    /// let black = Color::from("black");
+    /// let black: Color = "black".into();
     /// let black_hsl = Color::hsl(0.0, 0.0, 0.0);
     /// assert_eq!(black, black_hsl);
     /// 
-    /// let white = Color::from("white");
+    /// let white: Color = "white".into();
     /// let white_hsl = Color::hsl(0.0, 1.0, 1.0);
     /// assert_eq!(white, white_hsl);
+    /// 
+    /// let blue: Color = "blue".into();
+    /// let blue_hsl = Color::hsl(201.0, 1.0, 0.392);
+    /// assert_eq!(blue, blue_hsl);
     /// ```
     /// [`HSL`]: https://en.wikipedia.org/wiki/HSL_and_HSV
     pub fn hsl(hue: f64, saturation: f64, lightness: f64) -> Self {
@@ -252,27 +287,39 @@ impl Color {
     /// * 0.0 &le; `alpha` &le; 1.0
     /// 
     /// ```rust
-    /// use turtle::Color;
+    /// use turtle::{Color, color};
+    /// 
+    /// // You can chain using Color::from()
     /// let black = Color::from("black").with_alpha(0.5);
     /// let black_hsla = Color::hsla(0.0, 0.0, 0.0, 0.5);
     /// assert_eq!(black, black_hsla);
     /// 
-    /// let white = Color::from("white").with_alpha(0.75);
+    /// // But even better, you can use the color enum value and chain the
+    /// // calls.
+    /// let white = color::WHITE.with_alpha(0.75);
     /// let white_hsla = Color::hsla(0.0, 1.0, 1.0, 0.75);
     /// assert_eq!(white, white_hsla);
+    /// 
+    /// let blue: Color = color::BLUE.with_alpha(0.8);
+    /// let blue_hsla = Color::hsla(201.0, 1.0, 0.392, 0.8); 
+    /// assert_eq!(blue, blue_hsla);
     /// ```
     /// [`HSL`]: https://en.wikipedia.org/wiki/HSL_and_HSV
     pub fn hsla(hue: f64, saturation: f64, lightness: f64, alpha: f64) -> Self {
         if hue < 0. || hue > 360. {
-            panic!("{} is not a valid value for hue, values must be between 0.0 and 360.0");
+            panic!("{} is not a valid value for hue, values must be between 0.0 and 360.0", hue);
         }
 
         if saturation < 0. || saturation > 1. {
-            panic!("{} is not a valid value for saturation, values must be between 0.0 and 1.0");
+            panic!("{} is not a valid value for saturation, values must be between 0.0 and 1.0", saturation);
         }
 
         if lightness < 0. || lightness > 1. {
-            panic!("{} is not a valid value for lightness, values must be between 0.0 and 1.0");
+            panic!("{} is not a valid value for lightness, values must be between 0.0 and 1.0", lightness);
+        }
+
+        if alpha < 0. || alpha > 1. {
+            panic!("{} is not a valid value for alpha, values must be between 0.0 and 1.0", alpha);
         }
 
         // Most of this code comes courtesy of work done by 'killercup' on GitHub (MIT Licensed) and
@@ -315,8 +362,7 @@ impl Color {
         let green: f64 = (hue_to_rgb(p, q, h) * 255.).round();
         let blue: f64 = (hue_to_rgb(p, q, h - 1./3.) * 255.).round();
 
-        let color = Color::rgba(red, green, blue, alpha);
-        color
+        Color::rgba(red, green, blue, alpha)
     }
 
     /// Returns true if the values for each field are valid.
@@ -617,21 +663,7 @@ mod tests {
         let actual_rgba = Color::rgba(65., 122., 200., 1.);
         assert_eq!(expected, actual_rgb);
         assert_eq!(expected, actual_rgba);
-    }
-
-    #[test]
-    fn ensure_hsl() {
-        let expected = Color { red: 148., green: 139., blue: 193., alpha: 1.};
-        let actual = Color::hsl(250., 0.3, 0.65);
-        assert_eq!(expected, actual);
-    }
-
-    #[test]
-    fn ensure_hsla() {
-        let expected = Color { red: 148., green: 139., blue: 193., alpha: 1.};
-        let actual = Color::hsla(250., 0.3, 0.65, 1.0);
-        assert_eq!(expected, actual);
-    }
+    }    
 
     #[test]
     fn ensure_achromatic_hsl() {
@@ -641,23 +673,191 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_invalid_red_negative_panic() {
+        Color::rgb(-0.0000001, 20., 20.);
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_invalid_red_positive_panic() {
+        Color::rgb(255.0000001, 20., 20.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_invalid_green_negative_panic() {
+        Color::rgb(20., -0.0000001, 20.);
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_invalid_green_positive_panic() {
+        Color::rgb(20., 255.0000001, 20.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_invalid_blue_negative_panic() {
+        Color::rgb(20., 20., -0.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_invalid_blue_positive_panic() {
+        Color::rgb(20., 20., 255.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_invalid_red_negative_panic() {
+        Color::rgba(-0.0000001, 20., 20., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_invalid_red_positive_panic() {
+        Color::rgba(255.0000001, 20., 20., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_invalid_green_negative_panic() {
+        Color::rgba(20., -0.0000001, 20., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_invalid_green_positive_panic() {
+        Color::rgba(20., 255.0000001, 20., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_invalid_blue_negative_panic() {
+        Color::rgba(20., 20., -0.0000001, 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_invalid_blue_positive_panic() {
+        Color::rgba(20., 20., 255.0000001, 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    fn ensure_rgba_invalid_alpha_negative_panic() {
+        Color::rgba(20., 20., 20., -0.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    fn ensure_rgba_invalid_alpha_positive_panic() {
+        Color::rgba(20., 20., 20., 1.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    fn ensure_hsl_invalid_hue_negative_panic() {
+        Color::hsl(-0.0000001, 1., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="360.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    fn ensure_hsl_invalid_hue_positive_panic() {
+        Color::hsl(360.0000001, 1., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_hsl_invalid_saturation_negative_panic() {
+        Color::hsl(20., -0.0000001, 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="1.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_hsl_invalid_saturation_positive_panic() {
+        Color::hsl(20., 1.0000001, 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    fn ensure_hsl_invalid_lightness_negative_panic() {
+        Color::hsl(20., 1., -0.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="1.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    fn ensure_hsl_invalid_lightness_positive_panic() {
+        Color::hsl(20., 1., 1.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    fn ensure_hsla_invalid_hue_negative_panic() {
+        Color::hsla(-0.0000001, 1., 1., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="360.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    fn ensure_hsla_invalid_hue_positive_panic() {
+        Color::hsla(360.0000001, 1., 1., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_hsla_invalid_saturation_negative_panic() {
+        Color::hsla(20., -0.0000001, 1., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="1.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_hsla_invalid_saturation_positive_panic() {
+        Color::hsla(20., 1.0000001, 1., 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    fn ensure_hsla_invalid_lightness_negative_panic() {
+        Color::hsla(20., 1., -0.0000001, 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="1.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    fn ensure_hsla_invalid_lightness_positive_panic() {
+        Color::hsla(20., 1., 1.0000001, 1.);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    fn ensure_hsla_invalid_alpha_negative_panic() {
+        Color::hsla(20., 1., 1., -0.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    fn ensure_hsla_invalid_alpha_positive_panic() {
+        Color::hsla(20., 1., 1., 1.0000001);
+    }
+
+    #[test]
     fn check_rgb_values() {
-        rgb_mapping_values().iter().for_each(|t| assert_eq!(Color::from(t.0), Color::rgb((t.1).0, (t.1).1, (t.1).2)));
+        rgb_mapping_values().iter().for_each(|&(expected, (r, g, b))| assert_eq!(Color::from(expected), Color::rgb(r, g, b)));
     }
 
     #[test]
     fn check_rgba_values() {
-        rgb_mapping_values().iter().for_each(|t| assert_eq!(Color::from(t.0), Color::rgba((t.1).0, (t.1).1, (t.1).2, 1.0)));
+        rgb_mapping_values().iter().for_each(|&(expected, (r, g, b))| assert_eq!(Color::from(expected), Color::rgba(r, g, b, 1.0)));
     }
 
     #[test]
     fn check_hsl_values() {
-        hsl_mapping_values().iter().for_each(|t| assert_eq!(Color::rgb((t.0).0, (t.0).1, (t.0).2), Color::hsl((t.1).0, (t.1).1, (t.1).2)));
+        hsl_mapping_values().iter().for_each(|&((r, g, b), (h, s, l))| assert_eq!(Color::rgb(r, g, b), Color::hsl(h, s, l)));
     }
 
     #[test]
     fn check_hsla_values() {
-        hsl_mapping_values().iter().for_each(|t| assert_eq!(Color::rgba((t.0).0, (t.0).1, (t.0).2, 1.0), Color::hsla((t.1).0, (t.1).1, (t.1).2, 1.0)));
+        hsl_mapping_values().iter().for_each(|&((r, g, b), (h, s, l))| assert_eq!(Color::rgba(r, g, b, 1.0), Color::hsla(h, s, l, 1.0)));
     }
 
     /// Some mappings from color name to rgb values to pass through the rgb(a) constructor methods
