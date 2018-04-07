@@ -105,17 +105,17 @@
 //! // Color values must only go up to 255.0
 //! turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
 //! ```
-//! //! There are also constructor methods available for `Color` that allow you to create a new
+//! There are also constructor methods available for `Color` that allow you to create a new
 //! color using provided values. These are:
 //! 
-//! * `rgb`: Create from the given red, green, and blue values with an alpha value of 1.0
-//! * `rgba`: Similar to `rgb` but also accepts an alpha value
-//! * `hsl`: Create from the given hue, saturation, and lightness values with an alpha of 1.0
-//! * `hsla`: Similar to `hsl` but also accepts an alpha value
+//! * [`rgb(red, green, blue)`]: Create from the given red, green, and blue values with an alpha value of 1.0
+//! * [`rgba(red, green, blue, alpha)`]: Similar to `rgb` but also accepts an alpha value
+//! * [`hsl(hue, saturation, lightness)`]: Create from the given hue, saturation, and lightness values with an alpha of 1.0
+//! * [`hsla(hue, saturation, lightness, alpha)`]: Similar to `hsl` but also accepts an alpha value
 //! 
-//! These methods provide a concise syntax for creating a new `Color` while also providing
-//! validation. All values provided and any color created is checked for correctness.
-//! More information about each can be found on its dedicated documentation.
+//! These methods provide a concise syntax for creating a new `Color`. If the values passed in are invalid, 
+//! the program will exit with an error that lets you know what happened. See the documentation for each 
+//! method (linked above) to see which values are correct for each parameter.
 //! 
 //! ```rust
 //! use turtle::Color;
@@ -144,11 +144,15 @@
 //! turtle.set_pen_color(Color::rgb(0.0, 130.0, 200.0));
 //! 
 //! // And the same color can be set for the fill color via the array syntax.
-//! turtle.set_fill_color([0.0, 130.0, 200.0, 1.0]);
+//! turtle.set_fill_color([0.0, 130.0, 200.0]);
 //! 
 //! // Then, we can set the background to black
 //! turtle.drawing_mut().set_background_color("black");
 //! ```
+//! [`rgb(red, green, blue)`]: ./struct.Color.html#method.rgb
+//! [`rgba(red, green, blue, alpha)`]: ./struct.Color.html#method.rgba
+//! [`hsl(hue, saturation, lightness)`]: ./struct.Color.html#method.hsl
+//! [`hsla(hue, saturation, lightness, alpha)`]: ./struct.Color.html#method.hsla
 
 use std::iter::repeat;
 
