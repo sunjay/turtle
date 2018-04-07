@@ -424,12 +424,12 @@ impl Color {
 
 impl Rand for Color {
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        Self {
-            red: rng.gen::<f64>() * 255.0,
-            green: rng.gen::<f64>() * 255.0,
-            blue: rng.gen::<f64>() * 255.0,
-            alpha: rng.gen::<f64>(),
-        }
+        let red = rng.gen::<f64>() * 255.;
+        let green = rng.gen::<f64>() * 255.;
+        let blue = rng.gen::<f64>() * 255.;
+        let alpha = rng.gen::<f64>();
+
+        Self::rgba(red, green, blue, alpha)
     }
 }
 
@@ -446,31 +446,13 @@ impl From<Color> for types::Color {
 
 impl From<[f64; 3]> for Color {
     fn from(color_values: [f64; 3]) -> Self {
-        let color = Color {
-            red: color_values[0],
-            green: color_values[1],
-            blue: color_values[2],
-            alpha: 1.0,
-        };
-        assert!(color.is_valid(),
-            "Invalid color: {:?}. See the Color struct documentation for more information.",
-            color_values);
-        color
+        Self::rgb(color_values[0], color_values[1], color_values[2])
     }
 }
 
 impl From<[f64; 4]> for Color {
     fn from(color_values: [f64; 4]) -> Self {
-        let color = Color {
-            red: color_values[0],
-            green: color_values[1],
-            blue: color_values[2],
-            alpha: color_values[3],
-        };
-        assert!(color.is_valid(),
-            "Invalid color: {:?}. See the Color struct documentation for more information.",
-            color_values);
-        color
+        Self::rgba(color_values[0], color_values[1], color_values[2], color_values[3])
     }
 }
 
@@ -486,16 +468,14 @@ impl<'a> From<&'a str> for Color {
                 _ => panic!("Invalid color literal: {}", s),
             };
 
-            let red = i64::from_str_radix(&color_str[0..2], 16);
-            let green = i64::from_str_radix(&color_str[2..4], 16);
-            let blue = i64::from_str_radix(&color_str[4..6], 16);
+            // Use closure here as 's' cannot be captured when using nested fn form
+            let extract_color_value = |v| { i64::from_str_radix(v, 16).expect(&format!("Invalid color literal: {}", s)) as f64 };                
 
-            Color {
-                red: red.expect(&format!("Invalid color literal: {}", s)) as f64,
-                green: green.expect(&format!("Invalid color literal: {}", s)) as f64,
-                blue: blue.expect(&format!("Invalid color literal: {}", s)) as f64,
-                alpha: 1.0,
-            }
+            let red = extract_color_value(&color_str[0..2]);
+            let green = extract_color_value(&color_str[2..4]);
+            let blue = extract_color_value(&color_str[4..6]);
+
+            Self::rgb(red, green, blue)
         }
         else {
             from_color_name(s)
@@ -841,6 +821,90 @@ mod tests {
     #[should_panic(expected="1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
     fn ensure_hsla_invalid_alpha_positive_panic() {
         Color::hsla(20., 1., 1., 1.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_arr_invalid_red_negative_panic() {
+        let _: Color = [-0.0000001, 20., 20.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_arr_invalid_red_positive_panic() {
+        let _: Color = [255.0000001, 20., 20.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_arr_invalid_green_negative_panic() {
+        let _: Color = [20., -0.0000001, 20.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_arr_invalid_green_positive_panic() {
+        let _: Color = [20., 255.0000001, 20.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_arr_invalid_blue_negative_panic() {
+        let _: Color = [20., 20., -0.0000001].into();
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgb_arr_invalid_blue_positive_panic() {
+        let _: Color = [20., 20., 255.0000001].into();
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_arr_invalid_red_negative_panic() {
+        let _: Color = [-0.0000001, 20., 20., 1.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_arr_invalid_red_positive_panic() {
+        let _: Color = [255.0000001, 20., 20., 1.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_arr_invalid_green_negative_panic() {
+        let _: Color = [20., -0.0000001, 20., 1.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_arr_invalid_green_positive_panic() {
+        let _: Color = [20., 255.0000001, 20., 1.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_arr_invalid_blue_negative_panic() {
+        let _: Color = [20., 20., -0.0000001, 1.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    fn ensure_rgba_arr_invalid_blue_positive_panic() {
+        let _: Color = [20., 20., 255.0000001, 1.].into();
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    fn ensure_rgba_arr_invalid_alpha_negative_panic() {
+        let _: Color = [20., 20., 20., -0.0000001].into();
+    }
+
+    #[test]
+    #[should_panic(expected="1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    fn ensure_rgba_arr_invalid_alpha_positive_panic() {
+        let _: Color = [20., 20., 20., 1.0000001].into();
     }
 
     #[test]
