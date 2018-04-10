@@ -69,11 +69,11 @@
 //! use turtle::Color;
 //! let my_color = Color {red: 255.0, green: 55.0, blue: 11.0, alpha: 1.0};
 //! ```
-//! 
+//!
 //! Note that when creating a color this way, we **do not** check if the values of each property are
 //! within their valid ranges.
 //!
-//! 
+//!
 //! Another ergonomic syntax can also be used when passing a color to a method that supports any
 //! type that implements `Into<Color>`.
 //!
@@ -107,45 +107,44 @@
 //! ```
 //! There are also constructor methods available for `Color` that allow you to create a new
 //! color using provided values. These are:
-//! 
+//!
 //! * [`rgb(red, green, blue)`]: Create from the given red, green, and blue values with an alpha value of 1.0
 //! * [`rgba(red, green, blue, alpha)`]: Similar to `rgb` but also accepts an alpha value
 //! * [`hsl(hue, saturation, lightness)`]: Create from the given hue, saturation, and lightness values with an alpha of 1.0
 //! * [`hsla(hue, saturation, lightness, alpha)`]: Similar to `hsl` but also accepts an alpha value
-//! 
-//! These methods provide a concise syntax for creating a new `Color`. If the values passed in are invalid, 
-//! the program will exit with an error that lets you know what happened. See the documentation for each 
+//!
+//! These methods provide a concise syntax for creating a new `Color`. If the values passed in are invalid,
+//! the program will exit with an error that lets you know what happened. See the documentation for each
 //! method (linked above) to see which values are correct for each parameter.
-//! 
+//!
 //! ```rust
 //! use turtle::Color;
-//! 
+//!
 //! // These are equivalent
 //! let white_manual = Color { red: 255.0, green: 255.0, blue: 255.0, alpha: 1.0 };
 //! let white_rgb = Color::rgb(255.0, 255.0, 255.0);
 //! let white_rgba = Color::rgba(255.0, 255.0, 255.0, 1.0);
 //! let white_hsl = Color::hsl(0.0, 0.0, 1.0);
 //! let white_hsla = Color::hsla(0.0, 0.0, 1.0, 1.0);
-//! 
+//!
 //! assert_eq!(white_manual, white_rgb);
 //! assert_eq!(white_rgb, white_rgba);
 //! assert_eq!(white_rgba, white_hsl);
 //! assert_eq!(white_hsl, white_hsla);
 //! ```
-//! 
+//!
 //! So, you can incorporate these constructors into your turtle code along with
 //! other methods of color creation if you like:
-//! 
+//!
 //! ```rust
 //! # use turtle::*;
 //! # let mut turtle = Turtle::new();
-//! 
 //! // Set the pen color to blue
 //! turtle.set_pen_color(Color::rgb(0.0, 130.0, 200.0));
-//! 
+//!
 //! // And the same color can be set for the fill color via the array syntax.
 //! turtle.set_fill_color([0.0, 130.0, 200.0]);
-//! 
+//!
 //! // Then, we can set the background to black
 //! turtle.drawing_mut().set_background_color("black");
 //! ```
@@ -179,23 +178,23 @@ impl Color {
     /// Create a new `Color` from the given [`RGB`] values and alpha set to 1.0.
     /// This provides a more concise way to create `Color` values, instead
     /// of using the manual `Color {...}` style.
-    /// 
-    /// The given values must adhere to those laid out in the documentation 
+    ///
+    /// The given values must adhere to those laid out in the documentation
     /// for [`Color`]. Thus:
-    /// 
+    ///
     /// * 0.0 &le; `red` &le; 255.0
     /// * 0.0 &le; `green` &le; 255.0
     /// * 0.0 &le; `blue` &le; 255.0
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
     /// let expected = Color { red: 35.0, green: 200.0, blue: 180.0, alpha: 1.0 };
     /// let actual = Color::rgb(35.0, 200.0, 180.0);
     /// assert_eq!(expected, actual);
     /// ```
-    /// 
+    ///
     /// Values that are outside the accepted RGB range will result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
     /// // This will not work as 256.0 is greater than the maximum allowed value for blue
@@ -204,7 +203,7 @@ impl Color {
     /// [`Color`]: ./index.html
     /// [`RGB`]: https://developer.mozilla.org/en-US/docs/Glossary/RGB
     pub fn rgb(red: f64, green: f64, blue: f64) -> Self {
-        Color::rgba(red, green, blue, 1.0)        
+        Color::rgba(red, green, blue, 1.0)
     }
 
     /// Create a new `Color` from the given [`RGB`] values and the provided alpha setting.
@@ -212,21 +211,21 @@ impl Color {
     /// the manual `Color {...}` style.
     /// The given values must adhere to those laid out in the documentation for [`Color`].
     /// Thus:
-    /// 
+    ///
     /// * 0.0 &le; `red` &le; 255.0
     /// * 0.0 &le; `green` &le; 255.0
     /// * 0.0 &le; `blue` &le; 255.0
     /// * 0.0 &le; `alpha` &le; 1.0
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
     /// let expected = Color { red: 35.0, green: 200.0, blue: 180.0, alpha: 0.5 };
     /// let actual = Color::rgba(35.0, 200.0, 180.0, 0.5);
     /// assert_eq!(expected, actual);
     /// ```
-    /// 
+    ///
     /// Values that are outside the accepted RGB or alpha range will result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
     /// // This will not work as 1.1 is greater than the maximum allowed value for alpha
@@ -255,23 +254,23 @@ impl Color {
     }
 
     /// Create a new `Color` from the given [`HSL`] values with alpha set to 1.0.
-    /// 
+    ///
     /// The expected value ranges are:
-    /// 
+    ///
     /// * 0.0 &le; `hue` &le; 360.0
     /// * 0.0 &le; `saturation` &le; 1.0
     /// * 0.0 &le; `lightness` &le; 1.0
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
     /// let black: Color = "black".into();
     /// let black_hsl = Color::hsl(0.0, 0.0, 0.0);
     /// assert_eq!(black, black_hsl);
-    /// 
+    ///
     /// let white: Color = "white".into();
     /// let white_hsl = Color::hsl(0.0, 1.0, 1.0);
     /// assert_eq!(white, white_hsl);
-    /// 
+    ///
     /// let blue: Color = "blue".into();
     /// let blue_hsl = Color::hsl(201.0, 1.0, 0.392);
     /// assert_eq!(blue, blue_hsl);
@@ -282,30 +281,30 @@ impl Color {
     }
 
     /// Create a new `Color` from the given [`HSL`] values and the given alpha value.
-    /// 
+    ///
     /// The expected value ranges are:
-    /// 
+    ///
     /// * 0.0 &le; `hue` &le; 360.0
     /// * 0.0 &le; `saturation` &le; 1.0
     /// * 0.0 &le; `lightness` &le; 1.0
     /// * 0.0 &le; `alpha` &le; 1.0
-    /// 
+    ///
     /// ```rust
     /// use turtle::{Color, color};
-    /// 
+    ///
     /// // You can chain using Color::from()
     /// let black = Color::from("black").with_alpha(0.5);
     /// let black_hsla = Color::hsla(0.0, 0.0, 0.0, 0.5);
     /// assert_eq!(black, black_hsla);
-    /// 
+    ///
     /// // But even better, you can use the color enum value and chain the
     /// // calls.
     /// let white = color::WHITE.with_alpha(0.75);
     /// let white_hsla = Color::hsla(0.0, 1.0, 1.0, 0.75);
     /// assert_eq!(white, white_hsla);
-    /// 
+    ///
     /// let blue: Color = color::BLUE.with_alpha(0.8);
-    /// let blue_hsla = Color::hsla(201.0, 1.0, 0.392, 0.8); 
+    /// let blue_hsla = Color::hsla(201.0, 1.0, 0.392, 0.8);
     /// assert_eq!(blue, blue_hsla);
     /// ```
     /// [`HSL`]: https://en.wikipedia.org/wiki/HSL_and_HSV
@@ -667,7 +666,7 @@ mod tests {
         let actual_rgba = Color::rgba(65., 122., 200., 1.);
         assert_eq!(expected, actual_rgb);
         assert_eq!(expected, actual_rgba);
-    }    
+    }
 
     #[test]
     fn ensure_achromatic_hsl() {
@@ -865,7 +864,7 @@ mod tests {
     }
 
     /// Some mappings from color name to rgb values to pass through the rgb(a) constructor methods
-    fn rgb_mapping_values() -> Vec<(&'static str, (f64, f64, f64))> {        
+    fn rgb_mapping_values() -> Vec<(&'static str, (f64, f64, f64))> {
         vec![
             ("red", (230.0, 25.0, 75.0)),
             ("green", (60.0, 180.0, 75.0)),
@@ -894,11 +893,11 @@ mod tests {
 
     /// Some mappings from rgb values to hsl to pass into the hsl(a) constructor methods.
     /// N.B. There is some wiggle for HSL -> RGB on some values, so these colors end up not being
-    /// exact as if rgb values were given. 
-    /// 
-    /// This can be seen by going to 
+    /// exact as if rgb values were given.
+    ///
+    /// This can be seen by going to
     /// https://www.rapidtables.com/convert/color/rgb-to-hsl.html and entering (for rgb)
-    /// 230, 25, 75 (turtle Red) and getting the HSL (345, 80.4, 50.0) then going to 
+    /// 230, 25, 75 (turtle Red) and getting the HSL (345, 80.4, 50.0) then going to
     /// https://www.rapidtables.com/convert/color/hsl-to-rgb.html and entering (for hsl)
     /// 345, 80.4, 50.0 and noting that the returned RGB is (230, 25, 76)
     fn hsl_mapping_values() -> Vec<((f64, f64, f64), (f64, f64, f64))> {
@@ -907,23 +906,23 @@ mod tests {
             ((230.0, 25.0, 76.0), (345.0, 0.804, 0.5)),
             ((60.0, 180.0, 76.0), (128.0, 0.5, 0.471)),
             ((255.0, 224.0, 25.0), (52.0, 1.0, 0.549)),
-            ((0.0, 130.0, 200.0), (201.0, 1.0, 0.392)),            
-            ((245.0, 130.0, 48.0), (25.0, 0.908, 0.575)),            
-            ((145.0, 30.0, 180.0), (286.0, 0.714, 0.412)),            
+            ((0.0, 130.0, 200.0), (201.0, 1.0, 0.392)),
+            ((245.0, 130.0, 48.0), (25.0, 0.908, 0.575)),
+            ((145.0, 30.0, 180.0), (286.0, 0.714, 0.412)),
             ((70.0, 240.0, 240.0), (180.0, 0.85, 0.608)),
-            ((240.0, 50.0, 231.0), (303.0, 0.864, 0.569)),            
-            ((211.0, 245.0, 60.0), (71.0, 0.902, 0.598)),            
-            ((250.0, 190.0, 190.0), (0.0, 0.857, 0.863)),            
+            ((240.0, 50.0, 231.0), (303.0, 0.864, 0.569)),
+            ((211.0, 245.0, 60.0), (71.0, 0.902, 0.598)),
+            ((250.0, 190.0, 190.0), (0.0, 0.857, 0.863)),
             ((0.0, 128.0, 128.0), (180.0, 1.0, 0.251)),
             ((230.0, 190.0, 255.0), (277.0, 1.0, 0.873)),
-            ((170.0, 109.0, 40.0), (32.0, 0.619, 0.412)),            
-            ((255.0, 250.0, 200.0), (55.0, 1.0, 0.892)),            
-            ((128.0, 0.0, 0.0), (0.0, 1.0, 0.251)),            
-            ((170.0, 255.0, 195.0), (138.0, 1.0, 0.833)),            
-            ((128.0, 128.0, 0.0), (60.0, 1.0, 0.251)),            
-            ((255.0, 215.0, 180.0), (28.0, 1.0, 0.853)),            
-            ((0.0, 0.0, 128.0), (240.0, 1.0, 0.251)),            
-            ((128.0, 128.0, 128.0), (0.0, 0.0, 0.502)),            
+            ((170.0, 109.0, 40.0), (32.0, 0.619, 0.412)),
+            ((255.0, 250.0, 200.0), (55.0, 1.0, 0.892)),
+            ((128.0, 0.0, 0.0), (0.0, 1.0, 0.251)),
+            ((170.0, 255.0, 195.0), (138.0, 1.0, 0.833)),
+            ((128.0, 128.0, 0.0), (60.0, 1.0, 0.251)),
+            ((255.0, 215.0, 180.0), (28.0, 1.0, 0.853)),
+            ((0.0, 0.0, 128.0), (240.0, 1.0, 0.251)),
+            ((128.0, 128.0, 128.0), (0.0, 0.0, 0.502)),
             ((255.0, 255.0, 255.0), (0.0, 0.0, 1.0)),
             ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
         ]
