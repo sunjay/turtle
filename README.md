@@ -8,7 +8,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/scg3x6ti49o8sdii/branch/master?svg=true)](https://ci.appveyor.com/project/sunjay/turtle/branch/master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/rust-turtle/discuss)
 
-*Tweet your drawings to us on Twitter at [@RustTurtle](https://twitter.com/RustTurtle) and follow us to what is being created!*
+*Tweet your drawings to us on Twitter at [@RustTurtle](https://twitter.com/RustTurtle) and follow us to see what is being created!*
 
 Create animated drawings with the [Rust programming language][rust]. This
 crate is a tool for teaching programming by drawing pictures. Learning this
