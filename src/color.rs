@@ -153,10 +153,23 @@
 //! [`hsl(hue, saturation, lightness)`]: ./struct.Color.html#method.hsl
 //! [`hsla(hue, saturation, lightness, alpha)`]: ./struct.Color.html#method.hsla
 
+use std::fmt::Debug;
 use std::iter::repeat;
 
 use piston_window::types;
 use rand::{Rand, Rng};
+
+/// The maximum allowed value for RGB
+const RGB_MAX_VAL: f64 = 255.0;
+
+/// The minimum allowed value for RGB and HSL values
+const COLOR_MIN_VALUE: f64 = 0.0;
+
+// The maximum allowed value for saturation, alpha, or lightness
+const SAL_MAX_VAL: f64 = 1.0;
+
+// The maximum allowed value for hue
+const HUE_MAX_VAL: f64 = 360.0;
 
 /// Type for representing a color.
 ///
@@ -234,21 +247,13 @@ impl Color {
     /// [`Color`]: ./index.html
     /// [`RGB`]: https://developer.mozilla.org/en-US/docs/Glossary/RGB
     pub fn rgba(red: f64, green: f64, blue: f64, alpha: f64) -> Self {
-        if red < 0. || red > 255. {
-            panic!("{} is not a valid value for red, values must be between 0.0 and 255.0", red);
+        fn assert_color_values(name: &str, value: f64) {
+            assert!(value >= COLOR_MIN_VALUE && value <= RGB_MAX_VAL, "{} is not a valid value for {}, values must be between {:.1} and {:.1}", value, name, COLOR_MIN_VALUE, RGB_MAX_VAL);
         }
-
-        if green < 0. || green > 255. {
-            panic!("{} is not a valid value for green, values must be between 0.0 and 255.0", green);
-        }
-
-        if blue < 0. || blue > 255. {
-            panic!("{} is not a valid value for blue, values must be between 0.0 and 255.0", blue);
-        }
-
-        if alpha < 0. || alpha > 1. {
-            panic!("{} is not a valid value for alpha, values must be between 0.0 and 1.0", alpha);
-        }
+        assert_color_values("red", red);
+        assert_color_values("green", green);
+        assert_color_values("blue", blue);        
+        assert!(alpha >= COLOR_MIN_VALUE && alpha <= SAL_MAX_VAL, "{} is not a valid value for alpha, values must be between {:.1} and {:.1}", alpha, COLOR_MIN_VALUE, SAL_MAX_VAL);        
 
         Color { red, green, blue, alpha }
     }
@@ -309,21 +314,10 @@ impl Color {
     /// ```
     /// [`HSL`]: https://en.wikipedia.org/wiki/HSL_and_HSV
     pub fn hsla(hue: f64, saturation: f64, lightness: f64, alpha: f64) -> Self {
-        if hue < 0. || hue > 360. {
-            panic!("{} is not a valid value for hue, values must be between 0.0 and 360.0", hue);
-        }
-
-        if saturation < 0. || saturation > 1. {
-            panic!("{} is not a valid value for saturation, values must be between 0.0 and 1.0", saturation);
-        }
-
-        if lightness < 0. || lightness > 1. {
-            panic!("{} is not a valid value for lightness, values must be between 0.0 and 1.0", lightness);
-        }
-
-        if alpha < 0. || alpha > 1. {
-            panic!("{} is not a valid value for alpha, values must be between 0.0 and 1.0", alpha);
-        }
+        assert!(hue >= COLOR_MIN_VALUE && hue <= HUE_MAX_VAL, "{} is not a valid value for hue, values must be between {:.1} and {:.1}", hue, COLOR_MIN_VALUE, HUE_MAX_VAL);
+        assert!(saturation >= COLOR_MIN_VALUE && saturation <= SAL_MAX_VAL, "{} is not a valid value for saturation, values must be between {:.1} and {:.1}", saturation, COLOR_MIN_VALUE, SAL_MAX_VAL);
+        assert!(lightness >= COLOR_MIN_VALUE && lightness <= SAL_MAX_VAL, "{} is not a valid value for lightness, values must be between {:.1} and {:.1}", lightness, COLOR_MIN_VALUE, SAL_MAX_VAL);
+        assert!(alpha >= COLOR_MIN_VALUE && alpha <= SAL_MAX_VAL, "{} is not a valid value for alpha, values must be between {:.1} and {:.1}", alpha, COLOR_MIN_VALUE, SAL_MAX_VAL);
 
         // Most of this code comes courtesy of work done by 'killercup' on GitHub (MIT Licensed) and
         // the answer here: https://stackoverflow.com/a/9493060
@@ -421,7 +415,7 @@ impl Color {
         self
     }
 
-    /// Mix this color with the other given color, with the given weighting .
+    /// Mix this color with the other given color, with the given weighting.
     /// 
     /// The weight determines the amount of the first color that will be used
     /// in mixing as a percentage. So 50% means use each color equally, while 
@@ -433,30 +427,97 @@ impl Color {
     /// ```rust
     /// use turtle::Color;
     /// 
-    /// let c1 = Color::rgba(18., 55., 125., 1.0);
-    /// let mixed = c1.mix(&Color::rgba(125., 33., 200., 0.8), 40);
-    /// assert_eq!(mixed, Color::rgba(72., 44., 163., 0.88));
+    /// // Start with red
+    /// let red: Color = "red".into();
+    /// 
+    /// // Create a 60/40 mix with blue
+    /// let mixed = red.mix("blue", 40);
+    /// let expected: Color = [92.0, 88.0, 150.0, 1.0].into();
+    /// 
+    /// assert_eq!(mixed, expected);
     /// ```
     /// 
-    /// Passing a value for `weight` that is not between 0 and 100 will result
-    /// in `Err(String)` being returned.
+    /// Passing a value for `weight` that is not between 0 and 100 will result in a `panic`
     /// 
     /// ```should_panic
-    /// use turtle::Color;
+    /// use turtle::{Color, color};
     /// 
-    /// let c1 = Color::rgba(18., 55., 125., 1.0);
-    /// // This will panic
-    /// let mixed = c1.mix(&Color::rgba(125., 33., 200., 0.8), 101);
+    /// let orange: Color = "orange".into();
+    /// 
+    /// // This will panic as 101 is not a valid value for weight, which must be between 0 and 100.
+    /// let mixed = orange.mix(color::BROWN.with_alpha(0.8), 101);
     /// ```
-    pub fn mix(&self, with: &Color, weight: u32) -> Self {
-        if weight > 100 {
-            assert!(weight <= 100, "{} is not a valid value for weight. Must be within 0-100 inclusive", weight);
-        }
-        // This algorighm cribbed from Sass (http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method)
-        // with some modifications to use floating point facilities provided by Rust
+    /// 
+    /// Since this is all a little esoteric from a couple of small snippets, let's look at a more 
+    /// complete example to really show what happens when we're mixing colors together.
+    /// 
+    /// ```no_run
+    /// extern crate turtle;
+    /// 
+    /// use turtle::{Color, Turtle};
+    ///
+    /// fn main() {
+    ///     let mut turtle = Turtle::new();
+    ///     turtle.drawing_mut().set_title("Mixing colors!");
+    ///     turtle.set_pen_size(5.0);
+    ///
+    ///     let red: Color = "red".into();
+    ///
+    ///     // This will draw a red line
+    ///     turtle.set_pen_color(red);
+    ///     turtle.forward(100.0);
+    ///     turtle.right(90.0);
+    ///
+    ///     // This will draw a purple line because we have equally mixed red with blue
+    ///     turtle.set_pen_color(red.mix("blue", 50));
+    ///     turtle.forward(100.0);
+    ///     turtle.right(90.0);
+    ///
+    ///     // This will draw a line that is 25% red and 75% blue (a red-ish dark blue color)
+    ///     turtle.set_pen_color(red.mix("blue", 25));
+    ///     turtle.forward(100.0);
+    ///     turtle.right(90.0);
+    ///
+    ///     // This will draw a line that is 75% red and 25% blue (medium red violet)
+    ///     turtle.set_pen_color(red.mix("blue", 75));
+    ///     turtle.forward(100.0);
+    ///     turtle.right(90.0);
+    /// }
+    /// ```
+    /// 
+    /// Running the above program will result in the following image:
+    /// 
+    /// ![turtle color mixing](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/color_mixing.png)
+
+    pub fn mix<C: Into<Color> + Copy + Debug>(self, other: C, weight: u32) -> Self {
+        assert!(weight <= 100, "{} is not a valid value for weight. Must be within 0-100 inclusive", weight);
+
+        // This algorighm (and the explanation) cribbed from Sass 
+        // (http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method)
+        
+        // It factors in the user-provided weight (w) and the difference between the alpha values of the colors (a) to decide
+        // how to perform the weighted average of the two RGB colors.
+        // It works by first normalizing both parameters to be within [-1, 1],
+        // where 1 indicates "only use color1", -1 indicates "only use color2", and
+        // all values in between indicated a proportionately weighted average.
+        //
+        // Once we have the normalized variables w and a, we apply the formula
+        // (w + a)/(1 + w*a) to get the combined weight (in [-1, 1]) of color1.
+        // This formula has two especially nice properties:
+        //
+        //   * When either w or a are -1 or 1, the combined weight is also that number
+        //     (cases where w * a == -1 are undefined, and handled as a special case).
+        //
+        //   * When a is 0, the combined weight is w, and vice versa.
+        //
+        // Finally, the weight of color1 is renormalized to be within [0, 1]
+        // and the weight of color2 is given by 1 minus the weight of color1.
+        let with_color = other.into();
+        assert!(with_color.is_valid(), "{:?} is not a valid Color. Please see color module documentation.", with_color);
+
         let p = weight as f64 / 100.0;
         let w = p.mul_add(2., -1.);
-        let a = self.alpha - with.alpha;
+        let a = self.alpha - with_color.alpha;
 
         let w1 = if w * a == -1. {
             (w + 1.) / 2.
@@ -466,10 +527,10 @@ impl Color {
 
         let w2 = 1. - w1;
 
-        let r_mod = self.red.mul_add(w1, with.red.mul_add(w2, 0.)).round();
-        let g_mod = self.green.mul_add(w1, with.green.mul_add(w2, 0.)).round();
-        let b_mod = self.blue.mul_add(w1, with.blue.mul_add(w2, 0.)).round();
-        let a_mod = self.alpha * p + with.alpha * (1. - p);
+        let r_mod = self.red.mul_add(w1, with_color.red.mul_add(w2, 0.)).round();
+        let g_mod = self.green.mul_add(w1, with_color.green.mul_add(w2, 0.)).round();
+        let b_mod = self.blue.mul_add(w1, with_color.blue.mul_add(w2, 0.)).round();
+        let a_mod = self.alpha.mul_add(p, with_color.alpha.mul_add(1. - p, 0.));
         Color::rgba(r_mod, g_mod, b_mod, a_mod)
     }
 
@@ -482,7 +543,7 @@ impl Color {
     /// let c: Color = "blue".into();
     /// assert_eq!(201.0, c.hue());
     /// ```
-    pub fn hue(&self) -> f64 {
+    pub fn hue(self) -> f64 {
         self.to_hsl().0
     }
 
@@ -495,7 +556,7 @@ impl Color {
     /// let c: Color = "blue".into();
     /// assert_eq!(1.0, c.saturation());
     /// ```
-    pub fn saturation(&self) -> f64 {
+    pub fn saturation(self) -> f64 {
         self.to_hsl().1
     }
 
@@ -508,7 +569,7 @@ impl Color {
     /// let c: Color = "blue".into();
     /// assert_eq!(0.39215686274509803, c.lightness());
     /// ```
-    pub fn lightness(&self) -> f64 {
+    pub fn lightness(self) -> f64 {
         self.to_hsl().2
     }
 
@@ -525,9 +586,35 @@ impl Color {
     /// // Negative values
     /// assert_eq!(c.with_hue(-70.), Color::rgb(245.0, 48.0, 196.0));
     /// ```
-    pub fn with_hue(&self, hue: f64) -> Self {
-        // Normalize the hue to within -360 and +360
+    /// 
+    /// Passing hue values outside the range of -360 and 360 will result in a `panic`.
+    /// 
+    /// So, passing a value that is too small:
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let red: Color = "red".into();
+    /// 
+    /// // This will panic, as -361 is outside the allowed range
+    /// let improper = red.with_hue(-361.0);
+    /// ```
+    /// 
+    /// Or one that is too large:
+    /// 
+    /// ```shoule_panic
+    /// use turtle::Color;
+    /// 
+    /// let blue: Color = "blue".into();
+    /// 
+    /// // This will panic as 361 is outside the allowed range
+    /// let improper = blue.with_hue(361.0);
+    /// ```
+    pub fn with_hue(self, hue: f64) -> Self {
+        assert!(hue >= -360. && hue <= 360., "{} is not a valid value for hue. Acceptable values are between -360.0 and 360.0", hue);
+
         let (h, s, l) = self.to_hsl();
+        // Normalize the hue to within -360 and +360
         let mut hue_mod = (h + hue) % 360.;
         if hue_mod < 0. {
             hue_mod += 360.;
@@ -537,6 +624,10 @@ impl Color {
     }
 
     /// Helper to switch a given RGB `Color` to HSL values.
+    /// 
+    /// Answer adapted from this SO answer (https://stackoverflow.com/a/9493060)
+    /// and more information about the underlying algorithm can be found on 
+    /// https://en.wikipedia.org/wiki/HSL_and_HSV
     fn to_hsl(&self) -> (f64, f64, f64) {
         let div_color = |c| { c / 255.0 };
         let (r, g, b) = (div_color(self.red), div_color(self.green), div_color(self.blue));
@@ -1055,6 +1146,36 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected="-360.0000001 is not a valid value for hue. Acceptable values are between -360.0 and 360.0")]
+    fn ensure_with_hue_invalid_negative_panic() {
+        let c: Color = "blue".into();
+        let _ = c.with_hue(-360.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="360.0000001 is not a valid value for hue. Acceptable values are between -360.0 and 360.0")]
+    fn ensure_with_hue_invalid_positive_panic() {
+        let c: Color = "blue".into();
+        let _ = c.with_hue(360.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 256.0, green: 1.0, blue: 1.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_mix_invalid_color_panic() {
+        let c: Color = "green".into();
+        let invalid_color = Color { red: 256., green: 1., blue: 1., alpha: 1. };
+        let _ = c.mix(invalid_color, 50);
+    }
+
+    #[test]
+    #[should_panic(expected="101 is not a valid value for weight. Must be within 0-100 inclusive")]
+    fn ensure_mix_invalid_weight_panic() {
+        let o: Color = "orange".into();
+        let r: Color = "red".into();
+        let _ = o.mix(r, 101);
+    }
+
+    #[test]
     fn check_rgb_values() {
         rgb_mapping_values().iter().for_each(|&(expected, (r, g, b))| assert_eq!(Color::from(expected), Color::rgb(r, g, b)));
     }
@@ -1144,7 +1265,7 @@ mod tests {
         let mix_1 = Color::rgba(18., 55., 125., 1.0);
         let mix_2 = Color::rgba(125., 33., 200., 0.8);
         let expected = Color::rgba(72., 44., 163., 0.88);
-        let mix_res = mix_1.mix(&mix_2, 40);
+        let mix_res = mix_1.mix(mix_2, 40);
         assert_eq!(expected, mix_res);
     }
 
@@ -1152,7 +1273,7 @@ mod tests {
     #[should_panic(expected = "101 is not a valid value for weight. Must be within 0-100 inclusive")]
     fn invalid_mix_weight() {
         let c1 = Color::rgb(1., 1., 1.);
-        let _ = c1.mix(&Color::rgb(2., 2., 2.), 101);
+        let _ = c1.mix([2., 2., 2.], 101);
     }
 
     #[test]
@@ -1164,23 +1285,25 @@ mod tests {
     }
 
     #[test]
-    fn check_color_hue() {
-        let c = Color::rgb(250., 206., 33.);
-        assert_eq!(48., c.hue());
-
-        let d = Color::rgb(38., 128., 208.);
-        assert_eq!(208., d.hue());
+    fn check_hsl_getters() {
+        let c = Color::hsl(345.0, 0.804, 0.5);
+        // Check hue
+        assert_eq!(345., c.hue());
+        // Check saturation, rounded to account floats
+        assert_eq!(804., (c.saturation() * 1000.).round());
+        // Check lightness
+        assert_eq!(500., (c.lightness() * 1000.).round());       
     }
 
     #[test]
     fn check_with_hue_positive() {
-        let c = Color::rgb(245.0, 130.0, 48.0);
+        let c = Color::hsl(25.0, 0.908, 0.575);
         assert_eq!(c.with_hue(70.), Color::rgb(130., 245., 48.));
     }
 
     #[test]
     fn check_with_hue_negative() {
-        let c = Color::rgb(245.0, 130.0, 48.0);
+        let c = Color::hsl(25.0, 0.908, 0.575);
         assert_eq!(c.with_hue(-70.), Color::rgb(245., 48., 196.));
     }
 }
