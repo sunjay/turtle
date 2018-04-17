@@ -171,7 +171,6 @@ const SAL_MAX_VAL: f64 = 1.0;
 /// The maximum allowed value for hue
 const HUE_MAX_VAL: f64 = 360.0;
 
-
 macro_rules! assert_value_in_range {
     ($name:expr, $value:expr, $min:expr, $max:expr) => {
         assert!($value >= $min && $value <= $max, "{} is not a valid value for {}, values must be between {:.1} and {:.1}.", $value, $name, $min, $max);
@@ -194,7 +193,6 @@ pub struct Color {
 }
 
 impl Color {
-
     /// Create a new `Color` from the given [`RGB`] values and alpha set to 1.0.
     /// This provides a more concise way to create `Color` values, instead
     /// of using the manual `Color {...}` style.
@@ -419,43 +417,43 @@ impl Color {
     }
 
     /// Mix this color with the other given color, with the given weighting.
-    /// 
+    ///
     /// The weight determines the amount of the first color that will be used
-    /// in mixing as a percentage. So 50% means use each color equally, while 
-    /// 25% indicates to use one-quarter of this color, and seventy-five percent 
+    /// in mixing as a percentage. So 50% means use each color equally, while
+    /// 25% indicates to use one-quarter of this color, and seventy-five percent
     /// of the second.
-    /// 
+    ///
     /// The alpha channel of both colors are also combined in this way.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// // Start with red
     /// let red: Color = "red".into();
-    /// 
+    ///
     /// // Create a mix that is 60% blue and 40% red
     /// let mixed = red.mix("blue", 40);
     /// let expected: Color = [92.0, 88.0, 150.0, 1.0].into();
-    /// 
+    ///
     /// assert_eq!(mixed, expected);
     /// ```
-    /// 
+    ///
     /// Passing a value for `weight` that is not between 0 and 100 will result in a `panic`
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::{Color, color};
-    /// 
+    ///
     /// let orange: Color = "orange".into();
-    /// 
+    ///
     /// // This will panic as 101 is not a valid value for weight, which must be between 0 and 100.
     /// let mixed = orange.mix(color::BROWN.with_alpha(0.8), 101);
     /// ```
-    /// 
+    ///
     /// Let's look at a more complete example to really show what happens when we're mixing colors together.
-    /// 
+    ///
     /// ```no_run
     /// extern crate turtle;
-    /// 
+    ///
     /// use turtle::{Color, Turtle};
     ///
     /// fn main() {
@@ -486,16 +484,15 @@ impl Color {
     ///     turtle.right(90.0);
     /// }
     /// ```
-    /// 
+    ///
     /// Running the above program will result in the following image:
     /// ![turtle color mixing](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/color_mixing.png)
-
     pub fn mix<C: Into<Color> + Copy + Debug>(self, other: C, weight: u32) -> Self {
         assert!(weight <= 100, "{} is not a valid value for weight. Must be within 0-100 inclusive", weight);
 
-        // This algorithm (and the explanation) cribbed from Sass 
+        // This algorithm (and the explanation) cribbed from Sass
         // (http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method)
-        
+
         // It factors in the user-provided weight (w) and the difference between the alpha values of the colors (a) to decide
         // how to perform the weighted average of the two RGB colors.
         // It works by first normalizing both parameters to be within [-1, 1],
@@ -535,12 +532,12 @@ impl Color {
         Color::rgba(r_mod, g_mod, b_mod, a_mod)
     }
 
-    /// Retrieve the hue for this `Color`. The returned value is in degrees 
-    /// between 0° and 360° that represents its position on the color wheel. 
-    /// 
+    /// Retrieve the hue for this `Color`. The returned value is in degrees
+    /// between 0° and 360° that represents its position on the color wheel.
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let c: Color = "blue".into();
     /// assert_eq!(201.0, c.hue());
     /// ```
@@ -548,12 +545,12 @@ impl Color {
         self.to_hsl().0
     }
 
-    /// Retrieve the saturation value for this `Color`. The returned value is 
+    /// Retrieve the saturation value for this `Color`. The returned value is
     /// between 0.0 and 1.0 (inclusive) that indicates the saturation percentage.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let c: Color = "blue".into();
     /// assert_eq!(1.0, c.saturation());
     /// ```
@@ -563,10 +560,10 @@ impl Color {
 
     /// Retrieve the lightness value for this `Color`. The returned value is between
     /// 0.0 and 1.0 (inclusive) that indicates the lightness percentage.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let c: Color = "blue".into();
     /// assert_eq!(0.39215686274509803, c.lightness());
     /// ```
@@ -574,41 +571,41 @@ impl Color {
         self.to_hsl().2
     }
 
-    /// Changes the hue of a color. Takes a color and a number of degrees 
-    /// (usually between -360° and 360°), and returns a color with the hue 
+    /// Changes the hue of a color. Takes a color and a number of degrees
+    /// (usually between -360° and 360°), and returns a color with the hue
     /// rotated along the color wheel by that amount.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// // Positive values
     /// let c = Color::hsl(120., 0.3, 0.9);
     /// assert_eq!(c.rotate_hue(60.), Color::hsl(180.0, 0.3, 0.9));
-    /// 
+    ///
     /// // Negative values
     /// assert_eq!(c.rotate_hue(-60.), Color::hsl(60.0, 0.3, 0.9));
     /// ```
-    /// 
+    ///
     /// Passing hue values outside the range of -360 and 360 will result in a `panic`.
-    /// 
+    ///
     /// So, passing a value that is too small:
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let red: Color = "red".into();
-    /// 
+    ///
     /// // This will panic, as -361 is outside the allowed range
     /// let improper = red.rotate_hue(-361.0);
     /// ```
-    /// 
+    ///
     /// Or one that is too large:
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let blue: Color = "blue".into();
-    /// 
+    ///
     /// // This will panic as 361 is outside the allowed range
     /// let improper = blue.rotate_hue(361.0);
     /// ```
@@ -626,9 +623,9 @@ impl Color {
     }
 
     /// Helper to switch a given RGB `Color` to HSL values.
-    /// 
+    ///
     /// Answer adapted from this SO answer (https://stackoverflow.com/a/9493060)
-    /// and more information about the underlying algorithm can be found on 
+    /// and more information about the underlying algorithm can be found on
     /// https://en.wikipedia.org/wiki/HSL_and_HSV
     fn to_hsl(&self) -> (f64, f64, f64) {
         let div_color = |c| { c / 255.0 };
@@ -655,7 +652,7 @@ impl Color {
                 _ if max == r => (g - b) / d + if g < b { 6. } else { 0. },
                 _ if max == g => (b - r) / d + 2.,
                 _ => (r - g) / d + 4.
-            } * 60.;            
+            } * 60.;
         }
 
         (h.round(), s, l)
@@ -709,7 +706,7 @@ impl<'a> From<&'a str> for Color {
             };
 
             // Use closure here as 's' cannot be captured when using nested fn form
-            let extract_color_value = |v| { i64::from_str_radix(v, 16).expect(&format!("Invalid color literal: {}", s)) as f64 };                
+            let extract_color_value = |v| { i64::from_str_radix(v, 16).expect(&format!("Invalid color literal: {}", s)) as f64 };
 
             let red = extract_color_value(&color_str[0..2]);
             let green = extract_color_value(&color_str[2..4]);
@@ -1294,7 +1291,7 @@ mod tests {
         // Check saturation, rounded to account floats
         assert_eq!(804., (c.saturation() * 1000.).round());
         // Check lightness
-        assert_eq!(500., (c.lightness() * 1000.).round());       
+        assert_eq!(500., (c.lightness() * 1000.).round());
     }
 
     #[test]
