@@ -622,6 +622,158 @@ impl Color {
         Color::hsla(hue_mod, s, l, self.alpha)
     }
 
+    /// Create a new `Color` by increasing the lightness of this `Color` by 
+    /// the given percentage. The value is a float between 0.0 and 1.0 
+    /// indicating the percentage to increase the lightness. So, if you wish
+    /// to make a `Color` 10% lighter, you would specify 0.1.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(158.0, 0.8, 0.3);
+    /// 
+    /// // Now, let's increase the lightness of original by 50%
+    /// let lighter = original.lighten(0.5);
+    /// assert_eq!(lighter, Color::hsl(158.0, 0.8, 0.8));
+    /// ```
+    /// 
+    /// Now, as the maximum lightness a `Color` can have is 100%, trying
+    /// to increase it beyond that point will result in a `Color` with
+    /// a lightness value of 1.0
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(200.0, 0.7, 0.8);
+    /// 
+    /// // Now, we'll increase the lightness by 50%, which would go beyond 100%
+    /// let lighter = original.lighten(0.5);
+    /// 
+    /// // But, the lightness of the color will still max out at 1.0
+    /// assert_eq!(lighter, Color::hsl(200.0, 0.7, 1.0));
+    /// ```
+    /// 
+    /// Providing values greater than 1.0 will result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(150.0, 0.5, 0.3);
+    /// 
+    /// // This will panic as a value of 1.1 is greater than the acceptable
+    /// // maximum of 1.0
+    /// let incorrect = original.lighten(1.1);
+    /// ```
+    /// 
+    /// Negative values will also result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(150.0, 0.5, 0.8);
+    /// 
+    /// // This will panic, as a negative value is less than the acceptable
+    /// // minimum of 0.0
+    /// let incorrect = original.lighten(-0.3);
+    /// ```
+    /// 
+    /// If you want to lighten by a negative amount, please see [`darken`].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(25.0, 1.0, 0.8);
+    /// 
+    /// // Instead of -0.3 (-30%) as in the previous example, we will just darken by 30%
+    /// let darker = original.darken(0.3);
+    /// assert_eq!(darker, Color::hsl(25.0, 1.0, 0.5));
+    /// ```
+    /// [`darken`]: ./struct.Color.html#method.darken
+    pub fn lighten(self, lighter: f64) -> Self {
+        assert_value_in_range!("lighter", lighter, 0., 1.);
+        
+        let (h, s, l) = self.to_hsl();
+
+        let l_mod = if l + lighter <= 1. { l + lighter } else { 1. };
+        
+        Color::hsla(h, s, l_mod, self.alpha)
+    }
+
+    /// Create a new `Color` by decreasing the lightness of this `Color` by
+    /// the given percentage. The value is a float between 0.0 and 1.0 
+    /// indicating the percentage to decrease the lightness. So, if you wish
+    /// to make a `Color` 10% darker, you would specify 0.1.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(25.0, 1.0, 0.8);
+    /// 
+    /// // Let's make the color 30% darker.
+    /// let darker = original.darken(0.3);
+    /// assert_eq!(darker, Color::hsl(25.0, 1.0, 0.5));
+    /// ```
+    /// 
+    /// As the minimum lightness a `Color` can have is 0%, attempting to
+    /// decrease beyond that will result in a `Color` with a lightness of 0.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(100.0, 1.0, 0.3);
+    /// 
+    /// // Let's try to decrease by 40%, which would result in a negative lightness
+    /// let darker = original.darken(0.4);
+    /// 
+    /// // Since we can't go below 0%, the lightness of the resulting `Color` will be 0
+    /// assert_eq!(darker, Color::hsl(100.0, 1.0, 0.0));
+    /// ```
+    /// 
+    /// Providing values greater than 1.0 will result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(150.0, 0.3, 0.5);
+    /// 
+    /// // This will panic as 1.1 is greater than the acceptable maximum of 1.0
+    /// let incorrect = original.darken(1.1);
+    /// ```
+    /// 
+    /// Negative values will also result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(150.0, 0.3, 0.5);
+    /// 
+    /// // This will panic as a negative value is less than the acceptable
+    /// // minimum of 0.0
+    /// let incorrect = original.darken(-0.1);
+    /// ```
+    /// 
+    /// If you want to darken by a negative value please see [`lighten`].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(158.0, 0.8, 0.3);
+    /// 
+    /// // Now, we'll increase the lightness by 10%, instead of trying to darken by
+    /// // a negative amount
+    /// let lighter = original.lighten(0.1);
+    /// assert_eq!(lighter, Color::hsl(158.0, 0.8, 0.4));
+    /// ```
+    /// [`lighten`]: ./struct.Color.html#method.lighten
+    pub fn darken(self, darker: f64) -> Self {
+        assert_value_in_range!("darker", darker, 0., 1.);
+
+        let (h, s, l) = self.to_hsl();
+
+        let l_mod = if l - darker >= 0. { l - darker } else { 0. };
+        Color::hsla(h, s, l_mod, self.alpha)
+    }
+
     /// Helper to switch a given RGB `Color` to HSL values.
     ///
     /// Answer adapted from this SO answer (https://stackoverflow.com/a/9493060)
@@ -1322,6 +1474,70 @@ mod tests {
     fn check_rotate_hue_keeps_alpha() {
         let c = Color::hsla(25.0, 0.908, 0.575, 0.3);
         assert_eq!(c.rotate_hue(70.), Color::hsla(95., 0.908, 0.575, 0.3));
+    }
+
+    #[test]
+    fn check_lighten_positive() {
+        let c = Color::hsl(200., 0.8, 0.4);
+        assert_eq!(c.lighten(0.2), Color::hsl(200., 0.8, 0.6));
+    }
+
+    #[test]
+    fn check_lighten_stops_at_max() {
+        let c = Color::hsl(300., 0.5, 0.8);
+        assert_eq!(c.lighten(0.5), Color::hsl(300., 0.5, 1.0));
+    }
+
+    #[test]
+    fn check_lighten_keeps_alpha() {
+        let c = Color::hsla(200., 1.0, 0.4, 0.3);
+        assert_eq!(c.lighten(0.4), Color::hsla(200., 1.0, 0.8, 0.3));
+    }
+
+    #[test]
+    #[should_panic(expected="1.1 is not a valid value for lighter, values must be between 0.0 and 1.0")]
+    fn ensure_lighten_invalid_positive_panic() {
+        let c = Color::hsl(150., 0.4, 0.2);
+        let _ = c.lighten(1.1);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.1 is not a valid value for lighter, values must be between 0.0 and 1.0")]
+    fn ensure_lighten_invalid_negative_panic() {
+        let c = Color::hsl(150., 0.4, 0.2);
+        let _ = c.lighten(-0.1);
+    }
+
+    #[test]
+    fn check_darken_positive() {
+        let c = Color::hsl(50., 1.0, 0.8);
+        assert_eq!(c.darken(0.2), Color::hsl(50., 1.0, 0.6));
+    }
+
+    #[test]
+    fn check_darken_stops_at_min() {
+        let c = Color::hsl(80., 0.9, 0.4);
+        assert_eq!(c.darken(0.6), Color::hsl(80., 0.9, 0.0));
+    }
+
+    #[test]
+    fn check_darken_keeps_alpha() {
+        let c = Color::hsla(50., 1.0, 0.8, 0.4);
+        assert_eq!(c.darken(0.2), Color::hsla(50., 1.0, 0.6, 0.4));
+    }
+
+    #[test]
+    #[should_panic(expected="1.1 is not a valid value for darker, values must be between 0.0 and 1.0")]
+    fn ensure_darken_invalid_positive_panic() {
+        let c = Color::hsl(150., 0.4, 0.2);
+        let _ = c.darken(1.1);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.1 is not a valid value for darker, values must be between 0.0 and 1.0")]
+    fn ensure_darken_invalid_negative_panic() {
+        let c = Color::hsl(150., 0.4, 0.2);
+        let _ = c.darken(-0.1);
     }
 }
 
