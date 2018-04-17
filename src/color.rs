@@ -165,11 +165,18 @@ const RGB_MAX_VAL: f64 = 255.0;
 /// The minimum allowed value for RGB and HSL values
 const COLOR_MIN_VALUE: f64 = 0.0;
 
-// The maximum allowed value for saturation, alpha, or lightness
+/// The maximum allowed value for saturation, alpha, or lightness
 const SAL_MAX_VAL: f64 = 1.0;
 
-// The maximum allowed value for hue
+/// The maximum allowed value for hue
 const HUE_MAX_VAL: f64 = 360.0;
+
+
+macro_rules! assert_value_in_range {
+    ($name:expr, $value:expr, $min:expr, $max:expr) => {
+        assert!($value >= $min && $value <= $max, "{} is not a valid value for {}, values must be between {:.1} and {:.1}.", $value, $name, $min, $max);
+    }
+}
 
 /// Type for representing a color.
 ///
@@ -247,14 +254,10 @@ impl Color {
     /// [`Color`]: ./index.html
     /// [`RGB`]: https://developer.mozilla.org/en-US/docs/Glossary/RGB
     pub fn rgba(red: f64, green: f64, blue: f64, alpha: f64) -> Self {
-        fn assert_color_values(name: &str, value: f64) {
-            assert!(value >= COLOR_MIN_VALUE && value <= RGB_MAX_VAL, "{} is not a valid value for {}, values must be between {:.1} and {:.1}", value, name, COLOR_MIN_VALUE, RGB_MAX_VAL);
-        }
-        assert_color_values("red", red);
-        assert_color_values("green", green);
-        assert_color_values("blue", blue);        
-        assert!(alpha >= COLOR_MIN_VALUE && alpha <= SAL_MAX_VAL, "{} is not a valid value for alpha, values must be between {:.1} and {:.1}", alpha, COLOR_MIN_VALUE, SAL_MAX_VAL);        
-
+        assert_value_in_range!("red", red, COLOR_MIN_VALUE, RGB_MAX_VAL);
+        assert_value_in_range!("green", green, COLOR_MIN_VALUE, RGB_MAX_VAL);
+        assert_value_in_range!("blue", blue, COLOR_MIN_VALUE, RGB_MAX_VAL);
+        assert_value_in_range!("alpha", alpha, COLOR_MIN_VALUE, SAL_MAX_VAL);
         Color { red, green, blue, alpha }
     }
 
@@ -314,10 +317,10 @@ impl Color {
     /// ```
     /// [`HSL`]: https://en.wikipedia.org/wiki/HSL_and_HSV
     pub fn hsla(hue: f64, saturation: f64, lightness: f64, alpha: f64) -> Self {
-        assert!(hue >= COLOR_MIN_VALUE && hue <= HUE_MAX_VAL, "{} is not a valid value for hue, values must be between {:.1} and {:.1}", hue, COLOR_MIN_VALUE, HUE_MAX_VAL);
-        assert!(saturation >= COLOR_MIN_VALUE && saturation <= SAL_MAX_VAL, "{} is not a valid value for saturation, values must be between {:.1} and {:.1}", saturation, COLOR_MIN_VALUE, SAL_MAX_VAL);
-        assert!(lightness >= COLOR_MIN_VALUE && lightness <= SAL_MAX_VAL, "{} is not a valid value for lightness, values must be between {:.1} and {:.1}", lightness, COLOR_MIN_VALUE, SAL_MAX_VAL);
-        assert!(alpha >= COLOR_MIN_VALUE && alpha <= SAL_MAX_VAL, "{} is not a valid value for alpha, values must be between {:.1} and {:.1}", alpha, COLOR_MIN_VALUE, SAL_MAX_VAL);
+        assert_value_in_range!("hue", hue, COLOR_MIN_VALUE, HUE_MAX_VAL);
+        assert_value_in_range!("saturation", saturation, COLOR_MIN_VALUE, SAL_MAX_VAL);
+        assert_value_in_range!("lightness", lightness, COLOR_MIN_VALUE, SAL_MAX_VAL);
+        assert_value_in_range!("alpha", alpha, COLOR_MIN_VALUE, SAL_MAX_VAL);
 
         // Most of this code comes courtesy of work done by 'killercup' on GitHub (MIT Licensed) and
         // the answer here: https://stackoverflow.com/a/9493060
@@ -430,7 +433,7 @@ impl Color {
     /// // Start with red
     /// let red: Color = "red".into();
     /// 
-    /// // Create a 60/40 mix with blue
+    /// // Create a mix that is 60% blue and 40% red
     /// let mixed = red.mix("blue", 40);
     /// let expected: Color = [92.0, 88.0, 150.0, 1.0].into();
     /// 
@@ -448,8 +451,7 @@ impl Color {
     /// let mixed = orange.mix(color::BROWN.with_alpha(0.8), 101);
     /// ```
     /// 
-    /// Since this is all a little esoteric from a couple of small snippets, let's look at a more 
-    /// complete example to really show what happens when we're mixing colors together.
+    /// Let's look at a more complete example to really show what happens when we're mixing colors together.
     /// 
     /// ```no_run
     /// extern crate turtle;
@@ -486,13 +488,12 @@ impl Color {
     /// ```
     /// 
     /// Running the above program will result in the following image:
-    /// 
     /// ![turtle color mixing](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/color_mixing.png)
 
     pub fn mix<C: Into<Color> + Copy + Debug>(self, other: C, weight: u32) -> Self {
         assert!(weight <= 100, "{} is not a valid value for weight. Must be within 0-100 inclusive", weight);
 
-        // This algorighm (and the explanation) cribbed from Sass 
+        // This algorithm (and the explanation) cribbed from Sass 
         // (http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method)
         
         // It factors in the user-provided weight (w) and the difference between the alpha values of the colors (a) to decide
@@ -527,10 +528,10 @@ impl Color {
 
         let w2 = 1. - w1;
 
-        let r_mod = self.red.mul_add(w1, with_color.red.mul_add(w2, 0.)).round();
-        let g_mod = self.green.mul_add(w1, with_color.green.mul_add(w2, 0.)).round();
-        let b_mod = self.blue.mul_add(w1, with_color.blue.mul_add(w2, 0.)).round();
-        let a_mod = self.alpha.mul_add(p, with_color.alpha.mul_add(1. - p, 0.));
+        let r_mod = self.red.mul_add(w1, with_color.red * w2).round();
+        let g_mod = self.green.mul_add(w1, with_color.green * w2).round();
+        let b_mod = self.blue.mul_add(w1, with_color.blue * w2).round();
+        let a_mod = self.alpha.mul_add(p, with_color.alpha * (1. - p));
         Color::rgba(r_mod, g_mod, b_mod, a_mod)
     }
 
@@ -573,18 +574,19 @@ impl Color {
         self.to_hsl().2
     }
 
-    /// Create a new `Color` by shifting the hue of this `Color` by the specified amount.
-    /// The hue is specified in degrees, ranging from -360 to 360 degrees.
+    /// Changes the hue of a color. Takes a color and a number of degrees 
+    /// (usually between -360° and 360°), and returns a color with the hue 
+    /// rotated along the color wheel by that amount.
     /// 
     /// ```rust
     /// use turtle::Color;
     /// 
     /// // Positive values
-    /// let c: Color = "orange".into();
-    /// assert_eq!(c.with_hue(70.), Color::rgb(130.0, 245.0, 48.0));
+    /// let c = Color::hsl(120., 0.3, 0.9);
+    /// assert_eq!(c.rotate_hue(60.), Color::hsl(180.0, 0.3, 0.9));
     /// 
     /// // Negative values
-    /// assert_eq!(c.with_hue(-70.), Color::rgb(245.0, 48.0, 196.0));
+    /// assert_eq!(c.rotate_hue(-60.), Color::hsl(60.0, 0.3, 0.9));
     /// ```
     /// 
     /// Passing hue values outside the range of -360 and 360 will result in a `panic`.
@@ -597,21 +599,21 @@ impl Color {
     /// let red: Color = "red".into();
     /// 
     /// // This will panic, as -361 is outside the allowed range
-    /// let improper = red.with_hue(-361.0);
+    /// let improper = red.rotate_hue(-361.0);
     /// ```
     /// 
     /// Or one that is too large:
     /// 
-    /// ```shoule_panic
+    /// ```should_panic
     /// use turtle::Color;
     /// 
     /// let blue: Color = "blue".into();
     /// 
     /// // This will panic as 361 is outside the allowed range
-    /// let improper = blue.with_hue(361.0);
+    /// let improper = blue.rotate_hue(361.0);
     /// ```
-    pub fn with_hue(self, hue: f64) -> Self {
-        assert!(hue >= -360. && hue <= 360., "{} is not a valid value for hue. Acceptable values are between -360.0 and 360.0", hue);
+    pub fn rotate_hue(self, hue: f64) -> Self {
+        assert_value_in_range!("hue", hue, -360., 360.);
 
         let (h, s, l) = self.to_hsl();
         // Normalize the hue to within -360 and +360
@@ -1146,17 +1148,17 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="-360.0000001 is not a valid value for hue. Acceptable values are between -360.0 and 360.0")]
-    fn ensure_with_hue_invalid_negative_panic() {
+    #[should_panic(expected="-360.0000001 is not a valid value for hue, values must be between -360.0 and 360.0.")]
+    fn ensure_rotate_hue_invalid_negative_panic() {
         let c: Color = "blue".into();
-        let _ = c.with_hue(-360.0000001);
+        let _ = c.rotate_hue(-360.0000001);
     }
 
     #[test]
-    #[should_panic(expected="360.0000001 is not a valid value for hue. Acceptable values are between -360.0 and 360.0")]
-    fn ensure_with_hue_invalid_positive_panic() {
+    #[should_panic(expected="360.0000001 is not a valid value for hue, values must be between -360.0 and 360.0.")]
+    fn ensure_rotate_hue_invalid_positive_panic() {
         let c: Color = "blue".into();
-        let _ = c.with_hue(360.0000001);
+        let _ = c.rotate_hue(360.0000001);
     }
 
     #[test]
@@ -1296,15 +1298,33 @@ mod tests {
     }
 
     #[test]
-    fn check_with_hue_positive() {
+    fn check_rotate_hue_positive() {
         let c = Color::hsl(25.0, 0.908, 0.575);
-        assert_eq!(c.with_hue(70.), Color::rgb(130., 245., 48.));
+        assert_eq!(c.rotate_hue(70.), Color::hsl(95., 0.908, 0.575));
     }
 
     #[test]
-    fn check_with_hue_negative() {
+    fn check_rotate_hue_negative() {
         let c = Color::hsl(25.0, 0.908, 0.575);
-        assert_eq!(c.with_hue(-70.), Color::rgb(245., 48., 196.));
+        assert_eq!(c.rotate_hue(-10.), Color::hsl(15., 0.908, 0.575));
+    }
+
+    #[test]
+    fn check_rotate_hue_wrap_positive() {
+        let c = Color::hsl(350., 0.5, 0.75);
+        assert_eq!(c.rotate_hue(50.), Color::hsl(40., 0.5, 0.75));
+    }
+
+    #[test]
+    fn check_rotate_hue_wrap_negative() {
+        let c = Color::hsl(10., 0.8, 0.9);
+        assert_eq!(c.rotate_hue(-50.), Color::hsl(320., 0.8, 0.9));
+    }
+
+    #[test]
+    fn check_rotate_hue_keeps_alpha() {
+        let c = Color::hsla(25.0, 0.908, 0.575, 0.3);
+        assert_eq!(c.rotate_hue(70.), Color::hsla(95., 0.908, 0.575, 0.3));
     }
 }
 
