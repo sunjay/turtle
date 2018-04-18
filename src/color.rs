@@ -418,13 +418,6 @@ impl Color {
 
     /// Mix this color with the other given color, with the given weighting.
     ///
-    /// The weight determines the amount of the first color that will be used
-    /// in mixing as a percentage. So 50% means use each color equally, while
-    /// 25% indicates to use one-quarter of this color, and seventy-five percent
-    /// of the second.
-    ///
-    /// The alpha channel of both colors are also combined in this way.
-    ///
     /// ```rust
     /// use turtle::Color;
     ///
@@ -432,22 +425,34 @@ impl Color {
     /// let red: Color = "red".into();
     ///
     /// // Create a mix that is 60% blue and 40% red
-    /// let mixed = red.mix("blue", 40);
+    /// let mixed = red.mix("blue", 0.40);
     /// let expected: Color = [92.0, 88.0, 150.0, 1.0].into();
     ///
     /// assert_eq!(mixed, expected);
     /// ```
     ///
-    /// Passing a value for `weight` that is not between 0 and 100 will result in a `panic`
+    /// The `weight` parameter is a value between 0.0 and 1.0. It determines the percentage to mix
+    /// `self` with `other`. So let's say that in the example above, we had used
+    /// `red.mix("blue", 0.5)`. 0.5 means 50%, so we would mix 50% red and 50% blue. The colors
+    /// would be mixed evenly. If we had instead done `red.mix("blue", 0.25)`, the weight would be
+    /// 0.25 which is 25%. That means that we would get a mix of 25% red and 75% blue.
+    ///
+    /// The alpha channel of both colors are also combined in the same way.
+    ///
+    /// # Panics
+    ///
+    /// Passing a value for `weight` that is not between 0.0 and 1.0 will result in a `panic`
     ///
     /// ```should_panic
     /// use turtle::{Color, color};
     ///
     /// let orange: Color = "orange".into();
     ///
-    /// // This will panic as 101 is not a valid value for weight, which must be between 0 and 100.
-    /// let mixed = orange.mix(color::BROWN.with_alpha(0.8), 101);
+    /// // This will panic as 1.01 is not a valid value for weight, which must be between 0.0 and 1.0.
+    /// let mixed = orange.mix(color::BROWN.with_alpha(0.8), 1.01);
     /// ```
+    ///
+    /// # Example
     ///
     /// Let's look at a more complete example to really show what happens when we're mixing colors together.
     ///
@@ -469,17 +474,17 @@ impl Color {
     ///     turtle.right(90.0);
     ///
     ///     // This will draw a purple line because we have equally mixed red with blue
-    ///     turtle.set_pen_color(red.mix("blue", 50));
+    ///     turtle.set_pen_color(red.mix("blue", 0.5));
     ///     turtle.forward(100.0);
     ///     turtle.right(90.0);
     ///
     ///     // This will draw a line that is 25% red and 75% blue (a red-ish dark blue color)
-    ///     turtle.set_pen_color(red.mix("blue", 25));
+    ///     turtle.set_pen_color(red.mix("blue", 0.25));
     ///     turtle.forward(100.0);
     ///     turtle.right(90.0);
     ///
     ///     // This will draw a line that is 75% red and 25% blue (medium red violet)
-    ///     turtle.set_pen_color(red.mix("blue", 75));
+    ///     turtle.set_pen_color(red.mix("blue", 0.75));
     ///     turtle.forward(100.0);
     ///     turtle.right(90.0);
     /// }
@@ -487,8 +492,8 @@ impl Color {
     ///
     /// Running the above program will result in the following image:
     /// ![turtle color mixing](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/color_mixing.png)
-    pub fn mix<C: Into<Color> + Copy + Debug>(self, other: C, weight: u32) -> Self {
-        assert!(weight <= 100, "{} is not a valid value for weight. Must be within 0-100 inclusive", weight);
+    pub fn mix<C: Into<Color> + Copy + Debug>(self, other: C, weight: f64) -> Self {
+        assert_value_in_range!("weight", weight, 0.0, 1.0);
 
         // This algorithm (and the explanation) cribbed from Sass
         // (http://sass-lang.com/documentation/Sass/Script/Functions.html#mix-instance_method)
@@ -513,7 +518,7 @@ impl Color {
         let with_color = other.into();
         assert!(with_color.is_valid(), "{:?} is not a valid Color. Please see color module documentation.", with_color);
 
-        let p = weight as f64 / 100.0;
+        let p = weight;
         let w = p.mul_add(2., -1.);
         let a = self.alpha - with_color.alpha;
 
@@ -1315,15 +1320,15 @@ mod tests {
     fn ensure_mix_invalid_color_panic() {
         let c: Color = "green".into();
         let invalid_color = Color { red: 256., green: 1., blue: 1., alpha: 1. };
-        let _ = c.mix(invalid_color, 50);
+        let _ = c.mix(invalid_color, 0.50);
     }
 
     #[test]
-    #[should_panic(expected="101 is not a valid value for weight. Must be within 0-100 inclusive")]
+    #[should_panic(expected="1.01 is not a valid value for weight, values must be between 0.0 and 1.0.")]
     fn ensure_mix_invalid_weight_panic() {
         let o: Color = "orange".into();
         let r: Color = "red".into();
-        let _ = o.mix(r, 101);
+        let _ = o.mix(r, 1.01);
     }
 
     #[test]
@@ -1416,15 +1421,15 @@ mod tests {
         let mix_1 = Color::rgba(18., 55., 125., 1.0);
         let mix_2 = Color::rgba(125., 33., 200., 0.8);
         let expected = Color::rgba(72., 44., 163., 0.88);
-        let mix_res = mix_1.mix(mix_2, 40);
+        let mix_res = mix_1.mix(mix_2, 0.40);
         assert_eq!(expected, mix_res);
     }
 
     #[test]
-    #[should_panic(expected = "101 is not a valid value for weight. Must be within 0-100 inclusive")]
+    #[should_panic(expected = "1.01 is not a valid value for weight, values must be between 0.0 and 1.0.")]
     fn invalid_mix_weight() {
         let c1 = Color::rgb(1., 1., 1.);
-        let _ = c1.mix([2., 2., 2.], 101);
+        let _ = c1.mix([2., 2., 2.], 1.01);
     }
 
     #[test]
