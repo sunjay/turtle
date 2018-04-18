@@ -779,6 +779,172 @@ impl Color {
         Color::hsla(h, s, l_mod, self.alpha)
     }
 
+
+    /// Create a new `Color` by increasing the saturation level of this
+    /// `Color` by the given percentage. The value is a float between
+    /// 0.0 and 1.0 indicating the percentage to increase the saturation.
+    /// So, if you wish to create a `Color` that is 30% more saturated than
+    /// this one, you would specify 0.3.
+    /// 
+    /// For more information on what saturation is in relation to HSL colors,
+    /// please see this [Wikipedia Article].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.3, 0.9);
+    /// 
+    /// // Now, let's increase the saturation by 20%
+    /// let saturated = original.saturate(0.2);
+    /// assert_eq!(saturated, Color::hsl(120.0, 0.5, 0.9));
+    /// ```
+    /// 
+    /// The maximum saturation level a `Color` can have is 100%. If you try
+    /// to increase beyond that level using this method, it will result in a
+    /// `Color` with a `saturation` value of 1.0.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.8, 0.9);
+    /// 
+    /// // We try to increase the saturation by 50%, which would equal 130%
+    /// let saturated = original.saturate(0.5);
+    /// 
+    /// // But the resulting color only has a saturation value of 1.0
+    /// assert_eq!(saturated, Color::hsl(120.0, 1.0, 0.9));
+    /// ```
+    /// 
+    /// Passing values that are greater than 1.0 will result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.5, 0.9);
+    /// 
+    /// // This will panic, as 1.1 is greater than the maximum accepted value of 1.0
+    /// let incorrect = original.saturate(1.1);
+    /// ```
+    /// 
+    /// Negative values will also result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.5, 0.9);
+    /// 
+    /// // This will panic, as a negative value is less than the minimum acceptable
+    /// // value of 0.0
+    /// let incorrect = original.saturate(-0.2);
+    /// ```
+    /// 
+    /// If you wish to desaturate a `Color` please see [`desaturate`].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.3, 0.9);
+    /// 
+    /// // Instead of trying to saturate with a negative value as in the
+    /// // previous example, we simply desaturate by the same positive amount
+    /// let desaturated = original.desaturate(0.2);
+    /// assert_eq!(desaturated, Color::hsl(120.0, 0.1, 0.9));
+    /// ```
+    /// [Wikipedia Article]: https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
+    /// [`desaturate`]: ./struct.Color.html#method.desaturate
+    pub fn saturate(self, saturation: f64) -> Self {
+        assert_value_in_range!("saturation", saturation, 0., 1.);
+
+        let (h, s, l) = self.to_hsl();
+        let s_mod = if s + saturation <= 1. { s + saturation } else { 1. };
+        Color::hsla(h, s_mod, l, self.alpha) 
+    }
+
+    /// Create a new `Color` by decreasing the saturation level of this `Color` 
+    /// by the given percentage. The value is a float between
+    /// 0.0 and 1.0 indicating the percentage to increase the saturation.
+    /// So, if you wish to create a `Color` that is 30% more saturated than
+    /// this one, you would specify 0.3.
+    /// 
+    /// For more information on what saturation is in relation to HSL colors,
+    /// please see this [Wikipedia Article].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.3, 0.9);
+    /// 
+    /// // Now, desaturate the original by 20%
+    /// let desaturated = original.desaturate(0.2);
+    /// assert_eq!(desaturated, Color::hsl(120.0, 0.1, 0.9));
+    /// ```
+    /// 
+    /// Since the minimum saturation value a color can have is 0%, attempting
+    /// to desaturate beyond that level will simply result in a `Color` with a
+    /// `saturation` value of 0.
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.3, 0.9);
+    /// 
+    /// // Now, desaturate the color by 50%, which would equal -20%
+    /// let desaturated = original.desaturate(0.5);
+    /// 
+    /// // However the resulting color simply has a saturation of 0.0
+    /// assert_eq!(desaturated, Color::hsl(120.0, 0.0, 0.9));
+    /// ```
+    /// 
+    /// A color with a saturation level of 0.0 is known
+    /// as an [`achromatic`] color. As they have no hue, they are the range
+    /// of all gray colors, ranging from white to black.
+    /// 
+    /// Passing values that are greater than 1.0 will result in a panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.3, 0.9);
+    /// 
+    /// // This will panic, as 1.1 is greater than the acceptable maximum of 1.0
+    /// let incorrect = original.desaturate(1.1);
+    /// ```
+    /// 
+    /// Passing negative values will also panic
+    /// 
+    /// ```should_panic
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.3, 0.7);
+    /// 
+    /// // This will panic, as a negative value is less than the acceptable
+    /// // minimum value of 0.0
+    /// let incorrect = original.desaturate(-0.2);
+    /// ```
+    /// 
+    /// If you wish to saturate a `Color`, please see [`saturate`]
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// let original = Color::hsl(120.0, 0.3, 0.9);
+    /// 
+    /// // Now, let's increase the saturation by 20% instead of trying to
+    /// // desaturate by a negative number
+    /// let saturated = original.saturate(0.2);
+    /// assert_eq!(saturated, Color::hsl(120.0, 0.5, 0.9));
+    /// ```
+    /// [Wikipedia Article]: https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
+    /// [`achromatic`]: https://en.wikipedia.org/wiki/Color_scheme#Achromatic_colors
+    /// [`saturate`]: ./struct.Color.html#method.saturate
+    pub fn desaturate(self, saturation: f64) -> Self {
+        assert_value_in_range!("saturation", saturation, 0., 1.);
+        
+        let (h, s, l) = self.to_hsl();
+        let s_mod = if s - saturation >= 0. { s - saturation } else { 0. };
+        Color::hsla(h, s_mod, l, self.alpha)
+    }
+
     /// Helper to switch a given RGB `Color` to HSL values.
     ///
     /// Answer adapted from this SO answer (https://stackoverflow.com/a/9493060)
@@ -1544,6 +1710,70 @@ mod tests {
     fn ensure_darken_invalid_negative_panic() {
         let c = Color::hsl(150., 0.4, 0.2);
         let _ = c.darken(-0.1);
+    }
+
+    #[test]
+    fn check_saturate_positive() {
+        let c = Color::hsl(210., 0.3, 0.9);
+        assert_eq!(c.saturate(0.2), Color::hsl(210., 0.5, 0.9));
+    }
+
+    #[test]
+    fn check_saturate_stops_at_max() {
+        let c = Color::hsl(120., 0.3, 0.9);
+        assert_eq!(c.saturate(0.9), Color::hsl(120., 1.0, 0.9));
+    }
+
+    #[test]
+    fn check_saturate_keeps_alpha() {
+        let c = Color::hsla(120., 0.3, 0.9, 0.4);
+        assert_eq!(c.saturate(0.2), Color::hsla(120., 0.5, 0.9, 0.4));
+    }
+
+    #[test]
+    #[should_panic(expected="1.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_saturation_invalid_positive_panic() {
+        let c = Color::hsl(210., 0.5, 0.9);
+        let _ = c.saturate(1.1);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_saturation_invalid_negative_panic() {
+        let c = Color::hsl(210., 0.5, 0.9);
+        let _ = c.saturate(-0.1);
+    }
+
+    #[test]
+    fn check_desaturate_positive() {
+        let c = Color::hsl(210., 0.3, 0.9);
+        assert_eq!(c.desaturate(0.2), Color::hsl(210., 0.1, 0.9));
+    }
+
+    #[test]
+    fn check_desaturate_stops_at_max() {
+        let c = Color::hsl(120., 0.3, 0.9);
+        assert_eq!(c.desaturate(0.9), Color::hsl(120., 0.0, 0.9));
+    }
+
+    #[test]
+    fn check_desaturate_keeps_alpha() {
+        let c = Color::hsla(120., 0.3, 0.9, 0.4);
+        assert_eq!(c.desaturate(0.2), Color::hsla(120., 0.1, 0.9, 0.4));
+    }
+
+    #[test]
+    #[should_panic(expected="1.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_desaturate_invalid_positive_panic() {
+        let c = Color::hsl(210., 0.5, 0.9);
+        let _ = c.desaturate(1.1);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    fn ensure_desaturate_invalid_negative_panic() {
+        let c = Color::hsl(210., 0.5, 0.9);
+        let _ = c.desaturate(-0.1);
     }
 }
 
