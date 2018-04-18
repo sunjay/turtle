@@ -17,7 +17,7 @@ fn main() {
     let white: Color = "white".into();
 
     for i in 0..100+1 {
-        turtle.set_pen_color(red.mix(white, i));
+        turtle.set_pen_color(red.mix(white, i as f64 / 100.0));
         turtle.forward(5.0);
     }
 }
