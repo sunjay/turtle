@@ -1324,11 +1324,19 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="1.01 is not a valid value for weight, values must be between 0.0 and 1.0.")]
+    #[should_panic(expected="1.0000001 is not a valid value for weight, values must be between 0.0 and 1.0.")]
     fn ensure_mix_invalid_weight_panic() {
         let o: Color = "orange".into();
         let r: Color = "red".into();
-        let _ = o.mix(r, 1.01);
+        let _ = o.mix(r, 1.0000001);
+    }
+
+    #[test]
+    #[should_panic(expected="-0.0000001 is not a valid value for weight, values must be between 0.0 and 1.0.")]
+    fn ensure_mix_negative_weight_panic() {
+        let o: Color = "orange".into();
+        let r: Color = "red".into();
+        let _ = o.mix(r, -0.0000001);
     }
 
     #[test]
@@ -1423,13 +1431,6 @@ mod tests {
         let expected = Color::rgba(72., 44., 163., 0.88);
         let mix_res = mix_1.mix(mix_2, 0.40);
         assert_eq!(expected, mix_res);
-    }
-
-    #[test]
-    #[should_panic(expected = "1.01 is not a valid value for weight, values must be between 0.0 and 1.0.")]
-    fn invalid_mix_weight() {
-        let c1 = Color::rgb(1., 1., 1.);
-        let _ = c1.mix([2., 2., 2.], 1.01);
     }
 
     #[test]
