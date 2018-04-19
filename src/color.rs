@@ -177,6 +177,12 @@ macro_rules! assert_value_in_range {
     }
 }
 
+macro_rules! assert_color_valid {
+    ($color:expr) => {
+        assert!($color.is_valid(), "{:?} is not a valid Color. Please see color module documentation.", $color);
+    }
+}
+
 /// Type for representing a color.
 ///
 /// See [the module level documentation](index.html) for more.
@@ -384,6 +390,7 @@ impl Color {
     /// assert_eq!(color2.alpha, 1.0);
     /// ```
     pub fn opaque(self) -> Color {
+        assert_color_valid!(self);
         self.with_alpha(1.0)
     }
 
@@ -398,6 +405,7 @@ impl Color {
     /// assert_eq!(color2.alpha, 0.0);
     /// ```
     pub fn transparent(self) -> Color {
+        assert_color_valid!(self);
         self.with_alpha(0.0)
     }
 
@@ -516,7 +524,8 @@ impl Color {
         // Finally, the weight of color1 is renormalized to be within [0, 1]
         // and the weight of color2 is given by 1 minus the weight of color1.
         let with_color = other.into();
-        assert!(with_color.is_valid(), "{:?} is not a valid Color. Please see color module documentation.", with_color);
+        assert_color_valid!(self);
+        assert_color_valid!(with_color);
 
         let p = weight;
         let w = p.mul_add(2., -1.);
@@ -944,12 +953,105 @@ impl Color {
         Color::hsla(h, s_mod, l, self.alpha)
     }
 
+    /// Convert this `Color` to grayscale, which is essentailly desaturating
+    /// it by 100%. For more information on desaturation please see [`desaturate`].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// // Let's start with a standard HSL color
+    /// let original = Color::hsl(0.0, 0.5, 0.5);
+    /// 
+    /// // Now, when we switch this to grayscale, we will end up with Turtle 'grey'
+    /// assert_eq!(original.grayscale(), "grey".into());
+    /// ```
+    /// 
+    /// Since this is essentally removing all saturation you can verify that
+    /// the grayscale version of any `Color` is the same `hue` and `lightness` values
+    /// with 0 `saturation`
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// // An arbitrary HSL color
+    /// let original = Color::hsl(200.0, 0.9, 1.0);
+    /// 
+    /// // The grayscale version simply has a saturation of 0
+    /// assert_eq!(original.grayscale(), Color::hsl(200.0, 0.0, 1.0));
+    /// ```
+    /// [`desaturate`]: ./struct.Color.html#method.desaturate
+    pub fn grayscale(self) -> Self {        
+        self.desaturate(1.0)
+    }
+
+    /// Create a new `Color` by obtaining the complement of this `Color`. The
+    /// complement of a color is 180 degrees around the color wheel. For more information
+    /// on rotating the hue of a `Color` please see [`rotate_hue`].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// // A standard HSL color
+    /// let original = Color::hsl(100.0, 0.7, 1.0);
+    /// 
+    /// // The complement will be have a hue value that is 180 degrees greater
+    /// assert_eq!(original.complement(), Color::hsl(280.0, 0.7, 1.0)); 
+    /// ```
+    /// [`rotate_hue`]: ./struct.Color.html#method.rotate_hue
+    pub fn complement(self) -> Self {
+        self.rotate_hue(180.)
+    }
+
+    /// Create a `Color` that is the inverse (negative) of this
+    /// `Color`. The `red`, `green`, and `blue` values of this
+    /// color are inverted but `alpha` is not touched.
+    /// 
+    /// This `Color` is mixed with the inverted values to produce
+    /// the inverse of it. The mix is done with a weight of 1.0 for
+    /// the invert values. For more information see [`mix`].
+    /// 
+    /// ```rust
+    /// use turtle::Color;
+    /// 
+    /// // We will start with blue. Turtle blue is rgb(0, 130, 200)
+    /// let blue: Color = "blue".into();
+    /// 
+    /// // The inverse of blue is a light orange color. Note that the
+    /// // original color had a default alpha value of 1.0, so we can
+    /// // make sure the resulting color also has the same alpha value
+    /// assert_eq!(blue.invert(), [255.0, 125.0, 55.0, 1.0].into());
+    /// ```
+    /// [`mix`]: ./struct.Color.html#method.mix
+    pub fn invert(self) -> Self {
+        assert_color_valid!(self);
+
+        let inv_r = 255. - self.red;
+        let inv_g = 255. - self.green;
+        let inv_b = 255. - self.blue;
+
+        let inv_color = Color::rgba(inv_r, inv_g, inv_b, self.alpha);
+        inv_color.mix(self, 1.0)
+    }
+
     /// Helper to switch a given RGB `Color` to HSL values.
     ///
     /// Answer adapted from this SO answer (https://stackoverflow.com/a/9493060)
     /// and more information about the underlying algorithm can be found on
     /// https://en.wikipedia.org/wiki/HSL_and_HSV
     fn to_hsl(&self) -> (f64, f64, f64) {
+        /* Check that the color is valid here, this covers the following methods:
+         *  - saturate
+         *  - desaturate
+         *  - grayscale
+         *  - darken
+         *  - lighten
+         *  - rotate_hue
+         *  - hue
+         *  - saturation
+         *  - lightness
+         *  - complement
+         */
+        assert_color_valid!(self);
         let div_color = |c| { c / 255.0 };
         let (r, g, b) = (div_color(self.red), div_color(self.green), div_color(self.blue));
 
@@ -1773,6 +1875,125 @@ mod tests {
     fn ensure_desaturate_invalid_negative_panic() {
         let c = Color::hsl(210., 0.5, 0.9);
         let _ = c.desaturate(-0.1);
+    }
+
+    #[test]
+    fn check_grayscale() {
+        let c = Color::hsl(180., 0.9, 0.5);
+        assert_eq!(c.grayscale(), Color::hsl(180., 0.0, 0.5));
+    }
+
+    #[test]
+    fn check_grayscale_keeps_alpha() {
+        let c = Color::hsla(200., 0.5, 0.5, 0.3);
+        assert_eq!(c.grayscale(), Color::hsla(200., 0.0, 0.5, 0.3));
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_grayscale_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.grayscale();
+    }
+
+    #[test]
+    fn check_complement() {
+        let c = Color::hsl(100., 0.5, 0.5);
+        assert_eq!(c.complement(), Color::hsl(280., 0.5, 0.5));
+    }
+
+    #[test]
+    fn check_complement_wraps() {
+        let c = Color::hsl(300., 0.5, 0.5);
+        assert_eq!(c.complement(), Color::hsl(120., 0.5, 0.5));
+    }
+
+    #[test]
+    fn check_complement_keeps_alpha() {
+        let c = Color::hsla(80., 0.5, 0.5, 0.4);
+        assert_eq!(c.complement(), Color::hsla(260., 0.5, 0.5, 0.4))
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_complement_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.complement();
+    }
+
+    #[test]
+    fn check_invert() {
+        let c: Color = "red".into();
+        assert_eq!(c.invert(), [25., 230., 180.].into());
+    }
+
+    #[test]
+    fn check_invert_keeps_alpha() {
+        let c: Color = [100., 250., 175., 0.2].into();
+        assert_eq!(c.invert(), [155., 5., 80., 0.2].into());
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_invert_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.invert();
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_hue_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.hue();
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_saturation_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.saturation();
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_lightness_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.lightness();
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_saturate_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.saturate(0.5);
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_desaturate_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.desaturate(0.5);
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_darken_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.darken(0.5);
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_lighten_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.lighten(0.5);
+    }
+
+    #[test]
+    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    fn ensure_rotate_hue_invalid_color_panics() {
+        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let _ = c.rotate_hue(20.);
     }
 }
 
