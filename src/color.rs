@@ -779,7 +779,6 @@ impl Color {
         Color::hsla(h, s, l_mod, self.alpha)
     }
 
-
     /// Create a new `Color` by increasing the saturation level of this
     /// `Color` by the given percentage. The value is a float between
     /// 0.0 and 1.0 indicating the percentage to increase the saturation.
@@ -862,8 +861,8 @@ impl Color {
 
     /// Create a new `Color` by decreasing the saturation level of this `Color` 
     /// by the given percentage. The value is a float between
-    /// 0.0 and 1.0 indicating the percentage to increase the saturation.
-    /// So, if you wish to create a `Color` that is 30% more saturated than
+    /// 0.0 and 1.0 indicating the percentage to decrease the saturation.
+    /// So, if you wish to create a `Color` that is 30% less saturated than
     /// this one, you would specify 0.3.
     /// 
     /// For more information on what saturation is in relation to HSL colors,
@@ -896,7 +895,7 @@ impl Color {
     /// ```
     /// 
     /// A color with a saturation level of 0.0 is known
-    /// as an [`achromatic`] color. As they have no hue, they are the range
+    /// as an '[achromatic]' color. As they have no hue, they are the range
     /// of all gray colors, ranging from white to black.
     /// 
     /// Passing values that are greater than 1.0 will result in a panic
@@ -935,7 +934,7 @@ impl Color {
     /// assert_eq!(saturated, Color::hsl(120.0, 0.5, 0.9));
     /// ```
     /// [Wikipedia Article]: https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
-    /// [`achromatic`]: https://en.wikipedia.org/wiki/Color_scheme#Achromatic_colors
+    /// [achromatic]: https://en.wikipedia.org/wiki/Color_scheme#Achromatic_colors
     /// [`saturate`]: ./struct.Color.html#method.saturate
     pub fn desaturate(self, saturation: f64) -> Self {
         assert_value_in_range!("saturation", saturation, 0., 1.);
