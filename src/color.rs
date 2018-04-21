@@ -966,9 +966,12 @@ impl Color {
     /// assert_eq!(original.grayscale(), "grey".into());
     /// ```
     /// 
+    /// A `Color` that has no saturation is known as an '[achromatic]' `Color`, which
+    /// are gray colors ranging from white to black.
+    /// 
     /// Since this is essentally removing all saturation you can verify that
     /// the grayscale version of any `Color` is the same `hue` and `lightness` values
-    /// with 0 `saturation`
+    /// with 0 `saturation`.
     /// 
     /// ```rust
     /// use turtle::Color;
@@ -980,13 +983,16 @@ impl Color {
     /// assert_eq!(original.grayscale(), Color::hsl(200.0, 0.0, 1.0));
     /// ```
     /// [`desaturate`]: ./struct.Color.html#method.desaturate
+    /// [achromatic]: https://en.wikipedia.org/wiki/Color_scheme#Achromatic_colors
     pub fn grayscale(self) -> Self {        
         self.desaturate(1.0)
     }
 
-    /// Create a new `Color` by obtaining the complement of this `Color`. The
-    /// complement of a color is 180 degrees around the color wheel. For more information
-    /// on rotating the hue of a `Color` please see [`rotate_hue`].
+    /// Create a new `Color` by obtaining the complement (opposite) of this `Color`. 
+    /// The complement of a color is 180 degrees around the color wheel. For more 
+    /// information on rotating the hue of a `Color` please see [`rotate_hue`].
+    /// 
+    /// This [Wikipedia Article] contains more information about complementary colors.
     /// 
     /// ```rust
     /// use turtle::Color;
@@ -998,6 +1004,7 @@ impl Color {
     /// assert_eq!(original.complement(), Color::hsl(280.0, 0.7, 1.0)); 
     /// ```
     /// [`rotate_hue`]: ./struct.Color.html#method.rotate_hue
+    /// [Wikipedia Article]: https://en.wikipedia.org/wiki/Complementary_colors
     pub fn complement(self) -> Self {
         self.rotate_hue(180.)
     }
@@ -1005,6 +1012,9 @@ impl Color {
     /// Create a `Color` that is the inverse (negative) of this
     /// `Color`. The `red`, `green`, and `blue` values of this
     /// color are inverted but `alpha` is not touched.
+    /// 
+    /// For more information about what the inverse of a `Color`
+    /// is, please see this [StackExchange Answer].
     /// 
     /// This `Color` is mixed with the inverted values to produce
     /// the inverse of it. The mix is done with a weight of 1.0 for
@@ -1022,6 +1032,7 @@ impl Color {
     /// assert_eq!(blue.invert(), [255.0, 125.0, 55.0, 1.0].into());
     /// ```
     /// [`mix`]: ./struct.Color.html#method.mix
+    /// [StackExchange Answer]: https://graphicdesign.stackexchange.com/a/95100
     pub fn invert(self) -> Self {
         assert_color_valid!(self);
 
