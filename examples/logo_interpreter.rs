@@ -63,6 +63,48 @@ fn handle_command<'a, A: Iterator<Item = &'a str>>(turtle: &mut Turtle, mut args
                     .expect("Expect a distance value after rt/right command"));
                 turtle.right(distance);
             },
+            "home" => {
+                turtle.home();
+            },
+            "setx" => {
+                let x_pos = parse_distance(args.next()
+                    .expect("No expression found"));
+                turtle.set_x(x_pos);
+            },
+            "sety" => {
+                let y_pos = parse_distance(args.next()
+                    .expect("No expression found"));
+                turtle.set_y(y_pos);
+            },
+            "setheading" | "seth" => {
+                let expr = parse_distance(args.next()
+                    .expect("No expression found"));
+                turtle.set_heading(expr);
+            },
+            "showturtle" | "st" => {
+                turtle.show();
+            },
+            "hideturtle" | "ht" => {
+                turtle.hide();
+            },
+            "clean" => {
+                turtle.clear();
+            },
+            "clearscreen" | "cs" => {
+                turtle.clear();
+                turtle.home();
+            },
+            "pendown" | "pd" => {
+                turtle.pen_down();
+            },
+            "penup" | "pu" => {
+                turtle.pen_up();
+            },
+            "setpensize" | "setwidth" | "setpw" => {
+                let value = parse_distance(args.next()
+                    .expect("No value found"));
+                turtle.set_pen_size(value);
+            },
             _ => unimplemented!("Use of invalid or unsupported LOGO command"),
         }
     }
