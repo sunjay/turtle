@@ -7,6 +7,7 @@
 [![Build Status](https://travis-ci.org/sunjay/turtle.svg?branch=master)](https://travis-ci.org/sunjay/turtle)
 [![Build status](https://ci.appveyor.com/api/projects/status/scg3x6ti49o8sdii/branch/master?svg=true)](https://ci.appveyor.com/project/sunjay/turtle/branch/master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/rust-turtle/discuss)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/sunjay)
 
 *Tweet your drawings to us on Twitter at [@RustTurtle](https://twitter.com/RustTurtle) and follow us to see what is being created!*
 
