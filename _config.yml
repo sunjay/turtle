@@ -3,8 +3,8 @@ author: Sunjay Varma
 description: Create Animated Drawings in Rust
 # the subpath of your site, e.g. /blog
 baseurl: ""
-# the base hostname & protocol for your site, e.g. http://example.com
-url: "http://turtle.rs"
+# the base hostname & protocol for your site, e.g. https://example.com
+url: "https://turtle.rs"
 twitter_username: sunjay03
 github_username:  sunjay
 google_analytics: UA-108453371-1
