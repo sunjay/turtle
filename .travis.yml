@@ -13,6 +13,7 @@ before_install:
   - rm rust-toolchain
 
 script:
+  - rustc --version --verbose
   # -D warnings denies all warnings so that we always know when some code
   # introduces new ones
   - RUSTFLAGS="-D warnings" cargo build --verbose --all
