@@ -7,6 +7,11 @@ rust:
   - beta
   - nightly
 
+before_install:
+  # Remove rust-toolchain or we will always use the version specified there
+  # regardless of what version is installed
+  - rm rust-toolchain
+
 script:
   # -D warnings denies all warnings so that we always know when some code
   # introduces new ones
