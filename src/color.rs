@@ -636,68 +636,68 @@ impl Color {
         Color::hsla(hue_mod, s, l, self.alpha)
     }
 
-    /// Create a new `Color` by increasing the lightness of this `Color` by 
-    /// the given percentage. The value is a float between 0.0 and 1.0 
+    /// Create a new `Color` by increasing the lightness of this `Color` by
+    /// the given percentage. The value is a float between 0.0 and 1.0
     /// indicating the percentage to increase the lightness. So, if you wish
     /// to make a `Color` 10% lighter, you would specify 0.1.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(158.0, 0.8, 0.3);
-    /// 
+    ///
     /// // Now, let's increase the lightness of original by 50%
     /// let lighter = original.lighten(0.5);
     /// assert_eq!(lighter, Color::hsl(158.0, 0.8, 0.8));
     /// ```
-    /// 
+    ///
     /// Now, as the maximum lightness a `Color` can have is 100%, trying
     /// to increase it beyond that point will result in a `Color` with
     /// a lightness value of 1.0
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(200.0, 0.7, 0.8);
-    /// 
+    ///
     /// // Now, we'll increase the lightness by 50%, which would go beyond 100%
     /// let lighter = original.lighten(0.5);
-    /// 
+    ///
     /// // But, the lightness of the color will still max out at 1.0
     /// assert_eq!(lighter, Color::hsl(200.0, 0.7, 1.0));
     /// ```
-    /// 
+    ///
     /// Providing values greater than 1.0 will result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(150.0, 0.5, 0.3);
-    /// 
+    ///
     /// // This will panic as a value of 1.1 is greater than the acceptable
     /// // maximum of 1.0
     /// let incorrect = original.lighten(1.1);
     /// ```
-    /// 
+    ///
     /// Negative values will also result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(150.0, 0.5, 0.8);
-    /// 
+    ///
     /// // This will panic, as a negative value is less than the acceptable
     /// // minimum of 0.0
     /// let incorrect = original.lighten(-0.3);
     /// ```
-    /// 
+    ///
     /// If you want to lighten by a negative amount, please see [`darken`].
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(25.0, 1.0, 0.8);
-    /// 
+    ///
     /// // Instead of -0.3 (-30%) as in the previous example, we will just darken by 30%
     /// let darker = original.darken(0.3);
     /// assert_eq!(darker, Color::hsl(25.0, 1.0, 0.5));
@@ -705,74 +705,74 @@ impl Color {
     /// [`darken`]: ./struct.Color.html#method.darken
     pub fn lighten(self, lighter: f64) -> Self {
         assert_value_in_range!("lighter", lighter, 0., 1.);
-        
+
         let (h, s, l) = self.to_hsl();
 
         let l_mod = if l + lighter <= 1. { l + lighter } else { 1. };
-        
+
         Color::hsla(h, s, l_mod, self.alpha)
     }
 
     /// Create a new `Color` by decreasing the lightness of this `Color` by
-    /// the given percentage. The value is a float between 0.0 and 1.0 
+    /// the given percentage. The value is a float between 0.0 and 1.0
     /// indicating the percentage to decrease the lightness. So, if you wish
     /// to make a `Color` 10% darker, you would specify 0.1.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(25.0, 1.0, 0.8);
-    /// 
+    ///
     /// // Let's make the color 30% darker.
     /// let darker = original.darken(0.3);
     /// assert_eq!(darker, Color::hsl(25.0, 1.0, 0.5));
     /// ```
-    /// 
+    ///
     /// As the minimum lightness a `Color` can have is 0%, attempting to
     /// decrease beyond that will result in a `Color` with a lightness of 0.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(100.0, 1.0, 0.3);
-    /// 
+    ///
     /// // Let's try to decrease by 40%, which would result in a negative lightness
     /// let darker = original.darken(0.4);
-    /// 
+    ///
     /// // Since we can't go below 0%, the lightness of the resulting `Color` will be 0
     /// assert_eq!(darker, Color::hsl(100.0, 1.0, 0.0));
     /// ```
-    /// 
+    ///
     /// Providing values greater than 1.0 will result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(150.0, 0.3, 0.5);
-    /// 
+    ///
     /// // This will panic as 1.1 is greater than the acceptable maximum of 1.0
     /// let incorrect = original.darken(1.1);
     /// ```
-    /// 
+    ///
     /// Negative values will also result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(150.0, 0.3, 0.5);
-    /// 
+    ///
     /// // This will panic as a negative value is less than the acceptable
     /// // minimum of 0.0
     /// let incorrect = original.darken(-0.1);
     /// ```
-    /// 
+    ///
     /// If you want to darken by a negative value please see [`lighten`].
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(158.0, 0.8, 0.3);
-    /// 
+    ///
     /// // Now, we'll increase the lightness by 10%, instead of trying to darken by
     /// // a negative amount
     /// let lighter = original.lighten(0.1);
@@ -793,66 +793,66 @@ impl Color {
     /// 0.0 and 1.0 indicating the percentage to increase the saturation.
     /// So, if you wish to create a `Color` that is 30% more saturated than
     /// this one, you would specify 0.3.
-    /// 
+    ///
     /// For more information on what saturation is in relation to HSL colors,
     /// please see this [Wikipedia Article].
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.3, 0.9);
-    /// 
+    ///
     /// // Now, let's increase the saturation by 20%
     /// let saturated = original.saturate(0.2);
     /// assert_eq!(saturated, Color::hsl(120.0, 0.5, 0.9));
     /// ```
-    /// 
+    ///
     /// The maximum saturation level a `Color` can have is 100%. If you try
     /// to increase beyond that level using this method, it will result in a
     /// `Color` with a `saturation` value of 1.0.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.8, 0.9);
-    /// 
+    ///
     /// // We try to increase the saturation by 50%, which would equal 130%
     /// let saturated = original.saturate(0.5);
-    /// 
+    ///
     /// // But the resulting color only has a saturation value of 1.0
     /// assert_eq!(saturated, Color::hsl(120.0, 1.0, 0.9));
     /// ```
-    /// 
+    ///
     /// Passing values that are greater than 1.0 will result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.5, 0.9);
-    /// 
+    ///
     /// // This will panic, as 1.1 is greater than the maximum accepted value of 1.0
     /// let incorrect = original.saturate(1.1);
     /// ```
-    /// 
+    ///
     /// Negative values will also result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.5, 0.9);
-    /// 
+    ///
     /// // This will panic, as a negative value is less than the minimum acceptable
     /// // value of 0.0
     /// let incorrect = original.saturate(-0.2);
     /// ```
-    /// 
+    ///
     /// If you wish to desaturate a `Color` please see [`desaturate`].
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.3, 0.9);
-    /// 
+    ///
     /// // Instead of trying to saturate with a negative value as in the
     /// // previous example, we simply desaturate by the same positive amount
     /// let desaturated = original.desaturate(0.2);
@@ -865,78 +865,78 @@ impl Color {
 
         let (h, s, l) = self.to_hsl();
         let s_mod = if s + saturation <= 1. { s + saturation } else { 1. };
-        Color::hsla(h, s_mod, l, self.alpha) 
+        Color::hsla(h, s_mod, l, self.alpha)
     }
 
-    /// Create a new `Color` by decreasing the saturation level of this `Color` 
+    /// Create a new `Color` by decreasing the saturation level of this `Color`
     /// by the given percentage. The value is a float between
     /// 0.0 and 1.0 indicating the percentage to decrease the saturation.
     /// So, if you wish to create a `Color` that is 30% less saturated than
     /// this one, you would specify 0.3.
-    /// 
+    ///
     /// For more information on what saturation is in relation to HSL colors,
     /// please see this [Wikipedia Article].
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.3, 0.9);
-    /// 
+    ///
     /// // Now, desaturate the original by 20%
     /// let desaturated = original.desaturate(0.2);
     /// assert_eq!(desaturated, Color::hsl(120.0, 0.1, 0.9));
     /// ```
-    /// 
+    ///
     /// Since the minimum saturation value a color can have is 0%, attempting
     /// to desaturate beyond that level will simply result in a `Color` with a
     /// `saturation` value of 0.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.3, 0.9);
-    /// 
+    ///
     /// // Now, desaturate the color by 50%, which would equal -20%
     /// let desaturated = original.desaturate(0.5);
-    /// 
+    ///
     /// // However the resulting color simply has a saturation of 0.0
     /// assert_eq!(desaturated, Color::hsl(120.0, 0.0, 0.9));
     /// ```
-    /// 
+    ///
     /// A color with a saturation level of 0.0 is known
     /// as an '[achromatic]' color. As they have no hue, they are the range
     /// of all gray colors, ranging from white to black.
-    /// 
+    ///
     /// Passing values that are greater than 1.0 will result in a panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.3, 0.9);
-    /// 
+    ///
     /// // This will panic, as 1.1 is greater than the acceptable maximum of 1.0
     /// let incorrect = original.desaturate(1.1);
     /// ```
-    /// 
+    ///
     /// Passing negative values will also panic
-    /// 
+    ///
     /// ```should_panic
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.3, 0.7);
-    /// 
+    ///
     /// // This will panic, as a negative value is less than the acceptable
     /// // minimum value of 0.0
     /// let incorrect = original.desaturate(-0.2);
     /// ```
-    /// 
+    ///
     /// If you wish to saturate a `Color`, please see [`saturate`]
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// let original = Color::hsl(120.0, 0.3, 0.9);
-    /// 
+    ///
     /// // Now, let's increase the saturation by 20% instead of trying to
     /// // desaturate by a negative number
     /// let saturated = original.saturate(0.2);
@@ -947,7 +947,7 @@ impl Color {
     /// [`saturate`]: ./struct.Color.html#method.saturate
     pub fn desaturate(self, saturation: f64) -> Self {
         assert_value_in_range!("saturation", saturation, 0., 1.);
-        
+
         let (h, s, l) = self.to_hsl();
         let s_mod = if s - saturation >= 0. { s - saturation } else { 0. };
         Color::hsla(h, s_mod, l, self.alpha)
@@ -955,53 +955,53 @@ impl Color {
 
     /// Convert this `Color` to grayscale, which is essentailly desaturating
     /// it by 100%. For more information on desaturation please see [`desaturate`].
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// // Let's start with a standard HSL color
     /// let original = Color::hsl(0.0, 0.5, 0.5);
-    /// 
+    ///
     /// // Now, when we switch this to grayscale, we will end up with Turtle 'grey'
     /// assert_eq!(original.grayscale(), "grey".into());
     /// ```
-    /// 
+    ///
     /// A `Color` that has no saturation is known as an '[achromatic]' `Color`, which
     /// are gray colors ranging from white to black.
-    /// 
+    ///
     /// Since this is essentally removing all saturation you can verify that
     /// the grayscale version of any `Color` is the same `hue` and `lightness` values
     /// with 0 `saturation`.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// // An arbitrary HSL color
     /// let original = Color::hsl(200.0, 0.9, 1.0);
-    /// 
+    ///
     /// // The grayscale version simply has a saturation of 0
     /// assert_eq!(original.grayscale(), Color::hsl(200.0, 0.0, 1.0));
     /// ```
     /// [`desaturate`]: ./struct.Color.html#method.desaturate
     /// [achromatic]: https://en.wikipedia.org/wiki/Color_scheme#Achromatic_colors
-    pub fn grayscale(self) -> Self {        
+    pub fn grayscale(self) -> Self {
         self.desaturate(1.0)
     }
 
-    /// Create a new `Color` by obtaining the complement (opposite) of this `Color`. 
-    /// The complement of a color is 180 degrees around the color wheel. For more 
+    /// Create a new `Color` by obtaining the complement (opposite) of this `Color`.
+    /// The complement of a color is 180 degrees around the color wheel. For more
     /// information on rotating the hue of a `Color` please see [`rotate_hue`].
-    /// 
+    ///
     /// This [Wikipedia Article] contains more information about complementary colors.
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// // A standard HSL color
     /// let original = Color::hsl(100.0, 0.7, 1.0);
-    /// 
+    ///
     /// // The complement will be have a hue value that is 180 degrees greater
-    /// assert_eq!(original.complement(), Color::hsl(280.0, 0.7, 1.0)); 
+    /// assert_eq!(original.complement(), Color::hsl(280.0, 0.7, 1.0));
     /// ```
     /// [`rotate_hue`]: ./struct.Color.html#method.rotate_hue
     /// [Wikipedia Article]: https://en.wikipedia.org/wiki/Complementary_colors
@@ -1012,20 +1012,20 @@ impl Color {
     /// Create a `Color` that is the inverse (negative) of this
     /// `Color`. The `red`, `green`, and `blue` values of this
     /// color are inverted but `alpha` is not touched.
-    /// 
+    ///
     /// For more information about what the inverse of a `Color`
     /// is, please see this [StackExchange Answer].
-    /// 
+    ///
     /// This `Color` is mixed with the inverted values to produce
     /// the inverse of it. The mix is done with a weight of 1.0 for
     /// the invert values. For more information see [`mix`].
-    /// 
+    ///
     /// ```rust
     /// use turtle::Color;
-    /// 
+    ///
     /// // We will start with blue. Turtle blue is rgb(0, 130, 200)
     /// let blue: Color = "blue".into();
-    /// 
+    ///
     /// // The inverse of blue is a light orange color. Note that the
     /// // original color had a default alpha value of 1.0, so we can
     /// // make sure the resulting color also has the same alpha value
@@ -1105,6 +1105,8 @@ impl Rand for Color {
     }
 }
 
+// Docs are hidden because this is an implementation detail
+#[doc(hidden)]
 impl From<Color> for types::Color {
     fn from(color: Color) -> Self {
         [
