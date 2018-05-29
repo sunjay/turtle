@@ -938,7 +938,8 @@ impl Turtle {
     /// If the coordinates are the same as the turtle's current position, no rotation takes place.
     /// Always rotates the least amount necessary in order to face the given point.
     ///
-    /// #Example
+    /// # Example
+    ///
     /// ```rust,no_run
     /// extern crate turtle;
     /// use turtle::Turtle;
