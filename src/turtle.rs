@@ -937,6 +937,23 @@ impl Turtle {
     ///
     /// If the coordinates are the same as the turtle's current position, no rotation takes place.
     /// Always rotates the least amount necessary in order to face the given point.
+    ///
+    /// #Example
+    /// ```rust,no_run
+    /// extern crate turtle;
+    /// use turtle::Turtle;
+    ///
+    /// fn main() {
+    /// 	let mut turtle = Turtle::new();
+    /// 	turtle.forward(100.0);
+    /// 	turtle.turn_towards([0.0, 0.0]);
+    /// 	turtle.forward(100.0);
+    /// 	turtle.right(100.0);
+    /// 	turtle.forward(100.0);
+    /// 	turtle.turn_towards([::std::f64::INFINITY, ::std::f64::INFINITY]);
+    /// 	turtle.forward(100.0);
+    /// }
+    /// ```
     pub fn turn_towards<P: Into<Point>>(&mut self, target: P) {
         let target: Point = target.into();
         let position = self.position();
