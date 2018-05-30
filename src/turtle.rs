@@ -945,14 +945,28 @@ impl Turtle {
     /// use turtle::Turtle;
     ///
     /// fn main() {
-    /// 	let mut turtle = Turtle::new();
-    /// 	turtle.forward(100.0);
-    /// 	turtle.turn_towards([0.0, 0.0]);
-    /// 	turtle.forward(100.0);
-    /// 	turtle.right(100.0);
-    /// 	turtle.forward(100.0);
-    /// 	turtle.turn_towards([::std::f64::INFINITY, ::std::f64::INFINITY]);
-    /// 	turtle.forward(100.0);
+    ///     let mut turtle = Turtle::new();
+    ///     // moving the turtle to the bottom on the screen in the middle
+    ///     turtle.pen_up();
+    ///     turtle.go_to([0.0, -300.0]);
+    ///     turtle.set_heading(90.0);
+    ///     turtle.pen_down();
+    ///
+    ///     // the turtle will go up following an oscillating point
+    ///     let mut i: f64 = 0.0;
+    ///     // choosing an arbitrary constant to multiply 
+    ///     // the cos function, result between -5000 and 5000
+    ///     let c = 5000.0;
+    ///     // just draw a few full cicles
+    ///     while i < 15.0 {
+    ///         let f = (i).cos()*c;
+    ///         // following the oscillating point above at y=1000
+    ///         turtle.turn_towards([f, 1000.0]);
+    ///         // going forward for a small amount
+    ///         turtle.forward(1.0);
+    ///         // incrementing the angle
+    ///         i = i + 0.01;
+    ///     }
     /// }
     /// ```
     pub fn turn_towards<P: Into<Point>>(&mut self, target: P) {
