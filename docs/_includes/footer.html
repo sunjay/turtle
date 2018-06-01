@@ -1,0 +1,62 @@
+<footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="social-media-list">
+          <li>
+            {{ site.title | escape }}
+          </li>
+          <li>
+            {% include icon-github.html username="sunjay/turtle" %}
+          </li>
+          <li>
+            {% include icon-twitter.html username="RustTurtle" %}
+          </li>
+          <li>Tweet your drawings to us!</li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          <li>
+            <a href="https://www.rust-lang.org" target="_blank">
+              The Rust Programming Language
+            </a>
+          </li>
+          <li>
+            {% include icon-github.html username="rust-lang/rust" %}
+          </li>
+          <li>
+            {% include icon-twitter.html username="rustlang" %}
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <ul class="social-media-list">
+          {% if site.author %}
+          <li>{{ site.author }}</li>
+          {% endif %}
+
+          {% if site.github_username %}
+          <li>
+            {% include icon-github.html username=site.github_username %}
+          </li>
+          {% endif %}
+
+          {% if site.twitter_username %}
+          <li>
+            {% include icon-twitter.html username=site.twitter_username %}
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      {% if site.author %}
+      <p class="copyright">&copy; 2017-{{ site.time | date: "%Y" }} {{ site.author }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+</footer>

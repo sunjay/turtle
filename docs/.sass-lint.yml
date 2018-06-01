@@ -1,0 +1,3 @@
+rules:
+  no-color-literals: 0
+  force-pseudo-nesting: 0

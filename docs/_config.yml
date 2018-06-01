@@ -1,0 +1,44 @@
+title: Turtle
+author: Sunjay Varma
+description: Create Animated Drawings in Rust
+# the subpath of your site, e.g. /blog
+baseurl: ""
+# the base hostname & protocol for your site, e.g. https://example.com
+url: "https://turtle.rs"
+twitter_username: sunjay03
+github_username:  sunjay
+google_analytics: UA-108453371-1
+
+header_pages:
+  - guide/index.md
+
+# Build settings
+markdown: kramdown
+kramdown:
+  syntax_highlighter_opts:
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+
+include:
+  - .well-known
+
+# Exclude from processing.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md
+  - serve
+  - target

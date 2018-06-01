@@ -1,0 +1,4 @@
+This is a Brave Payments publisher verification file.
+
+Domain: turtle.rs
+Token: a9550f7abcb63027fc099468d4ac16aa84a7349ab3d687729be7ec407d9b297b

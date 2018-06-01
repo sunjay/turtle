@@ -1,0 +1,155 @@
+---
+---
+
+.headline-section {
+  background: #fff;
+  margin-top: -30px;
+  padding: 20px 0;
+
+  .wrapper {
+    display: grid;
+  }
+
+  .section-text {
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .wrapper {
+      grid-template-columns: auto auto;
+      grid-template-rows: auto auto;
+    }
+  }
+}
+
+.headline {
+  font-size: 2em;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+
+  @media (min-width: 768px) {
+    font-size: 2.5em;
+  }
+}
+
+.start-learning {
+  grid-row: 3;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
+.rust-drawing {
+  display: block;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+
+  @media (min-width: 768px) {
+    grid-column: 2;
+    grid-row-end: 3;
+    grid-row-start: 1;
+    margin-bottom: 0;
+    margin-left: 10px;
+    margin-top: 0;
+  }
+}
+
+.home-section {
+  background: #fff;
+
+  &:last-child {
+    margin-bottom: -30px;
+  }
+
+  .wrapper {
+    align-items: start;
+    display: grid;
+    grid-column-gap: 20px;
+    grid-row-gap: 20px;
+    grid-template-areas:
+      'heading'
+      'figure'
+      'text';
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+
+  .highlight {
+    text-align: center;
+  }
+
+  &:nth-child(2n+1) {
+    background: #03a9f4;
+    border: 1px solid rgba(55, 55, 55, 0.25);
+    border-left: 0;
+    border-right: 0;
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0,0,0,.25);
+
+    h2 {
+      border-color: #fff;
+    }
+  }
+
+  h2 {
+    font-size: 2em;
+    grid-area: heading;
+    margin: 0;
+    padding-bottom: 10px;
+    text-align: center;
+  }
+
+  .section-text {
+    grid-area: text;
+    // https://stackoverflow.com/a/43312314/551904
+    min-width: 0;
+  }
+
+  .section-image,
+  .section-code {
+    grid-area: figure;
+    // https://stackoverflow.com/a/43312314/551904
+    min-width: 0;
+  }
+
+  .section-image {
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .wrapper {
+      grid-template-areas:
+        'figure heading'
+        'figure text';
+      grid-template-columns: 40% auto;
+      grid-template-rows: 2.5em auto;
+    }
+
+    .highlight {
+      text-align: left;
+    }
+
+    &:nth-child(2n) .wrapper {
+      grid-template-areas:
+        'heading figure'
+        'text figure';
+      grid-template-columns: auto auto;
+    }
+
+    h2 {
+      border-bottom: 1px solid #212121;
+      text-align: left;
+    }
+
+    .section-text {
+      font-size: 1.2em;
+      padding-top: 20px;
+    }
+  }
+}
