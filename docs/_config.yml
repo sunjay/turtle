@@ -10,7 +10,7 @@ github_username:  sunjay
 google_analytics: UA-108453371-1
 
 header_pages:
-  - docs/index.md
+  - guide/index.md
 
 # Build settings
 markdown: kramdown

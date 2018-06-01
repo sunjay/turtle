@@ -2,7 +2,7 @@
 layout: docs
 title: Drawing Shapes
 docs_title: Drawing Shapes
-permalink: /docs/drawing-shapes/
+permalink: /guide/drawing-shapes/
 ---
 
 ## This page is under construction!

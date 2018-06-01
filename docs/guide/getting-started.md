@@ -2,7 +2,7 @@
 layout: docs
 title: Getting Started
 docs_title: Getting Started
-permalink: /docs/getting-started/
+permalink: /guide/getting-started/
 ---
 
 ## Installing Rust

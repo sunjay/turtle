@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: Basic Movement
-docs_title: Basic Movement
-permalink: /docs/basic-movement/
+title: Basic Rotation
+docs_title: Basic Rotation
+permalink: /guide/basic-rotation/
 ---
 
 ## This page is under construction!

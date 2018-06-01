@@ -3,7 +3,7 @@ layout: docs
 title: Turtle Documentation
 nav_title: Guide
 docs_title: Welcome!
-permalink: /docs/
+permalink: /guide/
 ---
 
 ## Welcome to Turtle!
@@ -26,4 +26,4 @@ In the meantime, the following resources should help you learn what you need:
     think could use some more documentation
 
 To start using Turtle, follow the instructions in the
-[**Getting Started**]({% link docs/getting-started.md %}) section.
+[**Getting Started**]({% link guide/getting-started.md %}) section.
