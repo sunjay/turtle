@@ -4,7 +4,7 @@ use std::f64::consts::PI;
 use std::cmp::Ordering;
 
 use radians::Radians;
-use rand::{Rand, Rng};
+use rand::{distributions::{Distribution, Standard}, Rng};
 use {Distance};
 
 const MIN_SPEED: i32 = 1;
@@ -252,8 +252,8 @@ impl PartialOrd<i32> for Speed {
     }
 }
 
-impl Rand for Speed {
-    fn rand<R: Rng>(rng: &mut R) -> Self {
+impl Distribution<Speed> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Speed {
         rng.gen_range(MIN_SPEED, MAX_SPEED + 1).into()
     }
 }

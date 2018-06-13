@@ -1,6 +1,6 @@
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 
-use rand::{Rng, Rand, RandomRange};
+use rand::{Rng, distributions::{Distribution, Standard}, RandomRange};
 use interpolation::Spatial;
 
 /// A point in 2D space
@@ -315,9 +315,9 @@ impl Spatial for Point {
     }
 }
 
-impl Rand for Point {
-    fn rand<R: Rng>(rng: &mut R) -> Self {
-        Self {
+impl Distribution<Point> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Point {
+        Point {
             x: rng.gen(),
             y: rng.gen(),
         }

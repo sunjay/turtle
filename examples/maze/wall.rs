@@ -1,4 +1,4 @@
-use turtle::rand::{Rand, Rng};
+use turtle::rand::{distributions::{Distribution, Standard}, Rng};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Wall {
@@ -6,9 +6,9 @@ pub enum Wall {
     Closed,
 }
 
-impl Rand for Wall {
-    fn rand<R: Rng>(rng: &mut R) -> Self {
-        // Taken from Rand impl for bool in rand crate
+impl Distribution<Wall> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Wall {
+        // Taken from impl for bool in rand crate
         if rng.gen::<u8>() & 1 == 1 {
             Wall::Open
         }

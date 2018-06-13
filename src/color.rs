@@ -157,7 +157,7 @@ use std::fmt::Debug;
 use std::iter::repeat;
 
 use piston_window::types;
-use rand::{Rand, Rng};
+use rand::{distributions::{Distribution, Standard}, Rng};
 
 /// The maximum allowed value for RGB
 const RGB_MAX_VAL: f64 = 255.0;
@@ -1094,14 +1094,14 @@ impl Color {
     }
 }
 
-impl Rand for Color {
-    fn rand<R: Rng>(rng: &mut R) -> Self {
+impl Distribution<Color> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Color {
         let red = rng.gen::<f64>() * 255.;
         let green = rng.gen::<f64>() * 255.;
         let blue = rng.gen::<f64>() * 255.;
         let alpha = rng.gen::<f64>();
 
-        Self::rgba(red, green, blue, alpha)
+        Color::rgba(red, green, blue, alpha)
     }
 }
 
