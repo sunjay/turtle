@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+# Minimum python version 3.5.2
+
+##################################################################
+#
+# FOR USAGE INSTRUCTIONS: ./build-wasm --help
+#
+##################################################################
+
+# To build with emscripten instead, download `wargo` and use `wargo build`
+# instead of `cargo build`
+# https://github.com/lord/wargo
+
+import os
+import sys
+import shlex
+import argparse
+import subprocess
+import pathlib
+
+description = """
+Build turtle or its examples into WebAssembly files. Automatically builds in
+release mode (with debug symbols) and uses wasm-gc to compress the generated
+WASM even further. Reasonably configurable, see documentation below.
+
+Uses the stable toolchain (configurable via the rust-toolchain file) because
+that is the version supported by turtle.
+
+# Examples
+
+Build `examples/circle.rs` into WebAssembly:
+
+    ./build-wasm --example circle
+
+To also generate a .wat file in the WebAssembly text format, use --wat:
+
+    ./build-wasm --example circle --wat
+
+To see the exact commands being run, use -V or --verbose:
+
+    ./build-wasm --example circle --wat -V
+
+# Tools
+
+cargo is available via: https://rustup.rs
+wasm-gc is available via: https://github.com/alexcrichton/wasm-gc
+                  or via: `cargo install wasm-gc`
+wasm2wat is available via: https://github.com/WebAssembly/wabt
+
+# Usage
+
+""".strip()
+
+class Color:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
+def main():
+    args = parse_args()
+
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    build_command = ['cargo', 'build', '--no-default-features']
+    env = dict(**os.environ)
+    dest_wasm = ''
+
+    if args.target:
+        build_command.extend(['--target', args.target])
+
+    if args.release_mode:
+        build_command.append('--release')
+        # Make sure debug symbols are included so we can debug
+        env.setdefault("RUSTFLAGS", "-g")
+
+    if args.example:
+        build_command.extend(['--example', args.example])
+        build_mode = 'release' if args.release_mode else 'debug'
+        dest_wasm = os.path.join(
+            cwd,
+            "target",
+            args.target,
+            build_mode,
+            'examples',
+            '{}.wasm'.format(args.example),
+        )
+
+    run_debug(build_command, env=env, cwd=cwd, verbose=args.verbose)
+
+    if args.wasm_gc and dest_wasm:
+        gc_file = str(pathlib.Path(dest_wasm).with_suffix('.gc.wasm'))
+        wasm_gc = ['wasm-gc', dest_wasm, '-o', gc_file]
+        run_debug(wasm_gc, cwd=cwd, verbose=args.verbose)
+
+        dest_wasm = gc_file
+
+    if dest_wasm:
+        info('Output WASM:', os.path.relpath(dest_wasm))
+
+    if args.wat and dest_wasm:
+        wat_file = str(pathlib.Path(dest_wasm).with_suffix('.wat'))
+        wasm_gc = [
+            'wasm2wat',
+            '--ignore',
+            '--fold',
+            '--gen',
+            '--inline-export',
+            '--no-check',
+            dest_wasm,
+        ]
+        with open(wat_file, 'w') as f:
+            run_debug(wasm_gc, cwd=cwd, verbose=args.verbose, stdout=f)
+        info('Output WAT:', os.path.relpath(wat_file))
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=description
+    )
+    parser.add_argument('--example', dest='example', default=None,
+        help='The specific example to compile into WASM')
+    parser.add_argument('--target', dest='target', metavar='TARGET',
+        default='wasm32-unknown-unknown',
+        help='Default: wasm32-unknown-unknown')
+    parser.add_argument('--no-release', dest='release_mode', action='store_false',
+        default=True, help='Do not use --release')
+    parser.add_argument('--no-gc', dest='wasm_gc', action='store_false',
+        default=True, help='Do not run wasm-gc on the file')
+    parser.add_argument('--wat', dest='wat', action='store_true',
+        default=False, help='Generate .wat file from .wasm using wasm2wat')
+    parser.add_argument('-V', '--verbose', dest='verbose', action='store_true',
+        default=False, help='More verbose logging')
+
+    return parser.parse_args()
+
+def run_debug(cmd, *, env=os.environ, cwd, verbose, **kwargs):
+    if verbose:
+        debug('Running command:', ' '.join(map(shlex.quote, cmd)))
+        # Only print the environment variables that we added
+        added_vars = {k: env[k] for k in set(env.keys()) - set(os.environ.keys())}
+        debug('  Added Environment:', added_vars)
+        debug('  Current Working Directory:', os.path.relpath(cwd))
+
+    subprocess.run(cmd, env=env, cwd=cwd, **kwargs).check_returncode()
+
+def info(*args, bold=False, **kwargs):
+    fmt_print(Color.BLUE, *args, bold=bold, **kwargs)
+
+def debug(*args, bold=False, **kwargs):
+    fmt_print(Color.YELLOW, *args, bold=bold, **kwargs)
+
+def fmt_print(color, *args, bold=False, **kwargs):
+    print(color, end='')
+    if bold:
+        print(Color.BOLD, end='')
+    print(*args, **kwargs)
+    print(Color.END, end='')
+
+if __name__ == '__main__':
+    main()
