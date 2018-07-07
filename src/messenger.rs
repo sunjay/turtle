@@ -1,5 +1,8 @@
 //! Utilities for I/O shared by the client and server
 
+#[cfg(target_arch = "wasm32")]
+compile_error!("This module should not be included when compiling to wasm");
+
 use std::io::{Read, Write, BufReader, BufRead};
 
 use serde::Serialize;
