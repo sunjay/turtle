@@ -156,6 +156,7 @@
 use std::fmt::Debug;
 use std::iter::repeat;
 
+#[cfg(not(target_arch = "wasm32"))]
 use piston_window::types;
 use rand::{distributions::{Distribution, Standard}, Rng};
 
@@ -1107,6 +1108,7 @@ impl Distribution<Color> for Standard {
 
 // Docs are hidden because this is an implementation detail
 #[doc(hidden)]
+#[cfg(not(target_arch = "wasm32"))]
 impl From<Color> for types::Color {
     fn from(color: Color) -> Self {
         [

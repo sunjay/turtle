@@ -6,8 +6,9 @@ use std::fmt::Debug;
 
 use radians::{self, Radians};
 use turtle_window::TurtleWindow;
-use event::MouseButton;
-use {Point, Speed, Color, Event, Drawing};
+#[cfg(not(target_arch = "wasm32"))]
+use event::{Event, MouseButton};
+use {Point, Speed, Color, Drawing};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
@@ -954,7 +955,7 @@ impl Turtle {
     ///
     ///     // the turtle will go up following an oscillating point
     ///     let mut i: f64 = 0.0;
-    ///     // choosing an arbitrary constant to multiply 
+    ///     // choosing an arbitrary constant to multiply
     ///     // the cos function, result between -5000 and 5000
     ///     let c = 5000.0;
     ///     // just draw a few full cicles
@@ -1019,6 +1020,7 @@ impl Turtle {
     ///     turtle.forward(100.0);
     /// }
     /// ```
+    #[cfg(not(target_arch = "wasm32"))] //FIXME: Port to WASM
     pub fn wait_for_click(&mut self) {
         loop {
             if let Some(Event::MouseButtonReleased(MouseButton::Left)) = self.drawing_mut().poll_event() {

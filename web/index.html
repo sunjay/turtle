@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script>
+  WebAssembly.instantiateStreaming(
+    fetch('/target/wasm32-unknown-unknown/release/examples/circle.gc.wasm'),
+    {env: {cos: Math.cos, sin: Math.sin}}
+  ).then(wasmModule => {
+    console.log("Successfully loaded WASM module!");
+    window.wasmModule = wasmModule;
+    wasmModule.instance.exports.main()
+  });
+  </script>
+</head>
+<body></body>
+</html>

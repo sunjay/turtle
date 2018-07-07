@@ -2,6 +2,9 @@
 //!
 //! See [`Event`](enum.Event.html) for more information.
 
+#[cfg(target_arch = "wasm32")]
+compile_error!("This module should not be included when compiling to wasm");
+
 use piston_window::{
     Event as PistonEvent,
     Input, ButtonArgs,

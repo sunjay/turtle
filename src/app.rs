@@ -1,3 +1,6 @@
+#[cfg(target_arch = "wasm32")]
+compile_error!("This module should not be included when compiling to wasm");
+
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use state::{TurtleState, DrawingState, Path};

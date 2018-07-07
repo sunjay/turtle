@@ -1,3 +1,6 @@
+#[cfg(target_arch = "wasm32")]
+compile_error!("This module should not be included when compiling to wasm");
+
 use std::thread;
 use std::sync::mpsc::{self, TryRecvError};
 

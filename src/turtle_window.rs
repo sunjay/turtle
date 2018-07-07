@@ -1,13 +1,12 @@
 use std::time::Instant;
 use std::cell::RefCell;
 
-use server;
 use renderer_process::RendererProcess;
 use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
 use radians::Radians;
-use {Point, Distance, Event};
+use {Point, Distance, Event, start};
 
 use self::DrawingCommand::*;
 
@@ -20,7 +19,7 @@ impl TurtleWindow {
         // This needs to be called as close to the start of the program as possible
         // Since Turtle::new() is called at the beginning of many turtle programs, we do so here
         // to make sure this call occurs when it should.
-        server::start();
+        start();
 
         Self {
             renderer: RefCell::new(RendererProcess::new()),
