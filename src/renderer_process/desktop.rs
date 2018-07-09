@@ -1,14 +1,13 @@
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(all(feature = "desktop", not(any(feature = "test", test)))))]
+compile_error!("This module should not be included when compiling to wasm");
+
 use std::sync::mpsc;
-#[cfg(all(feature = "desktop", not(any(feature = "test", test))))]
 use std::{env, thread, process};
 
 use query::{Query, Response};
-#[cfg(all(feature = "desktop", not(any(feature = "test", test))))]
 use messenger::{self, Disconnected};
 
 /// Manages the renderer process and all communication with it
-#[cfg(all(feature = "desktop", not(any(feature = "test", test))))]
 pub struct RendererProcess {
     process: process::Child,
     thread_handle: Option<thread::JoinHandle<()>>,
@@ -16,7 +15,6 @@ pub struct RendererProcess {
     response_channel: mpsc::Receiver<Response>,
 }
 
-#[cfg(all(feature = "desktop", not(any(feature = "test", test))))]
 impl RendererProcess {
     /// Spawn the renderer process and also a thread for communicating with that process
     pub fn new() -> Self {
@@ -125,7 +123,6 @@ impl RendererProcess {
     }
 }
 
-#[cfg(all(feature = "desktop", not(any(feature = "test", test))))]
 impl Drop for RendererProcess {
     fn drop(&mut self) {
         // If the current thread is panicking, we want to abort right away
@@ -152,50 +149,5 @@ impl Drop for RendererProcess {
             },
             Err(_) => unreachable!("bug: renderer process never ran even though we exited"),
         }
-    }
-}
-
-/// A special "renderer process" specifically for communicating through the web assembly boundary
-/// to the JavaScript that is running this program.
-#[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
-pub struct RendererProcess {
-}
-
-#[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
-impl RendererProcess {
-    pub fn new() -> Self {
-        Self {
-        }
-    }
-
-    pub fn send_query(&mut self, query: Query) -> Option<Response> {
-        println!("{}", ::serde_json::to_string(&query).unwrap());
-        None
-    }
-}
-
-/// A special "renderer process" specifically for tests. Simulates the renderer process by
-/// providing all of the same functionality and reusing internal parts of the server. No actual
-/// process or additional threads are spawned.
-#[cfg(any(feature = "test", test))]
-pub struct RendererProcess {
-    app: ::app::TurtleApp,
-    events: (mpsc::Sender<::Event>, mpsc::Receiver<::Event>),
-    drawing: (mpsc::Sender<::query::DrawingCommand>, mpsc::Receiver<::query::DrawingCommand>),
-}
-
-#[cfg(any(feature = "test", test))]
-impl RendererProcess {
-    pub fn new() -> Self {
-        Self {
-            app: ::app::TurtleApp::new(),
-            events: mpsc::channel(),
-            drawing: mpsc::channel(),
-        }
-    }
-
-    pub fn send_query(&mut self, query: Query) -> Option<Response> {
-        ::server::handle_query_for_test_use_only(query, &mut self.app, &self.events.1, &self.drawing.0)
-            .expect("test bug: a query failed to be successful")
     }
 }
