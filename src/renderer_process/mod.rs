@@ -9,14 +9,14 @@
 #[cfg(all(feature = "desktop", not(any(feature = "test", test))))]
 mod desktop;
 #[cfg(all(feature = "desktop", not(any(feature = "test", test))))]
-pub use self::desktop::RendererProcess;
+pub use self::desktop::*;
 
 #[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
 mod wasm;
 #[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
-pub use self::wasm::RendererProcess;
+pub use self::wasm::*;
 
 #[cfg(any(feature = "test", test))]
 mod test;
 #[cfg(any(feature = "test", test))]
-pub use self::test::RendererProcess;
+pub use self::test::*;
