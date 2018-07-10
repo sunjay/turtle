@@ -1,5 +1,4 @@
 //! Extension traits for various types
-use std::time::Duration;
 
 use {Point};
 
@@ -33,20 +32,6 @@ impl ConvertScreenCoordinates for Point {
             x: self.x - center.x,
             y: center.y - self.y,
         }
-    }
-}
-
-pub trait AsMillis {
-    /// Converts the given Duration into its value in milliseconds
-    ///
-    /// This used to be part of the API but it is easy enough to compute
-    /// from the current one as well.
-    fn as_millis(&self) -> u64;
-}
-
-impl AsMillis for Duration {
-    fn as_millis(&self) -> u64 {
-        self.as_secs() * 1000 + u64::from(self.subsec_nanos() / 1_000_000)
     }
 }
 

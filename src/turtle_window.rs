@@ -1,4 +1,3 @@
-use std::time::Instant;
 use std::cell::RefCell;
 
 use renderer_process::RendererProcess;
@@ -6,6 +5,7 @@ use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
 use state::{TurtleState, DrawingState, Path};
 use query::{Query, Request, StateUpdate, DrawingCommand, Response};
 use radians::Radians;
+use timer::Timer;
 use {Point, Distance, Event, start};
 
 use self::DrawingCommand::*;
@@ -103,7 +103,7 @@ impl TurtleWindow {
 
         let animation = MoveAnimation {
             path: Path {start, end, pen},
-            timer: Instant::now(),
+            timer: Timer::start(),
             total_millis,
         };
 
@@ -131,7 +131,7 @@ impl TurtleWindow {
 
         let animation = MoveAnimation {
             path: Path {start, end, pen},
-            timer: Instant::now(),
+            timer: Timer::start(),
             total_millis,
         };
 
@@ -154,7 +154,7 @@ impl TurtleWindow {
             start: heading,
             delta_angle: angle,
             clockwise,
-            timer: Instant::now(),
+            timer: Timer::start(),
             total_millis,
         };
 

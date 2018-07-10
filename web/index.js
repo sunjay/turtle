@@ -9,8 +9,9 @@
     const wasm = {};
     const imports = {
       env: {
-        cos: Math.cos,
-        sin: Math.sin,
+        cos: (x) => Math.cos(x),
+        sin: (x) => Math.sin(x),
+        now: () => Date.now(),
         send_query(raw_str) {
           const str = copyCStr(wasm, raw_str);
           console.log(str);

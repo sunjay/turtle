@@ -61,6 +61,7 @@ mod speed;
 mod point;
 mod radians;
 mod animation;
+mod timer;
 mod extensions;
 #[cfg(not(target_arch = "wasm32"))]
 mod renderer;
