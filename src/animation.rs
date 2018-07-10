@@ -1,12 +1,9 @@
-use std::time::Instant;
-
 #[cfg(not(any(feature = "test", test)))]
 use interpolation::lerp;
 
 use radians::{self, Radians};
 use state::{TurtleState, Path};
-#[cfg(not(any(feature = "test", test)))]
-use extensions::AsMillis;
+use timer::Timer;
 
 pub trait Animation {
     /// Advance the animation forward.
@@ -53,7 +50,7 @@ pub struct MoveAnimation {
     /// timer since the start of the animation
     ///
     /// used with total_millis to calculate t in lerp
-    pub timer: Instant,
+    pub timer: Timer,
     /// the total time the animation is meant to take based on the speed and length from
     /// start to finish
     ///
@@ -71,7 +68,7 @@ impl Animation for MoveAnimation {
         use self::AnimationStatus::*;
 
         let MoveAnimation {ref path, ref timer, total_millis} = *self;
-        let elapsed = AsMillis::as_millis(&timer.elapsed()) as f64;
+        let elapsed = timer.elapsed_millis() as f64;
         if elapsed >= total_millis {
             turtle.position = path.end;
             Complete(Some(path.clone()))
@@ -115,7 +112,7 @@ pub struct RotateAnimation {
     /// timer since the start of the animation
     ///
     /// used with total_millis to calculate t in lerp
-    pub timer: Instant,
+    pub timer: Timer,
     /// the total time the animation is meant to take based on the speed and length from
     /// start to finish
     ///
@@ -133,7 +130,7 @@ impl Animation for RotateAnimation {
         use self::AnimationStatus::*;
 
         let RotateAnimation {start, delta_angle, clockwise, ref timer, total_millis} = *self;
-        let elapsed = AsMillis::as_millis(&timer.elapsed()) as f64;
+        let elapsed = timer.elapsed_millis() as f64;
 
         if elapsed >= total_millis {
             turtle.heading = rotate(start, delta_angle, clockwise);
