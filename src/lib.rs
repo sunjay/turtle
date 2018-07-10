@@ -32,7 +32,7 @@
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
 
-#![cfg_attr(target_arch = "wasm32", crate_type = "dylib")]
+#![cfg_attr(target_arch = "wasm32", crate_type = "cdylib")]
 
 #[cfg(all(test, not(feature = "test")))]
 compile_error!("Make sure you run tests with `cargo test --features test`");
