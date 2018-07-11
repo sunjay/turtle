@@ -2,6 +2,7 @@
 compile_error!("This module should only be included when compiling to wasm");
 
 use std::mem;
+use std::fmt::Debug;
 use std::ffi::{CString, CStr};
 use std::os::raw::{c_char, c_void};
 
@@ -12,6 +13,7 @@ use query::{Query, Response};
 // Functions preovided by JavaScript, to be called by the WebAssembly generated from Rust
 extern "C" {
     fn send_query(query: *const c_char) -> *const c_char;
+    fn _log(message: *const c_char);
 }
 
 // In order to work with the memory in WASM, we expose allocation and deallocation methods
@@ -42,6 +44,12 @@ pub extern "C" fn dealloc_str(ptr: *mut c_char) {
     unsafe {
         let _ = CString::from_raw(ptr);
     }
+}
+
+/// Prints a value out to the JavaScript console (for debugging purposes)
+pub(crate) fn _debug<T: Debug>(value: T) {
+    let raw_str = CString::new(format!("{:?}", value)).unwrap().into_raw();
+    unsafe { _log(raw_str) };
 }
 
 /// A special "renderer process" specifically for communicating through the web assembly boundary
