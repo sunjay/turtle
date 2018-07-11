@@ -2,7 +2,7 @@
 compile_error!("This module should only be included when compiling to wasm");
 
 use std::mem;
-use std::ffi::CString;
+use std::ffi::{CString, CStr};
 use std::os::raw::{c_char, c_void};
 
 use serde_json;
@@ -11,7 +11,7 @@ use query::{Query, Response};
 
 // Functions preovided by JavaScript, to be called by the WebAssembly generated from Rust
 extern "C" {
-    fn send_query(query: *const c_char);
+    fn send_query(query: *const c_char) -> *const c_char;
 }
 
 // In order to work with the memory in WASM, we expose allocation and deallocation methods
@@ -56,10 +56,20 @@ impl RendererProcess {
     pub fn send_query(&mut self, query: Query) -> Option<Response> {
         let query_str = serde_json::to_string(&query).unwrap();
         let c_str = CString::new(query_str).unwrap();
-        let raw_str = c_str.into_raw();
         // Once the string is passed into JavaScript, JavaScript is now considered the owner of
         // that string.
-        unsafe { send_query(raw_str) };
-        None //TODO
+        let raw_str = c_str.into_raw();
+        let response_cstr = unsafe { CStr::from_ptr(send_query(raw_str)) };
+        // Requests need responses
+        if let Query::Request(_) = query {
+            let response_str = response_cstr.to_str()
+                .expect("String provided by JavaScript was not valid UTF-8");
+            let response = serde_json::from_str(response_str)
+                .expect("String provided by JavaScript was not valid JSON");
+            Some(response)
+        }
+        else {
+            None
+        }
     }
 }
