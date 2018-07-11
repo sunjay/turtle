@@ -12,6 +12,10 @@
         cos(x) { return Math.cos(x); },
         sin(x) { return Math.sin(x); },
         now() { return Date.now(); },
+        _log(message_ptr) {
+          const message = copyStringFromWasm(wasm, message_ptr);
+          console.log(message);
+        },
         send_query(str_ptr) {
           const str = copyStringFromWasm(wasm, str_ptr);
           console.log(str);
