@@ -9,12 +9,14 @@
     const wasm = {};
     const imports = {
       env: {
-        cos: (x) => Math.cos(x),
-        sin: (x) => Math.sin(x),
-        now: () => Date.now(),
-        send_query(raw_str) {
-          const str = copyCStr(wasm, raw_str);
+        cos(x) { return Math.cos(x); },
+        sin(x) { return Math.sin(x); },
+        now() { return Date.now(); },
+        send_query(str_ptr) {
+          const str = copyStringFromWasm(wasm, str_ptr);
           console.log(str);
+          const response = createWasmString(wasm, '{"TurtleState":{"pen":{"enabled":true,"thickness":1.0,"color":{"red":0.0,"green":0.0,"blue":0.0,"alpha":1.0}},"fill_color":{"red":0.0,"green":0.0,"blue":0.0,"alpha":1.0},"position":{"x":0.0,"y":0.0},"heading":1.5707963267948966,"speed":{"Value":10},"visible":true}}');
+          return response;
         },
       },
     };
@@ -37,10 +39,12 @@
   * until it reaches the NULL terminator '\0'. If no NULL terminator is found,
   * an exception will be thrown.
   */
-  function copyCStr(wasm, ptr) {
-    let orig_ptr = ptr;
+  function copyStringFromWasm(wasm, ptr) {
+    // Code adapted from: https://github.com/WasmBlock/WasmBlock/blob/bc5959dd7b0d0d5f5ed4033b149591574bad68b6/wasmblock.js#L31
+
+    const orig_ptr = ptr;
     const collectCString = function* () {
-      let memory = new Uint8Array(wasm.memory.buffer);
+      const memory = new Uint8Array(wasm.memory.buffer);
       while (memory[ptr] !== 0) {
         if (memory[ptr] === undefined) {
           throw new Error("Tried to read undef mem");
@@ -56,5 +60,29 @@
     // Free the allocated string memory once we are done with it
     wasm.dealloc_str(orig_ptr);
     return buffer_as_utf8;
+  }
+
+  /**
+   * Creates a new NULL-terminated string in the WebAssembly memory for the
+   * given string. Space is allocated for the length of the given string + 1
+   * and then the entire string is encoded and stored as UTF-8 with a
+   * NULL-terminator at the end.
+   */
+  function createWasmString(module, str) {
+    // Code adapted from: https://github.com/WasmBlock/WasmBlock/blob/bc5959dd7b0d0d5f5ed4033b149591574bad68b6/wasmblock.js#L71
+
+    const utf8Encoder = new TextEncoder("UTF-8");
+    const string_buffer = utf8Encoder.encode(str);
+    const len = string_buffer.length;
+    const ptr = module.alloc(len+1);
+
+    const memory = new Uint8Array(module.memory.buffer);
+    for (let i = 0; i < len; i++) {
+      memory[ptr+i] = string_buffer[i];
+    }
+
+    memory[ptr+len] = 0;
+
+    return ptr;
   }
 })(window, document);
