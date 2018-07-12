@@ -34,7 +34,8 @@ impl Timer {
 // Functions preovided by JavaScript, to be called by the WebAssembly generated from Rust
 #[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
 extern "C" {
-    fn now() -> u64;
+    // WASM doesn't support passing i64 between JavaScript, so we can only use u32 here, not u64
+    fn now() -> u32;
 }
 
 #[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
@@ -55,6 +56,6 @@ impl Timer {
     }
 
     fn now() -> u64 {
-        unsafe { now() }
+        (unsafe { now() }) as u64
     }
 }
