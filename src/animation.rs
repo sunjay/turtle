@@ -71,7 +71,7 @@ impl Animation for MoveAnimation {
         use self::AnimationStatus::*;
 
         let MoveAnimation {ref path, ref timer, total_millis} = *self;
-        let elapsed = timer.elapsed().as_millis() as f64;
+        let elapsed = AsMillis::as_millis(&timer.elapsed()) as f64;
         if elapsed >= total_millis {
             turtle.position = path.end;
             Complete(Some(path.clone()))
@@ -133,7 +133,7 @@ impl Animation for RotateAnimation {
         use self::AnimationStatus::*;
 
         let RotateAnimation {start, delta_angle, clockwise, ref timer, total_millis} = *self;
-        let elapsed = timer.elapsed().as_millis() as f64;
+        let elapsed = AsMillis::as_millis(&timer.elapsed()) as f64;
 
         if elapsed >= total_millis {
             turtle.heading = rotate(start, delta_angle, clockwise);
