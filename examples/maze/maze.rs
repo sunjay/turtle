@@ -1,4 +1,4 @@
-use std::collections::{VecDeque, HashSet};
+use std::collections::{HashSet, VecDeque};
 use std::ops::{Deref, DerefMut};
 
 use turtle::rand::{thread_rng, Rng};
@@ -34,9 +34,7 @@ impl Maze {
 
             if grid.get(current).is_all_closed() {
                 // This cell hasn't been connected yet, let's try to do that
-                let mut visited_adjacents = adjacents.iter()
-                    .filter(|&p| visited.contains(p))
-                    .collect::<Vec<_>>();
+                let mut visited_adjacents = adjacents.iter().filter(|&p| visited.contains(p)).collect::<Vec<_>>();
                 rng.shuffle(&mut visited_adjacents);
 
                 if let Some(&&adj) = visited_adjacents.first() {
@@ -44,9 +42,7 @@ impl Maze {
                 }
             }
 
-            let mut unvisited = adjacents.into_iter()
-                .filter(|p| !visited.contains(p))
-                .collect::<Vec<_>>();
+            let mut unvisited = adjacents.into_iter().filter(|p| !visited.contains(p)).collect::<Vec<_>>();
 
             if !unvisited.is_empty() {
                 rng.shuffle(&mut unvisited);
@@ -63,7 +59,7 @@ impl Maze {
 
         let start = (0, 0);
         let finish = (grid.col_size() - 1, grid.row_size() - 1);
-        Self {grid, start, finish}
+        Self { grid, start, finish }
     }
 
     // The start of the maze (row, col)

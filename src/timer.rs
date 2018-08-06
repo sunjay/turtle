@@ -1,5 +1,5 @@
 #[cfg(not(target_arch = "wasm32"))]
-use std::time::{Instant, Duration};
+use std::time::{Duration, Instant};
 
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg_attr(any(feature = "test", test), allow(dead_code))]
@@ -10,9 +10,7 @@ pub struct Timer {
 #[cfg(not(target_arch = "wasm32"))]
 impl Timer {
     pub fn start() -> Self {
-        Self {
-            timer: Instant::now(),
-        }
+        Self { timer: Instant::now() }
     }
 
     #[cfg_attr(any(feature = "test", test), allow(dead_code))]
@@ -46,9 +44,7 @@ pub struct Timer {
 #[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
 impl Timer {
     pub fn start() -> Self {
-        Self {
-            start: Self::now(),
-        }
+        Self { start: Self::now() }
     }
 
     pub fn elapsed_millis(&self) -> u64 {

@@ -1,8 +1,8 @@
 extern crate turtle;
 
-use turtle::Turtle;
 use turtle::event::Key::{Left, Right};
 use turtle::Event::KeyPressed;
+use turtle::Turtle;
 
 fn main() {
     let mut turtle = Turtle::new();
@@ -25,7 +25,7 @@ fn main() {
                             turtle.left(4.5);
                         }
                         turtle.set_speed(4);
-                    },
+                    }
                     Right => {
                         turtle.set_speed(8);
                         for _ in 0..20 {
@@ -33,10 +33,10 @@ fn main() {
                             turtle.right(4.5);
                         }
                         turtle.set_speed(4);
-                    },
-                    _ => {},
+                    }
+                    _ => {}
                 },
-                _ => {},
+                _ => {}
             }
         }
     }

@@ -158,7 +158,10 @@ use std::iter::repeat;
 
 #[cfg(not(target_arch = "wasm32"))]
 use piston_window::types;
-use rand::{distributions::{Distribution, Standard}, Rng};
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 /// The maximum allowed value for RGB
 const RGB_MAX_VAL: f64 = 255.0;
@@ -174,14 +177,25 @@ const HUE_MAX_VAL: f64 = 360.0;
 
 macro_rules! assert_value_in_range {
     ($name:expr, $value:expr, $min:expr, $max:expr) => {
-        assert!($value >= $min && $value <= $max, "{} is not a valid value for {}, values must be between {:.1} and {:.1}.", $value, $name, $min, $max);
-    }
+        assert!(
+            $value >= $min && $value <= $max,
+            "{} is not a valid value for {}, values must be between {:.1} and {:.1}.",
+            $value,
+            $name,
+            $min,
+            $max
+        );
+    };
 }
 
 macro_rules! assert_color_valid {
     ($color:expr) => {
-        assert!($color.is_valid(), "{:?} is not a valid Color. Please see color module documentation.", $color);
-    }
+        assert!(
+            $color.is_valid(),
+            "{:?} is not a valid Color. Please see color module documentation.",
+            $color
+        );
+    };
 }
 
 /// Type for representing a color.
@@ -332,7 +346,7 @@ impl Color {
         // Link: https://github.com/killercup/hsl-rs/blob/d3b0ff50091f45bc5cf28a765be1aa52a70461d3/src/lib.rs#L111
         if saturation == 0.0 {
             let achromatic = (lightness * 255.).round();
-            return Color::rgba(achromatic, achromatic, achromatic, alpha)
+            return Color::rgba(achromatic, achromatic, achromatic, alpha);
         }
 
         // Given a hue value, convert it to the percentage of a given RGB color
@@ -345,9 +359,9 @@ impl Color {
             };
 
             match t {
-                t if t < 1./6. => p + (q - p) * 6. * t,
-                t if t < 1./2. => q,
-                t if t < 2./3. => p + (q - p) * (2./3. - t) * 6.,
+                t if t < 1. / 6. => p + (q - p) * 6. * t,
+                t if t < 1. / 2. => q,
+                t if t < 2. / 3. => p + (q - p) * (2. / 3. - t) * 6.,
                 _ => p,
             }
         };
@@ -363,9 +377,9 @@ impl Color {
 
         // Change the percentage value returned from hue_to_rgb to an actual
         // rgb value between 0 and 255
-        let red: f64 = (hue_to_rgb(p, q, h + 1./3.) * 255.).round();
+        let red: f64 = (hue_to_rgb(p, q, h + 1. / 3.) * 255.).round();
         let green: f64 = (hue_to_rgb(p, q, h) * 255.).round();
-        let blue: f64 = (hue_to_rgb(p, q, h - 1./3.) * 255.).round();
+        let blue: f64 = (hue_to_rgb(p, q, h - 1. / 3.) * 255.).round();
 
         Color::rgba(red, green, blue, alpha)
     }
@@ -374,10 +388,18 @@ impl Color {
     ///
     /// The documentation above lists the valid range for each field.
     pub fn is_valid(&self) -> bool {
-        self.red >= 0.0 && self.red <= 255.0 && self.red.is_finite() &&
-            self.green >= 0.0 && self.green <= 255.0 && self.green.is_finite() &&
-            self.blue >= 0.0 && self.blue <= 255.0 && self.blue.is_finite() &&
-            self.alpha >= 0.0 && self.alpha <= 1.0 && self.alpha.is_finite()
+        self.red >= 0.0
+            && self.red <= 255.0
+            && self.red.is_finite()
+            && self.green >= 0.0
+            && self.green <= 255.0
+            && self.green.is_finite()
+            && self.blue >= 0.0
+            && self.blue <= 255.0
+            && self.blue.is_finite()
+            && self.alpha >= 0.0
+            && self.alpha <= 1.0
+            && self.alpha.is_finite()
     }
 
     /// Return a new color with all of the same values except with opacity (alpha) set to 1.0
@@ -1064,7 +1086,7 @@ impl Color {
          *  - complement
          */
         assert_color_valid!(self);
-        let div_color = |c| { c / 255.0 };
+        let div_color = |c| c / 255.0;
         let (r, g, b) = (div_color(self.red), div_color(self.green), div_color(self.blue));
 
         let max = r.max(g.max(b));
@@ -1078,16 +1100,12 @@ impl Color {
             s = 0.;
         } else {
             let d = max - min;
-            s = if l > 0.5 {
-                d / (2. - max - min)
-            } else {
-                d / (max + min)
-            };
+            s = if l > 0.5 { d / (2. - max - min) } else { d / (max + min) };
 
             h = match max {
                 _ if max == r => (g - b) / d + if g < b { 6. } else { 0. },
                 _ if max == g => (b - r) / d + 2.,
-                _ => (r - g) / d + 4.
+                _ => (r - g) / d + 4.,
             } * 60.;
         }
 
@@ -1145,15 +1163,14 @@ impl<'a> From<&'a str> for Color {
             };
 
             // Use closure here as 's' cannot be captured when using nested fn form
-            let extract_color_value = |v| { i64::from_str_radix(v, 16).expect(&format!("Invalid color literal: {}", s)) as f64 };
+            let extract_color_value = |v| i64::from_str_radix(v, 16).expect(&format!("Invalid color literal: {}", s)) as f64;
 
             let red = extract_color_value(&color_str[0..2]);
             let green = extract_color_value(&color_str[2..4]);
             let blue = extract_color_value(&color_str[4..6]);
 
             Self::rgb(red, green, blue)
-        }
-        else {
+        } else {
             from_color_name(s)
                 .or_else(|| extended::from_color_name(s))
                 .expect(&format!("Unknown color name: {}", s))
@@ -1216,11 +1233,16 @@ color_consts! {
 mod tests {
     use super::*;
 
-    use std::f64::{NAN, INFINITY as INF, EPSILON};
+    use std::f64::{EPSILON, INFINITY as INF, NAN};
 
     #[test]
     fn color_equivalence() {
-        let c = Color {red: 51.0, green: 85.0, blue: 255.0, alpha: 1.0};
+        let c = Color {
+            red: 51.0,
+            green: 85.0,
+            blue: 255.0,
+            alpha: 1.0,
+        };
         let c1: Color = "#35f".into();
         let c2: Color = "#3355ff".into();
         let c3: Color = "#35F".into();
@@ -1235,10 +1257,26 @@ mod tests {
     fn fields_mapped_correctly() {
         // Check if array syntax maps color values to the correct fields
         let c: Color = [2.4, 3.2, 4.6, 0.67].into();
-        assert_eq!(c, Color {red: 2.4, green: 3.2, blue: 4.6, alpha: 0.67});
+        assert_eq!(
+            c,
+            Color {
+                red: 2.4,
+                green: 3.2,
+                blue: 4.6,
+                alpha: 0.67
+            }
+        );
 
         let c: Color = [2.4, 3.2, 4.6].into();
-        assert_eq!(c, Color {red: 2.4, green: 3.2, blue: 4.6, alpha: 1.0});
+        assert_eq!(
+            c,
+            Color {
+                red: 2.4,
+                green: 3.2,
+                blue: 4.6,
+                alpha: 1.0
+            }
+        );
     }
 
     #[test]
@@ -1259,23 +1297,43 @@ mod tests {
     fn valid_colors() {
         // Test that all colors in their valid ranges are valid
         // Floating-point numbers have infinite ranges, so this is not an exhaustive test
-        for i in 0..(255*2 + 1) {
+        for i in 0..(255 * 2 + 1) {
             let i = i as f64 / 2.0;
 
-            let color = Color {red: i, green: 0.0, blue: 0.0, alpha: 0.0};
+            let color = Color {
+                red: i,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.0,
+            };
             assert!(color.is_valid(), "{:?}", color);
-            let color = Color {red: 0.0, green: i, blue: 0.0, alpha: 0.0};
+            let color = Color {
+                red: 0.0,
+                green: i,
+                blue: 0.0,
+                alpha: 0.0,
+            };
             assert!(color.is_valid(), "{:?}", color);
-            let color = Color {red: 0.0, green: 0.0, blue: i, alpha: 0.0};
+            let color = Color {
+                red: 0.0,
+                green: 0.0,
+                blue: i,
+                alpha: 0.0,
+            };
             assert!(color.is_valid(), "{:?}", color);
-            let color = Color {red: 0.0, green: 0.0, blue: 0.0, alpha: i / 255.0};
+            let color = Color {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: i / 255.0,
+            };
             assert!(color.is_valid(), "{:?}", color);
 
             let color = Color {
                 red: 255.0 - i,
                 green: i,
                 blue: 255.0 - i,
-                alpha: i / 255.0
+                alpha: i / 255.0,
             };
             assert!(color.is_valid(), "{:?}", color);
         }
@@ -1283,41 +1341,221 @@ mod tests {
 
     #[test]
     fn invalid_color3() {
-        assert!(!Color {red: NAN, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: NAN, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: NAN, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: NAN}.is_valid());
-        assert!(!Color {red: NAN, green: NAN, blue: NAN, alpha: NAN}.is_valid());
+        assert!(
+            !Color {
+                red: NAN,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: NAN,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: NAN,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: NAN
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: NAN,
+                green: NAN,
+                blue: NAN,
+                alpha: NAN
+            }.is_valid()
+        );
 
-        assert!(!Color {red: INF, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: INF, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: INF, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: INF}.is_valid());
-        assert!(!Color {red: INF, green: INF, blue: INF, alpha: INF}.is_valid());
+        assert!(
+            !Color {
+                red: INF,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: INF,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: INF,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: INF
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: INF,
+                green: INF,
+                blue: INF,
+                alpha: INF
+            }.is_valid()
+        );
 
-        assert!(!Color {red: -INF, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: -INF, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: -INF, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: -INF}.is_valid());
-        assert!(!Color {red: -INF, green: -INF, blue: -INF, alpha: -INF}.is_valid());
+        assert!(
+            !Color {
+                red: -INF,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: -INF,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: -INF,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: -INF
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: -INF,
+                green: -INF,
+                blue: -INF,
+                alpha: -INF
+            }.is_valid()
+        );
 
         // Out of valid range
-        assert!(!Color {red: -EPSILON, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: -EPSILON, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: -EPSILON, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: -EPSILON}.is_valid());
-        assert!(!Color {red: -EPSILON, green: -EPSILON, blue: -EPSILON, alpha: -EPSILON}.is_valid());
+        assert!(
+            !Color {
+                red: -EPSILON,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: -EPSILON,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: -EPSILON,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: -EPSILON
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: -EPSILON,
+                green: -EPSILON,
+                blue: -EPSILON,
+                alpha: -EPSILON
+            }.is_valid()
+        );
 
-        assert!(!Color {red: 255.0001, green: 0.0, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 255.0001, blue: 0.0, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: 255.0001, alpha: 0.0}.is_valid());
-        assert!(!Color {red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0001}.is_valid());
-        assert!(!Color {red: 255.0001, green: 255.0001, blue: 255.0001, alpha: 1.0001}.is_valid());
+        assert!(
+            !Color {
+                red: 255.0001,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 255.0001,
+                blue: 0.0,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: 255.0001,
+                alpha: 0.0
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 1.0001
+            }.is_valid()
+        );
+        assert!(
+            !Color {
+                red: 255.0001,
+                green: 255.0001,
+                blue: 255.0001,
+                alpha: 1.0001
+            }.is_valid()
+        );
     }
 
     #[test]
     fn ensure_value_mapping() {
-        let expected = Color { red: 65., green: 122., blue: 200., alpha: 1.};
+        let expected = Color {
+            red: 65.,
+            green: 122.,
+            blue: 200.,
+            alpha: 1.,
+        };
         let actual_rgb = Color::rgb(65., 122., 200.);
         let actual_rgba = Color::rgba(65., 122., 200., 1.);
         assert_eq!(expected, actual_rgb);
@@ -1326,287 +1564,299 @@ mod tests {
 
     #[test]
     fn ensure_achromatic_hsl() {
-        let expected = Color { red: 26., green: 26., blue: 26., alpha: 1.};
+        let expected = Color {
+            red: 26.,
+            green: 26.,
+            blue: 26.,
+            alpha: 1.,
+        };
         let actual = Color::hsl(180., 0., 0.1);
         assert_eq!(expected, actual);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgb_invalid_red_negative_panic() {
         Color::rgb(-0.0000001, 20., 20.);
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgb_invalid_red_positive_panic() {
         Color::rgb(255.0000001, 20., 20.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgb_invalid_green_negative_panic() {
         Color::rgb(20., -0.0000001, 20.);
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgb_invalid_green_positive_panic() {
         Color::rgb(20., 255.0000001, 20.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgb_invalid_blue_negative_panic() {
         Color::rgb(20., 20., -0.0000001);
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgb_invalid_blue_positive_panic() {
         Color::rgb(20., 20., 255.0000001);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgba_invalid_red_negative_panic() {
         Color::rgba(-0.0000001, 20., 20., 1.);
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgba_invalid_red_positive_panic() {
         Color::rgba(255.0000001, 20., 20., 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgba_invalid_green_negative_panic() {
         Color::rgba(20., -0.0000001, 20., 1.);
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgba_invalid_green_positive_panic() {
         Color::rgba(20., 255.0000001, 20., 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgba_invalid_blue_negative_panic() {
         Color::rgba(20., 20., -0.0000001, 1.);
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgba_invalid_blue_positive_panic() {
         Color::rgba(20., 20., 255.0000001, 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
     fn ensure_rgba_invalid_alpha_negative_panic() {
         Color::rgba(20., 20., 20., -0.0000001);
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
     fn ensure_rgba_invalid_alpha_positive_panic() {
         Color::rgba(20., 20., 20., 1.0000001);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
     fn ensure_hsl_invalid_hue_negative_panic() {
         Color::hsl(-0.0000001, 1., 1.);
     }
 
     #[test]
-    #[should_panic(expected="360.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    #[should_panic(expected = "360.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
     fn ensure_hsl_invalid_hue_positive_panic() {
         Color::hsl(360.0000001, 1., 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_hsl_invalid_saturation_negative_panic() {
         Color::hsl(20., -0.0000001, 1.);
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_hsl_invalid_saturation_positive_panic() {
         Color::hsl(20., 1.0000001, 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
     fn ensure_hsl_invalid_lightness_negative_panic() {
         Color::hsl(20., 1., -0.0000001);
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
     fn ensure_hsl_invalid_lightness_positive_panic() {
         Color::hsl(20., 1., 1.0000001);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
     fn ensure_hsla_invalid_hue_negative_panic() {
         Color::hsla(-0.0000001, 1., 1., 1.);
     }
 
     #[test]
-    #[should_panic(expected="360.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
+    #[should_panic(expected = "360.0000001 is not a valid value for hue, values must be between 0.0 and 360.0")]
     fn ensure_hsla_invalid_hue_positive_panic() {
         Color::hsla(360.0000001, 1., 1., 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_hsla_invalid_saturation_negative_panic() {
         Color::hsla(20., -0.0000001, 1., 1.);
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.0000001 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_hsla_invalid_saturation_positive_panic() {
         Color::hsla(20., 1.0000001, 1., 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
     fn ensure_hsla_invalid_lightness_negative_panic() {
         Color::hsla(20., 1., -0.0000001, 1.);
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.0000001 is not a valid value for lightness, values must be between 0.0 and 1.0")]
     fn ensure_hsla_invalid_lightness_positive_panic() {
         Color::hsla(20., 1., 1.0000001, 1.);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
     fn ensure_hsla_invalid_alpha_negative_panic() {
         Color::hsla(20., 1., 1., -0.0000001);
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
     fn ensure_hsla_invalid_alpha_positive_panic() {
         Color::hsla(20., 1., 1., 1.0000001);
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgb_arr_invalid_red_negative_panic() {
         let _: Color = [-0.0000001, 20., 20.].into();
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgb_arr_invalid_red_positive_panic() {
         let _: Color = [255.0000001, 20., 20.].into();
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgb_arr_invalid_green_negative_panic() {
         let _: Color = [20., -0.0000001, 20.].into();
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgb_arr_invalid_green_positive_panic() {
         let _: Color = [20., 255.0000001, 20.].into();
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgb_arr_invalid_blue_negative_panic() {
         let _: Color = [20., 20., -0.0000001].into();
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgb_arr_invalid_blue_positive_panic() {
         let _: Color = [20., 20., 255.0000001].into();
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgba_arr_invalid_red_negative_panic() {
         let _: Color = [-0.0000001, 20., 20., 1.].into();
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for red, values must be between 0.0 and 255.0")]
     fn ensure_rgba_arr_invalid_red_positive_panic() {
         let _: Color = [255.0000001, 20., 20., 1.].into();
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgba_arr_invalid_green_negative_panic() {
         let _: Color = [20., -0.0000001, 20., 1.].into();
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for green, values must be between 0.0 and 255.0")]
     fn ensure_rgba_arr_invalid_green_positive_panic() {
         let _: Color = [20., 255.0000001, 20., 1.].into();
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgba_arr_invalid_blue_negative_panic() {
         let _: Color = [20., 20., -0.0000001, 1.].into();
     }
 
     #[test]
-    #[should_panic(expected="255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
+    #[should_panic(expected = "255.0000001 is not a valid value for blue, values must be between 0.0 and 255.0")]
     fn ensure_rgba_arr_invalid_blue_positive_panic() {
         let _: Color = [20., 20., 255.0000001, 1.].into();
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
     fn ensure_rgba_arr_invalid_alpha_negative_panic() {
         let _: Color = [20., 20., 20., -0.0000001].into();
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.0000001 is not a valid value for alpha, values must be between 0.0 and 1.0")]
     fn ensure_rgba_arr_invalid_alpha_positive_panic() {
         let _: Color = [20., 20., 20., 1.0000001].into();
     }
 
     #[test]
-    #[should_panic(expected="-360.0000001 is not a valid value for hue, values must be between -360.0 and 360.0.")]
+    #[should_panic(expected = "-360.0000001 is not a valid value for hue, values must be between -360.0 and 360.0.")]
     fn ensure_rotate_hue_invalid_negative_panic() {
         let c: Color = "blue".into();
         let _ = c.rotate_hue(-360.0000001);
     }
 
     #[test]
-    #[should_panic(expected="360.0000001 is not a valid value for hue, values must be between -360.0 and 360.0.")]
+    #[should_panic(expected = "360.0000001 is not a valid value for hue, values must be between -360.0 and 360.0.")]
     fn ensure_rotate_hue_invalid_positive_panic() {
         let c: Color = "blue".into();
         let _ = c.rotate_hue(360.0000001);
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 256.0, green: 1.0, blue: 1.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 256.0, green: 1.0, blue: 1.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_mix_invalid_color_panic() {
         let c: Color = "green".into();
-        let invalid_color = Color { red: 256., green: 1., blue: 1., alpha: 1. };
+        let invalid_color = Color {
+            red: 256.,
+            green: 1.,
+            blue: 1.,
+            alpha: 1.,
+        };
         let _ = c.mix(invalid_color, 0.50);
     }
 
     #[test]
-    #[should_panic(expected="1.0000001 is not a valid value for weight, values must be between 0.0 and 1.0.")]
+    #[should_panic(expected = "1.0000001 is not a valid value for weight, values must be between 0.0 and 1.0.")]
     fn ensure_mix_invalid_weight_panic() {
         let o: Color = "orange".into();
         let r: Color = "red".into();
@@ -1614,7 +1864,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="-0.0000001 is not a valid value for weight, values must be between 0.0 and 1.0.")]
+    #[should_panic(expected = "-0.0000001 is not a valid value for weight, values must be between 0.0 and 1.0.")]
     fn ensure_mix_negative_weight_panic() {
         let o: Color = "orange".into();
         let r: Color = "red".into();
@@ -1623,22 +1873,30 @@ mod tests {
 
     #[test]
     fn check_rgb_values() {
-        rgb_mapping_values().iter().for_each(|&(expected, (r, g, b))| assert_eq!(Color::from(expected), Color::rgb(r, g, b)));
+        rgb_mapping_values()
+            .iter()
+            .for_each(|&(expected, (r, g, b))| assert_eq!(Color::from(expected), Color::rgb(r, g, b)));
     }
 
     #[test]
     fn check_rgba_values() {
-        rgb_mapping_values().iter().for_each(|&(expected, (r, g, b))| assert_eq!(Color::from(expected), Color::rgba(r, g, b, 1.0)));
+        rgb_mapping_values()
+            .iter()
+            .for_each(|&(expected, (r, g, b))| assert_eq!(Color::from(expected), Color::rgba(r, g, b, 1.0)));
     }
 
     #[test]
     fn check_hsl_values() {
-        hsl_mapping_values().iter().for_each(|&((r, g, b), (h, s, l))| assert_eq!(Color::rgb(r, g, b), Color::hsl(h, s, l)));
+        hsl_mapping_values()
+            .iter()
+            .for_each(|&((r, g, b), (h, s, l))| assert_eq!(Color::rgb(r, g, b), Color::hsl(h, s, l)));
     }
 
     #[test]
     fn check_hsla_values() {
-        hsl_mapping_values().iter().for_each(|&((r, g, b), (h, s, l))| assert_eq!(Color::rgba(r, g, b, 1.0), Color::hsla(h, s, l, 1.0)));
+        hsl_mapping_values()
+            .iter()
+            .for_each(|&((r, g, b), (h, s, l))| assert_eq!(Color::rgba(r, g, b, 1.0), Color::hsla(h, s, l, 1.0)));
     }
 
     /// Some mappings from color name to rgb values to pass through the rgb(a) constructor methods
@@ -1783,14 +2041,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="1.1 is not a valid value for lighter, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.1 is not a valid value for lighter, values must be between 0.0 and 1.0")]
     fn ensure_lighten_invalid_positive_panic() {
         let c = Color::hsl(150., 0.4, 0.2);
         let _ = c.lighten(1.1);
     }
 
     #[test]
-    #[should_panic(expected="-0.1 is not a valid value for lighter, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.1 is not a valid value for lighter, values must be between 0.0 and 1.0")]
     fn ensure_lighten_invalid_negative_panic() {
         let c = Color::hsl(150., 0.4, 0.2);
         let _ = c.lighten(-0.1);
@@ -1815,14 +2073,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="1.1 is not a valid value for darker, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.1 is not a valid value for darker, values must be between 0.0 and 1.0")]
     fn ensure_darken_invalid_positive_panic() {
         let c = Color::hsl(150., 0.4, 0.2);
         let _ = c.darken(1.1);
     }
 
     #[test]
-    #[should_panic(expected="-0.1 is not a valid value for darker, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.1 is not a valid value for darker, values must be between 0.0 and 1.0")]
     fn ensure_darken_invalid_negative_panic() {
         let c = Color::hsl(150., 0.4, 0.2);
         let _ = c.darken(-0.1);
@@ -1847,14 +2105,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="1.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_saturation_invalid_positive_panic() {
         let c = Color::hsl(210., 0.5, 0.9);
         let _ = c.saturate(1.1);
     }
 
     #[test]
-    #[should_panic(expected="-0.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_saturation_invalid_negative_panic() {
         let c = Color::hsl(210., 0.5, 0.9);
         let _ = c.saturate(-0.1);
@@ -1879,14 +2137,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="1.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "1.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_desaturate_invalid_positive_panic() {
         let c = Color::hsl(210., 0.5, 0.9);
         let _ = c.desaturate(1.1);
     }
 
     #[test]
-    #[should_panic(expected="-0.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
+    #[should_panic(expected = "-0.1 is not a valid value for saturation, values must be between 0.0 and 1.0")]
     fn ensure_desaturate_invalid_negative_panic() {
         let c = Color::hsl(210., 0.5, 0.9);
         let _ = c.desaturate(-0.1);
@@ -1905,9 +2163,16 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_grayscale_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.grayscale();
     }
 
@@ -1930,9 +2195,16 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_complement_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.complement();
     }
 
@@ -1949,65 +2221,128 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_invert_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.invert();
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_hue_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.hue();
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_saturation_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.saturation();
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_lightness_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.lightness();
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_saturate_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.saturate(0.5);
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_desaturate_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.desaturate(0.5);
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_darken_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.darken(0.5);
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_lighten_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.lighten(0.5);
     }
 
     #[test]
-    #[should_panic(expected="Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation.")]
+    #[should_panic(
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+    )]
     fn ensure_rotate_hue_invalid_color_panics() {
-        let c = Color { red: 255., green: 256., blue: 255., alpha: 1.0};
+        let c = Color {
+            red: 255.,
+            green: 256.,
+            blue: 255.,
+            alpha: 1.0,
+        };
         let _ = c.rotate_hue(20.);
     }
 }

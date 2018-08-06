@@ -1,4 +1,4 @@
-use state::{Path, TurtleState, DrawingState};
+use state::{DrawingState, Path, TurtleState};
 use {Color, Event};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

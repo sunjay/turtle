@@ -100,7 +100,7 @@ fn inner_teeth(turtle: &mut Turtle) {
         turtle.left(90.0);
         turtle.forward(5.0);
         turtle.right(90.0);
-        for _ in 0..360/5/2 {
+        for _ in 0..360 / 5 / 2 {
             turtle.forward(3.41);
             turtle.right(2.0);
         }
@@ -111,7 +111,7 @@ fn inner_teeth(turtle: &mut Turtle) {
 fn inner_tooth_circle(turtle: &mut Turtle) {
     turtle.set_fill_color("white");
     turtle.begin_fill();
-    for _ in 0..360/8 {
+    for _ in 0..360 / 8 {
         turtle.forward(1.0);
         turtle.right(8.0);
     }
@@ -123,7 +123,7 @@ fn letter(turtle: &mut Turtle) {
     turtle.pen_up();
     turtle.right(180.0);
     turtle.pen_down();
-    for _ in 0..(360/5 - 8)/2 {
+    for _ in 0..(360 / 5 - 8) / 2 {
         turtle.forward(3.41);
         turtle.left(2.0);
     }

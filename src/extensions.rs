@@ -1,6 +1,6 @@
 //! Extension traits for various types
 
-use {Point};
+use Point;
 
 /// Conversions between different "interpretations" of coordinates.
 pub trait ConvertScreenCoordinates {
@@ -41,10 +41,10 @@ mod tests {
 
     #[test]
     fn to_screen_coords() {
-        let center = Point {x: 300.0, y: 400.0};
+        let center = Point { x: 300.0, y: 400.0 };
 
-        let point = Point {x: 20.0, y: 30.0};
-        assert_eq!(point.to_screen_coords(center), Point {x: 320.0, y: 370.0});
-        assert_eq!(point.to_local_coords(center), Point {x: -280.0, y: 370.0});
+        let point = Point { x: 20.0, y: 30.0 };
+        assert_eq!(point.to_screen_coords(center), Point { x: 320.0, y: 370.0 });
+        assert_eq!(point.to_local_coords(center), Point { x: -280.0, y: 370.0 });
     }
 }

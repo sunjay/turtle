@@ -2,7 +2,7 @@ extern crate turtle;
 
 use std::f64::consts::E;
 
-use turtle::{Turtle, Color, random};
+use turtle::{random, Color, Turtle};
 
 fn main() {
     let mut turtle = Turtle::new();
@@ -25,7 +25,7 @@ fn main() {
         let x = i as f64 * step;
         // y = e^(-x^2) translated and scaled by the width and amplitude
         // 200e^(-(1/200(x - 400))^2)
-        let y = amplitude * E.powf(-(1.0/(width / 4.0) * (x - width/2.0)).powi(2));
+        let y = amplitude * E.powf(-(1.0 / (width / 4.0) * (x - width / 2.0)).powi(2));
 
         turtle.set_pen_color(random::<Color>().opaque());
         turtle.set_pen_size(y * height_factor);

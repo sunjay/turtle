@@ -200,7 +200,10 @@ pub trait RandomRange {
     fn random_range<R: Rng>(rng: &mut R, low: Self, high: Self) -> Self;
 }
 
-impl<T> RandomRange for T where T: PartialOrd + SampleRange {
+impl<T> RandomRange for T
+where
+    T: PartialOrd + SampleRange,
+{
     fn random_range<R: Rng>(rng: &mut R, low: T, high: T) -> T {
         rng.gen_range(low, high)
     }

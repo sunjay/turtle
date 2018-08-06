@@ -5,22 +5,10 @@
 #[cfg(target_arch = "wasm32")]
 compile_error!("This module should not be included when compiling to wasm");
 
-use piston_window::{
-    Event as PistonEvent,
-    Input, ButtonArgs,
-    ButtonState,
-    Button,
-    Motion,
-};
-pub use piston_window::{
-    Key,
-    MouseButton,
-    ControllerButton,
-    ControllerAxisArgs as ControllerAxis,
-    TouchArgs as Touch,
-};
+use piston_window::{Button, ButtonArgs, ButtonState, Event as PistonEvent, Input, Motion};
+pub use piston_window::{ControllerAxisArgs as ControllerAxis, ControllerButton, Key, MouseButton, TouchArgs as Touch};
 
-use {Point};
+use Point;
 
 /// Possible events returned from [`Drawing::poll_event()`](../struct.Drawing.html#method.poll_event).
 ///
@@ -49,16 +37,16 @@ pub enum Event {
     /// `x` and `y` represent the new coordinates of where the mouse is currently.
     ///
     /// Coordinates are relative to the center of the window.
-    MouseMove {x: f64, y: f64},
+    MouseMove { x: f64, y: f64 },
     /// Sent when the mouse is scrolled. Only sent when the mouse is over the window.
     /// `x` and `y` are in scroll ticks.
-    MouseScroll {x: f64, y: f64},
+    MouseScroll { x: f64, y: f64 },
 
     /// Sent when a user touches the screen
     Touch(Touch),
 
     /// Sent when the window gets resized
-    WindowResized {width: u32, height: u32},
+    WindowResized { width: u32, height: u32 },
 
     /// Sent when the window focus changes
     ///
@@ -74,7 +62,9 @@ pub enum Event {
 
 /// Attempts to convert a piston Event to our event type
 pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> Option<Event>
-    where F: FnOnce(Point) -> Point {
+where
+    F: FnOnce(Point) -> Point,
+{
     use self::Event::*;
 
     let input_event = match *event {
@@ -83,7 +73,11 @@ pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> O
     };
 
     Some(match *input_event {
-        Input::Button(ButtonArgs {state, button, scancode: _}) => match state {
+        Input::Button(ButtonArgs {
+            state,
+            button,
+            scancode: _,
+        }) => match state {
             ButtonState::Press => match button {
                 Button::Keyboard(key) => KeyPressed(key),
                 Button::Mouse(button) => MouseButtonPressed(button),
@@ -97,19 +91,19 @@ pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> O
         },
         Input::Move(motion) => match motion {
             Motion::MouseCursor(x, y) => {
-                let local = to_local_coords(Point {x, y});
-                MouseMove {x: local.x, y: local.y}
-            },
+                let local = to_local_coords(Point { x, y });
+                MouseMove { x: local.x, y: local.y }
+            }
             // Ignored in favor of MouseCursor
             Motion::MouseRelative(..) => return None,
-            Motion::MouseScroll(x, y) => MouseScroll {x, y},
+            Motion::MouseScroll(x, y) => MouseScroll { x, y },
             Motion::ControllerAxis(axis) => ControllerAxisChange(axis),
             Motion::Touch(touch) => Touch(touch),
         },
         // Ignored because this value doesn't produce text reliably for all keys
         // (especially when ctrl is pressed)
         Input::Text(_) => return None,
-        Input::Resize(width, height) => WindowResized {width, height},
+        Input::Resize(width, height) => WindowResized { width, height },
         Input::Focus(focused) => WindowFocused(focused),
         Input::Cursor(cursor) => WindowCursor(cursor),
         Input::Close(_) => WindowClosed,

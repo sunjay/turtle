@@ -1,29 +1,17 @@
 #[cfg(target_arch = "wasm32")]
 compile_error!("This module should not be included when compiling to wasm");
 
-use std::thread;
 use std::sync::mpsc::{self, TryRecvError};
+use std::thread;
 
-use piston_window::{
-    PistonWindow,
-    OpenGL,
-    WindowSettings,
-    AdvancedWindow,
-    Event as PistonEvent,
-    Input,
-    G2d,
-    context,
-    clear,
-    line,
-    polygon,
-};
+use piston_window::{clear, context, line, polygon, AdvancedWindow, Event as PistonEvent, G2d, Input, OpenGL, PistonWindow, WindowSettings};
 
 use app::TurtleApp;
 use event::from_piston_event;
 use extensions::ConvertScreenCoordinates;
 use query::DrawingCommand;
-use state::{Path, Polygon, Pen, TurtleState, DrawingState};
-use {Point, Event, Color, color};
+use state::{DrawingState, Path, Pen, Polygon, TurtleState};
+use {color, Color, Event, Point};
 
 fn update_window(window: &mut PistonWindow, current: DrawingState, next: DrawingState) -> DrawingState {
     if next.title != current.title {
@@ -37,9 +25,11 @@ fn update_window(window: &mut PistonWindow, current: DrawingState, next: Drawing
     }
     if next.fullscreen != current.fullscreen {
         if next.fullscreen {
-            window.window.window.set_fullscreen(Some(window.window.window.get_current_monitor()));
-        }
-        else {
+            window
+                .window
+                .window
+                .set_fullscreen(Some(window.window.window.get_current_monitor()));
+        } else {
             window.window.window.set_fullscreen(None);
         }
     }
@@ -69,11 +59,7 @@ impl Renderer {
         }
     }
 
-    pub fn run(
-        &mut self,
-        drawing_rx: mpsc::Receiver<DrawingCommand>,
-        events_tx: mpsc::Sender<Event>,
-    ) {
+    pub fn run(&mut self, drawing_rx: mpsc::Receiver<DrawingCommand>, events_tx: mpsc::Sender<Event>) {
         let state = self.app.read_only();
 
         // This check isn't foolproof. Someone can always create a thread named "main".
@@ -84,10 +70,10 @@ impl Renderer {
             unreachable!("bug: windows can only be created on the main thread");
         }
 
-        let window_settings = WindowSettings::new(
-            &*state.drawing().title,
-            (state.drawing().width, state.drawing().height)
-        ).exit_on_esc(true).opengl(OpenGL::V3_3).srgb(false);
+        let window_settings = WindowSettings::new(&*state.drawing().title, (state.drawing().width, state.drawing().height))
+            .exit_on_esc(true)
+            .opengl(OpenGL::V3_3)
+            .srgb(false);
 
         // Need to create a GlutinWindow through WindowSettings::build() and then pass that to
         // PistonWindow::new(). PistonWindow has a hardcoded `srgb(true)` in its implementation
@@ -97,8 +83,7 @@ impl Renderer {
         // Source: https://github.com/PistonDevelopers/piston/issues/1202#issuecomment-368338909
         // NOTE: This might lead to bugs because the shaders assume a linear color space (sRGB).
         // Source: https://github.com/PistonDevelopers/piston/issues/1202#issuecomment-338147900
-        let mut window: PistonWindow = PistonWindow::new(OpenGL::V3_3, 0,
-            window_settings.build().expect("bug: could not build window"));
+        let mut window: PistonWindow = PistonWindow::new(OpenGL::V3_3, 0, window_settings.build().expect("bug: could not build window"));
 
         // We keep a copy of the DrawingState so that we can tell when it is updated and we need
         // to change something on the window
@@ -106,8 +91,7 @@ impl Renderer {
 
         let mut center = state.drawing().center;
 
-        'renderloop:
-        while let Some(event) = window.next() {
+        'renderloop: while let Some(event) = window.next() {
             match event {
                 PistonEvent::Input(Input::Resize(width, height)) => {
                     if width != current_drawing.width || height != current_drawing.height {
@@ -115,13 +99,13 @@ impl Renderer {
                         drawing.width = width;
                         drawing.height = height;
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             }
 
             if let Some(event) = from_piston_event(&event, |pt| pt.to_local_coords(center)) {
                 match events_tx.send(event) {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     // Quit - the server thread must have quit
                     Err(_) => break,
                 }
@@ -132,7 +116,7 @@ impl Renderer {
             loop {
                 match drawing_rx.try_recv() {
                     Ok(cmd) => self.handle_drawing_command(cmd),
-                    Err(TryRecvError::Empty) => break, // Do nothing
+                    Err(TryRecvError::Empty) => break,                    // Do nothing
                     Err(TryRecvError::Disconnected) => break 'renderloop, // Quit
                 }
             }
@@ -171,31 +155,37 @@ impl Renderer {
                     let &mut (ref mut border, ref mut poly) = self.fill_polygon.as_mut().unwrap();
                     border.push(path.clone());
 
-                    let Path {start, end, ..} = path;
+                    let Path { start, end, .. } = path;
                     if poly.vertices.last().map_or(true, |&v| v != start) {
                         poly.vertices.push(start);
                     }
                     poly.vertices.push(end);
-                }
-                else if path.pen.enabled {
+                } else if path.pen.enabled {
                     self.drawings.push(Drawing::Path(path));
                 }
-            },
+            }
             BeginFill(fill_color) => {
                 // Calling begin_fill multiple times is okay, it just won't do anything until
                 // end_fill is called
-                self.fill_polygon = self.fill_polygon.take().or_else(|| Some((Vec::new(), Polygon {
-                    vertices: Vec::new(),
-                    fill_color: fill_color,
-                })));
-            },
+                self.fill_polygon = self.fill_polygon.take().or_else(|| {
+                    Some((
+                        Vec::new(),
+                        Polygon {
+                            vertices: Vec::new(),
+                            fill_color: fill_color,
+                        },
+                    ))
+                });
+            }
             // Calling end_fill multiple times is not a problem
             EndFill => if let Some((border, poly)) = self.fill_polygon.take() {
                 // Always add the border over the filled polygon so the border is drawn on top
                 self.drawings.push(Drawing::Polygon(poly));
-                self.drawings.extend(border.into_iter().filter_map(|p| if p.pen.enabled {
-                    Some(Drawing::Path(p))
-                } else { None }));
+                self.drawings.extend(
+                    border
+                        .into_iter()
+                        .filter_map(|p| if p.pen.enabled { Some(Drawing::Path(p)) } else { None }),
+                );
             },
             Clear => {
                 self.drawings.clear();
@@ -208,32 +198,36 @@ impl Renderer {
     }
 
     /// The main rendering route. Dispatches to other functions as needed.
-    fn render(&self, c: context::Context, g: &mut G2d, center: Point,
-        drawing: &DrawingState, temporary_path: &Option<Path>, turtle: &TurtleState) {
+    fn render(
+        &self,
+        c: context::Context,
+        g: &mut G2d,
+        center: Point,
+        drawing: &DrawingState,
+        temporary_path: &Option<Path>,
+        turtle: &TurtleState,
+    ) {
         let background = drawing.background;
         clear(background.into(), g);
 
         for drawing in &self.drawings {
             match *drawing {
                 Drawing::Path(ref path) => self.render_path(c, g, center, path),
-                Drawing::Polygon(ref poly) => self.render_polygon(c, g, center,
-                    poly.fill_color, poly.vertices.iter()),
+                Drawing::Polygon(ref poly) => self.render_polygon(c, g, center, poly.fill_color, poly.vertices.iter()),
             }
         }
 
         if let Some(&(ref border, ref poly)) = self.fill_polygon.as_ref() {
             // If the temporary_path is not None, we need to add it to the polygon being
             // filled or else the polygon will fall one edge behind in the animation
-            let extra = temporary_path.as_ref().map_or(Vec::new(), |&Path {start, end, ..}| {
+            let extra = temporary_path.as_ref().map_or(Vec::new(), |&Path { start, end, .. }| {
                 if poly.vertices.last().map_or(true, |&v| v != start) {
                     vec![start, end]
-                }
-                else {
+                } else {
                     vec![end]
                 }
             });
-            self.render_polygon(c, g, center, poly.fill_color,
-                poly.vertices.iter().chain(extra.iter()));
+            self.render_polygon(c, g, center, poly.fill_color, poly.vertices.iter().chain(extra.iter()));
 
             for path in border {
                 if path.pen.enabled {
@@ -253,20 +247,18 @@ impl Renderer {
 
     /// Render a path assuming that its pen is enabled
     fn render_path(&self, c: context::Context, g: &mut G2d, center: Point, path: &Path) {
-        let &Path {start, end, ref pen} = path;
-        let &Pen {thickness, color, enabled} = pen;
+        let &Path { start, end, ref pen } = path;
+        let &Pen { thickness, color, enabled } = pen;
         debug_assert!(enabled, "bug: attempt to render path when pen was not enabled");
 
         let start = start.to_screen_coords(center);
         let end = end.to_screen_coords(center);
 
-        line(color.into(), thickness,
-            [start.x, start.y, end.x, end.y],
-            c.transform, g);
+        line(color.into(), thickness, [start.x, start.y, end.x, end.y], c.transform, g);
     }
 
     /// Render a polygon given its vertices
-    fn render_polygon<'a, T: Iterator<Item=&'a Point>>(
+    fn render_polygon<'a, T: Iterator<Item = &'a Point>>(
         &self,
         c: context::Context,
         g: &mut G2d,
@@ -294,8 +286,18 @@ impl Renderer {
     }
 
     /// Draw the turtle's shell
-    fn render_shell(&self, c: context::Context, g: &mut G2d, center: Point,
-        &TurtleState {position, heading, visible, ..}: &TurtleState) {
+    fn render_shell(
+        &self,
+        c: context::Context,
+        g: &mut G2d,
+        center: Point,
+        &TurtleState {
+            position,
+            heading,
+            visible,
+            ..
+        }: &TurtleState,
+    ) {
         // Calculate all the points on the shell by rotating the shell shape by the turtle's
         // heading and moving it to the turtle's position
         if !visible {
@@ -306,16 +308,15 @@ impl Renderer {
         let sin = heading.sin();
         let turtle_x = position.x;
         let turtle_y = position.y;
-        let shell: Vec<_> = [
-            [0., 15.],
-            [10., 0.],
-            [0., -15.],
-        ].into_iter().map(|pt| {
-            // Rotate each point by the heading and add the current turtle position
-            let x = cos * pt[0] - sin * pt[1] + turtle_x;
-            let y = sin * pt[0] + cos * pt[1] + turtle_y;
-            Point {x, y}.to_screen_coords(center).into()
-        }).collect();
+        let shell: Vec<_> = [[0., 15.], [10., 0.], [0., -15.]]
+            .into_iter()
+            .map(|pt| {
+                // Rotate each point by the heading and add the current turtle position
+                let x = cos * pt[0] - sin * pt[1] + turtle_x;
+                let y = sin * pt[0] + cos * pt[1] + turtle_y;
+                Point { x, y }.to_screen_coords(center).into()
+            })
+            .collect();
 
         // Draw the turtle shell with its background first, then its border
         polygon(color::WHITE.into(), &shell, c.transform, g);
@@ -323,9 +324,7 @@ impl Renderer {
             let start = shell[i];
             let end = shell[(i + 1) % shell.len()];
 
-            line(color::BLACK.into(), 1.,
-                [start[0], start[1], end[0], end[1]],
-                c.transform, g);
+            line(color::BLACK.into(), 1., [start[0], start[1], end[0], end[1]], c.transform, g);
         }
     }
 }

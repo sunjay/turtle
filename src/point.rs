@@ -1,7 +1,10 @@
-use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
+use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
-use rand::{Rng, distributions::{Distribution, Standard}, RandomRange};
 use interpolation::Spatial;
+use rand::{
+    distributions::{Distribution, Standard},
+    RandomRange, Rng,
+};
 
 /// A point in 2D space
 ///
@@ -131,7 +134,7 @@ impl Point {
     ///
     /// For our "cartesian" coordinate system, this is always (0.0, 0.0)
     pub fn origin() -> Self {
-        Self {x: 0.0, y: 0.0}
+        Self { x: 0.0, y: 0.0 }
     }
 
     /// Returns true if both x and y are finite (neither infinite nor `NaN`).
@@ -153,13 +156,19 @@ impl Point {
 
     /// Computes the absolute value of x and y and returns a new `Point`
     pub fn abs(self) -> Self {
-        Self {x: self.x.abs(), y: self.y.abs()}
+        Self {
+            x: self.x.abs(),
+            y: self.y.abs(),
+        }
     }
 
     /// Returns a new `Point` with x and y set to the nearest integer to each of their values.
     /// Rounds half-way cases away from 0.0.
     pub fn round(self) -> Self {
-        Self {x: self.x.round(), y: self.y.round()}
+        Self {
+            x: self.x.round(),
+            y: self.y.round(),
+        }
     }
 
     /// Returns the minimum x and y coordinates of the two points
@@ -214,13 +223,13 @@ impl Point {
 
 impl From<(f64, f64)> for Point {
     fn from(pt: (f64, f64)) -> Self {
-        Self {x: pt.0, y: pt.1}
+        Self { x: pt.0, y: pt.1 }
     }
 }
 
 impl From<[f64; 2]> for Point {
     fn from(pt: [f64; 2]) -> Self {
-        Self {x: pt[0], y: pt[1]}
+        Self { x: pt[0], y: pt[1] }
     }
 }
 

@@ -2,7 +2,7 @@
 use interpolation::lerp;
 
 use radians::{self, Radians};
-use state::{TurtleState, Path};
+use state::{Path, TurtleState};
 use timer::Timer;
 
 pub trait Animation {
@@ -67,13 +67,16 @@ impl Animation for MoveAnimation {
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
         use self::AnimationStatus::*;
 
-        let MoveAnimation {ref path, ref timer, total_millis} = *self;
+        let MoveAnimation {
+            ref path,
+            ref timer,
+            total_millis,
+        } = *self;
         let elapsed = timer.elapsed_millis() as f64;
         if elapsed >= total_millis {
             turtle.position = path.end;
             Complete(Some(path.clone()))
-        }
-        else {
+        } else {
             // t is the total progress made in the animation so far
             let t = elapsed / total_millis;
             turtle.position = lerp(&path.start, &path.end, &t);
@@ -92,7 +95,7 @@ impl Animation for MoveAnimation {
         use self::AnimationStatus::*;
 
         // No animation during testing
-        let MoveAnimation {ref path, ..} = *self;
+        let MoveAnimation { ref path, .. } = *self;
         turtle.position = path.end;
         Complete(Some(path.clone()))
     }
@@ -129,15 +132,20 @@ impl Animation for RotateAnimation {
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
         use self::AnimationStatus::*;
 
-        let RotateAnimation {start, delta_angle, clockwise, ref timer, total_millis} = *self;
+        let RotateAnimation {
+            start,
+            delta_angle,
+            clockwise,
+            ref timer,
+            total_millis,
+        } = *self;
         let elapsed = timer.elapsed_millis() as f64;
 
         if elapsed >= total_millis {
             turtle.heading = rotate(start, delta_angle, clockwise);
 
             Complete(None)
-        }
-        else {
+        } else {
             // t is the total progress made in the animation so far
             let t = elapsed / total_millis;
             // Only rotate as much as the animation has proceeded so far
@@ -155,7 +163,12 @@ impl Animation for RotateAnimation {
         use self::AnimationStatus::*;
 
         // No animation during testing
-        let RotateAnimation {start, delta_angle, clockwise, ..} = *self;
+        let RotateAnimation {
+            start,
+            delta_angle,
+            clockwise,
+            ..
+        } = *self;
         turtle.heading = rotate(start, delta_angle, clockwise);
 
         Complete(None)

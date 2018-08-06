@@ -6,11 +6,21 @@
 //! lengths. The more sophisticated the figure is, the more loops we need to make it.
 extern crate turtle;
 
-use turtle::{Turtle, Color, color};
+use turtle::{color, Color, Turtle};
 
 const SIZE: f64 = 1.0;
-const SHELL_COLOR: Color = Color {red: 62.0, green: 114.0, blue: 29.0, alpha: 1.0};
-const BODY_COLOR: Color = Color {red: 119.0, green: 178.0, blue: 85.0, alpha: 1.0};
+const SHELL_COLOR: Color = Color {
+    red: 62.0,
+    green: 114.0,
+    blue: 29.0,
+    alpha: 1.0,
+};
+const BODY_COLOR: Color = Color {
+    red: 119.0,
+    green: 178.0,
+    blue: 85.0,
+    alpha: 1.0,
+};
 const EYE_COLOR: Color = color::BLACK;
 
 fn main() {

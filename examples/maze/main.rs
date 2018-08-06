@@ -1,15 +1,15 @@
-mod wall;
 mod cell;
-mod maze;
 mod grid;
+mod maze;
 mod solver;
+mod wall;
 
 extern crate turtle;
 
-use turtle::{Turtle, Color};
+use turtle::{Color, Turtle};
 
+use grid::GridCellIter;
 pub use maze::Maze;
-use grid::{GridCellIter};
 use solver::solve;
 
 // Dimensions of the maze in turtle steps (pixels)
@@ -34,8 +34,8 @@ fn main() {
     turtle.backward(WIDTH / 2.0);
     turtle.pen_down();
 
-    let cell_width = WIDTH/(maze.row_size() as f64);
-    let cell_height = HEIGHT/(maze.col_size() as f64);
+    let cell_width = WIDTH / (maze.row_size() as f64);
+    let cell_height = HEIGHT / (maze.col_size() as f64);
 
     // Draw rows
     draw_rows(
@@ -78,10 +78,10 @@ fn main() {
 
 fn draw_rows<
     'a,
-    R: Iterator<Item=bool>,
-    G: Iterator<Item=GridCellIter<'a>>,
+    R: Iterator<Item = bool>,
+    G: Iterator<Item = GridCellIter<'a>>,
     F: Fn(GridCellIter<'a>) -> X,
-    X: Iterator<Item=bool> + DoubleEndedIterator
+    X: Iterator<Item = bool> + DoubleEndedIterator,
 >(
     turtle: &mut Turtle,
     // size of each cell in the row
@@ -114,14 +114,13 @@ fn draw_rows<
         // each row
         if i % 2 == 0 {
             draw_row(turtle, cell_size, walls.rev());
-        }
-        else {
+        } else {
             draw_row(turtle, cell_size, walls);
         }
     }
 }
 
-fn draw_row<I: Iterator<Item=bool>>(turtle: &mut Turtle, wall_size: f64, walls: I) {
+fn draw_row<I: Iterator<Item = bool>>(turtle: &mut Turtle, wall_size: f64, walls: I) {
     for should_draw in walls {
         if !should_draw {
             turtle.pen_up();

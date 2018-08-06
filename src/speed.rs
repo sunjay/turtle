@@ -1,11 +1,14 @@
-use std::fmt;
+use std::cmp::Ordering;
 use std::f64;
 use std::f64::consts::PI;
-use std::cmp::Ordering;
+use std::fmt;
 
 use radians::Radians;
-use rand::{distributions::{Distribution, Standard}, Rng};
-use {Distance};
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
+use Distance;
 
 const MIN_SPEED: i32 = 1;
 const MAX_SPEED: i32 = 25;
@@ -224,7 +227,7 @@ impl Speed {
     pub(crate) fn to_rotation(self) -> Radians {
         use self::SpeedLevel::*;
         Radians::from_radians_value(match self.0 {
-            Value(speed) => speed as f64 * (3.0*PI),
+            Value(speed) => speed as f64 * (3.0 * PI),
             Instant => f64::INFINITY,
         })
     }
@@ -270,7 +273,9 @@ impl<'a> From<&'a str> for Speed {
             "fast" => Value(12),
             "faster" => Value(15),
             "instant" => Instant,
-            _ => panic!("Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""),
+            _ => panic!(
+                "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
+            ),
         })
     }
 }
@@ -300,7 +305,7 @@ impl From<f64> for Speed {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use {Turtle};
+    use Turtle;
 
     #[test]
     fn display() {
@@ -332,7 +337,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\"")]
+    #[should_panic(
+        expected = "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
+    )]
     fn invalid_speed() {
         let mut turtle = Turtle::new();
         turtle.set_speed("wrong");
@@ -369,7 +376,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()")]
+    #[should_panic(
+        expected = "Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()"
+    )]
     fn disallow_zero() {
         let mut turtle = Turtle::new();
         turtle.set_speed(0);

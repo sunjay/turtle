@@ -30,14 +30,13 @@ fn main() {
 fn fractal(turtle: &mut Turtle, length: f64, depth: usize) {
     if depth == 0 {
         turtle.forward(length);
-    }
-    else {
-        fractal(turtle, length/3.0, depth-1);
+    } else {
+        fractal(turtle, length / 3.0, depth - 1);
         turtle.right(60.0);
-        fractal(turtle, length/3.0, depth-1);
+        fractal(turtle, length / 3.0, depth - 1);
         turtle.left(120.0);
-        fractal(turtle, length/3.0, depth-1);
+        fractal(turtle, length / 3.0, depth - 1);
         turtle.right(60.0);
-        fractal(turtle, length/3.0, depth-1);
+        fractal(turtle, length / 3.0, depth - 1);
     }
 }
