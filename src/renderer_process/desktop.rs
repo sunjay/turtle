@@ -2,10 +2,10 @@
 compile_error!("This module should not be included when compiling to wasm");
 
 use std::sync::mpsc;
-use std::{env, thread, process};
+use std::{env, process, thread};
 
-use query::{Query, Response};
 use messenger::{self, Disconnected};
+use query::{Query, Response};
 
 /// Manages the renderer process and all communication with it
 pub struct RendererProcess {
@@ -29,8 +29,7 @@ impl RendererProcess {
             .spawn()
             .expect("renderer process failed to start");
 
-        let renderer_stdout = renderer_process.stdout.take()
-            .expect("renderer process was not opened with stdout");
+        let renderer_stdout = renderer_process.stdout.take().expect("renderer process was not opened with stdout");
         let (response_tx, response_rx) = mpsc::channel();
         let handle = thread::spawn(move || {
             // Continously read responses from the renderer process
@@ -62,7 +61,7 @@ impl RendererProcess {
                 None => unreachable!("bug: renderer process was not opened with stdin"),
             },
             &query,
-            "bug: unable to write final newline when sending query"
+            "bug: unable to write final newline when sending query",
         ).unwrap_or_else(|_| {
             // Something went wrong while sending the query, check if the renderer process
             // panicked (exited with an error)
@@ -71,12 +70,11 @@ impl RendererProcess {
                     if status.success() {
                         // The window/renderer process was closed normally
                         process::exit(0);
-                    }
-                    else {
+                    } else {
                         // Something went wrong, likely the other thread panicked
                         process::exit(1);
                     }
-                },
+                }
                 Ok(None) => panic!("bug: failed to send query even though renderer process was still running"),
                 Err(_) => panic!("bug: unable to check the exit status of the renderer process"),
             }
@@ -85,8 +83,7 @@ impl RendererProcess {
         // Requests need responses
         if let Query::Request(_) = query {
             Some(self.wait_for_response())
-        }
-        else {
+        } else {
             None
         }
     }
@@ -104,17 +101,23 @@ impl RendererProcess {
     /// Panics if the thread handle has already been consumed
     #[inline]
     fn exit_process(&mut self) -> ! {
-        let status = self.thread_handle.take().ok_or_else(|| {
-            unreachable!("bug: the thread handle was used but the process did not end");
-        }).and_then(|handle| {
-            // First check if the other thread panicked before it quit
-            handle.join().map_err(|_| ())
-        }).and_then(|_| {
-            // Then check if the renderer process ended normally
-            self.process.wait()
-                .map_err(|_| unreachable!("bug: renderer process never ran even though we exited"))
-                .and_then(|status| if status.success() { Ok(()) } else { Err(()) })
-        });
+        let status = self
+            .thread_handle
+            .take()
+            .ok_or_else(|| {
+                unreachable!("bug: the thread handle was used but the process did not end");
+            })
+            .and_then(|handle| {
+                // First check if the other thread panicked before it quit
+                handle.join().map_err(|_| ())
+            })
+            .and_then(|_| {
+                // Then check if the renderer process ended normally
+                self.process
+                    .wait()
+                    .map_err(|_| unreachable!("bug: renderer process never ran even though we exited"))
+                    .and_then(|status| if status.success() { Ok(()) } else { Err(()) })
+            });
 
         match status {
             Ok(_) => process::exit(0),

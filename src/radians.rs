@@ -1,10 +1,10 @@
 use std::f64::consts::PI as fPI;
-use std::ops::{Add, Sub, Mul, Div, Rem, Neg};
+use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 
 use interpolation::Spatial;
 
 pub const PI: Radians = Radians(fPI);
-pub const TWO_PI: Radians = Radians(2.*fPI);
+pub const TWO_PI: Radians = Radians(2. * fPI);
 #[cfg_attr(any(feature = "test", test), allow(dead_code))]
 pub const ZERO: Radians = Radians(0.0);
 

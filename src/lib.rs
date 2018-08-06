@@ -46,32 +46,32 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 
+extern crate interpolation;
 #[cfg(not(target_arch = "wasm32"))]
 extern crate piston_window;
-extern crate interpolation;
 extern crate rand as rand_crate;
 
 mod turtle_window;
 
+mod animation;
 #[cfg(not(target_arch = "wasm32"))]
 mod app;
-mod turtle;
 mod drawing;
-mod speed;
-mod point;
-mod radians;
-mod animation;
-mod timer;
 mod extensions;
 #[cfg(not(target_arch = "wasm32"))]
-mod renderer;
-mod state;
+mod messenger;
+mod point;
 mod query;
+mod radians;
 #[cfg(not(target_arch = "wasm32"))]
-mod server;
+mod renderer;
 mod renderer_process;
 #[cfg(not(target_arch = "wasm32"))]
-mod messenger;
+mod server;
+mod speed;
+mod state;
+mod timer;
+mod turtle;
 
 pub mod color;
 #[cfg(not(target_arch = "wasm32"))]
@@ -83,15 +83,15 @@ mod event {
 }
 pub mod rand;
 
-pub use point::Point;
-pub use turtle::{Turtle, Distance, Angle};
+pub use color::Color;
 pub use drawing::{Drawing, Size};
-pub use speed::{Speed};
-pub use color::{Color};
 pub use event::Event;
+pub use point::Point;
 pub use rand::{random, random_range};
 #[cfg(target_arch = "wasm32")]
 pub use renderer_process::{alloc, dealloc, dealloc_str};
+pub use speed::Speed;
+pub use turtle::{Angle, Distance, Turtle};
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use server::start;

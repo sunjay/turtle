@@ -3,7 +3,7 @@
 
 extern crate turtle;
 
-use turtle::{Turtle, Point, Color};
+use turtle::{Color, Point, Turtle};
 
 /// Draw the tree. It's a fractal which consists of 1 large square and 2 small squares.
 ///
@@ -65,7 +65,7 @@ fn get_color(position: Point) -> Color {
         red: 130.0 + f64::abs(position[0] % 75.0),
         green: 150.0 + f64::abs(position[1] % 55.0),
         blue: 210.0 + f64::abs(position[1] % 25.0),
-        alpha: 0.8
+        alpha: 0.8,
     }
 }
 

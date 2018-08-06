@@ -1,12 +1,12 @@
 use std::cell::RefCell;
 
-use renderer_process::RendererProcess;
-use animation::{Animation, MoveAnimation, RotateAnimation, AnimationStatus};
-use state::{TurtleState, DrawingState, Path};
-use query::{Query, Request, StateUpdate, DrawingCommand, Response};
+use animation::{Animation, AnimationStatus, MoveAnimation, RotateAnimation};
+use query::{DrawingCommand, Query, Request, Response, StateUpdate};
 use radians::Radians;
+use renderer_process::RendererProcess;
+use state::{DrawingState, Path, TurtleState};
 use timer::Timer;
-use {Point, Distance, Event, start};
+use {start, Distance, Event, Point};
 
 use self::DrawingCommand::*;
 
@@ -36,10 +36,14 @@ impl TurtleWindow {
     /// Fetch and update the turtle with no way of holding on to the reference or forgetting to
     /// update it after
     pub fn with_turtle_mut<F, T>(&mut self, update: F) -> T
-        where F: FnOnce(&mut TurtleState) -> T {
+    where
+        F: FnOnce(&mut TurtleState) -> T,
+    {
         let mut turtle = self.fetch_turtle();
         let result = update(&mut turtle);
-        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::TurtleState(turtle)));
+        self.renderer
+            .borrow_mut()
+            .send_query(Query::Update(StateUpdate::TurtleState(turtle)));
         result
     }
 
@@ -53,16 +57,21 @@ impl TurtleWindow {
     /// Fetch and update the drawing with no way of holding on to the reference or forgetting to
     /// update it after
     pub fn with_drawing_mut<F, T>(&mut self, update: F) -> T
-        where F: FnOnce(&mut DrawingState) -> T {
+    where
+        F: FnOnce(&mut DrawingState) -> T,
+    {
         let mut drawing = self.fetch_drawing();
         let result = update(&mut drawing);
-        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::DrawingState(drawing)));
+        self.renderer
+            .borrow_mut()
+            .send_query(Query::Update(StateUpdate::DrawingState(drawing)));
         result
     }
 
-
     fn set_temporary_path(&mut self, path: Option<Path>) {
-        self.renderer.borrow_mut().send_query(Query::Update(StateUpdate::TemporaryPath(path)));
+        self.renderer
+            .borrow_mut()
+            .send_query(Query::Update(StateUpdate::TemporaryPath(path)));
     }
 
     /// See [`Drawing::poll_event()`](struct.Drawing.html#method.poll_event).
@@ -91,18 +100,23 @@ impl TurtleWindow {
 
     /// Move the turtle to the given position without changing its heading.
     pub fn go_to(&mut self, end: Point) {
-        let TurtleState {position: start, speed, pen, ..} = self.fetch_turtle();
+        let TurtleState {
+            position: start,
+            speed,
+            pen,
+            ..
+        } = self.fetch_turtle();
 
         let distance = (end - start).len();
         if !distance.is_normal() {
             return;
         }
         let speed = speed.to_movement(); // px per second
-        // We take the absolute value because the time is always positive, even if distance is negative
+                                         // We take the absolute value because the time is always positive, even if distance is negative
         let total_millis = (distance / speed * 1000.).abs();
 
         let animation = MoveAnimation {
-            path: Path {start, end, pen},
+            path: Path { start, end, pen },
             timer: Timer::start(),
             total_millis,
         };
@@ -118,7 +132,13 @@ impl TurtleWindow {
             return;
         }
 
-        let TurtleState {position: start, speed, heading, pen, ..} = self.fetch_turtle();
+        let TurtleState {
+            position: start,
+            speed,
+            heading,
+            pen,
+            ..
+        } = self.fetch_turtle();
         let movement = Point {
             x: distance * heading.cos(),
             y: distance * heading.sin(),
@@ -126,11 +146,11 @@ impl TurtleWindow {
         let end = start + movement;
 
         let speed = speed.to_movement(); // px per second
-        // We take the absolute value because the time is always positive, even if distance is negative
+                                         // We take the absolute value because the time is always positive, even if distance is negative
         let total_millis = (distance / speed * 1000.).abs();
 
         let animation = MoveAnimation {
-            path: Path {start, end, pen},
+            path: Path { start, end, pen },
             timer: Timer::start(),
             total_millis,
         };
@@ -144,7 +164,7 @@ impl TurtleWindow {
             return;
         }
 
-        let TurtleState {heading, speed, ..} = self.fetch_turtle();
+        let TurtleState { heading, speed, .. } = self.fetch_turtle();
         let speed = speed.to_rotation(); // radians per second
         let total_millis = angle / speed * 1000.;
         // We take the absolute value because the time is always positive, even if angle is negative
@@ -174,7 +194,7 @@ impl TurtleWindow {
                     }
 
                     break;
-                },
+                }
             }
         }
     }

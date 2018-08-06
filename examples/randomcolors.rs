@@ -1,6 +1,6 @@
 extern crate turtle;
 
-use turtle::{Turtle, Color, random};
+use turtle::{random, Color, Turtle};
 
 fn main() {
     let mut turtle = Turtle::new();

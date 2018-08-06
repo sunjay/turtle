@@ -21,6 +21,6 @@ fn main() {
         turtle.forward(100.0);
         turtle.left(angle * 2.0);
         turtle.forward(100.0);
-        turtle.right(180.0  - angle);
+        turtle.right(180.0 - angle);
     }
 }

@@ -1,8 +1,12 @@
-comment_width = 120
-control_brace_style = "ClosingNextLine"
-error_on_line_overflow = false
-error_on_unformatted = false
-match_block_trailing_comma = true
-max_width = 120
-reorder_imports = false
-struct_lit_single_line = true
+# Line limits are important because most sane code probably shouldn't go on
+# forever on only a single line. The problem is that line limits usually end up
+# impacting code that should really be exempt from them. For example, functions
+# taking long string literals and #[should_panic(expected = ...)] attributes
+# tend to get formatted weirdly. The value of this configuration is set to allow
+# most lines containing string literals and attributes to stay the way they were
+# originally formatted by the programmer. We chose this value by trying out
+# different limits and seeing at which point we started accidentally making
+# rustfmt do bad things. For example, at around 162, rustfmt is able to put a
+# very complex function signature on one line. This is not desirable, so we
+# tuned the limit to be less than that.
+max_width = 142

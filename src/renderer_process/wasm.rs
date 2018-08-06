@@ -1,9 +1,9 @@
 #[cfg(not(target_arch = "wasm32"))]
 compile_error!("This module should only be included when compiling to wasm");
 
-use std::mem;
+use std::ffi::{CStr, CString};
 use std::fmt::Debug;
-use std::ffi::{CString, CStr};
+use std::mem;
 use std::os::raw::{c_char, c_void};
 
 use serde_json;
@@ -70,13 +70,10 @@ impl RendererProcess {
         let response_cstr = unsafe { CStr::from_ptr(send_query(raw_str)) };
         // Requests need responses
         if let Query::Request(_) = query {
-            let response_str = response_cstr.to_str()
-                .expect("String provided by JavaScript was not valid UTF-8");
-            let response = serde_json::from_str(response_str)
-                .expect("String provided by JavaScript was not valid JSON");
+            let response_str = response_cstr.to_str().expect("String provided by JavaScript was not valid UTF-8");
+            let response = serde_json::from_str(response_str).expect("String provided by JavaScript was not valid JSON");
             Some(response)
-        }
-        else {
+        } else {
             None
         }
     }

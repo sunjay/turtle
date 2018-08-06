@@ -2,16 +2,16 @@
 compile_error!("This module should not be included when compiling to wasm");
 
 use std::env;
-use std::thread;
-use std::process;
 use std::io::{self, Write};
+use std::process;
 use std::sync::mpsc::{self, TryRecvError};
+use std::thread;
 
-use messenger::{self, Disconnected};
 use app::TurtleApp;
+use messenger::{self, Disconnected};
+use query::{DrawingCommand, Query, Request, Response, StateUpdate};
 use renderer::Renderer;
-use query::{Query, DrawingCommand, Request, StateUpdate, Response};
-use {Event};
+use Event;
 
 /// Start the turtle window in advance
 ///
@@ -119,10 +119,12 @@ fn read_queries_forever(
         stdin,
         "bug: unable to read data from stdin",
         "bug: failed to read command from turtle process",
-        |query| handle_query(query, &mut app, &events_rx, &drawing_tx).and_then(|resp| match resp {
-            Some(ref response) => send_response(&mut stdout, response),
-            None => Ok(()),
-        }),
+        |query| {
+            handle_query(query, &mut app, &events_rx, &drawing_tx).and_then(|resp| match resp {
+                Some(ref response) => send_response(&mut stdout, response),
+                None => Ok(()),
+            })
+        },
     );
 }
 
@@ -152,11 +154,7 @@ fn handle_query(
     }
 }
 
-fn handle_request(
-    request: Request,
-    app: &TurtleApp,
-    events_rx: &mpsc::Receiver<Event>,
-) -> Result<Option<Response>, Disconnected> {
+fn handle_request(request: Request, app: &TurtleApp, events_rx: &mpsc::Receiver<Event>) -> Result<Option<Response>, Disconnected> {
     use self::Request::*;
     Ok(Some(match request {
         TurtleState => Response::TurtleState((*app.turtle()).clone()),
@@ -169,10 +167,7 @@ fn handle_request(
     }))
 }
 
-fn handle_update(
-    update: StateUpdate,
-    app: &mut TurtleApp,
-) -> Result<Option<Response>, Disconnected> {
+fn handle_update(update: StateUpdate, app: &mut TurtleApp) -> Result<Option<Response>, Disconnected> {
     use self::StateUpdate::*;
     match update {
         TurtleState(turtle) => *app.turtle_mut() = turtle,

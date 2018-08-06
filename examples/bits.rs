@@ -48,11 +48,8 @@ impl BitVec {
             // Ceiling division of bits / BITS so that we get >= bits capacity
             // From: https://stackoverflow.com/a/2745086/551904
             let capacity = 1 + ((bits - 1) / BITS);
-            Self {
-                bytes: vec![0; capacity],
-            }
-        }
-        else {
+            Self { bytes: vec![0; capacity] }
+        } else {
             Default::default()
         }
     }
@@ -82,8 +79,7 @@ impl BitVec {
         //TODO: Check this somehow
         let bit_index = if cfg!(target_endian = "big") {
             bit_index
-        }
-        else {
+        } else {
             BITS - 1 - bit_index
         };
         if value {
@@ -91,8 +87,7 @@ impl BitVec {
             // `1 << bit_index` will make sure the bit_index bit is 1.
             // 1 OR anything will always result in 1, so the bit will be set to 1.
             *byte |= 1 << bit_index;
-        }
-        else {
+        } else {
             // Set the bit to 0 by performing a bitwise AND with each bit
             // `!(1 << bit_index)` sets the bit_index bit to 0 and the other bits to 1.
             // 1 AND x will always leave x as is.

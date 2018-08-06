@@ -1,10 +1,10 @@
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::fmt::Debug;
+use std::rc::Rc;
 
-use turtle_window::TurtleWindow;
 use state::DrawingState;
-use {Point, Color, Event};
+use turtle_window::TurtleWindow;
+use {Color, Event, Point};
 
 /// Represents a size
 ///
@@ -64,9 +64,7 @@ pub struct Drawing {
 
 impl Drawing {
     pub(crate) fn with_window(window: Rc<RefCell<TurtleWindow>>) -> Self {
-        Self {
-            window,
-        }
+        Self { window }
     }
 
     /// Returns the title of the drawing
@@ -99,7 +97,9 @@ impl Drawing {
     ///
     /// ![turtle set title](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/changed_title.png)
     pub fn set_title(&mut self, title: &str) {
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.title = title.to_owned());
+        self.window
+            .borrow_mut()
+            .with_drawing_mut(|drawing| drawing.title = title.to_owned());
     }
 
     /// Returns the color of the background.
@@ -138,8 +138,11 @@ impl Drawing {
     /// ![turtle background](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/orange_background.png)
     pub fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
         let bg_color = color.into();
-        assert!(bg_color.is_valid(),
-            "Invalid color: {:?}. See the color module documentation for more information.", color);
+        assert!(
+            bg_color.is_valid(),
+            "Invalid color: {:?}. See the color module documentation for more information.",
+            color
+        );
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.background = bg_color);
     }
 
@@ -552,9 +555,16 @@ mod tests {
     use turtle::*;
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_background_color() {
         let mut turtle = Turtle::new();
-        turtle.drawing_mut().set_background_color(Color {red: ::std::f64::NAN, green: 0.0, blue: 0.0, alpha: 0.0});
+        turtle.drawing_mut().set_background_color(Color {
+            red: ::std::f64::NAN,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 0.0,
+        });
     }
 }

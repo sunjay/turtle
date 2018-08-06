@@ -46,11 +46,7 @@ impl<'a> Iterator for GridIter<'a> {
             return None;
         }
 
-        let iter = GridCellIter::new(
-            self.grid,
-            self.target,
-            self.current
-        );
+        let iter = GridCellIter::new(self.grid, self.target, self.current);
 
         self.current += 1;
         Some(iter)
@@ -63,11 +59,7 @@ impl<'a> DoubleEndedIterator for GridIter<'a> {
             return None;
         }
 
-        let iter = GridCellIter::new(
-            self.grid,
-            self.target,
-            self.end - 1
-        );
+        let iter = GridCellIter::new(self.grid, self.target, self.end - 1);
 
         self.end -= 1;
         Some(iter)
@@ -101,12 +93,8 @@ impl<'a> GridCellIter<'a> {
 
     fn get(&self, current: usize) -> &'a Cell {
         match self.target {
-            GridIterTarget::Rows => {
-                &self.grid[self.index][current]
-            },
-            GridIterTarget::Columns => {
-                &self.grid[current][self.index]
-            },
+            GridIterTarget::Rows => &self.grid[self.index][current],
+            GridIterTarget::Columns => &self.grid[current][self.index],
         }
     }
 }
@@ -172,32 +160,28 @@ impl Grid {
     }
 
     /// Returns true if there is NO wall between two adjacent cells
-    pub fn is_open_between(
-        &self,
-        (row1, col1): (usize, usize),
-        (row2, col2): (usize, usize),
-    ) -> bool {
+    pub fn is_open_between(&self, (row1, col1): (usize, usize), (row2, col2): (usize, usize)) -> bool {
         match (row2 as isize - row1 as isize, col2 as isize - col1 as isize) {
             // second position is north of first position
             (-1, 0) => {
                 assert_eq!(self[row1][col1].north, self[row2][col2].south);
                 self[row1][col1].north == Wall::Open
-            },
+            }
             // second position is east of first position
             (0, 1) => {
                 assert_eq!(self[row1][col1].east, self[row2][col2].west);
                 self[row1][col1].east == Wall::Open
-            },
+            }
             // second position is south of first position
             (1, 0) => {
                 assert_eq!(self[row1][col1].south, self[row2][col2].north);
                 self[row1][col1].south == Wall::Open
-            },
+            }
             // second position is west of first position
             (0, -1) => {
                 assert_eq!(self[row1][col1].west, self[row2][col2].east);
                 self[row1][col1].west == Wall::Open
-            },
+            }
             _ => unreachable!("Cells were not adjacent"),
         }
     }
@@ -208,19 +192,19 @@ impl Grid {
             (-1, 0) => {
                 self[row1][col1].north = Wall::Open;
                 self[row2][col2].south = Wall::Open;
-            },
+            }
             (0, 1) => {
                 self[row1][col1].east = Wall::Open;
                 self[row2][col2].west = Wall::Open;
-            },
+            }
             (1, 0) => {
                 self[row1][col1].south = Wall::Open;
                 self[row2][col2].north = Wall::Open;
-            },
+            }
             (0, -1) => {
                 self[row1][col1].west = Wall::Open;
                 self[row2][col2].east = Wall::Open;
-            },
+            }
             _ => unreachable!("Cells were not adjacent"),
         }
     }
@@ -233,11 +217,11 @@ impl Grid {
             // north
             positions.push((row - 1, col));
         }
-        if col < self.row_size()-1 {
+        if col < self.row_size() - 1 {
             // east
             positions.push((row, col + 1));
         }
-        if row < self.col_size()-1 {
+        if row < self.col_size() - 1 {
             // south
             positions.push((row + 1, col));
         }

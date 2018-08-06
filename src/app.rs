@@ -3,7 +3,7 @@ compile_error!("This module should not be included when compiling to wasm");
 
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use state::{TurtleState, DrawingState, Path};
+use state::{DrawingState, Path, TurtleState};
 
 /// Types that will be shared with another thread
 pub type Shared<T> = Arc<RwLock<T>>;
@@ -38,7 +38,6 @@ impl ReadOnly {
 pub struct TurtleApp {
     //NOTE: All of these fields must be Shared or else cloning between threads will leave the two
     // threads out of sync
-
     turtle: Shared<TurtleState>,
     drawing: Shared<DrawingState>,
     /// A temporary path for use during animations
