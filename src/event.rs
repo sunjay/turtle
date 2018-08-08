@@ -76,7 +76,7 @@ where
         Input::Button(ButtonArgs {
             state,
             button,
-            scancode: _,
+            ..
         }) => match state {
             ButtonState::Press => match button {
                 Button::Keyboard(key) => KeyPressed(key),

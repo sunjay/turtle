@@ -218,7 +218,7 @@ impl Speed {
     pub(crate) fn to_movement(self) -> Distance {
         use self::SpeedLevel::*;
         match self.0 {
-            Value(speed) => speed as f64 * 50.0,
+            Value(speed) => f64::from(speed) * 50.0,
             Instant => f64::INFINITY,
         }
     }
@@ -227,7 +227,7 @@ impl Speed {
     pub(crate) fn to_rotation(self) -> Radians {
         use self::SpeedLevel::*;
         Radians::from_radians_value(match self.0 {
-            Value(speed) => speed as f64 * (3.0 * PI),
+            Value(speed) => f64::from(speed) * (3.0 * PI),
             Instant => f64::INFINITY,
         })
     }
@@ -251,7 +251,7 @@ impl PartialEq<i32> for Speed {
 
 impl PartialOrd<i32> for Speed {
     fn partial_cmp(&self, other: &i32) -> Option<Ordering> {
-        return self.partial_cmp(&Speed::from(*other));
+        self.partial_cmp(&Speed::from(*other))
     }
 }
 

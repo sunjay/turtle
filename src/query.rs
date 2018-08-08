@@ -15,7 +15,7 @@ pub enum Query {
     Drawing(DrawingCommand),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum Request {
     TurtleState,
     DrawingState,

@@ -25,7 +25,7 @@ impl Timer {
     fn as_millis(duration: Duration) -> u64 {
         //FIXME: Remove this function and just use `timer.elapsed().as_millis()` when
         // this issue is closed: https://github.com/rust-lang/rust/issues/50202
-        duration.as_secs() * 1000 + u64::from(duration.subsec_nanos() / 1_000_000)
+        duration.as_secs() * 1000 + u64::from(duration.subsec_millis())
     }
 }
 

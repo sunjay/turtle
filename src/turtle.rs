@@ -17,15 +17,15 @@ enum AngleUnit {
 }
 
 impl AngleUnit {
-    fn to_radians(&self, angle: Angle) -> Radians {
-        match *self {
+    fn to_radians(self, angle: Angle) -> Radians {
+        match self {
             AngleUnit::Degrees => Radians::from_degrees_value(angle),
             AngleUnit::Radians => Radians::from_radians_value(angle),
         }
     }
 
-    fn to_angle(&self, angle: Radians) -> Angle {
-        match *self {
+    fn to_angle(self, angle: Radians) -> Angle {
+        match self {
             AngleUnit::Degrees => angle.to_degrees(),
             AngleUnit::Radians => angle.to_radians(),
         }
