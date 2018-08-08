@@ -48,7 +48,7 @@ pub type Angle = f64;
 /// across the screen, it draws the path that it follows. You can use this to draw
 /// any picture you want just by moving the turtle across the screen.
 ///
-/// ![turtle moving forward](https://github.com/sunjay/turtle/raw/master/forward.gif)
+/// ![turtle moving forward](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/forward.gif)
 ///
 /// See the documentation for the methods below to learn about the different drawing commands you
 /// can use with the turtle.
@@ -677,7 +677,7 @@ impl Turtle {
     ///
     /// This will produce the following:
     ///
-    /// ![turtle pen thickness](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/pen_thickness.png)
+    /// ![turtle pen thickness](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/pen_thickness.png)
     ///
     /// Notice that while the turtle travels in a straight line, it produces different thicknesses
     /// of lines which appear like large rectangles.
@@ -732,7 +732,7 @@ impl Turtle {
     ///
     /// This will produce the following:
     ///
-    /// ![turtle pen color](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/colored_circle.png)
+    /// ![turtle pen color](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/colored_circle.png)
     pub fn set_pen_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
         let pen_color = color.into();
         assert!(
@@ -826,7 +826,7 @@ impl Turtle {
     ///
     /// This will result in the following:
     ///
-    /// ![turtle fill example](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/red_circle.png)
+    /// ![turtle fill example](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/red_circle.png)
     pub fn begin_fill(&mut self) {
         self.window.borrow_mut().begin_fill();
     }
@@ -932,11 +932,11 @@ impl Turtle {
     ///
     /// This will produce the following:
     ///
-    /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/clear_before_click.png)
+    /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/clear_before_click.png)
     ///
     /// Once you click on the screen, the drawings will be cleared:
     ///
-    /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/clear_after_click.png)
+    /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/clear_after_click.png)
     pub fn clear(&mut self) {
         self.window.borrow_mut().clear();
     }

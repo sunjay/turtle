@@ -530,7 +530,7 @@ impl Color {
     /// ```
     ///
     /// Running the above program will result in the following image:
-    /// ![turtle color mixing](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/color_mixing.png)
+    /// ![turtle color mixing](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/color_mixing.png)
     pub fn mix<C: Into<Color> + Copy + Debug>(self, other: C, weight: f64) -> Self {
         assert_value_in_range!("weight", weight, 0.0, 1.0);
 

@@ -19,7 +19,7 @@ way is fun and interesting for people of all ages!
 across the screen, it draws the path that it follows. You can use this to draw
 any picture you want just by moving the turtle across the screen.
 
-![turtle moving forward](https://github.com/sunjay/turtle/raw/master/forward.gif)
+![turtle moving forward](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/forward.gif)
 
 ## Documentation
 
@@ -49,7 +49,7 @@ fn main() {
 
 This will produce the following:
 
-![turtle drawing a circle](https://github.com/sunjay/turtle/raw/master/circle.gif)
+![turtle drawing a circle](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/circle.gif)
 
 See the [`examples/`](https://github.com/sunjay/turtle/raw/master/examples)
 directory for more examples of how to use this crate.
