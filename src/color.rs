@@ -155,6 +155,7 @@
 
 use std::fmt::Debug;
 use std::iter::repeat;
+use std::f64::EPSILON;
 
 #[cfg(not(target_arch = "wasm32"))]
 use piston_window::types;
@@ -196,6 +197,13 @@ macro_rules! assert_color_valid {
             $color
         );
     };
+}
+
+/// Compare f64 values for equality. Floating point numbers are not precise enough to be compared
+/// with `==` reliably. This helper function ensures that the two numbers are within EPSILON
+/// of each other.
+fn f64_eq(left: f64, right: f64) -> bool {
+    (left - right).abs() < EPSILON
 }
 
 /// Type for representing a color.
@@ -554,7 +562,7 @@ impl Color {
         let w = p.mul_add(2., -1.);
         let a = self.alpha - with_color.alpha;
 
-        let w1 = if w * a == -1. {
+        let w1 = if f64_eq(w * a, -1.0) {
             (w + 1.) / 2.
         } else {
             ((w + a) / a.mul_add(w, 1.) + 1.) / 2.
@@ -1091,25 +1099,25 @@ impl Color {
 
         let max = r.max(g.max(b));
         let min = r.min(g.min(b));
-        let h: f64;
-        let s: f64;
-        let l = (max + min) * 0.5;
+        let hue: f64;
+        let saturation: f64;
+        let lightness = (max + min) * 0.5;
 
-        if max == min {
-            h = 0.;
-            s = 0.;
+        if f64_eq(max, min) {
+            hue = 0.;
+            saturation = 0.;
         } else {
             let d = max - min;
-            s = if l > 0.5 { d / (2. - max - min) } else { d / (max + min) };
+            saturation = if lightness > 0.5 { d / (2. - max - min) } else { d / (max + min) };
 
-            h = match max {
-                _ if max == r => (g - b) / d + if g < b { 6. } else { 0. },
-                _ if max == g => (b - r) / d + 2.,
+            hue = match max {
+                _ if f64_eq(max, r) => (g - b) / d + if g < b { 6. } else { 0. },
+                _ if f64_eq(max, g) => (b - r) / d + 2.,
                 _ => (r - g) / d + 4.,
             } * 60.;
         }
 
-        (h.round(), s, l)
+        (hue.round(), saturation, lightness)
     }
 }
 
@@ -1163,7 +1171,8 @@ impl<'a> From<&'a str> for Color {
             };
 
             // Use closure here as 's' cannot be captured when using nested fn form
-            let extract_color_value = |v| i64::from_str_radix(v, 16).expect(&format!("Invalid color literal: {}", s)) as f64;
+            let extract_color_value = |v| i64::from_str_radix(v, 16)
+                .unwrap_or_else(|_| panic!("Invalid color literal: {}", s)) as f64;
 
             let red = extract_color_value(&color_str[0..2]);
             let green = extract_color_value(&color_str[2..4]);
@@ -1173,7 +1182,7 @@ impl<'a> From<&'a str> for Color {
         } else {
             from_color_name(s)
                 .or_else(|| extended::from_color_name(s))
-                .expect(&format!("Unknown color name: {}", s))
+                .unwrap_or_else(|| panic!("Unknown color name: {}", s))
         }
     }
 }

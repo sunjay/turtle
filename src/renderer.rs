@@ -172,7 +172,7 @@ impl Renderer {
                         Vec::new(),
                         Polygon {
                             vertices: Vec::new(),
-                            fill_color: fill_color,
+                            fill_color,
                         },
                     ))
                 });

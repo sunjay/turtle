@@ -30,12 +30,12 @@ impl Radians {
     }
 
     /// Returns the raw value stored in radians
-    pub fn to_radians(&self) -> f64 {
+    pub fn to_radians(self) -> f64 {
         self.0
     }
 
     /// Returns the raw value stored in degrees
-    pub fn to_degrees(&self) -> f64 {
+    pub fn to_degrees(self) -> f64 {
         self.0.to_degrees()
     }
 
