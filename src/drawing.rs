@@ -95,7 +95,7 @@ impl Drawing {
     ///
     /// This will produce the following:
     ///
-    /// ![turtle set title](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/changed_title.png)
+    /// ![turtle set title](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/changed_title.png)
     pub fn set_title(&mut self, title: &str) {
         self.window
             .borrow_mut()
@@ -135,7 +135,7 @@ impl Drawing {
     ///
     /// This will produce the following:
     ///
-    /// ![turtle background](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/orange_background.png)
+    /// ![turtle background](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/orange_background.png)
     pub fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
         let bg_color = color.into();
         assert!(
@@ -192,11 +192,11 @@ impl Drawing {
     ///
     /// This will produce the following:
     ///
-    /// ![turtle center middle](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/circle.png)
+    /// ![turtle center middle](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/circle.png)
     ///
     /// Once you click on the window:
     ///
-    /// ![turtle center offset](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/circle_offset_center.png)
+    /// ![turtle center offset](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/circle_offset_center.png)
     pub fn set_center<P: Into<Point>>(&mut self, center: P) {
         let center = center.into();
         if !center.is_finite() {
@@ -285,11 +285,11 @@ impl Drawing {
     ///
     /// This will produce the following:
     ///
-    /// ![turtle default size](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/circle.png)
+    /// ![turtle default size](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/circle.png)
     ///
     /// Once you click on the window:
     ///
-    /// ![turtle small drawing](https://github.com/sunjay/turtle/raw/gh-pages/assets/images/docs/small_drawing.png)
+    /// ![turtle small drawing](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/small_drawing.png)
     ///
     /// Notice that the center of the drawing stays the same. To control that, see
     /// [`set_center()`](struct.Drawing.html#method.set_center).
