@@ -4,6 +4,7 @@ use turtle::{Turtle, Color};
 
 fn main() {
     let mut turtle = Turtle::new();
+    turtle.drawing_mut().set_background_color("pink");
 
     for i in 0..36 {
         let base_color: Color = if i % 2 == 0 {
