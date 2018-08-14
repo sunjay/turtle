@@ -1,12 +1,20 @@
 extern crate turtle;
 
-use turtle::Turtle;
+use turtle::{Turtle, Color};
 
 fn main() {
     let mut turtle = Turtle::new();
 
-    for _ in 0..36 {
+    for i in 0..36 {
+        let base_color: Color = if i % 2 == 0 {
+            "red".into()
+        } else {
+            "white".into()
+        };
+        turtle.set_fill_color(base_color.with_alpha(1.0 - i as f64 / 54.0));
+        turtle.begin_fill();
         square(&mut turtle);
+        turtle.end_fill();
         turtle.right(10.0);
     }
 }
