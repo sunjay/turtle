@@ -14,7 +14,7 @@ license = "MPL-2.0"
 # Ignore all files so we can explicitly whitelist what we want to be included in
 # the package
 exclude = ["*"]
-include = ["README.md", "LICENSE", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md",
+include = ["/README.md", "LICENSE", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md",
   "CHANGELOG.md", "src/**/*.rs", "examples/**/*.rs", "examples/**/*.txt",
   "tests/**/*.rs", "Cargo.toml", ".rustfmt.toml", "rust-toolchain"]
 
