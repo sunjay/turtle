@@ -1052,6 +1052,9 @@ impl Turtle {
             if let Some(Event::MouseButtonReleased(MouseButton::Left)) = self.drawing_mut().poll_event() {
                 break;
             }
+
+            // Sleep for ~1 frame (at 120fps) to avoid pegging the CPU.
+            thread::sleep(Duration::from_millis(1000 / 120));
         }
     }
 }
