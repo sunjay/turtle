@@ -782,6 +782,25 @@ impl Turtle {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.fill_color = fill_color);
     }
 
+    /// Return true if the turtle is currently filling the shape drawn 
+    /// by its movements.
+    ///
+    /// ```rust
+    /// # use turtle::*;
+    /// # let mut turtle = Turtle::new();
+    /// assert!(!turtle.is_filling());
+    /// turtle.begin_fill();
+    /// assert!(turtle.is_filling());
+    /// turtle.end_fill();
+    /// assert!(!turtle.is_filling());
+    /// ```
+    ///
+    /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for more
+    /// information and an example.
+    pub fn is_filling(&self) -> bool {
+        self.window.borrow().fetch_turtle().is_filling
+    }
+
     /// Begin filling the shape drawn by the turtle's movements.
     ///
     /// **Rule of thumb:** For every call to [`begin_fill()`](struct.Turtle.html#method.begin_fill),

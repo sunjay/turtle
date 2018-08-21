@@ -35,6 +35,7 @@ impl Default for Pen {
 pub struct TurtleState {
     pub pen: Pen,
     pub fill_color: Color,
+    pub is_filling: bool,
     pub position: Point,
     pub heading: Radians,
     pub speed: Speed,
@@ -46,6 +47,7 @@ impl Default for TurtleState {
         Self {
             pen: Pen::default(),
             fill_color: color::BLACK,
+            is_filling: false,
             position: Point::origin(),
             heading: Radians::from_degrees_value(90.0),
             speed: "normal".into(),
