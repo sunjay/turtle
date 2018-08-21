@@ -10,6 +10,7 @@ use std::thread;
 use app::TurtleApp;
 use messenger::{self, Disconnected};
 use query::{DrawingCommand, Query, Request, Response, StateUpdate};
+use query::DrawingCommand::{BeginFill, EndFill};
 use renderer::Renderer;
 use Event;
 
@@ -150,7 +151,22 @@ fn handle_query(
     match query {
         Query::Request(req) => handle_request(req, &app, &events_rx),
         Query::Update(update) => handle_update(update, app),
-        Query::Drawing(cmd) => drawing_tx.send(cmd).map(|_| None).map_err(|_| Disconnected),
+        Query::Drawing(cmd) => {
+            match cmd {
+                // Ideally we'd update is_filling when the command is actually processed, but
+                // we want to avoid updating the state in the rendering thread to avoid a race
+                // condition. Instead, we'll update it here before sending the command.
+                BeginFill(_) => {
+                    app.turtle_mut().is_filling = true;
+                },
+                EndFill => {
+                    app.turtle_mut().is_filling = false;
+                }
+                _ => {},
+            }
+
+            drawing_tx.send(cmd).map(|_| None).map_err(|_| Disconnected)
+        },
     }
 }
 
