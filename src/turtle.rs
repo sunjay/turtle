@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use std::rc::Rc;
 use std::thread;
 use std::time::Duration;
-
+use std::f64::consts::PI;
 #[cfg(not(target_arch = "wasm32"))]
 use event::{Event, MouseButton};
 use radians::{self, Radians};
@@ -235,6 +235,50 @@ impl Turtle {
             return;
         }
         thread::sleep(Duration::from_millis((secs * 1000.0) as u64));
+    }
+
+    /// Instructs the turtle to draw an arc by the given angle for a given radius from the 
+    /// current position of the turtle.
+    ///
+    /// The `radius` parameter is a floation point number that represents the radius of the arc
+    /// that you want to draw. If a negative `radius` is passed its absolute value is 
+    /// considered for drawing the arc.
+    ///
+    /// The `extent` parameter is a floating point number that represents how much you want the
+    /// turtle to rotate. If the `extent` parameter is `None` then it is defaulted to 360. If
+    /// a negative `extent` is passed the arc is drawn in the opposite direction.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    /// # use turtle::*;
+    /// # let mut turtle = Turtle::new();
+    /// //Turtle will draw an arc of 90 in a clockwise direction
+    /// turtle.arc(100.0, Some(90.0));
+    ///
+    /// //Turtle will draw an arc of 90 in a anti-clockwise direction
+    /// turtle.arc(-100.0, Some(90.0));
+    ///
+    /// //Turtle will draw an arc of 90 in a clockwise direction
+    /// turtle.arc(-100.0, Some(-90.0));
+    ///
+    /// //Turtle will draw an arc of 90 in a anti-clockwise direction
+    /// turtle.arc(-100.0, Some(90.0));
+    /// ```
+    pub fn arc(&mut self, radius:Distance, extent:Option<Angle>) {
+        let angle = extent.unwrap_or(360.0);
+        let arc_length = 2.0 * PI * radius.abs() * angle.abs() / 360.0;
+        let step_count = (arc_length/4.0).round() + 1.0;
+        let step_length = arc_length / step_count;
+        let step_angle = angle / step_count;
+        for _ in 0..step_count as i32 {
+            self.forward(step_length);
+            if radius < 0.0 {
+                self.left(step_angle);
+            } else {
+                self.right(step_angle);
+            }
+        }
     }
 
     /// Retrieve a read-only reference to the drawing.
