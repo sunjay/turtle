@@ -51,6 +51,8 @@ extern crate interpolation;
 extern crate piston_window;
 extern crate rand as rand_crate;
 
+extern crate svg;
+
 mod turtle_window;
 
 mod animation;

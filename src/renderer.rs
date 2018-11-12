@@ -3,8 +3,11 @@ compile_error!("This module should not be included when compiling to wasm");
 
 use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
+use std::path;
 
 use piston_window::{clear, context, line, polygon, AdvancedWindow, Event as PistonEvent, G2d, Input, OpenGL, PistonWindow, WindowSettings};
+
+use svg::{self, Document};
 
 use app::TurtleApp;
 use event::from_piston_event;
@@ -326,5 +329,16 @@ impl Renderer {
 
             line(color::BLACK.into(), 1., [start[0], start[1], end[0], end[1]], c.transform, g);
         }
+    }
+
+    /// export the drawing to SVG
+    fn save_svg<P: AsRef<path::Path>>(&mut self, path: P) {
+        let drawing = self.app.drawing();
+        let document = Document::new()
+            .set("viewbox", (0, 0, drawing.width, drawing.height));
+
+
+        svg::save(path, &document).unwrap(); // TODO handle save error
+
     }
 }
