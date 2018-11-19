@@ -9,7 +9,7 @@ use std::fmt::Write;
 use piston_window::{clear, context, line, polygon, AdvancedWindow, Event as PistonEvent, G2d, Input, OpenGL, PistonWindow, WindowSettings};
 
 use svg::{self, Document};
-use svg::node::element::{Rectangle};
+use svg::node::element::{self,Rectangle, Line};
 
 use app::TurtleApp;
 use event::from_piston_event;
@@ -335,13 +335,38 @@ impl Renderer {
 
     /// export the drawing to SVG
     fn save_svg<P: AsRef<path::Path>>(&mut self, path: P) {
-        let drawing = self.app.drawing();
+        let drawing_state = self.app.drawing();
         let mut document = Document::new()
-            .set("viewbox", (0, 0, drawing.width, drawing.height));
+            .set("viewbox", (0, 0, drawing_state.width, drawing_state.height));
 
         let background = Rectangle::new()
-            .set("fill", svg_color(&drawing.background));
+            .set("fill", svg_color(&drawing_state.background));
         document = document.add(background);
+
+        for drawing in &self.drawings {
+            match *drawing {
+                Drawing::Path(ref path) => {
+                    if path.pen.enabled {
+                        let node = Line::new()
+                            .set("x0", path.start.x)
+                            .set("y0", path.start.y)
+                            .set("x1", path.end.x)
+                            .set("y1", path.end.y)
+                            .set("stroke", svg_color(&path.pen.color))
+                            .set("stroke-width", path.pen.thickness);
+
+                        document = document.add(node);
+                    }
+                },
+                Drawing::Polygon(ref polygon) => {
+                    let node = element::Polygon::new()
+                        .set("points", polygon_points(&polygon.vertices))
+                        .set("fill", svg_color(&polygon.fill_color));
+
+                    document = document.add(node);
+                },
+            }
+        }
 
         svg::save(path, &document).unwrap(); // TODO handle save error
     }
@@ -353,4 +378,19 @@ fn svg_color(color: &Color) -> String {
     write!(output, "rgba({}, {}, {}, {})", color.red, color.green, color.blue, color.alpha);
 
     output
+}
+
+fn polygon_points(points: &Vec<Point>) -> String {
+    let ps : Vec<String> =
+        points
+        .iter()
+        .map(polygon_point)
+        .collect();
+    ps.join(" ")
+}
+
+fn polygon_point(point: &Point) -> String {
+    let mut result = String::new();
+    write!(result, "{},{}", point.x, point.y);
+    result
 }
