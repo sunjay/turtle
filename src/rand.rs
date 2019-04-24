@@ -194,15 +194,16 @@
 
 pub use ::rand::*;
 
-use self::distributions::range::SampleRange;
+use self::distributions::uniform::SampleUniform;
 
+/// Implement this type to allow it to be used with the random_range function.
 pub trait RandomRange {
     fn random_range<R: Rng>(rng: &mut R, low: Self, high: Self) -> Self;
 }
 
 impl<T> RandomRange for T
 where
-    T: PartialOrd + SampleRange,
+    T: PartialOrd + SampleUniform,
 {
     fn random_range<R: Rng>(rng: &mut R, low: T, high: T) -> T {
         rng.gen_range(low, high)
