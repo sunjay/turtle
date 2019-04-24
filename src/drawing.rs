@@ -84,7 +84,6 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -124,7 +123,6 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -171,8 +169,6 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    ///
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -264,8 +260,6 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    ///
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -504,8 +498,6 @@ impl Drawing {
     /// further movements take place.
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
-    ///
     /// use turtle::Turtle;
     /// use turtle::event::Key::{Left, Right};
     /// use turtle::Event::KeyPressed;

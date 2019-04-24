@@ -31,8 +31,6 @@ any picture you want just by moving the turtle across the screen.
 As a simple example, you can draw a circle with only the following code:
 
 ```rust
-extern crate turtle;
-
 use turtle::Turtle;
 
 fn main() {

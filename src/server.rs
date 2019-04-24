@@ -31,7 +31,6 @@ use crate::Event;
 /// # Example
 /// ```rust,no_run
 /// # #![allow(unused_variables, unused_mut)]
-/// extern crate turtle;
 /// use turtle::Turtle;
 ///
 /// fn main() {

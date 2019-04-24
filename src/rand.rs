@@ -9,7 +9,6 @@
 //! [`random_range()`] function.
 //!
 //! ```rust,no_run
-//! extern crate turtle;
 //! use turtle::rand::{random, random_range};
 //! # fn main() {}
 //! ```
@@ -21,7 +20,6 @@
 //! Instead of this:
 //!
 //! ```rust,no_run
-//! extern crate turtle;
 //! use turtle::Turtle;
 //! use turtle::rand::random;
 //! # fn main() {}
@@ -30,7 +28,6 @@
 //! You can do this:
 //!
 //! ```rust,no_run
-//! extern crate turtle;
 //! use turtle::{Turtle, random};
 //! # fn main() {}
 //! ```

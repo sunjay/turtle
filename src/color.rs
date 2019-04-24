@@ -495,8 +495,6 @@ impl Color {
     /// Let's look at a more complete example to really show what happens when we're mixing colors together.
     ///
     /// ```no_run
-    /// extern crate turtle;
-    ///
     /// use turtle::{Color, Turtle};
     ///
     /// fn main() {

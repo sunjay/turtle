@@ -72,7 +72,6 @@ impl Turtle {
     ///
     /// ```rust,no_run
     /// # #![allow(unused_variables, unused_mut)]
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -650,7 +649,6 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -712,7 +710,6 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -782,7 +779,7 @@ impl Turtle {
         self.window.borrow_mut().with_turtle_mut(|turtle| turtle.fill_color = fill_color);
     }
 
-    /// Return true if the turtle is currently filling the shape drawn 
+    /// Return true if the turtle is currently filling the shape drawn
     /// by its movements.
     ///
     /// ```rust
@@ -815,7 +812,6 @@ impl Turtle {
     /// used when filling the shape.
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -936,7 +932,6 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -969,7 +964,6 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -1036,7 +1030,6 @@ impl Turtle {
     /// # Example
     ///
     /// ```rust,no_run
-    /// extern crate turtle;
     /// use turtle::Turtle;
     ///
     /// fn main() {

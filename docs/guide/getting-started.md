@@ -119,8 +119,6 @@ add it twice!
 Then, add the following to the top of `src/main.rs`:
 
 ```rust
-extern crate turtle;
-
 use turtle::Turtle;
 ```
 
@@ -148,8 +146,6 @@ fn main() {
 When you're finished, `src/main.rs` should look as follows:
 
 ```rust
-extern crate turtle;
-
 use turtle::Turtle;
 
 fn main() {
