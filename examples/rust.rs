@@ -5,8 +5,6 @@
 //! In any case, this is an excellent example of creatively using fills and some other
 //! techniques to create a fairly complex drawing.
 
-extern crate turtle;
-
 use turtle::Turtle;
 
 fn main() {

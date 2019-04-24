@@ -1,5 +1,3 @@
-extern crate turtle;
-
 use turtle::Turtle;
 
 fn main() {

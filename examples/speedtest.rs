@@ -1,5 +1,3 @@
-extern crate turtle;
-
 use turtle::Turtle;
 
 /// This program draws several parallel lines to demonstrate each of the

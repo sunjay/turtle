@@ -1,8 +1,6 @@
 //! To run a LOGO program, run:
 //!     cargo run --example logo_interpreter -- my_logo_program.txt
 
-extern crate turtle;
-
 use std::env;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};

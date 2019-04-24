@@ -1,5 +1,3 @@
-extern crate turtle;
-
 use turtle::Turtle;
 
 /// This program demonstrates rotations at multiple speeds

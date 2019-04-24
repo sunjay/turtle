@@ -4,7 +4,6 @@
 //! We are going to draw the turtle using arcs and straight lines.
 //! To draw arcs, we use multiple Rust for-loops to create different tilt angles and
 //! lengths. The more sophisticated the figure is, the more loops we need to make it.
-extern crate turtle;
 
 use turtle::{color, Color, Turtle};
 

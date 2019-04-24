@@ -29,7 +29,7 @@ pub struct BitVec {
 }
 
 impl fmt::Display for BitVec {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // EXERCISE: Only print the bytes up to the length of bytes that have been pushed, not
         // the entire capacity. (Similar to how Vec prints its len, not its capacity)
         for byte in &self.bytes {

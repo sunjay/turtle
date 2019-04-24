@@ -1,8 +1,6 @@
 //! Draw a fractal tree.
 //! (https://www.youtube.com/watch?v=9UtdjVWSluo)
 
-extern crate turtle;
-
 use turtle::{Color, Point, Turtle};
 
 /// Draw the tree. It's a fractal which consists of 1 large square and 2 small squares.

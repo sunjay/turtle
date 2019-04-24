@@ -4,8 +4,6 @@ mod maze;
 mod solver;
 mod wall;
 
-extern crate turtle;
-
 use turtle::{Color, Turtle};
 
 use crate::grid::GridCellIter;

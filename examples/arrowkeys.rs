@@ -1,5 +1,3 @@
-extern crate turtle;
-
 use turtle::event::Key::{Left, Right};
 use turtle::Event::KeyPressed;
 use turtle::Turtle;

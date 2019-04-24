@@ -1,5 +1,3 @@
-extern crate turtle;
-
 use std::f64::consts::PI;
 
 use turtle::Turtle;

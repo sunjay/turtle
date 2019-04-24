@@ -1,8 +1,6 @@
 //! This is NOT a real example. This is a test designed to see if we can actually run the turtle
 //! process
 
-extern crate turtle;
-
 use std::process;
 
 use turtle::Turtle;

@@ -248,32 +248,32 @@ impl Grid {
     }
 
     /// Returns the first row
-    pub fn first_row(&self) -> GridCellIter {
+    pub fn first_row(&self) -> GridCellIter<'_> {
         self.rows().next().unwrap()
     }
 
     /// Returns the last row
-    pub fn last_row(&self) -> GridCellIter {
+    pub fn last_row(&self) -> GridCellIter<'_> {
         self.rows().next_back().unwrap()
     }
 
     /// Returns the first column
-    pub fn first_col(&self) -> GridCellIter {
+    pub fn first_col(&self) -> GridCellIter<'_> {
         self.cols().next().unwrap()
     }
 
     /// Returns the last column
-    pub fn last_col(&self) -> GridCellIter {
+    pub fn last_col(&self) -> GridCellIter<'_> {
         self.cols().next_back().unwrap()
     }
 
     /// Returns an iterator over each row
-    pub fn rows(&self) -> GridIter {
+    pub fn rows(&self) -> GridIter<'_> {
         GridIter::new(&self.0, GridIterTarget::Rows)
     }
 
     /// Returns an iterator over each row
-    pub fn cols(&self) -> GridIter {
+    pub fn cols(&self) -> GridIter<'_> {
         GridIter::new(&self.0, GridIterTarget::Columns)
     }
 }

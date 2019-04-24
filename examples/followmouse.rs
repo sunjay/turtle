@@ -1,5 +1,3 @@
-extern crate turtle;
-
 use turtle::Event::MouseMove;
 use turtle::Turtle;
 

@@ -1,8 +1,6 @@
 // Source: http://www.algorithm.co.il/blogs/computer-science/fractals-in-10-minutes-no-6-turtle-snowflake/
 // Modified to create a full snowflake with the fractals
 
-extern crate turtle;
-
 use turtle::Turtle;
 
 fn main() {

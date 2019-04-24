@@ -34,8 +34,6 @@
 //! function, passing the direction of the turn for this fold as an angle
 //! (+90 for a right turn, -90 for a left turn).
 
-extern crate turtle;
-
 use turtle::Color;
 use turtle::Turtle;
 

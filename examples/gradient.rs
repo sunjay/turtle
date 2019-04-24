@@ -1,7 +1,5 @@
 //! This example shows how you can use color mixing and pen size to produce a smooth gradient
 
-extern crate turtle;
-
 use turtle::{Color, Turtle};
 
 fn main() {

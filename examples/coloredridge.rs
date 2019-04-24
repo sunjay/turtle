@@ -1,5 +1,3 @@
-extern crate turtle;
-
 use std::f64::consts::E;
 
 use turtle::{random, Color, Turtle};
