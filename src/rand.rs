@@ -3,17 +3,20 @@
 //! The entire [`rand`](https://github.com/rust-lang-nursery/rand) crate which allows you to
 //! generate random values is re-exported for your convenience. That means that you can use any
 //! of its parts by importing from this module.
-//! See the documentation for [`rand_crate`](../../rand/index.html).
+//!
+//! **Almost all of the documented items listed at the bottom of this page are from the `rand`
+//! crate directly.** The only additional function provided specifically by `turtle` is the
+//! [`random_range()`] function.
 //!
 //! ```rust,no_run
 //! extern crate turtle;
-//! use turtle::rand::Rand;
+//! use turtle::rand::{random, random_range};
 //! # fn main() {}
 //! ```
 //!
-//! The [`random()`] function is the most common function you will use. In fact,
-//! it's exported from the turtle crate directly so you don't even have to use the `rand` module
-//! in order to access it.
+//! Of everything provided, the [`random()`] function is probably the most common function you will
+//! use. In fact, it's exported from the turtle crate directly so you don't even have to use the
+//! `rand` module in order to access it.
 //!
 //! Instead of this:
 //!
@@ -129,31 +132,32 @@
 //! The type signature of the [`random()`] function is similar to the following:
 //!
 //! ```rust,compile_fail,E0308
-//! # use turtle::rand::Rand;
-//! fn random<T: Rand>() -> T { /* ... */ }
+//! # use turtle::rand::distributions::{Distribution, Standard};
+//! fn random<T>() -> T where Standard: Distribution<T> { /* ... */ }
 //! ```
 //!
 //! This tells us the following:
 //!
 //! * The `random()` function takes **no arguments** and returns a value of type `T`
-//! * The generic type `T` is required to implement the [`Rand`] trait
+//! * The generic type `T` is required to fulfill the condition `Standard: Distribution<T>`
 //!
-//! This is the incredible part about this function. It requires *zero* arguments, and yet can
-//! generate all kinds of values. This is because while it doesn't require any *parameters*, it
-//! does take a single *type argument* in order to determine what type to generate a value of.
-//! This is done at compile time so no work needs to be performed at runtime in order to determine
-//! the type to generate or how to generate it.
+//! That's pretty incredible! With *zero* arguments, [`random()`] can generate all kinds of values.
+//! This works because while it doesn't have any normal arguments passed in, it does require a
+//! single *type* argument to be provided. This type is required to be part of a specific *trait*
+//! implementation and the [`random()`] function is able to use that implementation to generate a
+//! random value. This is done at compile time so no additional work needs to be performed at
+//! runtime in order to determine the type to generate or how to generate it.
 //!
 //! This also explains why we sometimes need to use the turbofish syntax (`::<T>`) in order to
 //! specify the type `T`. When a function requires a type argument and doesn't take that argument
 //! as one of its parameters, the compiler can often end up in a situation where it doesn't have
 //! the necessary information to determine which type to return.
+//!
 //! The turbofish syntax and type annotations provide two different ways to clarify what we want.
 //!
 //! That being said, there are a lot of situations where the compiler *can* figure out what type
-//! we need. Each of the types we covered above, implements the [`Rand`] trait. We specified which
-//! type we would like the function to return by annotating the variable that we assigned the
-//! random value to.
+//! we need. In some of the examples above, we specified which type we would like the function to
+//! return by annotating the variable that we assigned the random value to.
 //!
 //! ```rust
 //! # use turtle::{Speed, random};
@@ -171,19 +175,16 @@
 //! foo(random());
 //! ```
 //!
-//! This generates a random speed using the implementation of [`Rand`] for the [`Speed`] type in this
-//! crate.
-//!
 //! # The Orphan Rule
-//! Not all of the implementations of [`Rand`] for the types above are implemented in this
-//! crate. There is a rule known as the [orphan rule](https://doc.rust-lang.org/book/second-edition/ch10-02-traits.html#implementing-a-trait-on-a-type)
-//! which prevents anyone from implementing a trait on a type that they do not define. That is why
-//! we implemented [`Rand`] for [`Speed`], [`Color`], and [`Point`], but not for type aliases like
-//! [`Distance`]. [`Distance`] is a type alias for `f64`. `f64` is provided by the standard
-//! library, so we cannot implement any traits for it. The implementations of [`Rand`] for types
-//! like that come from the `rand` crate itself.
 //!
-//! [`Rand`]: ../../rand/trait.Rand.html
+//! Not all of the implementations of the traits from the `rand` crate for the types above are
+//! implemented in this crate. There is a rule known as the [orphan rule] which prevents anyone
+//! from implementing a trait on a type that they do not define. That is why we implemented the
+//! `rand` traits for for [`Speed`], [`Color`], and [`Point`], but not for type aliases like
+//! [`Distance`]. [`Distance`] is a type alias for `f64`. `f64` is provided by the standard
+//! library, so we cannot implement any traits for it. The implementations of the `rand` crate's
+//! traits for those types come from the `rand` crate itself.
+//!
 //! [`random()`]: ../fn.random.html
 //! [`random_range()`]: fn.random_range.html
 //! [`Distance`]: ../type.Distance.html
@@ -191,6 +192,7 @@
 //! [`Speed`]: ../speed/struct.Speed.html
 //! [`Color`]: ../color/struct.Color.html
 //! [`Point`]: ../struct.Point.html
+//! [orphan rule]: https://doc.rust-lang.org/book/ch10-02-traits.html#implementing-a-trait-on-a-type
 
 pub use ::rand::*;
 
