@@ -106,20 +106,36 @@ use crate::rand::{Random, RandomRange};
 ///
 /// # Generating Random Points
 ///
+/// Use the [`random()`] function to generate random points. The values of `x` and `y` will be
+/// between `0.0` and `1.0` (inclusive).
+///
 /// ```rust
-/// # use turtle::{Point, random};
+/// use turtle::{Point, random};
+///
 /// let pt: Point = random();
-/// assert!(pt.x >= 0.0 && pt.x < 1.0);
-/// assert!(pt.y >= 0.0 && pt.y < 1.0);
+/// assert!(pt.x >= 0.0 && pt.x <= 1.0);
+/// assert!(pt.y >= 0.0 && pt.y <= 1.0);
 /// ```
 ///
-/// See the documentation for the [`rand`](rand/index.html) module and the section
-/// [Generating Random Values in a Range](rand/index.html#generating-random-values-in-a-range)
-/// for more information.
+/// When [`random_range()`] is used to generate a `Point`, it creates a random point within the
+/// rectangle formed by the two points given as arguments to [`random_range()`].
+///
+/// ```rust
+/// use turtle::{Point, random_range};
+///
+/// // Generates a Point value with:
+/// //   x-coordinate between 46.0 and 92.0
+/// //   y-coordinate between 39.0 and 103.0
+/// let value: Point = random_range::<_, Point>([92.0, 39.0].into(), [46.0, 103.0].into());
+/// assert!(value.x >= 46.0 && value.x <= 92.0);
+/// assert!(value.y >= 39.0 && value.y <= 103.0);
+/// ```
 ///
 /// [`Turtle::go_to()`]: struct.Turtle.html#method.go_to
 /// [`Turtle::turn_towards()`]: struct.Turtle.html#method.turn_towards
 /// [`Drawing::set_center()`]: struct.Drawing.html#method.set_center
+/// [`random()`]: rand/fn.random.html
+/// [`random_range()`]: rand/fn.random_range.html
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Point {
     /// The x-coordinate of the Point
