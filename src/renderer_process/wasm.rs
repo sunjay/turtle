@@ -6,9 +6,7 @@ use std::fmt::Debug;
 use std::mem;
 use std::os::raw::{c_char, c_void};
 
-use serde_json;
-
-use query::{Query, Response};
+use crate::query::{Query, Response};
 
 // Functions preovided by JavaScript, to be called by the WebAssembly generated from Rust
 extern "C" {
