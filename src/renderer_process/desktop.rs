@@ -4,8 +4,8 @@ compile_error!("This module should not be included when compiling to wasm");
 use std::sync::mpsc;
 use std::{env, process, thread};
 
-use messenger::{self, Disconnected};
-use query::{Query, Response};
+use crate::messenger::{self, Disconnected};
+use crate::query::{Query, Response};
 
 /// Manages the renderer process and all communication with it
 pub struct RendererProcess {

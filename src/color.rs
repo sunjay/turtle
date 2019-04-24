@@ -159,7 +159,7 @@ use std::f64::EPSILON;
 
 #[cfg(not(target_arch = "wasm32"))]
 use piston_window::types;
-use rand::{
+use crate::rand::{
     distributions::{Distribution, Standard},
     Rng,
 };

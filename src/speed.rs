@@ -3,12 +3,12 @@ use std::f64;
 use std::f64::consts::PI;
 use std::fmt;
 
-use radians::Radians;
-use rand::{
+use crate::radians::Radians;
+use crate::rand::{
     distributions::{Distribution, Standard},
     Rng,
 };
-use Distance;
+use crate::Distance;
 
 const MIN_SPEED: i32 = 1;
 const MAX_SPEED: i32 = 25;
@@ -305,7 +305,7 @@ impl From<f64> for Speed {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use Turtle;
+    use crate::Turtle;
 
     #[test]
     fn display() {

@@ -83,17 +83,17 @@ mod event {
 }
 pub mod rand;
 
-pub use color::Color;
-pub use drawing::{Drawing, Size};
-pub use event::Event;
-pub use point::Point;
-pub use rand::{random, random_range};
+pub use crate::color::Color;
+pub use crate::drawing::{Drawing, Size};
+pub use crate::event::Event;
+pub use crate::point::Point;
+pub use crate::rand::{random, random_range};
 #[cfg(target_arch = "wasm32")]
 pub use renderer_process::{alloc, dealloc, dealloc_str};
-pub use speed::Speed;
-pub use turtle::{Angle, Distance, Turtle};
+pub use crate::speed::Speed;
+pub use crate::turtle::{Angle, Distance, Turtle};
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use server::start;
+pub use crate::server::start;
 #[cfg(target_arch = "wasm32")]
 pub fn start() {}

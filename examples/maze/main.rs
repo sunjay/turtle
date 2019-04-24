@@ -8,9 +8,9 @@ extern crate turtle;
 
 use turtle::{Color, Turtle};
 
-use grid::GridCellIter;
-pub use maze::Maze;
-use solver::solve;
+use crate::grid::GridCellIter;
+pub use crate::maze::Maze;
+use crate::solver::solve;
 
 // Dimensions of the maze in turtle steps (pixels)
 const WIDTH: f64 = 600.0; // px

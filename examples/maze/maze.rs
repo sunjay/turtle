@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use turtle::rand::{thread_rng, Rng};
 
-use grid::Grid;
+use crate::grid::Grid;
 
 #[derive(Debug)]
 pub struct Maze {

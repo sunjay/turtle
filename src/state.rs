@@ -1,5 +1,5 @@
-use radians::Radians;
-use {color, Color, Point, Speed};
+use crate::radians::Radians;
+use crate::{color, Color, Point, Speed};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Path {

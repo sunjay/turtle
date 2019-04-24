@@ -10,6 +10,7 @@ keywords = ["turtle", "graphics", "drawing", "teaching", "beginner"]
 # crates.io/category_slugs
 categories = ["rendering", "rendering::graphics-api", "rendering::engine", "games", "gui"]
 license = "MPL-2.0"
+edition = "2018"
 
 # Ignore all files so we can explicitly whitelist what we want to be included in
 # the package

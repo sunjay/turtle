@@ -1,7 +1,7 @@
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 use interpolation::Spatial;
-use rand::{
+use crate::rand::{
     distributions::{Distribution, Standard},
     RandomRange, Rng,
 };

@@ -7,12 +7,12 @@ use std::process;
 use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 
-use app::TurtleApp;
-use messenger::{self, Disconnected};
-use query::{DrawingCommand, Query, Request, Response, StateUpdate};
-use query::DrawingCommand::{BeginFill, EndFill};
-use renderer::Renderer;
-use Event;
+use crate::app::TurtleApp;
+use crate::messenger::{self, Disconnected};
+use crate::query::{DrawingCommand, Query, Request, Response, StateUpdate};
+use crate::query::DrawingCommand::{BeginFill, EndFill};
+use crate::renderer::Renderer;
+use crate::Event;
 
 /// Start the turtle window in advance
 ///

@@ -6,12 +6,12 @@ use std::thread;
 
 use piston_window::{clear, context, line, polygon, AdvancedWindow, Event as PistonEvent, G2d, Input, OpenGL, PistonWindow, WindowSettings};
 
-use app::TurtleApp;
-use event::from_piston_event;
-use extensions::ConvertScreenCoordinates;
-use query::DrawingCommand;
-use state::{DrawingState, Path, Pen, Polygon, TurtleState};
-use {color, Color, Event, Point};
+use crate::app::TurtleApp;
+use crate::event::from_piston_event;
+use crate::extensions::ConvertScreenCoordinates;
+use crate::query::DrawingCommand;
+use crate::state::{DrawingState, Path, Pen, Polygon, TurtleState};
+use crate::{color, Color, Event, Point};
 
 fn update_window(window: &mut PistonWindow, current: DrawingState, next: DrawingState) -> DrawingState {
     if next.title != current.title {

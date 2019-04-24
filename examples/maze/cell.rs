@@ -3,7 +3,7 @@ use turtle::rand::{
     Rng,
 };
 
-use wall::Wall;
+use crate::wall::Wall;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Cell {

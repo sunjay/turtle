@@ -5,10 +5,10 @@ use std::thread;
 use std::time::Duration;
 
 #[cfg(not(target_arch = "wasm32"))]
-use event::{Event, MouseButton};
-use radians::{self, Radians};
-use turtle_window::TurtleWindow;
-use {Color, Drawing, Point, Speed};
+use crate::event::{Event, MouseButton};
+use crate::radians::{self, Radians};
+use crate::turtle_window::TurtleWindow;
+use crate::{Color, Drawing, Point, Speed};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {

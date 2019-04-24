@@ -1,6 +1,6 @@
 //! Extension traits for various types
 
-use Point;
+use crate::Point;
 
 /// Conversions between different "interpretations" of coordinates.
 pub trait ConvertScreenCoordinates {

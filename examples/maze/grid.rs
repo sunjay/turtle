@@ -2,8 +2,8 @@ use std::ops::{Index, IndexMut};
 
 use turtle::random;
 
-use cell::Cell;
-use wall::Wall;
+use crate::cell::Cell;
+use crate::wall::Wall;
 
 const GRID_SIZE: usize = 16;
 

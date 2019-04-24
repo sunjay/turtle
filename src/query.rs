@@ -1,5 +1,5 @@
-use state::{DrawingState, Path, TurtleState};
-use {Color, Event};
+use crate::state::{DrawingState, Path, TurtleState};
+use crate::{Color, Event};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Response {

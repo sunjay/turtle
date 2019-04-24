@@ -2,9 +2,9 @@ use std::cell::RefCell;
 use std::fmt::Debug;
 use std::rc::Rc;
 
-use state::DrawingState;
-use turtle_window::TurtleWindow;
-use {Color, Event, Point};
+use crate::state::DrawingState;
+use crate::turtle_window::TurtleWindow;
+use crate::{Color, Event, Point};
 
 /// Represents a size
 ///
@@ -552,7 +552,7 @@ impl Drawing {
 mod tests {
     use super::*;
 
-    use turtle::*;
+    use crate::turtle::*;
 
     #[test]
     #[should_panic(

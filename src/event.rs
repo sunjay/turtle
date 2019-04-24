@@ -8,7 +8,7 @@ compile_error!("This module should not be included when compiling to wasm");
 use piston_window::{Button, ButtonArgs, ButtonState, Event as PistonEvent, Input, Motion};
 pub use piston_window::{ControllerAxisArgs as ControllerAxis, ControllerButton, Key, MouseButton, TouchArgs as Touch};
 
-use Point;
+use crate::Point;
 
 /// Possible events returned from [`Drawing::poll_event()`](../struct.Drawing.html#method.poll_event).
 ///

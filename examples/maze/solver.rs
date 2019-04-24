@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use maze::Maze;
+use crate::maze::Maze;
 use turtle::rand::{thread_rng, Rng};
 use turtle::Turtle;
 

@@ -1,9 +1,9 @@
 #[cfg(not(any(feature = "test", test)))]
 use interpolation::lerp;
 
-use radians::{self, Radians};
-use state::{Path, TurtleState};
-use timer::Timer;
+use crate::radians::{self, Radians};
+use crate::state::{Path, TurtleState};
+use crate::timer::Timer;
 
 pub trait Animation {
     /// Advance the animation forward.

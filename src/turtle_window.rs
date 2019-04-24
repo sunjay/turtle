@@ -1,12 +1,12 @@
 use std::cell::RefCell;
 
-use animation::{Animation, AnimationStatus, MoveAnimation, RotateAnimation};
-use query::{DrawingCommand, Query, Request, Response, StateUpdate};
-use radians::Radians;
-use renderer_process::RendererProcess;
-use state::{DrawingState, Path, TurtleState};
-use timer::Timer;
-use {start, Distance, Event, Point};
+use crate::animation::{Animation, AnimationStatus, MoveAnimation, RotateAnimation};
+use crate::query::{DrawingCommand, Query, Request, Response, StateUpdate};
+use crate::radians::Radians;
+use crate::renderer_process::RendererProcess;
+use crate::state::{DrawingState, Path, TurtleState};
+use crate::timer::Timer;
+use crate::{start, Distance, Event, Point};
 
 use self::DrawingCommand::*;
 
