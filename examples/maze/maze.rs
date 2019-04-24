@@ -1,7 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 use std::ops::{Deref, DerefMut};
 
-use turtle::rand::{thread_rng, Rng};
+use turtle::rand::{thread_rng, seq::SliceRandom};
 
 use crate::grid::Grid;
 
@@ -35,7 +35,7 @@ impl Maze {
             if grid.get(current).is_all_closed() {
                 // This cell hasn't been connected yet, let's try to do that
                 let mut visited_adjacents = adjacents.iter().filter(|&p| visited.contains(p)).collect::<Vec<_>>();
-                rng.shuffle(&mut visited_adjacents);
+                visited_adjacents.shuffle(&mut rng);
 
                 if let Some(&&adj) = visited_adjacents.first() {
                     grid.open_between(current, adj);
@@ -45,7 +45,7 @@ impl Maze {
             let mut unvisited = adjacents.into_iter().filter(|p| !visited.contains(p)).collect::<Vec<_>>();
 
             if !unvisited.is_empty() {
-                rng.shuffle(&mut unvisited);
+                unvisited.shuffle(&mut rng);
 
                 let mut unvisited = unvisited.into_iter();
                 // should exist because we just checked is_empty

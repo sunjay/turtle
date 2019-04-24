@@ -1,7 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 
 use crate::maze::Maze;
-use turtle::rand::{thread_rng, Rng};
+use turtle::rand::{thread_rng, seq::SliceRandom};
 use turtle::Turtle;
 
 const SOLUTION_COLOR: &str = "#4CAF50";
@@ -26,7 +26,7 @@ pub fn solve(turtle: &mut Turtle, maze: Maze, cell_width: f64, cell_height: f64)
         }
 
         let mut unvisited = unvisited_open_adjacents(&maze, &visited, current);
-        rng.shuffle(&mut unvisited);
+        unvisited.shuffle(&mut rng);
 
         if unvisited.is_empty() {
             // Dead end, start backtracking until we have unvisited adjacents
