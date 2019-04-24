@@ -66,7 +66,7 @@ pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> O
 where
     F: FnOnce(Point) -> Point,
 {
-    use self::Event::*;
+    use Event::*;
 
     let input_event = match *event {
         PistonEvent::Input(ref input_event) => input_event,

@@ -65,7 +65,7 @@ impl Animation for MoveAnimation {
     // See Cargo.toml for an explanation of this attribute
     #[cfg(not(any(feature = "test", test)))]
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
-        use self::AnimationStatus::*;
+        use AnimationStatus::*;
 
         let MoveAnimation {
             ref path,
@@ -92,7 +92,7 @@ impl Animation for MoveAnimation {
     // See Cargo.toml for an explanation of this attribute
     #[cfg(any(feature = "test", test))]
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
-        use self::AnimationStatus::*;
+        use AnimationStatus::*;
 
         // No animation during testing
         let MoveAnimation { ref path, .. } = *self;
@@ -130,7 +130,7 @@ impl Animation for RotateAnimation {
     // See Cargo.toml for an explanation of this attribute
     #[cfg(not(any(feature = "test", test)))]
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
-        use self::AnimationStatus::*;
+        use AnimationStatus::*;
 
         let RotateAnimation {
             start,
@@ -160,7 +160,7 @@ impl Animation for RotateAnimation {
     // See Cargo.toml for an explanation of this attribute
     #[cfg(any(feature = "test", test))]
     fn advance(&self, turtle: &mut TurtleState) -> AnimationStatus {
-        use self::AnimationStatus::*;
+        use AnimationStatus::*;
 
         // No animation during testing
         let RotateAnimation {

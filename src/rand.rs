@@ -193,7 +193,7 @@
 
 pub use ::rand::*;
 
-use self::distributions::uniform::SampleUniform;
+use distributions::uniform::SampleUniform;
 
 /// Implement this type to allow it to be used with the random_range function.
 pub trait RandomRange {

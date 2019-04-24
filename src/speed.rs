@@ -23,7 +23,7 @@ pub(crate) enum SpeedLevel {
 
 impl PartialOrd for SpeedLevel {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        use self::SpeedLevel::*;
+        use SpeedLevel::*;
         match (*self, *other) {
             (Value(value), Value(ref other_value)) => value.partial_cmp(other_value),
             (Instant, Instant) => Some(Ordering::Equal),
@@ -218,7 +218,7 @@ impl Speed {
 
     /// Converts a speed to its value as a movement speed in pixels per second
     pub(crate) fn to_movement(self) -> Distance {
-        use self::SpeedLevel::*;
+        use SpeedLevel::*;
         match self.0 {
             Value(speed) => f64::from(speed) * 50.0,
             Instant => f64::INFINITY,
@@ -227,7 +227,7 @@ impl Speed {
 
     /// Converts a speed to its value as radians per second
     pub(crate) fn to_rotation(self) -> Radians {
-        use self::SpeedLevel::*;
+        use SpeedLevel::*;
         Radians::from_radians_value(match self.0 {
             Value(speed) => f64::from(speed) * (3.0 * PI),
             Instant => f64::INFINITY,
@@ -237,7 +237,7 @@ impl Speed {
 
 impl fmt::Display for Speed {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use self::SpeedLevel::*;
+        use SpeedLevel::*;
         match self.0 {
             Value(speed) => write!(f, "Speed::from({})", speed),
             Instant => write!(f, "Speed::instant()"),
@@ -265,7 +265,7 @@ impl Distribution<Speed> for Standard {
 
 impl<'a> From<&'a str> for Speed {
     fn from(s: &'a str) -> Self {
-        use self::SpeedLevel::*;
+        use SpeedLevel::*;
 
         Speed(match s {
             "slowest" => Value(1),
@@ -284,7 +284,7 @@ impl<'a> From<&'a str> for Speed {
 
 impl From<i32> for Speed {
     fn from(n: i32) -> Self {
-        use self::SpeedLevel::*;
+        use SpeedLevel::*;
 
         Speed(match n {
             // Special error message for 0 because this used to be a valid speed

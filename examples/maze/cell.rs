@@ -21,7 +21,7 @@ impl Cell {
 
 impl Default for Cell {
     fn default() -> Self {
-        use self::Wall::*;
+        use Wall::*;
 
         Self {
             north: Closed,

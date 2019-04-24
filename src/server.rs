@@ -170,7 +170,7 @@ fn handle_query(
 }
 
 fn handle_request(request: Request, app: &TurtleApp, events_rx: &mpsc::Receiver<Event>) -> Result<Option<Response>, Disconnected> {
-    use self::Request::*;
+    use Request::*;
     Ok(Some(match request {
         TurtleState => Response::TurtleState((*app.turtle()).clone()),
         DrawingState => Response::DrawingState((*app.drawing()).clone()),
@@ -183,7 +183,7 @@ fn handle_request(request: Request, app: &TurtleApp, events_rx: &mpsc::Receiver<
 }
 
 fn handle_update(update: StateUpdate, app: &mut TurtleApp) -> Result<Option<Response>, Disconnected> {
-    use self::StateUpdate::*;
+    use StateUpdate::*;
     match update {
         TurtleState(turtle) => *app.turtle_mut() = turtle,
         DrawingState(drawing) => *app.drawing_mut() = drawing,

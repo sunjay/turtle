@@ -9,14 +9,14 @@
 #[cfg(all(not(target_arch = "wasm32"), not(any(feature = "test", test))))]
 mod desktop;
 #[cfg(all(not(target_arch = "wasm32"), not(any(feature = "test", test))))]
-pub use self::desktop::*;
+pub use desktop::*;
 
 #[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
 mod wasm;
 #[cfg(all(target_arch = "wasm32", not(any(feature = "test", test))))]
-pub use self::wasm::*;
+pub use wasm::*;
 
 #[cfg(any(feature = "test", test))]
 mod test;
 #[cfg(any(feature = "test", test))]
-pub use self::test::*;
+pub use test::*;

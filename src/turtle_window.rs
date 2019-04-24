@@ -8,7 +8,7 @@ use crate::state::{DrawingState, Path, TurtleState};
 use crate::timer::Timer;
 use crate::{start, Distance, Event, Point};
 
-use self::DrawingCommand::*;
+use DrawingCommand::*;
 
 pub struct TurtleWindow {
     renderer: RefCell<RendererProcess>,

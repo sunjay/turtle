@@ -141,7 +141,7 @@ impl Renderer {
     fn handle_drawing_command(&mut self, command: DrawingCommand) {
         //NOTE: Do not pass the ReadOnly state to this function. By the time a DrawingCommand is
         // handled, that state may be completely out of date
-        use self::DrawingCommand::*;
+        use DrawingCommand::*;
         match command {
             StorePath(path) => {
                 if self.fill_polygon.is_some() {
