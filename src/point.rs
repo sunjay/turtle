@@ -2,10 +2,8 @@ use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 use serde::{Serialize, Deserialize};
 use interpolation::Lerp;
-use crate::rand::{
-    distributions::{Distribution, Standard},
-    RandomRange, Rng,
-};
+
+use crate::rand::{Random, RandomRange};
 
 /// A point in 2D space
 ///
@@ -318,23 +316,26 @@ impl Lerp for Point {
     }
 }
 
-impl Distribution<Point> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Point {
+impl Random for Point {
+    fn random() -> Self {
         Point {
-            x: rng.gen(),
-            y: rng.gen(),
+            x: Random::random(),
+            y: Random::random(),
         }
     }
 }
 
-impl RandomRange for Point {
-    fn random_range<R: Rng>(rng: &mut R, p1: Self, p2: Self) -> Self {
+impl<B: Into<Point>> RandomRange<B> for Point {
+    fn random_range(p1: B, p2: B) -> Self {
+        let p1 = p1.into();
+        let p2 = p2.into();
+
         let min = p1.min(p2);
         let max = p1.max(p2);
 
         Point {
-            x: RandomRange::random_range(rng, min.x, max.x),
-            y: RandomRange::random_range(rng, min.y, max.y),
+            x: RandomRange::random_range(min.x, max.x),
+            y: RandomRange::random_range(min.y, max.y),
         }
     }
 }

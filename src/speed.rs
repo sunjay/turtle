@@ -6,10 +6,7 @@ use std::fmt;
 use serde::{Serialize, Deserialize};
 
 use crate::radians::Radians;
-use crate::rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
+use crate::rand::{Random, RandomRange};
 use crate::Distance;
 
 const MIN_SPEED: i32 = 1;
@@ -257,9 +254,33 @@ impl PartialOrd<i32> for Speed {
     }
 }
 
-impl Distribution<Speed> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Speed {
-        rng.gen_range(MIN_SPEED, MAX_SPEED + 1).into()
+impl Random for Speed {
+    /// Generates a random speed within the valid range of speed levels
+    fn random() -> Self {
+        RandomRange::random_range(MIN_SPEED, MAX_SPEED + 1)
+    }
+}
+
+impl<B: Into<Speed>> RandomRange<B> for Speed {
+    /// Generates a random difficulty level within the given range, not including instant.
+    ///
+    /// # Panics
+    ///
+    /// Panics if either bound could result in a value outside the valid range of speed levels
+    /// or if `low >= high`. Also panics if either bound is `Speed::instant()`.
+    fn random_range(low: B, high: B) -> Self {
+        let low = low.into();
+        let high = high.into();
+        if let (Speed(SpeedLevel::Value(low)), Speed(SpeedLevel::Value(high))) = (low, high) {
+            // The +1 is because `high` is not included in the range of values generated.
+            if low < MIN_SPEED || high > MAX_SPEED+1 {
+                panic!("The boundaries must be within the valid range of difficulties");
+            }
+
+            Speed(SpeedLevel::Value(RandomRange::random_range(low, high)))
+        } else {
+            panic!("At least one of the bounds provided to random_range() was Speed::instant()");
+        }
     }
 }
 

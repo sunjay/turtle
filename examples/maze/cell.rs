@@ -1,7 +1,4 @@
-use turtle::rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
+use turtle::rand::Random;
 
 use crate::wall::Wall;
 
@@ -32,13 +29,13 @@ impl Default for Cell {
     }
 }
 
-impl Distribution<Cell> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Cell {
-        let mut cell = Cell::default();
-        cell.north = rng.gen();
-        cell.east = rng.gen();
-        cell.south = rng.gen();
-        cell.west = rng.gen();
-        cell
+impl Random for Cell {
+    fn random() -> Self {
+        Self {
+            north: Random::random(),
+            east: Random::random(),
+            south: Random::random(),
+            west: Random::random(),
+        }
     }
 }
