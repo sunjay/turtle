@@ -4,7 +4,8 @@ compile_error!("This module should not be included when compiling to wasm");
 use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 
-use piston_window::{clear, context, line, polygon, AdvancedWindow, Event as PistonEvent, G2d, Input, OpenGL, PistonWindow, WindowSettings};
+use piston_window::{clear, context, line, polygon, AdvancedWindow, Event as PistonEvent, G2d,
+    Input, PistonWindow, WindowSettings};
 
 use crate::app::TurtleApp;
 use crate::event::from_piston_event;
@@ -70,20 +71,10 @@ impl Renderer {
             unreachable!("bug: windows can only be created on the main thread");
         }
 
-        let window_settings = WindowSettings::new(&*state.drawing().title, (state.drawing().width, state.drawing().height))
-            .exit_on_esc(true)
-            .opengl(OpenGL::V3_3)
-            .srgb(false);
-
-        // Need to create a GlutinWindow through WindowSettings::build() and then pass that to
-        // PistonWindow::new(). PistonWindow has a hardcoded `srgb(true)` in its implementation
-        // of BuildFromWindowSettings so we can't build() to a PistonWindow directly. We bypass
-        // BuildFromWindowSettings by calling PistonWindow::new() with the properly configured
-        // GlutinWindow.
-        // Source: https://github.com/PistonDevelopers/piston/issues/1202#issuecomment-368338909
-        // NOTE: This might lead to bugs because the shaders assume a linear color space (sRGB).
-        // Source: https://github.com/PistonDevelopers/piston/issues/1202#issuecomment-338147900
-        let mut window: PistonWindow = PistonWindow::new(OpenGL::V3_3, 0, window_settings.build().expect("bug: could not build window"));
+        let mut window: PistonWindow = WindowSettings::new(
+            &*state.drawing().title,
+            (state.drawing().width, state.drawing().height)
+        ).exit_on_esc(true).build().expect("bug: could not build window");
 
         // We keep a copy of the DrawingState so that we can tell when it is updated and we need
         // to change something on the window
