@@ -257,7 +257,7 @@ impl PartialOrd<i32> for Speed {
 impl Random for Speed {
     /// Generates a random speed within the valid range of speed levels
     fn random() -> Self {
-        RandomRange::random_range(MIN_SPEED, MAX_SPEED + 1)
+        RandomRange::random_range(MIN_SPEED, MAX_SPEED)
     }
 }
 
@@ -267,13 +267,12 @@ impl<B: Into<Speed>> RandomRange<B> for Speed {
     /// # Panics
     ///
     /// Panics if either bound could result in a value outside the valid range of speed levels
-    /// or if `low >= high`. Also panics if either bound is `Speed::instant()`.
+    /// or if `low > high`. Also panics if either bound is `Speed::instant()`.
     fn random_range(low: B, high: B) -> Self {
         let low = low.into();
         let high = high.into();
         if let (Speed(SpeedLevel::Value(low)), Speed(SpeedLevel::Value(high))) = (low, high) {
-            // The +1 is because `high` is not included in the range of values generated.
-            if low < MIN_SPEED || high > MAX_SPEED+1 {
+            if low < MIN_SPEED || high > MAX_SPEED {
                 panic!("The boundaries must be within the valid range of difficulties");
             }
 
