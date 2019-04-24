@@ -5,6 +5,7 @@
 #[cfg(target_arch = "wasm32")]
 compile_error!("This module should not be included when compiling to wasm");
 
+use serde::{Serialize, Deserialize};
 use piston_window::{Button, ButtonArgs, ButtonState, Event as PistonEvent, Input, Motion};
 pub use piston_window::{ControllerAxisArgs as ControllerAxis, ControllerButton, Key, MouseButton, TouchArgs as Touch};
 

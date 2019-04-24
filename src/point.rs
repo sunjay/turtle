@@ -1,5 +1,6 @@
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
+use serde::{Serialize, Deserialize};
 use interpolation::Spatial;
 use crate::rand::{
     distributions::{Distribution, Standard},

@@ -27,19 +27,21 @@ appveyor = { repository = "sunjay/turtle" }
 travis-ci = { repository = "sunjay/turtle" }
 
 [dependencies]
-serde = "1.0.23"
-serde_derive = "1.0.23"
-serde_json = "1.0.6"
+serde = { version = "1.0", features = ["derive"] }
+serde_derive = "1.0"
+serde_json = "1.0"
 
-piston_window = { version = "^0.73.0", optional = true }
-interpolation = "0.1.0"
-rand = "0.5.3"
+interpolation = "0.1"
+rand = "0.5"
+
+# Dependencies that don't support / shouldn't be used with WASM
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+piston_window = "0.73"
+
+# Dependencies specifically for WASM
+[target.'cfg(target_arch = "wasm32")'.dependencies]
 
 [features]
-default = ["desktop"]
-
-desktop = ["piston_window"]
-
 # The reason we do this is because doctests don't get cfg(test)
 # See: https://github.com/rust-lang/cargo/issues/4669
 #

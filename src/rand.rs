@@ -192,7 +192,7 @@
 //! [`Color`]: ../color/struct.Color.html
 //! [`Point`]: ../struct.Point.html
 
-pub use crate::rand_crate::*;
+pub use ::rand::*;
 
 use self::distributions::range::SampleRange;
 

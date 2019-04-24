@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+
 use crate::radians::Radians;
 use crate::{color, Color, Point, Speed};
 

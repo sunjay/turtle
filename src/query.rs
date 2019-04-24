@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+
 use crate::state::{DrawingState, Path, TurtleState};
 use crate::{Color, Event};
 

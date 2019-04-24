@@ -3,6 +3,8 @@ use std::f64;
 use std::f64::consts::PI;
 use std::fmt;
 
+use serde::{Serialize, Deserialize};
+
 use crate::radians::Radians;
 use crate::rand::{
     distributions::{Distribution, Standard},
@@ -234,7 +236,7 @@ impl Speed {
 }
 
 impl fmt::Display for Speed {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::SpeedLevel::*;
         match self.0 {
             Value(speed) => write!(f, "Speed::from({})", speed),

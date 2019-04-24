@@ -1,6 +1,7 @@
 use std::f64::consts::PI as fPI;
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 
+use serde::{Serialize, Deserialize};
 use interpolation::Spatial;
 
 pub const PI: Radians = Radians(fPI);

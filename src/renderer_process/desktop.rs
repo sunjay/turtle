@@ -1,5 +1,4 @@
-#[cfg(not(all(feature = "desktop", not(any(feature = "test", test)))))]
-compile_error!("This module should not be included when compiling to wasm");
+#![cfg(not(target_arch = "wasm32")))]
 
 use std::sync::mpsc;
 use std::{env, process, thread};

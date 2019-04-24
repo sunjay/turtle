@@ -201,7 +201,7 @@ impl Renderer {
     fn render(
         &self,
         c: context::Context,
-        g: &mut G2d,
+        g: &mut G2d<'_>,
         center: Point,
         drawing: &DrawingState,
         temporary_path: &Option<Path>,
@@ -246,7 +246,7 @@ impl Renderer {
     }
 
     /// Render a path assuming that its pen is enabled
-    fn render_path(&self, c: context::Context, g: &mut G2d, center: Point, path: &Path) {
+    fn render_path(&self, c: context::Context, g: &mut G2d<'_>, center: Point, path: &Path) {
         let &Path { start, end, ref pen } = path;
         let &Pen { thickness, color, enabled } = pen;
         debug_assert!(enabled, "bug: attempt to render path when pen was not enabled");
@@ -261,7 +261,7 @@ impl Renderer {
     fn render_polygon<'a, T: Iterator<Item = &'a Point>>(
         &self,
         c: context::Context,
-        g: &mut G2d,
+        g: &mut G2d<'_>,
         center: Point,
         fill_color: Color,
         verts: T,
@@ -289,7 +289,7 @@ impl Renderer {
     fn render_shell(
         &self,
         c: context::Context,
-        g: &mut G2d,
+        g: &mut G2d<'_>,
         center: Point,
         &TurtleState {
             position,

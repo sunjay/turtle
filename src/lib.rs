@@ -37,20 +37,6 @@
 #[cfg(all(test, not(feature = "test")))]
 compile_error!("Make sure you run tests with `cargo test --features test`");
 
-#[cfg(all(feature = "desktop", target_arch = "wasm32"))]
-compile_error!("Make sure you add `--no-default-features` when compiling to wasm");
-
-#[macro_use]
-extern crate serde_derive;
-
-extern crate serde;
-extern crate serde_json;
-
-extern crate interpolation;
-#[cfg(not(target_arch = "wasm32"))]
-extern crate piston_window;
-extern crate rand as rand_crate;
-
 mod turtle_window;
 
 mod animation;
@@ -78,6 +64,7 @@ pub mod color;
 pub mod event;
 #[cfg(target_arch = "wasm32")]
 mod event {
+    use serde::{Serialize, Deserialize};
     #[derive(Debug, Clone, Serialize, Deserialize)]
     pub enum Event {}
 }

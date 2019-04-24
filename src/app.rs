@@ -20,15 +20,15 @@ pub struct ReadOnly {
 }
 
 impl ReadOnly {
-    pub fn turtle(&self) -> ReadOnlyRef<TurtleState> {
+    pub fn turtle(&self) -> ReadOnlyRef<'_, TurtleState> {
         self.turtle.read().expect("bug: Lock was poisoned")
     }
 
-    pub fn drawing(&self) -> ReadOnlyRef<DrawingState> {
+    pub fn drawing(&self) -> ReadOnlyRef<'_, DrawingState> {
         self.drawing.read().expect("bug: Lock was poisoned")
     }
 
-    pub fn temporary_path(&self) -> ReadOnlyRef<Option<Path>> {
+    pub fn temporary_path(&self) -> ReadOnlyRef<'_, Option<Path>> {
         self.temporary_path.read().expect("bug: Lock was poisoned")
     }
 }
@@ -63,22 +63,22 @@ impl TurtleApp {
     }
 
     /// Provides read-only access to the turtle state
-    pub fn turtle(&self) -> ReadOnlyRef<TurtleState> {
+    pub fn turtle(&self) -> ReadOnlyRef<'_, TurtleState> {
         self.turtle.read().expect("bug: Lock was poisoned")
     }
 
     /// Provides mutable access to the turtle state
-    pub fn turtle_mut(&mut self) -> MutableRef<TurtleState> {
+    pub fn turtle_mut(&mut self) -> MutableRef<'_, TurtleState> {
         self.turtle.write().expect("bug: Lock was poisoned")
     }
 
     /// Provides read-only access to the drawing
-    pub fn drawing(&self) -> ReadOnlyRef<DrawingState> {
+    pub fn drawing(&self) -> ReadOnlyRef<'_, DrawingState> {
         self.drawing.read().expect("bug: Lock was poisoned")
     }
 
     /// Provides mutable access to the drawing
-    pub fn drawing_mut(&mut self) -> MutableRef<DrawingState> {
+    pub fn drawing_mut(&mut self) -> MutableRef<'_, DrawingState> {
         self.drawing.write().expect("bug: Lock was poisoned")
     }
 

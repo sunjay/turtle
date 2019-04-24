@@ -5,10 +5,8 @@ compile_error!("This module should not be included when compiling to wasm");
 
 use std::io::{BufRead, BufReader, Read, Write};
 
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use serde_json;
-use serde_json::error::Category;
+use serde::{Serialize, de::DeserializeOwned};
+use serde_json::{self, error::Category};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct Disconnected;

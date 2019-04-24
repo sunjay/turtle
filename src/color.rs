@@ -157,12 +157,11 @@ use std::fmt::Debug;
 use std::iter::repeat;
 use std::f64::EPSILON;
 
+use serde::{Serialize, Deserialize};
 #[cfg(not(target_arch = "wasm32"))]
 use piston_window::types;
-use crate::rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
+
+use crate::rand::{distributions::{Distribution, Standard}, Rng};
 
 /// The maximum allowed value for RGB
 const RGB_MAX_VAL: f64 = 255.0;
