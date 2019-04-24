@@ -2,7 +2,7 @@ use std::f64::consts::PI as fPI;
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 
 use serde::{Serialize, Deserialize};
-use interpolation::Spatial;
+use interpolation::Lerp;
 
 pub const PI: Radians = Radians(fPI);
 pub const TWO_PI: Radians = Radians(2. * fPI);
@@ -76,19 +76,12 @@ impl Radians {
     }
 }
 
-impl Spatial for Radians {
+impl Lerp for Radians {
     type Scalar = f64;
 
-    fn add(&self, other: &Self) -> Self {
-        *self + *other
-    }
-
-    fn sub(&self, other: &Self) -> Self {
-        *self - *other
-    }
-
-    fn scale(&self, other: &Self::Scalar) -> Self {
-        *self * *other
+    #[inline(always)]
+    fn lerp(&self, other: &Self, scalar: &Self::Scalar) -> Self {
+        Radians(self.0.lerp(&other.0, &scalar))
     }
 }
 

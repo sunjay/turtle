@@ -1,7 +1,7 @@
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 use serde::{Serialize, Deserialize};
-use interpolation::Spatial;
+use interpolation::Lerp;
 use crate::rand::{
     distributions::{Distribution, Standard},
     RandomRange, Rng,
@@ -306,22 +306,15 @@ impl IndexMut<usize> for Point {
     }
 }
 
-impl Spatial for Point {
+impl Lerp for Point {
     type Scalar = f64;
 
     #[inline(always)]
-    fn add(&self, other: &Self) -> Self {
-        *self + *other
-    }
-
-    #[inline(always)]
-    fn sub(&self, other: &Self) -> Self {
-        *self - *other
-    }
-
-    #[inline(always)]
-    fn scale(&self, scalar: &Self::Scalar) -> Self {
-        *self * *scalar
+    fn lerp(&self, other: &Self, scalar: &Self::Scalar) -> Self {
+        Self {
+            x: self.x.lerp(&other.x, &scalar),
+            y: self.y.lerp(&other.y, &scalar),
+        }
     }
 }
 
