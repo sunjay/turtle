@@ -18,7 +18,7 @@ fn update_window(window: &mut PistonWindow, current: DrawingState, next: Drawing
         window.set_title(next.title.clone());
     }
     if next.width != current.width || next.height != current.height {
-        window.window.window.set_inner_size(next.width, next.height);
+        window.set_size((next.width, next.height));
     }
     if next.maximized != current.maximized {
         window.window.window.set_maximized(next.maximized);
@@ -94,6 +94,8 @@ impl Renderer {
         'renderloop: while let Some(event) = window.next() {
             match event {
                 PistonEvent::Input(Input::Resize(width, height)) => {
+                    let width = width as u32;
+                    let height = height as u32;
                     if width != current_drawing.width || height != current_drawing.height {
                         let mut drawing = self.app.drawing_mut();
                         drawing.width = width;

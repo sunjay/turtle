@@ -83,11 +83,13 @@ where
                 Button::Keyboard(key) => KeyPressed(key),
                 Button::Mouse(button) => MouseButtonPressed(button),
                 Button::Controller(button) => ControllerButtonPressed(button),
+                Button::Hat(_) => unimplemented!(), //TODO: No idea what to do with this
             },
             ButtonState::Release => match button {
                 Button::Keyboard(key) => KeyReleased(key),
                 Button::Mouse(button) => MouseButtonReleased(button),
                 Button::Controller(button) => ControllerButtonReleased(button),
+                Button::Hat(_) => unimplemented!(), //TODO: No idea what to do with this
             },
         },
         Input::Move(motion) => match motion {
@@ -104,7 +106,9 @@ where
         // Ignored because this value doesn't produce text reliably for all keys
         // (especially when ctrl is pressed)
         Input::Text(_) => return None,
-        Input::Resize(width, height) => WindowResized { width, height },
+        // Not supported
+        Input::FileDrag(_) => return None,
+        Input::Resize(width, height) => WindowResized { width: width as u32, height: height as u32 },
         Input::Focus(focused) => WindowFocused(focused),
         Input::Cursor(cursor) => WindowCursor(cursor),
         Input::Close(_) => WindowClosed,
