@@ -161,7 +161,7 @@ use serde::{Serialize, Deserialize};
 #[cfg(not(target_arch = "wasm32"))]
 use piston_window::types;
 
-use crate::rand::{distributions::{Distribution, Standard}, Rng};
+use crate::rand::{Random, RandomRange};
 
 /// The maximum allowed value for RGB
 const RGB_MAX_VAL: f64 = 255.0;
@@ -1118,14 +1118,27 @@ impl Color {
     }
 }
 
-impl Distribution<Color> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Color {
-        let red = rng.gen::<f64>() * 255.;
-        let green = rng.gen::<f64>() * 255.;
-        let blue = rng.gen::<f64>() * 255.;
-        let alpha = rng.gen::<f64>();
+impl Random for Color {
+    fn random() -> Self {
+        Self {
+            red: <f64 as Random>::random() * 255.,
+            green: <f64 as Random>::random() * 255.,
+            blue: <f64 as Random>::random() * 255.,
+            alpha: <f64 as Random>::random(),
+        }
+    }
+}
 
-        Color::rgba(red, green, blue, alpha)
+impl<B: Into<Color>> RandomRange<B> for Color {
+    fn random_range(low: B, high: B) -> Self {
+        let low = low.into();
+        let high = high.into();
+        Self {
+            red: RandomRange::random_range(low.red, high.red),
+            green: RandomRange::random_range(low.green, high.green),
+            blue: RandomRange::random_range(low.blue, high.blue),
+            alpha: RandomRange::random_range(low.alpha, high.alpha),
+        }
     }
 }
 

@@ -74,7 +74,7 @@ pub use crate::color::Color;
 pub use crate::drawing::{Drawing, Size};
 pub use crate::event::Event;
 pub use crate::point::Point;
-pub use crate::rand::{random, random_range};
+pub use crate::rand::{random, random_range, shuffle, choose};
 #[cfg(target_arch = "wasm32")]
 pub use renderer_process::{alloc, dealloc, dealloc_str};
 pub use crate::speed::Speed;

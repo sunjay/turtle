@@ -85,7 +85,7 @@
 //! # Generating Random Values in a Range
 //!
 //! The [`random_range()`] function allows you to generate values in a given range. You provide
-//! a lower bound and an upper bound. The number generated will be greater than or equal to the
+//! a lower bound and an upper bound. The value generated will be greater than or equal to the
 //! lower bound and strictly less than the upper bound.
 //!
 //! ```rust
@@ -191,22 +191,324 @@
 //! [`Point`]: ../struct.Point.html
 //! [orphan rule]: https://doc.rust-lang.org/book/ch10-02-traits.html#implementing-a-trait-on-a-type
 
-pub use ::rand::*;
+use std::num::Wrapping;
 
-use distributions::uniform::SampleUniform;
-
-/// Implement this type to allow it to be used with the random_range function.
-pub trait RandomRange {
-    fn random_range<R: Rng>(rng: &mut R, low: Self, high: Self) -> Self;
+/// This trait represents any type that can have random values generated for it.
+///
+/// There is a list later on this page that shows many of the types that implement this trait.
+///
+/// # Example
+///
+/// To implement this trait for your own types, call [`random()`] or [`random_range()`] for each field.
+/// For enums, generate a random number and pick a variant of your enum based on that. You can then
+/// use [`random()`] or [`random_range()`] to pick values for that variant's fields (if necessary).
+///
+/// [`random()`]: fn.random.html
+/// [`random_range()`]: fn.random_range.html
+///
+/// ```rust,no_run
+/// use turtle::{
+///     random,
+///     random_range,
+///     rand::{Random, RandomRange},
+/// };
+///
+/// #[derive(Debug, Clone)]
+/// struct Product {
+///     price: f64,
+///     quantity: u32,
+/// }
+///
+/// impl Random for Product {
+///     fn random() -> Self {
+///         Self {
+///             // Prices sure are fluctuating!
+///             price: Random::random(),
+///             // This will generate a value between 1 and 15 (inclusive)
+///             quantity: RandomRange::random_range(0, 16),
+///         }
+///     }
+/// }
+///
+/// #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// enum Door {
+///     Open,
+///     Closed,
+///     Locked,
+/// }
+///
+/// impl Random for Door {
+///     fn random() -> Self {
+///         use Door::*;
+///         // Pick a variant of `Door` based on a number.
+///         // Notice the type in the numeric literal so Rust knows what to generate
+///         match RandomRange::random_range(0u8, 3) {
+///             0 => Open,
+///             1 => Closed,
+///             2 => Locked,
+///             // Even though we know that the value will be between 0 and 2, the compiler does
+///             // not, so we instruct it to panic if this case ever occurs.
+///             _ => unreachable!(),
+///         }
+///     }
+/// }
+///
+/// fn main() {
+///     // These types can now be used with the `random()` function!
+///     let product: Product = random();
+///     let door: Door = random();
+///
+///     // ...
+/// }
+/// ```
+pub trait Random {
+    /// Generate a single random value.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use turtle::{Color, Speed, random};
+    ///
+    /// // Need to annotate the type so Rust knows what you want it to generate
+    /// let x: f32 = random();
+    /// let y: f32 = random();
+    ///
+    /// // Works with turtle specific types too!
+    /// let color: Color = random();
+    /// let speed: Speed = random();
+    /// ```
+    fn random() -> Self;
 }
 
-impl<T> RandomRange for T
-where
-    T: PartialOrd + SampleUniform,
-{
-    fn random_range<R: Rng>(rng: &mut R, low: T, high: T) -> T {
-        rng.gen_range(low, high)
+/// This trait represents any type that can have random values generated for it within a certain
+/// range.
+///
+/// There is a list later on this page that shows many of the types that implement this trait.
+///
+/// It will usually only make sense to implement this trait for types that represent a single
+/// value (e.g. [`Speed`], [`Color`], `f64`, `u32`, etc.). For example, if you had the type:
+///
+/// ```rust,no_run
+/// #[derive(Debug, Clone)]
+/// struct Product {
+///     price: f64,
+///     quantity: u32,
+/// }
+/// ```
+///
+/// What would `random_range(1.5, 5.2)` mean for this type? It's hard to say because while you
+/// could generate a random value for `price`, it doesn't make sense to generate a `quantity`
+/// given that range.
+///
+/// A notable exception to this is the `Point` type. You can interpret a call to
+/// `random_range(Point {x: 1.0, y: 2.0}, Point {x: 5.0, y: 8.0})` as wanting to
+/// generate a random `Point` in the rectangle formed by the two points provided
+/// as arguments.
+///
+/// [`Speed`]: ../speed/struct.Speed.html
+/// [`Color`]: ../color/struct.Color.html
+///
+/// # Example
+///
+/// This example demonstrates how to implement this trait for a type with a limited range of valid
+/// values.
+///
+/// ```rust,no_run
+/// use turtle::rand::{Random, RandomRange};
+///
+/// // Some constants to represent the valid range of difficulty levels
+/// const MIN_DIFFICULTY: u32 = 1;
+/// const MAX_DIFFICULTY: u32 = 10;
+///
+/// /// Represents the difficulty level of the game
+/// #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+/// struct Difficulty(u32);
+///
+/// impl Random for Difficulty {
+///     /// Generates a random difficulty within the valid range of difficulty levels
+///     fn random() -> Self {
+///         // We need to add 1 because the upper bound is not included in the range of values that
+///         // could be generated by `random_range`.
+///         Difficulty(RandomRange::random_range(MIN_DIFFICULTY, MAX_DIFFICULTY+1))
+///     }
+/// }
+///
+/// // Choosing `u32` for the `Bound` type because that is more convenient to type than if
+/// // we had chosen `Difficulty`.
+/// //
+/// // Example: `random_range(1, 2)` vs. `random_range(Difficulty(1), Difficulty(2))`
+/// impl RandomRange<u32> for Difficulty {
+///     /// Generates a random difficulty level within the given range.
+///     ///
+///     /// # Panics
+///     ///
+///     /// Panics if either bound could result in a value outside the valid range
+///     /// of difficulties or if `low >= high`.
+///     fn random_range(low: Bound, high: Bound) -> Self {
+///         // The +1 is because `high` is not included in the range of values generated.
+///         if low < MIN_DIFFICULTY || high > MAX_DIFFICULTY+1 {
+///             panic!("The boundaries must be within the valid range of difficulties");
+///         }
+///
+///         RandomRange::random_range(low, high)
+///     }
+/// }
+///
+/// fn main() {
+///     use turtle::{random, random_range};
+///
+///     // We can now generate random values for Difficulty!
+///     let difficulty: Difficulty = random();
+///     let difficulty: Difficulty = random_range(5, 10);
+/// }
+/// ```
+pub trait RandomRange<Bound = Self> {
+    /// Generate a single random value in the given range. The value `x` that is returned will be
+    /// such that low &le; x &lt; high.
+    ///
+    /// The `Bound` type is used to represent the boundaries of the range of values to generate.
+    /// For most types this will just be `Self`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `low >= high`.
+    fn random_range(low: Bound, high: Bound) -> Self;
+}
+
+macro_rules! impl_random {
+    ($($typ:ty),*) => (
+        $(
+            impl Random for $typ {
+                fn random() -> Self {
+                    use rand::Rng;
+                    rand::thread_rng().gen()
+                }
+            }
+
+            impl RandomRange for $typ {
+                fn random_range(low: Self, high: Self) -> Self {
+                    use rand::Rng;
+                    rand::thread_rng().gen_range(low, high)
+                }
+            }
+        )*
+    );
+}
+
+impl_random!(f32, f64, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
+
+// `char` does not support gen_range(), so no RandomRange impl
+impl Random for char {
+    fn random() -> Self {
+        use rand::Rng;
+        rand::thread_rng().gen()
     }
+}
+
+// `bool` does not support gen_range(), so no RandomRange impl
+impl Random for bool {
+    fn random() -> Self {
+        use rand::Rng;
+        rand::thread_rng().gen()
+    }
+}
+
+macro_rules! impl_random_tuple {
+    // Use variables to indicate the arity of the tuple
+    ($($tyvar:ident),* ) => {
+        // Trailing comma for the 1 tuple
+        impl< $( $tyvar: Random ),* > Random for ( $( $tyvar ),* , ) {
+            #[inline]
+            fn random() -> Self {
+                (
+                    // use the $tyvar's to get the appropriate number of repeats (they're not
+                    // actually needed because type inference can figure it out)
+                    $(
+                        random::<$tyvar>()
+                    ),*
+                    // Trailing comma for the 1 tuple
+                    ,
+                )
+            }
+        }
+    }
+}
+
+impl Random for () {
+    fn random() -> Self {
+        ()
+    }
+}
+
+impl_random_tuple!(A);
+impl_random_tuple!(A, B);
+impl_random_tuple!(A, B, C);
+impl_random_tuple!(A, B, C, D);
+impl_random_tuple!(A, B, C, D, E);
+impl_random_tuple!(A, B, C, D, E, F);
+impl_random_tuple!(A, B, C, D, E, F, G);
+impl_random_tuple!(A, B, C, D, E, F, G, H);
+impl_random_tuple!(A, B, C, D, E, F, G, H, I);
+impl_random_tuple!(A, B, C, D, E, F, G, H, I, J);
+impl_random_tuple!(A, B, C, D, E, F, G, H, I, J, K);
+impl_random_tuple!(A, B, C, D, E, F, G, H, I, J, K, L);
+
+macro_rules! impl_random_array {
+    // Recursive, given at least one type parameter
+    {$n:expr, $t:ident, $($ts:ident,)*} => {
+        impl_random_array!(($n - 1), $($ts,)*);
+
+        impl<T: Random> Random for [T; $n] {
+            #[inline]
+            fn random() -> Self {
+                [random::<$t>(), $(random::<$ts>()),*]
+            }
+        }
+    };
+    // Empty case (no type parameters left)
+    {$n:expr,} => {
+        impl<T: Random> Random for [T; $n] {
+            fn random() -> Self {
+                []
+            }
+        }
+    };
+}
+
+impl_random_array!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,);
+
+impl<T: Random> Random for Option<T> {
+    fn random() -> Self {
+        if Random::random() {
+            Some(Random::random())
+        } else {
+            None
+        }
+    }
+}
+
+impl<T: Random> Random for Wrapping<T> {
+    fn random() -> Self {
+        Wrapping(Random::random())
+    }
+}
+
+/// Generates a single random value of the type T.
+///
+/// # Example
+///
+/// This example sets the pen color to a randomly generated color:
+///
+/// ```rust,no_run
+/// use turtle::{Turtle, Color, random};
+///
+/// let mut turtle = Turtle::new();
+/// let color: Color = random();
+/// // Calling `opaque()` because even the `alpha` value of the color is randomized.
+/// turtle.set_pen_color(color.opaque());
+/// ```
+pub fn random<T: Random>() -> T {
+    <T as Random>::random()
 }
 
 /// Generates a random value in the given range.
@@ -221,18 +523,155 @@ where
 ///
 /// # Example:
 /// ```rust
-/// # use turtle::random_range;
-/// // Generates an f64 value between 100 and 199
+/// use turtle::random_range;
+///
+/// // Generates an f64 value between 100 and 199.99999...
 /// let value: f64 = random_range(100.0, 200.0);
 /// assert!(value >= 100.0 && value < 200.0);
+///
 /// // Generates a u64 value between 1000 and 3000000
 /// let value = random_range::<u64>(1000, 3000001);
 /// assert!(value >= 1000 && value < 3000001);
+///
+/// // A third way to specify the type to generate is by putting it in the numeric literal
+/// let x = random_range(-15i32, 16);
+/// assert!(x >= -15 && x < 16);
+///
 /// // You do not need to specify the type if the compiler has enough information:
 /// fn foo(a: u64) {}
 /// foo(random_range(432, 1938));
 /// ```
-pub fn random_range<T: RandomRange>(low: T, high: T) -> T {
-    let mut rng = thread_rng();
-    RandomRange::random_range(&mut rng, low, high)
+pub fn random_range<T: RandomRange<B>, B>(low: B, high: B) -> T {
+    RandomRange::random_range(low, high)
+}
+
+/// This trait represents useful random operations for slices.
+///
+/// You will not typically use this trait directly or even import it.
+/// The [`shuffle()`] and [`choose()`] functions provide all the functionality of
+/// this trait without needing to have it in scope.
+///
+/// [`shuffle()`]: fn.shuffle.html
+/// [`choose()`]: fn.choose.html
+pub trait RandomSlice {
+    /// The type of item stored in this slice
+    type Item;
+
+    /// Shuffle the slice's elements in place. None of the elements will be modified during
+    /// this process, only moved.
+    fn shuffle(&mut self);
+
+    /// Chooses a random element from this slice and returns a reference to it.
+    ///
+    /// If the slice is empty, returns None.
+    fn choose(&self) -> Option<&Self::Item>;
+}
+
+impl<T> RandomSlice for [T] {
+    type Item = T;
+
+    fn shuffle(&mut self) {
+        use rand::seq::SliceRandom;
+        let mut rng = rand::thread_rng();
+        <Self as SliceRandom>::shuffle(self, &mut rng);
+    }
+
+    fn choose(&self) -> Option<&Self::Item> {
+        use rand::seq::SliceRandom;
+        let mut rng = rand::thread_rng();
+        <Self as SliceRandom>::choose(self, &mut rng)
+    }
+}
+
+impl<T> RandomSlice for Vec<T> {
+    type Item = T;
+
+    fn shuffle(&mut self) {
+        (&mut *self as &mut [T]).shuffle();
+    }
+
+    fn choose(&self) -> Option<&Self::Item> {
+        (&*self as &[T]).choose()
+    }
+}
+
+macro_rules! impl_random_slice {
+    // Recursive, given at least one type parameter
+    {$n:expr, $t:ident, $($ts:ident,)*} => {
+        impl_random_slice!(($n - 1), $($ts,)*);
+
+        impl<T: Random> RandomSlice for [T; $n] {
+            type Item = T;
+
+            fn shuffle(&mut self) {
+                (&mut *self as &mut [T]).shuffle();
+            }
+
+            fn choose(&self) -> Option<&Self::Item> {
+                (&*self as &[T]).choose()
+            }
+        }
+    };
+    // Empty case (no type parameters left)
+    {$n:expr,} => {
+        impl<T: Random> RandomSlice for [T; $n] {
+            type Item = T;
+
+            fn shuffle(&mut self) {
+                (&mut *self as &mut [T]).shuffle();
+            }
+
+            fn choose(&self) -> Option<&Self::Item> {
+                (&*self as &[T]).choose()
+            }
+        }
+    };
+}
+
+impl_random_slice!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,);
+
+/// Shuffle the elements of the given slice in place.
+///
+/// None of the elements are modified during this process, only moved.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use turtle::{color, shuffle};
+///
+/// let mut pen_colors = [color::RED, color::BLUE, color::GREEN, color::YELLOW];
+/// // A different order of colors every time!
+/// shuffle(&mut pen_colors);
+///
+/// // Even works with Vec
+/// let mut pen_colors = vec![color::RED, color::BLUE, color::GREEN, color::YELLOW];
+/// shuffle(&mut pen_colors);
+/// ```
+pub fn shuffle<S: RandomSlice>(slice: &mut S) {
+    slice.shuffle();
+}
+
+/// Chooses a random element from the slice and returns a reference to it.
+///
+/// If the slice is empty, returns None.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use turtle::{Turtle, color, choose};
+///
+/// let mut turtle = Turtle::new();
+///
+/// let mut pen_colors = [color::RED, color::BLUE, color::GREEN, color::YELLOW];
+/// // Choose a random pen color
+/// let chosen_color = choose(&mut pen_colors).cloned().unwrap();
+/// turtle.set_pen_color(chosen_color);
+///
+/// // Even works with Vec
+/// let mut pen_colors = vec![color::RED, color::BLUE, color::GREEN, color::YELLOW];
+/// let chosen_color = choose(&mut pen_colors).cloned().unwrap();
+/// turtle.set_pen_color(chosen_color);
+/// ```
+pub fn choose<S: RandomSlice>(slice: &S) -> Option<&<S as RandomSlice>::Item> {
+    slice.choose()
 }
