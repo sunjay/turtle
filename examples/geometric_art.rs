@@ -1,6 +1,6 @@
 use std::iter::from_fn;
 
-use turtle::{random, random_range, Color, Turtle};
+use turtle::{choose, random, Color, Turtle};
 
 fn main() {
     // Parameters to play around with for changing the character of the created drawing.
@@ -62,18 +62,14 @@ impl ArtisticTurtle {
         }
     }
 
-    /// Randomly choose a color from the previously specified set of colors.
-    fn get_color(&self) -> Color {
-        let index: usize = random_range(0, self.colors.len() - 1);
-        self.colors[index]
-    }
-
     /// Draw a single triangle by drawing two sides and filling them with a random color
     /// which creates the third side of the triangle along the way.
     /// Note: Even though the turtle is always turning right in this method, this movement
     /// can also result in a left turn (depending on the angle chosen).
     fn draw_triangle(&mut self, angle: f64) {
-        self.turtle.set_fill_color(self.get_color());
+        // This call to unwrap() is always safe because the color slice will always be non-empty.
+        let color = choose(&self.colors).cloned().unwrap();
+        self.turtle.set_fill_color(color);
         self.turtle.begin_fill();
 
         self.turtle.right(angle);
