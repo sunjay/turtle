@@ -1,3 +1,5 @@
+use std::iter::from_fn;
+
 use turtle::{random, random_range, Color, Turtle};
 
 fn main() {
@@ -29,7 +31,7 @@ impl ArtisticTurtle {
     /// `row_count`: number of rows of triangles to be created
     /// `col_count`: number of columns per row to be created
     /// `color_count`: number of different colors to use
-    fn new(width: u32, height: u32, row_count: u32, col_count: u32, color_count: u32) -> Self {
+    fn new(width: u32, height: u32, row_count: u32, col_count: u32, color_count: usize) -> Self {
         // Create and prepare the turtle.
         let mut turtle = Turtle::new();
         turtle.set_speed("instant");
@@ -48,11 +50,7 @@ impl ArtisticTurtle {
         let col_width = f64::from(size.width) / f64::from(col_count);
 
         // Prepare a set of random colors to randomly choose from when drawing.
-        let mut colors = Vec::new();
-
-        for _ in 0..color_count {
-            colors.push(random::<Color>());
-        }
+        let colors: Vec<Color> = from_fn(|| Some(random())).take(color_count).collect();
 
         Self {
             turtle,
