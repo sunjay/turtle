@@ -88,22 +88,16 @@ impl ArtisticTurtle {
         // Create an endless loop over the angles of 90 and 270 degrees
         // (corresponds to moving right and left, respectively).
         let angles = vec![90.0, 270.0];
-        let mut angle_cycle = angles.iter().cycle();
+        let angle_cycle = &mut angles.iter().cycle();
 
         // Create triangles from left to right.
-        for _ in 0..self.col_count {
-            let angle = angle_cycle.next().unwrap();
-            self.draw_triangle(*angle);
-        }
+        angle_cycle.take(self.col_count as usize).for_each(|angle| self.draw_triangle(*angle));
 
         // Skip one angle so that we have the correct angle when turning around.
         angle_cycle.next();
 
         // Fill in triangles from right to left to complete the row.
-        for _ in 0..self.col_count {
-            let angle = angle_cycle.next().unwrap();
-            self.draw_triangle(*angle);
-        }
+        angle_cycle.take(self.col_count as usize).for_each(|angle| self.draw_triangle(*angle));
 
         // Reset position to prepare for the next row.
         self.turtle.right(180.0);
