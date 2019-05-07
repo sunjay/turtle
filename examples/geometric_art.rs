@@ -50,7 +50,7 @@ impl ArtisticTurtle {
         // Prepare a set of random colors to randomly choose from when drawing.
         let mut colors = Vec::new();
 
-        for _i in 0..color_count {
+        for _ in 0..color_count {
             colors.push(random::<Color>());
         }
 
@@ -97,7 +97,7 @@ impl ArtisticTurtle {
         let mut angle_cycle = angles.iter().cycle();
 
         // Create triangles from left to right.
-        for _i in 0..self.col_count {
+        for _ in 0..self.col_count {
             let angle = angle_cycle.next().unwrap();
             self.draw_triangle(*angle);
         }
@@ -106,7 +106,7 @@ impl ArtisticTurtle {
         angle_cycle.next();
 
         // Fill in triangles from right to left to complete the row.
-        for _i in 0..self.col_count {
+        for _ in 0..self.col_count {
             let angle = angle_cycle.next().unwrap();
             self.draw_triangle(*angle);
         }
@@ -119,7 +119,7 @@ impl ArtisticTurtle {
 
     /// Create a drawing consisting of rows of triangles in different colors.
     fn draw(&mut self) {
-        for _i in 0..self.row_count {
+        for _ in 0..self.row_count {
             self.draw_row();
         }
         self.turtle.hide();
