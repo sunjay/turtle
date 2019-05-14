@@ -1,6 +1,6 @@
 use std::f64::consts::E;
 
-use turtle::{random, Color, Turtle};
+use turtle::{rand::random, Color, Turtle};
 
 fn main() {
     let mut turtle = Turtle::new();

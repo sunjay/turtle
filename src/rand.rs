@@ -22,18 +22,6 @@
 //!
 //! See the documentation for each of those functions for more on what you can use them for.
 //!
-//! All of these functions are re-exported from the root of the `turtle` crate. That means you can
-//! import them directly rather than going through this module:
-//!
-//! ```rust,no_run
-//! # { // to avoid name clashes
-//! // Instead of this:
-//! use turtle::rand::{random, shuffle};
-//! # }
-//! // You can do this:
-//! use turtle::{random, shuffle};
-//! ```
-//!
 //! # Generating Random Values
 //!
 //! The [`random()`] function supports all of the common primitive types you would expect:
@@ -116,10 +104,11 @@ use std::num::Wrapping;
 /// [`random_range()`]: fn.random_range.html
 ///
 /// ```rust,no_run
-/// use turtle::{
+/// use turtle::rand::{
 ///     random,
 ///     random_range,
-///     rand::{Random, RandomRange},
+///     Random,
+///     RandomRange,
 /// };
 ///
 /// #[derive(Debug, Clone)]
@@ -176,7 +165,7 @@ pub trait Random {
     /// # Example
     ///
     /// ```rust
-    /// use turtle::{Color, Speed, random};
+    /// use turtle::{Color, Speed, rand::random};
     ///
     /// // Need to annotate the type so Rust knows what you want it to generate
     /// let x: f32 = random();
@@ -262,7 +251,7 @@ pub trait Random {
 /// }
 ///
 /// fn main() {
-///     use turtle::{random, random_range};
+///     use turtle::rand::{random, random_range};
 ///
 ///     // We can now generate random values for Difficulty!
 ///     let difficulty: Difficulty = random();
@@ -411,7 +400,7 @@ impl<T: Random> Random for Wrapping<T> {
 /// the `random()` function itself.
 ///
 /// ```rust,no_run
-/// use turtle::{Turtle, Speed, random};
+/// use turtle::{Turtle, Speed, rand::random};
 /// let mut turtle = Turtle::new();
 ///
 /// // 1. Separate out into a variable, then annotate the desired type
@@ -427,7 +416,7 @@ impl<T: Random> Random for Wrapping<T> {
 /// Setting the pen color to a randomly generated color:
 ///
 /// ```rust,no_run
-/// use turtle::{Turtle, Color, random};
+/// use turtle::{Turtle, Color, rand::random};
 ///
 /// let mut turtle = Turtle::new();
 /// let color: Color = random();
@@ -455,7 +444,7 @@ pub fn random<T: Random>() -> T {
 /// # Example:
 ///
 /// ```rust
-/// use turtle::random_range;
+/// use turtle::rand::random_range;
 ///
 /// // Generates an f64 value between 100 and 199.99999...
 /// let value: f64 = random_range(100.0, 200.0);
@@ -568,7 +557,7 @@ impl_random_slice!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 /// # Example
 ///
 /// ```rust,no_run
-/// use turtle::{color, shuffle};
+/// use turtle::{color, rand::shuffle};
 ///
 /// let mut pen_colors = [color::RED, color::BLUE, color::GREEN, color::YELLOW];
 /// // A different order of colors every time!
@@ -589,7 +578,7 @@ pub fn shuffle<S: RandomSlice>(slice: &mut S) {
 /// # Example
 ///
 /// ```rust,no_run
-/// use turtle::{Turtle, color, choose};
+/// use turtle::{Turtle, color, rand::choose};
 ///
 /// let mut turtle = Turtle::new();
 ///

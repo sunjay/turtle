@@ -44,7 +44,7 @@
 //!
 //! ```rust
 //! # let mut turtle = turtle::Turtle::new();
-//! use turtle::{random, Color};
+//! use turtle::{rand::random, Color};
 //! turtle.set_pen_color(random::<Color>().opaque());
 //! ```
 //!

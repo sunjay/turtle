@@ -1,7 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 use std::ops::{Deref, DerefMut};
 
-use turtle::shuffle;
+use turtle::rand::shuffle;
 
 use crate::grid::Grid;
 

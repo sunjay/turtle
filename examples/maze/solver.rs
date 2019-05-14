@@ -1,7 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 
 use crate::maze::Maze;
-use turtle::{Turtle, shuffle};
+use turtle::{Turtle, rand::shuffle};
 
 const SOLUTION_COLOR: &str = "#4CAF50";
 const BACKTRACK_COLOR: &str = "#F44336";

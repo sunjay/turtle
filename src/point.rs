@@ -110,7 +110,7 @@ use crate::rand::{Random, RandomRange};
 /// between `0.0` and `1.0` (inclusive).
 ///
 /// ```rust
-/// use turtle::{Point, random};
+/// use turtle::{Point, rand::random};
 ///
 /// let pt: Point = random();
 /// assert!(pt.x >= 0.0 && pt.x <= 1.0);
@@ -121,7 +121,7 @@ use crate::rand::{Random, RandomRange};
 /// rectangle formed by the two points given as arguments to [`random_range()`].
 ///
 /// ```rust
-/// use turtle::{Point, random_range};
+/// use turtle::{Point, rand::random_range};
 ///
 /// // Generates a Point value with:
 /// //   x-coordinate between 46.0 and 92.0

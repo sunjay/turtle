@@ -1,6 +1,6 @@
 use std::iter::from_fn;
 
-use turtle::{choose, random, Color, Turtle};
+use turtle::{rand::{choose, random}, Color, Turtle};
 
 fn main() {
     // Parameters to play around with for changing the character of the created drawing.

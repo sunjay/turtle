@@ -1,6 +1,6 @@
 use std::ops::{Index, IndexMut};
 
-use turtle::random;
+use turtle::rand::random;
 
 use crate::cell::Cell;
 use crate::wall::Wall;
