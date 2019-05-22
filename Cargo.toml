@@ -53,3 +53,6 @@ piston_window = "0.89"
 # NOTE: This means that tests MUST be run with:
 #   cargo test --features "test"
 test = []
+
+# Feature flag to disable unstable features by default and make consumers explicitly activate them.
+unstable = []

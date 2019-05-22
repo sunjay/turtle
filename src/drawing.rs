@@ -343,6 +343,7 @@ impl Drawing {
     /// button on the window. This method is reliable until that button is pressed. Since there is
     /// no way to tell when that is, treat the value returned from this method as unreliable and
     /// potentially inaccurate.
+    #[cfg(feature = "unstable")]
     pub fn is_maximized(&self) -> bool {
         self.window.borrow().fetch_drawing().maximized
     }
@@ -373,6 +374,7 @@ impl Drawing {
     ///
     /// It is usually okay to use this method right when the turtle is created, but don't rely on
     /// it after that because by then the user may have pressed the maximize button on the window.
+    #[cfg(feature = "unstable")]
     pub fn maximize(&mut self) {
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = true);
     }
@@ -403,6 +405,7 @@ impl Drawing {
     /// button on the window. This method is reliable until that button is pressed. Since there is
     /// no way to tell when that is, treat the value returned from this method as unreliable and
     /// potentially inaccurate.
+    #[cfg(feature = "unstable")]
     pub fn unmaximize(&mut self) {
         self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = false);
     }
