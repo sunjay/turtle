@@ -19,6 +19,10 @@ include = ["/README.md", "LICENSE", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md",
   "CHANGELOG.md", "src/**/*.rs", "examples/**/*.rs", "examples/**/*.txt",
   "tests/**/*.rs", "Cargo.toml", ".rustfmt.toml", "rust-toolchain"]
 
+# Make sure docs are always generated with the "unstable" feature activated
+[package.metadata.docs.rs]
+features = [ "unstable" ]
+
 [badges]
 # Appveyor: `repository` is required. `branch` is optional; default is `master`
 appveyor = { repository = "sunjay/turtle" }
