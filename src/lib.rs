@@ -31,6 +31,19 @@
 //! things without creating the entire event loop. For example, use
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
+//! # Unstable features
+//! Some parts of this library are unstable, such as maximizing and unmaximizing the window.
+//! You can explicitly opt-in to using those features with the `unstable` feature like so:
+//! 
+//! ```bash
+//! $ cargo build --features "unstable"
+//! ```
+//! 
+//! If you want to use this from inside your own crate, you will need to add this to your Cargo.toml
+//! ```toml
+//! [dependencies]
+//! turtle = { version = "...", features = ["unstable"] }
+//! ```
 
 #![cfg_attr(target_arch = "wasm32", crate_type = "cdylib")]
 
