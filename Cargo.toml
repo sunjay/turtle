@@ -40,7 +40,7 @@ rand = "0.6"
 
 # Dependencies that don't support / shouldn't be used with WASM
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-piston_window = "0.89"
+piston_window = "0.97"
 
 # Dependencies specifically for WASM
 [target.'cfg(target_arch = "wasm32")'.dependencies]
