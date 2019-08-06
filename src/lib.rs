@@ -45,6 +45,7 @@
 //! turtle = { version = "...", features = ["unstable"] }
 //! ```
 
+#![doc(html_logo_url = "https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/turtle-logo-512.png")]
 #![cfg_attr(target_arch = "wasm32", crate_type = "cdylib")]
 
 #[cfg(all(test, not(feature = "test")))]
