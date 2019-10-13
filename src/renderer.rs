@@ -3,9 +3,13 @@ compile_error!("This module should not be included when compiling to wasm");
 
 use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
+use std::path;
 
 use piston_window::{clear, context, line, polygon, AdvancedWindow, Event as PistonEvent, G2d,
     Input, PistonWindow, WindowSettings};
+
+use svg;
+use svg::node::element::{Line as SvgLine, Polygon as SvgPolygon, Rectangle as SvgRect};
 
 use crate::app::TurtleApp;
 use crate::event::from_piston_event;
@@ -156,7 +160,7 @@ impl Renderer {
                 } else if path.pen.enabled {
                     self.drawings.push(Drawing::Path(path));
                 }
-            }
+            },
             BeginFill(fill_color) => {
                 // Calling begin_fill multiple times is okay, it just won't do anything until
                 // end_fill is called
@@ -169,7 +173,7 @@ impl Renderer {
                         },
                     ))
                 });
-            }
+            },
             // Calling end_fill multiple times is not a problem
             EndFill => if let Some((border, poly)) = self.fill_polygon.take() {
                 // Always add the border over the filled polygon so the border is drawn on top
@@ -186,7 +190,8 @@ impl Renderer {
                 // We don't want to leak memory by leaving this Vec at whatever its size was before
                 self.drawings.shrink_to_fit();
                 self.fill_polygon.take();
-            }
+            },
+            SaveSVG(path_buf) => self.save_svg(path_buf),
         }
     }
 
@@ -318,6 +323,73 @@ impl Renderer {
             let end = shell[(i + 1) % shell.len()];
 
             line(color::BLACK.into(), 1., [start[0], start[1], end[0], end[1]], c.transform, g);
+        }
+    }
+
+    /// Save the drawings to SVG
+    fn save_svg<P: AsRef<path::Path>>(&mut self, path: P) {
+        let drawing_state = self.app.drawing();
+        let mut document = svg::Document::new()
+            .set("viewBox", (0, 0, drawing_state.width, drawing_state.height));
+
+        // set background color - https://stackoverflow.com/a/11293812/9276882
+        let bg_color = drawing_state.background;
+        let background = SvgRect::new()
+            .set("width", "100%")
+            .set("height", "100%")
+            .set("fill", format!("rgba({},{},{},{})", bg_color.red, bg_color.green, bg_color.blue, bg_color.alpha));
+
+        document = document.add(background);
+
+        let center = Point {x: drawing_state.width as f64 * 0.5, y: drawing_state.height as f64 * 0.5};
+
+        for drawing in &self.drawings {
+            match *drawing {
+                Drawing::Path(ref path) => {
+                    let &Path { start, end, ref pen } = path;
+                    let &Pen { thickness, color, enabled: _ } = pen;
+
+                    let start = start.to_screen_coords(center);
+                    let end = end.to_screen_coords(center);
+
+                    let line = SvgLine::new()
+                        .set("x1", start.x)
+                        .set("y1", start.y)
+                        .set("x2", end.x)
+                        .set("y2", end.y)
+                        .set("stroke", format!("rgba({},{},{},{})", color.red, color.green, color.blue, color.alpha))
+                        .set("stroke-width", format!("{}px", thickness * 2.0));
+
+                    // Note that in above code `stroke-width` is twice the `thickness`.
+                    // As per https://docs.piston.rs/piston_window/piston_window/fn.line.html,
+                    // second param of piston_window::line is radius.
+                    // So radius (thickness) = 1 takes 2 pixels on screen.
+                    // Hence, stroke-width of svg element is double the thickness.
+
+                    document = document.add(line);
+                },
+                Drawing::Polygon(ref poly) => {
+                    let points = poly.vertices.iter()
+                        .map(|p| {
+                            let point = p.to_screen_coords(center);
+                            format!("{},{} ", point.x, point.y)
+                        })
+                        .fold("".to_string(), |acc, x| acc + &x);
+
+                    let color = poly.fill_color;
+                    let polygon = SvgPolygon::new()
+                        .set("fill", format!("rgba({},{},{},{})", color.red, color.green, color.blue, color.alpha))
+                        .set("points", points);
+
+                    document = document.add(polygon);
+                },
+            }
+        }
+
+        let export_to_svg = svg::save(path, &document);
+        match export_to_svg {
+            Ok(()) => (),
+            Err(error) => eprintln!("Error saving SVG file : {:#?}", error),
         }
     }
 }

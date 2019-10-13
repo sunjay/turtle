@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use serde::{Serialize, Deserialize};
 
 use crate::state::{DrawingState, Path, TurtleState};
@@ -49,4 +51,6 @@ pub enum DrawingCommand {
     ///
     /// Panics if temporary_path is not None
     Clear,
+    /// Send SaveSVG to export the drawings in SVG format. Saves the SVG file at the PathBuf location.
+    SaveSVG(PathBuf),
 }
