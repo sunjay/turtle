@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::path;
 
 use crate::animation::{Animation, AnimationStatus, MoveAnimation, RotateAnimation};
 use crate::query::{DrawingCommand, Query, Request, Response, StateUpdate};
@@ -96,6 +97,11 @@ impl TurtleWindow {
     /// Clear the turtle's drawings
     pub fn clear(&mut self) {
         self.send_drawing_command(Clear);
+    }
+
+    /// Save drawings as SVG
+    pub fn save_svg<P: AsRef<path::Path>>(&self, path: P) {
+        self.send_drawing_command(SaveSVG((*path.as_ref()).to_path_buf()));
     }
 
     /// Move the turtle to the given position without changing its heading.
