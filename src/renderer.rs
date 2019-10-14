@@ -327,7 +327,12 @@ impl Renderer {
     }
 
     /// Save the drawings to SVG
-    fn save_svg<P: AsRef<path::Path>>(&mut self, path: P) {
+    fn save_svg(&mut self, path: &path::Path) {
+        // Returns rgba string of Color in CSS functional syntax
+        fn rgba_string(color: Color) -> String {
+            format!("rgba({}, {}, {}, {})", color.red as u8, color.green as u8, color.blue as u8, color.alpha)
+        }
+
         let drawing_state = self.app.drawing();
         let mut document = svg::Document::new()
             .set("viewBox", (0, 0, drawing_state.width, drawing_state.height));
@@ -337,11 +342,14 @@ impl Renderer {
         let background = SvgRect::new()
             .set("width", "100%")
             .set("height", "100%")
-            .set("fill", format!("rgba({},{},{},{})", bg_color.red, bg_color.green, bg_color.blue, bg_color.alpha));
+            .set("fill", rgba_string(bg_color));
 
         document = document.add(background);
 
-        let center = Point {x: drawing_state.width as f64 * 0.5, y: drawing_state.height as f64 * 0.5};
+        let center = drawing_state.center.to_screen_coords(Point {
+            x: drawing_state.width as f64 * 0.5,
+            y: drawing_state.height as f64 * 0.5,
+        });
 
         for drawing in &self.drawings {
             match *drawing {
@@ -357,7 +365,7 @@ impl Renderer {
                         .set("y1", start.y)
                         .set("x2", end.x)
                         .set("y2", end.y)
-                        .set("stroke", format!("rgba({},{},{},{})", color.red, color.green, color.blue, color.alpha))
+                        .set("stroke", rgba_string(*color))
                         .set("stroke-width", format!("{}px", thickness * 2.0));
 
                     // Note that in above code `stroke-width` is twice the `thickness`.
@@ -378,7 +386,7 @@ impl Renderer {
 
                     let color = poly.fill_color;
                     let polygon = SvgPolygon::new()
-                        .set("fill", format!("rgba({},{},{},{})", color.red, color.green, color.blue, color.alpha))
+                        .set("fill", rgba_string(poly.fill_color))
                         .set("points", points);
 
                     document = document.add(polygon);
