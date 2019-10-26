@@ -191,7 +191,7 @@ impl Renderer {
                 self.drawings.shrink_to_fit();
                 self.fill_polygon.take();
             },
-            SaveSVG(path_buf) => self.save_svg(path_buf),
+            SaveSVG(path_buf) => self.save_svg(&path_buf),
         }
     }
 
@@ -365,7 +365,7 @@ impl Renderer {
                         .set("y1", start.y)
                         .set("x2", end.x)
                         .set("y2", end.y)
-                        .set("stroke", rgba_string(*color))
+                        .set("stroke", rgba_string(color))
                         .set("stroke-width", format!("{}px", thickness * 2.0));
 
                     // Note that in above code `stroke-width` is twice the `thickness`.
@@ -384,7 +384,6 @@ impl Renderer {
                         })
                         .fold("".to_string(), |acc, x| acc + &x);
 
-                    let color = poly.fill_color;
                     let polygon = SvgPolygon::new()
                         .set("fill", rgba_string(poly.fill_color))
                         .set("points", points);
