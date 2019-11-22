@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: Getting Started
-docs_title: Getting Started
-permalink: /guide/getting-started/
+title: "Quickstart"
+docs_title: "Quickstart"
+permalink: /guide/quickstart/
 ---
 
 ## Installing Rust

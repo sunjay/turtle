@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: Basic Rotation
-docs_title: Basic Rotation
-permalink: /guide/basic-rotation/
+title: "Random Values"
+docs_title: "Random Values"
+permalink: /guide/random/
 ---
 
 ## This page is under construction!

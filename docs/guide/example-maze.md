@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: "Basic Movement"
-docs_title: "Basic Movement"
-permalink: /guide/basic-movement/
+title: "Example: Maze"
+docs_title: "Example: Maze"
+permalink: /guide/example-maze/
 ---
 
 ## This page is under construction!

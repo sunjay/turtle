@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: "Basic Movement"
-docs_title: "Basic Movement"
-permalink: /guide/basic-movement/
+title: "Introduction"
+docs_title: "Introduction"
+permalink: /guide/intro/
 ---
 
 ## This page is under construction!

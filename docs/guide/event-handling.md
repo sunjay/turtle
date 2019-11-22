@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: "Basic Movement"
-docs_title: "Basic Movement"
-permalink: /guide/basic-movement/
+title: "Event Handling"
+docs_title: "Event Handling"
+permalink: /guide/event-handling/
 ---
 
 ## This page is under construction!
