@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: Drawing Shapes
-docs_title: Drawing Shapes
-permalink: /guide/drawing-shapes/
+title: "Pen Control"
+docs_title: "Pen Control"
+permalink: /guide/pen-control/
 ---
 
 ## This page is under construction!
