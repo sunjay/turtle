@@ -578,8 +578,7 @@ impl Drawing {
     ///
     /// This will produce the following image in the current directory under the name `squares.svg`:
     ///
-    /// #TODO: substitute actual link to squares.svg
-    /// ![squares](link to docs/assets/images/docs/squares.svg)
+    /// ![squares](https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/docs/squares.svg?sanitize=true)
     pub fn save_svg<P: AsRef<Path>>(&self, path: P) {
         self.window.borrow().save_svg(path)
     }
