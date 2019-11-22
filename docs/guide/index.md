@@ -1,7 +1,7 @@
 ---
 layout: docs
 title: Turtle Documentation
-nav_title: Introduction
+nav_title: Guide
 docs_title: Welcome!
 permalink: /guide/
 ---
