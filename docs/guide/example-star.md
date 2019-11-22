@@ -1,8 +1,8 @@
 ---
 layout: docs
-title: "Basic Movement"
-docs_title: "Basic Movement"
-permalink: /guide/basic-movement/
+title: "Example: Star"
+docs_title: "Example: Star"
+permalink: /guide/example-star/
 ---
 
 ## This page is under construction!
