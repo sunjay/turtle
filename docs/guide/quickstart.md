@@ -18,7 +18,7 @@ immediately get started by performing the following steps:
 2. Add turtle as a dependency in `Cargo.toml`
     ```toml
     [dependencies]
-    turtle = "^{{ site.data.lib.latest.version }}"
+    turtle = "{{ site.data.lib.latest.version }}"
     ```
 3. Replace the contents of `src/main.rs` with the following:
     ```rust
