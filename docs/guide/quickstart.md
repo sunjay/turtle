@@ -5,6 +5,44 @@ docs_title: "Quickstart"
 permalink: /guide/quickstart/
 ---
 
+## Summary
+
+If you already know Rust, and you have Rust and Cargo installed already, you can
+immediately get started by performing the following steps:
+
+1. (optional) Create a new Rust project
+    ```bash
+    cargo new --bin <YOUR-PROJECT-NAME>
+    cd <YOUR-PROJECT-NAME>
+    ```
+2. Add turtle as a dependency in `Cargo.toml`
+    ```toml
+    [dependencies]
+    turtle = "^{{ site.data.lib.latest.version }}"
+    ```
+3. Replace the contents of `src/main.rs` with the following:
+    ```rust
+    use turtle::Turtle;
+
+    fn main() {
+        let mut turtle = Turtle::new();
+
+        for _ in 0..360 {
+            // Move forward three steps
+            turtle.forward(3.0);
+            // Rotate to the right (clockwise) by 1 degree
+            turtle.right(1.0);
+        }
+    }
+    ```
+4. Run the code with `cargo run`. You should see a window pop up and a circle
+   being drawn.
+   ![turtle rust circle]({% link assets/images/docs/getting-started/circle.gif %})
+
+If the instructions above made sense to you and worked, you can move on to the
+next part of this guide. The rest of this page explains everything in much more
+detail.
+
 ## Installing Rust
 
 **Note:** If you already have a recent version of Rust and Cargo installed,
@@ -16,7 +54,7 @@ you can skip this section.
    version with the following command:
    ```bash
    $ rustc -V
-   rustc 1.21.0 (3b72af97e 2017-10-09)
+   rustc 1.38.0 (625451e37 2019-09-23)
    ```
    Your version should be greater than or equal to the one shown on this page.
 
@@ -130,6 +168,7 @@ computer will run. The contents of the function between the two curly braces
 
 Replace the body of the function so that the entire main function looks as
 follows:
+
 ```rust
 fn main() {
     let mut turtle = Turtle::new();
