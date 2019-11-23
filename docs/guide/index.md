@@ -6,19 +6,21 @@ docs_title: Welcome!
 permalink: /guide/
 ---
 
-## Welcome to Turtle!
-
 The turtle crate allows you to make animated drawings using the [Rust
-programming language][rust].
+programming language][rust]. This guide will walk you through the different
+features of the crate and teach you how to build your own drawings.
 
 ![TODO: Interesting image that demos the crate (maybe a grid of images/gifs?)]
 
-This crate is inspired by the [Logo educational programming language][logo-lang].
-Many languages contain implementations of Logo's "turtle graphics". For example,
-the [Python programming language][python] comes with a
-[built-in turtle module][python-turtle]. This crate largely takes after the
-Python implementation, but uses Rust conventions and best practices to provide
-the best possible platform for learning Rust.
+Turtle was inspired by the [Logo educational programming language][logo-lang].
+That language was originally designed as a teaching tool that could at one point
+even be used to control a small turtle robot that drew pictures on physical
+paper. Logo gave rise to the implementation of "turtle graphics" in many
+different programming languages. For example, the [Python programming
+language][python] comes with a [built-in turtle module][python-turtle]. This
+crate largely takes after the Python implementation, but uses Rust conventions
+and best practices to provide the best possible platform for learning and
+teaching Rust.
 
 We work hard to make sure the crate is well-documented and full of examples. Our
 goal is to make sure we provide an approachable, friendly, and fun way to create
