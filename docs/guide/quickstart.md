@@ -5,8 +5,6 @@ docs_title: "Quickstart"
 permalink: /guide/quickstart/
 ---
 
-## Summary
-
 If you already know Rust, and you have Rust and Cargo installed already, you can
 immediately get started by performing the following steps:
 
