@@ -22,12 +22,14 @@ layout: default
       {% include docs-navigation.html %}
     </nav>
 
-    <article class="docs-content">
+    <article class="docs-content-wrapper">
       <header class="post-header">
         <h1 class="post-title">{{ page.headline | default:page.title | escape }}</h1>
       </header>
 
-      {{ content }}
+      <div class="docs-content">
+        {{ content }}
+      </div>
 
       <ul class="docs-pagination">
         {% comment %}
@@ -41,7 +43,7 @@ layout: default
           {% for gpage in section.pages %}
             {% if state == 1 %}
               <li>
-                <a href="{{ gpage.url }}">Next &gt;</a>
+                <a href="{{ gpage.url }}">{{ gpage.title }} &#9656;</a>
               </li>
 
               {% assign state = 2 %}
@@ -51,8 +53,10 @@ layout: default
             {% if gpage.url == page.url %}
               {% if prev %}
                 <li>
-                  <a href="{{ prev.url }}">&lt; Prev</a>
+                  <a href="{{ prev.url }}">&#9666; {{ prev.title }}</a>
                 </li>
+              {% else %}
+                <li>&nbsp;</li>
               {% endif %}
 
               {% assign state = 1 %}

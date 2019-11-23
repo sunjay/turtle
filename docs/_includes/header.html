@@ -6,11 +6,12 @@
 </div>
 
 <header class="site-header" role="banner">
-
   <div class="wrapper">
     {% assign default_paths = site.pages | map: "path" %}
     {% assign page_paths = site.header_pages | default: default_paths %}
-    <a class="site-title" href="{{ "/" | relative_url }}">{{ site.title | escape }}</a>
+    <div class="site-title">
+      <a href="{{ "/" | relative_url }}">{{ site.title | escape }}</a>
+    </div>
 
     {% if page_paths %}
       <nav class="site-nav">
@@ -25,7 +26,7 @@
           </span>
         </label>
 
-        <div class="trigger">
+        <div class="trigger nav-items">
           {% for path in page_paths %}
             {% assign my_page = site.pages | where: "path", path | first %}
             {% assign my_page_title = my_page.nav_title | default:my_page.title %}

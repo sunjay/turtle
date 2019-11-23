@@ -7,6 +7,13 @@
 @import 'monokai';
 @import 'buttons';
 
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 html,
 body {
   background: #424242;
@@ -25,7 +32,11 @@ h3,
 h4,
 h5,
 h6 {
-  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+  font-weight: bold;
+}
+
+img {
+  margin: 5px 0;
 }
 
 .browser-not-supported {
@@ -52,7 +63,11 @@ h6 {
 }
 
 .wrapper {
-  max-width: 900px;
+  max-width: 950px;
+}
+
+.highlighter-rouge {
+  margin: 10px 0;
 }
 
 .highlighter-rouge + p {
@@ -159,7 +174,7 @@ h6 {
 
     @media (min-width: 768px) {
       margin: 0;
-      padding: 18px;
+      padding: 0 18px;
 
       &:not(:last-child) {
         margin-right: 0;
@@ -172,17 +187,41 @@ h6 {
     }
   }
 
+  @media (min-width: 768px) {
+    .wrapper {
+      display: flex;
+    }
+  }
 }
 
-.site-title,
-.site-title:visited {
-  color: #fff;
+.site-title {
+  flex-grow: 1;
+
+  a,
+  a:visited {
+    color: #fff;
+  }
+}
+
+.site-nav {
+  display: flex;
+  float: none;
+
+  .nav-items {
+    display: flex;
+  }
+
+  .page-link {
+    align-items: center;
+    display: flex;
+  }
 }
 
 @media screen and (max-width: 600px) {
   .site-nav {
     background: #2e7d32;
     border-color: #4caf50;
+    display: block;
     text-align: left;
     z-index: 5;
 

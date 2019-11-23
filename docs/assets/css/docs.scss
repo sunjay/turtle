@@ -7,30 +7,51 @@
   padding: 15px 0;
 
   @media (min-width: 768px) {
-    box-shadow: 1px 1px 5px #ddd;
+    box-shadow: 0 1px 5px #ccc;
     display: flex;
     margin-bottom: 0;
-    padding: 15px;
+    padding: 0;
   }
 }
 
-.docs-content {
-  margin-top: 30px;
-  padding: 0 15px;
+.docs-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+  padding: 15px;
 
   .post-header {
-    border-bottom: 1px solid #9e9e9e;
     margin-bottom: 15px;
-    padding-bottom: 15px;
+    padding-bottom: 5px;
   }
 
   .post-title {
+    font-size: 2em;
+    line-height: 1.5;
     margin-bottom: 0;
+    text-align: center;
+  }
+
+  .docs-content {
+    flex-grow: 1;
+    min-height: 400px;
+  }
+
+  h2 {
+    border-bottom: 1px solid #ddd;
+  }
+
+  img {
+    max-width: 100%;
   }
 
   @media (min-width: 768px) {
     margin: 0;
-    padding: 0;
+
+    .post-header {
+      border-bottom: 1px solid #ddd;
+    }
   }
 }
 
@@ -75,12 +96,19 @@
   display: none;
   flex-shrink: 0;
   margin: -10px 0;
+  overflow: hidden;
   padding: 15px;
 
-  ul {
-    list-style-type: none;
+  h3 {
+    color: #03a9f4;
     margin-bottom: 0;
-    margin-left: 0;
+  }
+
+  ul {
+    border-left: 1px solid #aaa;
+    list-style-type: none;
+    margin-bottom: 10px;
+    margin-left: 5px;
   }
 
   .header,
@@ -103,16 +131,40 @@
     a:hover {
       color: inherit;
     }
+
+    &.active {
+      font-weight: bold;
+    }
   }
 
   @media (min-width: 768px) {
-    background: inherit;
-    border-right: 1px solid #9e9e9e;
     display: block;
     margin: 0;
-    margin-right: 20px;
-    padding: 0;
-    padding-right: 20px;
-    width: auto;
+    width: 260px;
+  }
+}
+
+.docs-pagination {
+  align-items: stretch;
+  border-top: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  padding-top: 5px;
+  text-align: center;
+  width: 100%;
+
+  a,
+  a:visited,
+  a:hover {
+    color: #03a9f4;
+    font-weight: bold;
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
   }
 }
