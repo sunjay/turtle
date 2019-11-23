@@ -1,0 +1,55 @@
+{
+  "sections": [
+    {
+      "title": "Getting Started",
+
+      "pages": [
+        {"title": "Introduction", "url": "/guide/"},
+        {"title": "Quickstart", "url": "/guide/quickstart/"},
+        {"title": "Running Examples", "url": "/guide/running-examples/"},
+      ],
+    },
+
+    {
+      "title": "Basics",
+
+      "pages": [
+        {"title": "Overview", "url": "/guide/overview/"},
+        {"title": "The Turtle Canvas", "url": "/guide/turtle-canvas/"},
+        {"title": "Basic Movement", "url": "/guide/basic-movement/"},
+        {"title": "Example: Square", "url": "/guide/example-square/"},
+        {"title": "Example: Circle", "url": "/guide/example-circle/"},
+        {"title": "Example: Star", "url": "/guide/example-star/"},
+        {"title": "Example: Polygons", "url": "/guide/example-polygons/"},
+      ],
+    },
+
+    {
+      "title": "Intermediate",
+
+      "pages": [
+        {"title": "Example: Spiral", "url": "/guide/example-spiral/"},
+        {"title": "Pen Control", "url": "/guide/pen-control/"},
+        {"title": "Example: Gradient", "url": "/guide/example-gradient/"},
+        {"title": "Drawing Background, Title, and Size", "url": "/guide/drawing-control/"},
+        {"title": "Filling Shapes", "url": "/guide/filling-shapes/"},
+        {"title": "Example: Snowman", "url": "/guide/example-snowman/"},
+        {"title": "Planning Drawings", "url": "/guide/planning-drawings/"},
+        {"title": "Animation", "url": "/guide/animation/"},
+      ],
+    },
+
+    {
+      "title": "Advanced",
+
+      "pages": [
+        {"title": "Random Values", "url": "/guide/random/"},
+        {"title": "Position and Heading", "url": "/guide/position-heading/"},
+        {"title": "Event Handling", "url": "/guide/event-handling/"},
+        {"title": "Example: Maze", "url": "/guide/example-maze/"},
+        {"title": "Example: Reversi", "url": "/guide/example-reversi/"},
+        {"title": "Command-line Arguments", "url": "/guide/command-line-arguments/"},
+      ],
+    },
+  ],
+}
