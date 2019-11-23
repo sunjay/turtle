@@ -28,6 +28,44 @@ layout: default
       </header>
 
       {{ content }}
+
+      <ul class="docs-pagination">
+        {% comment %}
+        0 - looking for current page
+        1 - found current page, find next page
+        2 - stop
+        {% endcomment %}
+        {% assign state = 0 %}
+        {% assign prev = false %}
+        {% for section in site.data.guide.sections %}
+          {% for gpage in section.pages %}
+            {% if state == 1 %}
+              <li>
+                <a href="{{ gpage.url }}">Next &gt;</a>
+              </li>
+
+              {% assign state = 2 %}
+              {% break %}
+            {% endif %}
+
+            {% if gpage.url == page.url %}
+              {% if prev %}
+                <li>
+                  <a href="{{ prev.url }}">&lt; Prev</a>
+                </li>
+              {% endif %}
+
+              {% assign state = 1 %}
+            {% endif %}
+
+            {% assign prev = gpage %}
+          {% endfor %}
+
+          {% if state == 2 %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+      </ul>
     </article>
   </div>
 </div>
