@@ -32,7 +32,21 @@ h3,
 h4,
 h5,
 h6 {
+  color: #03a9f4;
   font-weight: bold;
+
+  a {
+    display: none;
+    text-decoration: underline;
+    text-decoration-style: dashed;
+  }
+
+  &:hover {
+    a {
+      color: #555;
+      display: inline;
+    }
+  }
 }
 
 img {
