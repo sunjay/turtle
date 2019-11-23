@@ -2,10 +2,12 @@
 <section>
   <h3>{{ section.title }}</h3>
 
+  <ul>
   {% for gpage in section.pages %}
     <li{% if gpage.url == page.url %} class="active"{% endif %}>
       <a href="{{ gpage.url }}">{{ gpage.title }}</a>
     </li>
   {% endfor %}
+  </ul>
 </section>
 {% endfor %}
