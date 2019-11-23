@@ -69,8 +69,20 @@
 .docs-nav-toggle {
   border-radius: 0;
   display: block;
-  margin-bottom: 10px;
+  margin: 0 15px;
   position: relative;
+
+  &:hover {
+    border-color: transparent;
+  }
+
+  .docs-nav-trigger:checked ~ & {
+    background: #eee;
+    border-bottom-color: #adadad;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-top-color: transparent;
+  }
 
   .menu-icon {
     left: 5px;
@@ -80,7 +92,6 @@
   }
 
   @media (min-width: 768px) {
-    border-radius: inherit;
     display: none;
     margin-left: auto;
     margin-right: auto;
@@ -95,7 +106,7 @@
   background: #eee;
   display: none;
   flex-shrink: 0;
-  margin: -10px 0;
+  margin: 0 15px;
   overflow: hidden;
   padding: 15px;
 
