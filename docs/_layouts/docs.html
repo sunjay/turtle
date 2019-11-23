@@ -28,7 +28,7 @@ layout: default
       </header>
 
       <div class="docs-content">
-        {{ content }}
+        {% include anchor_headings.html html=content anchorBody="#" anchorTitle="Link to this section" %}
       </div>
 
       <ul class="docs-pagination">
