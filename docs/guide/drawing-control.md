@@ -1,7 +1,7 @@
 ---
 layout: docs
-title: "Drawing Background, Title, and Size"
-docs_title: "Drawing Background, Title, and Size"
+title: "Drawing Settings"
+docs_title: "Drawing Settings"
 permalink: /guide/drawing-control/
 ---
 
