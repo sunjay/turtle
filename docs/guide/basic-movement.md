@@ -233,11 +233,12 @@ with the triangles evenly laid out along the center of the screen:
 
 ![turtle three triangles attempt 2]({% link assets/images/guide/basic-movement/three-triangles-attempt-2.png %}){: .figborder .figlimitsize}
 
-Now, let's use [`left`] again to rotate the entire image by 30 degrees. Notice
-that even though we're changing everything in our image, we don't need to redo
-our entire program. All we have to do is call [`left`] at the start before any
-of our loops. Since the turtle's movements are always based on its _current_
-position and orientation, no further adjustments are needed.
+Now, let's straighten things out using [`left`] again. We'll rotate the entire
+image by 30 degrees. Notice that even though we're changing everything in our
+image, we don't need to redo our entire program. All we have to do is call
+[`left`] at the start before any of our loops. Since the turtle's movements are
+always based on its _current_ position and orientation, the rest of the program
+will adapt accordingly. No further adjustments are needed.
 
 ```rust
 use turtle::Turtle;
@@ -263,7 +264,10 @@ fn main() {
 }
 ```
 
-This gives us the following image:
+We've also added some comments to help us remember what our code was supposed to
+do.
+
+This gives us the following final image:
 
 ![turtle three triangles]({% link assets/images/guide/basic-movement/three-triangles-final.png %}){: .figborder .figlimitsize}
 
