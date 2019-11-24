@@ -16,7 +16,6 @@
 
       "pages": [
         {"title": "Overview", "url": "/guide/overview/"},
-        {"title": "The Turtle Canvas", "url": "/guide/turtle-canvas/"},
         {"title": "Basic Movement", "url": "/guide/basic-movement/"},
         {"title": "Example: Square", "url": "/guide/example-square/"},
         {"title": "Example: Circle", "url": "/guide/example-circle/"},
