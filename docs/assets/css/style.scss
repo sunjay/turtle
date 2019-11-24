@@ -55,6 +55,14 @@ img {
   max-width: 100%;
 }
 
+details {
+  margin: 5px 0;
+
+  summary {
+    cursor: pointer;
+  }
+}
+
 .caption {
   display: block;
   text-align: center;
