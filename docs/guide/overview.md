@@ -6,9 +6,9 @@ permalink: /guide/overview/
 ---
 
 **Welcome!** This is the start of your journey to learn how to use turtle to
-create your own animated drawings. We'll start with an overview of how the
-turtle crate works. Then, we'll break down the program from the end of
-[Quickstart] so you can see how a typical turtle program is structured.
+create your own animated drawings. We'll begin with an overview of the core
+ideas behind the turtle crate. Then, we'll break down the structure of a
+typical program and show you some basic commands.
 
 ![turtle logo]({% link assets/images/guide/overview/turtle-logo-small-crop.png %})
 *The turtle logo: a turtle playing with [Ferris], the Rust mascot*{: .caption}
