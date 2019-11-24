@@ -11,3 +11,4 @@ Please check back later! :)
 
 - Already introduced forward and right
 - Introduce other basic movement commands
+- Movement is always relative to the **current** position and orientation of the turtle
