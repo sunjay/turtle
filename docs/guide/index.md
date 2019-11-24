@@ -44,9 +44,39 @@ provide may require a bit more knowledge, but you can mostly get by using what
 you learn in this guide and guessing along the way. The helpful error messages
 provided by the Rust compiler should also come in handy.
 
+## Exercises
+
+Most sections of this guide will end with some exercises to help you further
+reinforce what you learned during that section. All exercises are completely
+**optional**. If you get stuck on an exercise, it is totally okay to move on and
+come back to it later.
+
+All exercises are rated by their difficulty. This is a subjective rating, so
+some exercises may end up being easier or harder than they are rated.
+
+* **`(*)` - knowledge check**<br />
+  These exercises are usually just slight modifications of the programs seen in
+  that section. They are designed to reinforce what you learned without trying
+  to be very challenging.
+* **`(**)` - moderate**<br />
+  These exercises give you a little more of a challenge by having you write
+  programs that test your understanding of both the current section of the guide
+  and previous sections. You'll get to apply what you've learned without
+  necessarily stepping too far outside of what you've seen so far.
+* **`(***)` - challenging**<br />
+  These exercises are designed to allow you to explore the turtle crate. We want
+  you to get some experience creating your own drawings using what you've
+  learned and your own creativity. Completing an exercise with this rating may
+  require looking things up in the turtle documentation. You may even need to
+  think about what you have learned in a new way. In general, any exercise that
+  takes a non-trivial amount of work on your part will get this rating.
+
+If you need help, see the [Getting Help] section of the guide.
+
 [rust]: https://www.rust-lang.org
 [rust-book]: https://doc.rust-lang.org/book/
 [python]: https://www.python.org
 [python-turtle]: https://docs.python.org/3.3/library/turtle.html
 [logo-lang]: https://en.wikipedia.org/wiki/Logo_(programming_language)
 [turtle-docs]: https://docs.rs/turtle
+[Getting Help]: {% link guide/getting-help.md %}
