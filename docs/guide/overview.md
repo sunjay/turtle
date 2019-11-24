@@ -142,7 +142,8 @@ If you need help, see the [Getting Help] section of the guide.
   250 steps forward.
 * **Exercise 5: `(**)`** Create a program that draws a + symbol. You can do this
   using only the [`forward`] and [`right`] methods from above. The following
-  is an example of what the image may look like at the end:
+  is an example of what the image might look like at the end. Your image does
+  **not** need to match this exactly.
   ![turtle plus symbol]({% link assets/images/guide/overview/exercise-plus.png %}){: .figborder .figlimitsize}
   **Hint:** Exercises 3 and 4 may help with this.
 
