@@ -35,7 +35,8 @@ immediately get started by performing the following steps:
     ```
 4. Run the code with `cargo run`. You should see a window pop up and a circle
    being drawn.
-   ![turtle rust circle]({% link assets/images/docs/getting-started/circle.gif %})
+
+![turtle rust circle]({% link assets/images/guide/quickstart/circle.gif %}){: .figborder .figlimitsize}
 
 If the instructions above made sense to you and worked, you can move on to the
 next part of this guide. The rest of this page explains everything in much more
@@ -146,7 +147,7 @@ project. Add the following to `Cargo.toml`:
 
 ```toml
 [dependencies]
-turtle = "^{{ site.data.lib.latest.version }}"
+turtle = "{{ site.data.lib.latest.version }}"
 ```
 
 The dependencies section may already exist in Cargo.toml. Make sure you don't
@@ -209,7 +210,7 @@ take a few minutes the first time, but should be very fast from then on.**
 Once Cargo has built and run your code, you should see a window pop up and
 produce the following:
 
-![turtle rust circle]({% link assets/images/docs/getting-started/circle.gif %})
+![turtle rust circle]({% link assets/images/guide/quickstart/circle.gif %}){: .figborder .figlimitsize}
 
 **You just wrote some Rust code and drew your first picture with the Turtle
 crate!** You're now ready to go on to the next lessons and learn about this

@@ -50,7 +50,22 @@ h6 {
 }
 
 img {
-  margin: 5px 0;
+  display: block;
+  margin: 5px auto;
+  max-width: 100%;
+}
+
+.caption {
+  display: block;
+  text-align: center;
+}
+
+.figborder {
+  border: 1px solid #000;
+}
+
+.figlimitsize {
+  max-width: 512px;
 }
 
 .browser-not-supported {
