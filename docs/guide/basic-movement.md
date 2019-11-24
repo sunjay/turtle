@@ -12,7 +12,10 @@ Please check back later! :)
 - Already introduced forward and right
 - Introduce other basic movement commands
 - Movement is always relative to the **current** position and orientation of the turtle
-- Example of drawing a triangle, then drawing 3 triangles using a nested loop
+- Example of drawing a triangle
+  - First by copying/pasting code
+  - Then using a loop to deduplicate things
+- Example of taking triangle and then drawing 3 triangles using a nested loop
 
 ```rust
 use turtle::Turtle;
