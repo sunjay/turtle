@@ -73,10 +73,15 @@ stuck on an exercise, it is totally okay to move on and come back to it later.
 If you need help, see the [Getting Help] section of the guide.
 
 - (*) squares of different sizes
+- (*) unravel a single square
 - (**) rotate the entire square image
+- (**) draw 5 squares, rotating to the left by 360/5 = 72 degrees between each one
 - (***) spiral of squares
+  - Note that we used smaller squares (100) for this image
 - (***) spiral of growing squares
+  - Note that we used smaller squares (100) for this image
 - (***) spiral of unravelling squares
+  - Note that we used smaller squares (100) for this image
   - **Hint:** Use [`pen_up`] and [`pen_down`] to temporarily stop drawing while you
     move back to the center.
   - **Hint:** You can potentially avoid doing some complex math using the [`home`] method.
@@ -89,3 +94,7 @@ If you need help, see the [Getting Help] section of the guide.
 [`backward`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.backward
 [`right`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.right
 [`left`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.left
+[Getting Help]: {% link guide/getting-help.md %}
+[`pen_up`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.pen_up
+[`pen_down`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.pen_down
+[`home`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.home
