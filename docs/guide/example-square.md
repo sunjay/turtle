@@ -72,22 +72,45 @@ stuck on an exercise, it is totally okay to move on and come back to it later.
 
 If you need help, see the [Getting Help] section of the guide.
 
-- (*) squares of different sizes
-- (*) unravel a single square
-- (**) rotate the entire square image
-- (**) draw 5 squares, rotating to the left by 360/5 = 72 degrees between each one
-- (***) spiral of squares
-  - Note that we used smaller squares (100) for this image
-- (***) spiral of growing squares
-  - Note that we used smaller squares (100) for this image
-- (***) spiral of unravelling squares
-  - Note that we used smaller squares (100) for this image
-  - **Hint:** Use [`pen_up`] and [`pen_down`] to temporarily stop drawing while you
-    move back to the center.
-  - **Hint:** You can potentially avoid doing some complex math using the [`home`] method.
-  - **Hint:** You can avoid using either of the previous hints by tracing backwards through
-    the line you just drew. This will get you back to your starting position without any
-    additional methods.
+* **Exercise 1: `(*)`** Change the side length of the square to 100 instead of 200.
+* **Exercise 2: `(*)`** Create an "unravelled" square by changing the angle that
+  you rotate by in each loop iteration. The image your program generates may
+  resemble the following:
+  ![turtle unravelled square]({% link assets/images/guide/example-square/exercise-unravelled-square.png %}){: .figborder .figlimitsize}
+* **Exercise 3: `(**)`** Starting at a side length of 100, draw 10 squares of
+  increasing side length on top of each other. Your drawing may end up
+  resembling the following image:
+  ![turtle overlapping squares]({% link assets/images/guide/example-square/exercise-overlapping-squares.png %}){: .figborder .figlimitsize}
+* **Exercise 4: `(**)`** Starting at the program that draws a single square,
+  rotate the entire square by 30 degrees to the left or to the right. If you
+  choose to rotate the square to the left, your drawing may resemble the following:
+  ![turtle rotated square]({% link assets/images/guide/example-square/exercise-rotate-square.png %}){: .figborder .figlimitsize}
+  **Hint:** If you use the techniques from [Basic Movement], you can do this by adding
+  only a single line of code to the program above.
+* **Exercise 5: `(**)`** Draw 5 squares, rotating to the left between each one
+  to create the spiral pattern shown below:
+  ![turtle spiral of 5 squares]({% link assets/images/guide/example-square/exercise-spiral-squares-5.png %}){: .figborder .figlimitsize}
+  **Hint:** To rotate around an entire circle using 5 objects, you need to
+  turn by 360/5 = 72 degrees each time.
+* **Exercise 6: `(**)`** Draw a spiral of squares that resembles the image below.
+  ![turtle spiral of squares]({% link assets/images/guide/example-square/exercise-spiral-squares.png %}){: .figborder .figlimitsize}
+  **Tip:** You may want to use a smaller side length of 100 if you want to match
+  this image exactly.
+* **Exercise 7: `(***)`** Draw a spiral of squares where the side length increases
+  for every square. The image you generate may resemble the following:
+  ![turtle spiral of growing squares]({% link assets/images/guide/example-square/exercise-growing-spiral-squares.png %}){: .figborder .figlimitsize}
+  **Tip:** You may want to use a smaller initial side length of 100 if you want
+  to match this image exactly.
+* **Exercise 8: `(***)`** Draw a spiral of squares where each square unravels
+  more than the last. The image you produce may resemble the following:
+  ![turtle spiral of unravelling squares]({% link assets/images/guide/example-square/exercise-unravelling-spiral-squares.png %}){: .figborder .figlimitsize}
+  **Tip:** You may want to use a smaller side length of 100 if you want to match
+  this image exactly.<br>
+  **Hint:** You can get back to where the turtle started drawing the unravelled
+  square by moving backward along the square you just drew.<br>
+  **Bonus:** For an extra challenge, look up the [`pen_up`], [`pen_down`], and
+  [`home`] methods in the documentation. You can use these to immediately return
+  back to the center without drawing a line.
 
 [Basic Movement]: {% link guide/basic-movement.md %}
 [`forward`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.forward
