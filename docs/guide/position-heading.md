@@ -36,6 +36,10 @@ forward 100 steps, its new position is (0,100).
 
 TODO
 
+## Exercises
+
+- (***) draw bezier curve (see examples/bezier.rs)
+
 [`forward`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.forward
 [`right`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.right
 [Overview]: {% link guide/overview.md %}
