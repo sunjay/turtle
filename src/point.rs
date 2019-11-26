@@ -287,6 +287,14 @@ impl Mul<f64> for Point {
     }
 }
 
+impl Mul<Point> for f64 {
+    type Output = Point;
+
+    fn mul(self, other: Point) -> Self::Output {
+        other * self
+    }
+}
+
 impl Div<f64> for Point {
     type Output = Self;
 
