@@ -12,3 +12,8 @@ Please check back later! :)
 - So far only straight lines
 - Curvy lines via very small steps and lots of rotation
 - Go over code from circle example
+
+## Exercises
+
+- (***) circle with dashed lines
+  - use [`pen_up`] and [`pen_down`]
