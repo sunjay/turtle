@@ -5,7 +5,7 @@ docs_title: "Position and Heading"
 permalink: /guide/position-heading/
 ---
 
-In this section, we'll discuss some more advanced methods of controlling the
+In this lesson, we'll discuss some more advanced methods of controlling the
 turtle. So far, we've been using commands like [`forward`] and [`right`] to
 move the turtle relative to its **current** position on the screen. This works
 well for a lot of drawings, but what if we want more direct control?

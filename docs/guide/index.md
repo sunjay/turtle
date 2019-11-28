@@ -28,9 +28,9 @@ drawings and learn the Rust language.
 
 ## Audience
 
-The first several sections of this guide only require that you know the basics
-of the Rust programming language. We'll use concepts like functions, variables,
-loops, and if conditions, but not much more than that.
+The Basics and Intermediate parts of this guide only require that you know the
+basics of the Rust programming language. The main concepts we'll use are
+functions/methods, variables, loops, and if conditions.
 
 **If you're brand new to Rust, or if you run into a concept you don't understand,
 we recommend that you read [The Rust Book][rust-book].**
@@ -46,8 +46,8 @@ provided by the Rust compiler should also come in handy.
 
 ## Exercises
 
-Most sections of this guide will end with some exercises to help you further
-reinforce what you learned during that section. All exercises are completely
+Most lessons of this guide will end with some exercises to help you further
+reinforce what you learned during that lesson. All exercises are completely
 **optional**. If you get stuck on an exercise, it is totally okay to move on and
 come back to it later.
 
@@ -56,12 +56,12 @@ some exercises may end up being easier or harder than they are rated.
 
 * **`(*)` - knowledge check**<br />
   These exercises are usually just slight modifications of the programs seen in
-  that section. They are designed to reinforce what you learned without trying
+  that lesson. They are designed to reinforce what you learned without trying
   to be very challenging.
 * **`(**)` - moderate**<br />
   These exercises give you a little more of a challenge by having you write
-  programs that test your understanding of both the current section of the guide
-  and previous sections. You'll get to apply what you've learned without
+  programs that test your understanding of the current lesson you're reading,
+  and previous lessons. You'll get to apply what you've learned without
   necessarily stepping too far outside of what you've seen so far.
 * **`(***)` - challenging**<br />
   These exercises are designed to allow you to explore the turtle crate. We want
