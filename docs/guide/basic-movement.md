@@ -55,18 +55,18 @@ fn main() {
 
 From there, we need to turn. There are a number of different methods you can use
 to figure out the angle you need to rotate by. For example, you could guess a
-number (e.g. 60 degrees) and see what happens. Another option is to use some
+number (e.g. 60&deg;) and see what happens. Another option is to use some
 geometry to try and figure it out. For instance, you could use the fact that a
-circle has 360 degrees and the fact that the angles inside a triangle add up to
-180 degrees to come to a solution. We're drawing an equilateral triangle, so all
-three angles inside of it must be equal to 180/3 = 60 degrees.
+circle has 360&deg; and the fact that the angles inside a triangle add up to
+180&deg; to come to a solution. We're drawing an equilateral triangle, so all
+three angles inside of it must be equal to 180&deg;/3 = 60&deg;.
 
 ![turtle turn 120]({% link assets/images/guide/basic-movement/turn-derivation.png %}){: .figborder .figlimitsize}
 
 No matter what method you choose, the most important thing to remember is that
 the turtle always moves relative to its **current** position. That means that
 even though we eventually want the angle between the line we drew and the next
-line to be 60 degrees, we actually need to rotate 120 degrees in order to get
+line to be 60&deg;, we actually need to rotate 120&deg; in order to get
 the turtle facing the right way. The reason for this is because when we start
 turning, the turtle is _currently_ facing the top of the screen.
 
@@ -83,7 +83,7 @@ fn main() {
 }
 ```
 
-In this program, we move forward, rotate 120 degrees to the right, and then
+In this program, we move forward, rotate 120&deg; to the right, and then
 move forward again. This gets us two sides of our triangle.
 
 For the third side, we'll need to do something very similar to what we did for
@@ -227,14 +227,14 @@ fn main() {
 }
 ```
 
-Here, I've chosen to rotate to the left by 120 degrees, but really you could
+Here, I've chosen to rotate to the left by 120&deg;, but really you could
 choose any value. I used that value because it produces a nice pretty picture
 with the triangles evenly laid out along the center of the screen:
 
 ![turtle three triangles attempt 2]({% link assets/images/guide/basic-movement/three-triangles-attempt-2.png %}){: .figborder .figlimitsize}
 
 Now, let's straighten things out using [`left`] again. We'll rotate the entire
-image by 30 degrees. Notice that even though we're changing everything in our
+image by 30&deg;. Notice that even though we're changing everything in our
 image, we don't need to redo our entire program. All we have to do is call
 [`left`] at the start before any of our loops. Since the turtle's movements are
 always based on its _current_ position and orientation, the rest of the program

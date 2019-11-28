@@ -13,7 +13,7 @@ let's look at the final image we're trying to create:
 
 ![turtle square]({% link assets/images/guide/example-square/square.png %}){: .figborder .figlimitsize}
 
-All squares have four sides. Each of their inner angles are 90 degrees. That
+All squares have four sides. Each of their inner angles are 90&deg;. That
 means that much like with the triangle, we'll be trying to draw our square by
 drawing a line, rotating, and then drawing again until we complete the shape.
 
@@ -23,7 +23,7 @@ always need to take into account where the turtle currently is and what
 direction it is facing. Initially, when the window first opens, the turtle is
 facing the top of the screen. From that orientation, to continue drawing a
 square, we would need to turn to the right. To go from facing the top of the
-screen to facing the right of the screen, we need to turn 90 degrees to the
+screen to facing the right of the screen, we need to turn 90&deg; to the
 right.
 
 Translating this logic to a program would give us:
@@ -82,7 +82,7 @@ If you need help, see the [Getting Help] section of the guide.
   resembling the following image:
   ![turtle overlapping squares]({% link assets/images/guide/example-square/exercise-overlapping-squares.png %}){: .figborder .figlimitsize}
 * **Exercise 4: `(**)`** Starting at the program that draws a single square,
-  rotate the entire square by 30 degrees to the left or to the right. If you
+  rotate the entire square by 30&deg; to the left or to the right. If you
   choose to rotate the square to the left, your drawing may resemble the following:
   ![turtle rotated square]({% link assets/images/guide/example-square/exercise-rotate-square.png %}){: .figborder .figlimitsize}
   **Hint:** If you use the techniques from [Basic Movement], you can do this by adding
@@ -91,7 +91,7 @@ If you need help, see the [Getting Help] section of the guide.
   to create the spiral pattern shown below:
   ![turtle spiral of 5 squares]({% link assets/images/guide/example-square/exercise-spiral-squares-5.png %}){: .figborder .figlimitsize}
   **Hint:** To rotate around an entire circle using 5 objects, you need to
-  turn by 360/5 = 72 degrees each time.
+  turn by 360&deg;/5 = 72&deg; each time.
 * **Exercise 6: `(**)`** Draw a spiral of squares that resembles the image below.
   ![turtle spiral of squares]({% link assets/images/guide/example-square/exercise-spiral-squares.png %}){: .figborder .figlimitsize}
   **Tip:** You may want to use a smaller side length of 100 if you want to match
