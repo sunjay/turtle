@@ -19,7 +19,7 @@ lesson will cover how we can use turtle to draw curves and circles.
 ## Exercises
 
 These exercises are designed to help you reinforce what you've learned
-throughout this section. All exercises are completely **optional**. If you get
+throughout this lesson. All exercises are completely **optional**. If you get
 stuck on an exercise, it is totally okay to move on and come back to it later.
 
 If you need help, see the [Getting Help] section of the guide.
