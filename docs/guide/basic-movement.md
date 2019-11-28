@@ -173,7 +173,7 @@ Now we will extend our program to draw a more interesting image.
 
 ## Drawing Three Triangles
 
-How would you change the code to draw three triangles instead of just one? Well
+How would you change the code to draw three triangles instead of just one? Well,
 based on what we did in the last section, you may be tempted to add an extra
 loop around the loop that draws our triangle. This should repeat the code three
 times and draw three triangles, right?
@@ -274,7 +274,7 @@ This gives us the following final image:
 ## Exercises
 
 These exercises are designed to help you reinforce what you've learned
-throughout this section. All exercises are completely **optional**. If you get
+throughout this lesson. All exercises are completely **optional**. If you get
 stuck on an exercise, it is totally okay to move on and come back to it later.
 
 If you need help, see the [Getting Help] section of the guide.
