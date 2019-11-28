@@ -94,7 +94,7 @@ We can change the direction that the turtle is facing using the [`right`]
 method. This method takes an angle in degrees and instructs the turtle to rotate
 in place. While the turtle is rotating, it won't move forward or backward.
 
-Let's change our program to turn the turtle 45 degrees to the right and then walk
+Let's change our program to turn the turtle 45&deg; to the right and then walk
 forward another 100 steps:
 
 ```rust
@@ -129,14 +129,14 @@ If you need help, see the [Getting Help] section of the guide.
   the instructions we're providing to the turtle so that it performs the
   following actions:
   1. walk forward 100 steps
-  2. turn right 90 degrees
+  2. turn right 90&deg;
   3. walk forward 100 steps
-* **Exercise 2: `(*)`** Modify the program to have the turtle turn right 270
-  degrees first, then move forward 150 steps. Which direction will the turtle
+* **Exercise 2: `(*)`** Modify the program to have the turtle turn right 270&deg;
+  first, then move forward 150 steps. Which direction will the turtle
   face at the end of this program?
 * **Exercise 3: `(*)`** Using only the [`forward`] and [`right`] methods
   explained above, have the turtle walk **backwards** 100 steps and then turn to
-  the **left** by 90 degrees.<br />
+  the **left** by 90&deg;.<br />
   **Hint:** Numbers can be both positive and negative.
 * **Exercise 4: `(*)`** Using exactly 2 calls to [`forward`], move a total of
   250 steps forward.
