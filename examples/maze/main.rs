@@ -32,16 +32,16 @@ fn main() {
     turtle.backward(WIDTH / 2.0);
     turtle.pen_down();
 
-    let cell_width = WIDTH / (maze.row_size() as f64);
-    let cell_height = HEIGHT / (maze.col_size() as f64);
+    let cell_width = WIDTH / (maze.grid().row_size() as f64);
+    let cell_height = HEIGHT / (maze.grid().col_size() as f64);
 
     // Draw rows
     draw_rows(
         &mut turtle,
         cell_width,
         cell_height,
-        maze.first_row().map(|cell| cell.north.is_closed()),
-        maze.rows(),
+        maze.grid().first_row().map(|cell| cell.north.is_closed()),
+        maze.grid().rows(),
         |row| row.map(|cell| cell.south.is_closed()),
         false,
     );
@@ -52,8 +52,8 @@ fn main() {
         &mut turtle,
         cell_height,
         cell_width,
-        maze.last_col().rev().map(|cell| cell.east.is_closed()),
-        maze.cols().rev(),
+        maze.grid().last_col().rev().map(|cell| cell.east.is_closed()),
+        maze.grid().cols().rev(),
         |col| col.map(|cell| cell.west.is_closed()).rev(),
         true,
     );

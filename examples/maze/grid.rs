@@ -73,7 +73,7 @@ pub struct GridCellIter<'a> {
     index: usize,
     /// The current position in the row or column being iterated over
     current: usize,
-    // Index of the item just after the last item in the row or column being iterated over
+    /// Index of the item just after the last item in the row or column being iterated over
     end: usize,
 }
 

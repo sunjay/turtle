@@ -55,9 +55,9 @@ pub fn solve(turtle: &mut Turtle, maze: Maze, cell_width: f64, cell_height: f64)
 }
 
 fn unvisited_open_adjacents(maze: &Maze, visited: &HashSet<(usize, usize)>, position: (usize, usize)) -> Vec<(usize, usize)> {
-    maze.adjacent_cells(position)
+    maze.grid().adjacent_cells(position)
         .into_iter()
-        .filter(|p| maze.is_open_between(position, *p))
+        .filter(|p| maze.grid().is_open_between(position, *p))
         .filter(|p| !visited.contains(p))
         .collect()
 }

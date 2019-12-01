@@ -1,5 +1,4 @@
 use std::collections::{HashSet, VecDeque};
-use std::ops::{Deref, DerefMut};
 
 use turtle::rand::shuffle;
 
@@ -7,8 +6,8 @@ use crate::grid::Grid;
 
 #[derive(Debug)]
 pub struct Maze {
-    // The cells of the maze are stored row-wise
-    // That means that each array in the outer array is a row of the maze
+    /// The cells of the maze are stored row-wise
+    /// That means that each array in the outer array is a row of the maze
     grid: Grid,
     start: (usize, usize),
     finish: (usize, usize),
@@ -61,27 +60,23 @@ impl Maze {
         Self { grid, start, finish }
     }
 
-    // The start of the maze (row, col)
+    /// The start of the maze (row, col)
     pub fn start(&self) -> (usize, usize) {
         self.start
     }
 
-    // The exit of the maze (row, col)
+    /// The exit of the maze (row, col)
     pub fn finish(&self) -> (usize, usize) {
         self.finish
     }
-}
 
-impl Deref for Maze {
-    type Target = Grid;
-
-    fn deref(&self) -> &Self::Target {
+    /// Returns an immutable reference inner grid of the maze
+    pub fn grid(&self) -> &Grid {
         &self.grid
     }
-}
 
-impl DerefMut for Maze {
-    fn deref_mut(&mut self) -> &mut Self::Target {
+    /// Returns a mutable reference inner grid of the maze
+    pub fn grid_mut(&mut self) -> &mut Grid {
         &mut self.grid
     }
 }
