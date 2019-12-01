@@ -18,13 +18,60 @@ fn main() {
 }
 
 fn body(turtle: &mut Turtle) {
-    for &radius in &[120.0, 80.0, 60.0] {
-        circle(turtle, radius);
+    circle(turtle, 120.0);
+    turtle.pen_up();
+    sidestep_right(turtle, 120.0 * 2.0);
+    turtle.pen_down();
 
-        turtle.pen_up();
-        sidestep_right(turtle, radius * 2.0);
-        turtle.pen_down();
-    }
+    // Second circle is drawn in parts because we want the arms to be there too
+    arc(turtle, 80.0, 120.0, 60);
+    turtle.left(90.0);
+    arm(turtle);
+    turtle.right(90.0);
+    arc(turtle, 80.0, 120.0, 60);
+    turtle.left(90.0);
+    arm(turtle);
+    turtle.right(90.0);
+    arc(turtle, 80.0, 120.0, 60);
+    turtle.pen_up();
+    sidestep_right(turtle, 80.0 * 2.0);
+    turtle.pen_down();
+
+    circle(turtle, 60.0);
+    turtle.pen_up();
+    sidestep_right(turtle, 60.0 * 2.0);
+    turtle.pen_down();
+}
+
+fn arm(turtle: &mut Turtle) {
+    let pen_color = turtle.pen_color();
+    turtle.set_pen_color("brown");
+
+    turtle.forward(150.0);
+
+    turtle.pen_up();
+    turtle.backward(40.0);
+    turtle.left(25.0);
+    turtle.pen_down();
+
+    turtle.forward(60.0);
+
+    turtle.pen_up();
+    turtle.backward(60.0);
+    turtle.right(25.0);
+    turtle.backward(55.0);
+    turtle.right(20.0);
+    turtle.pen_down();
+
+    turtle.forward(40.0);
+
+    turtle.pen_up();
+    turtle.backward(40.0);
+    turtle.left(20.0);
+    turtle.backward(55.0);
+    turtle.pen_down();
+
+    turtle.set_pen_color(pen_color);
 }
 
 fn top_hat(turtle: &mut Turtle) {
@@ -138,17 +185,16 @@ fn rectangle_bottom_center(turtle: &mut Turtle, width: f64, height: f64) {
 }
 
 fn circle(turtle: &mut Turtle, radius: f64) {
-    arc(turtle, radius, 360.0)
+    arc(turtle, radius, 360.0, 180)
 }
 
-fn arc(turtle: &mut Turtle, radius: f64, extent: f64) {
-    let steps = 180.0;
-
+fn arc(turtle: &mut Turtle, radius: f64, extent: f64, steps: u32) {
     let circumference = 2.0 * PI * radius;
-    let step = circumference / steps;
-    let rotation = extent / steps;
+    let distance = circumference * extent / 360.0;
+    let step = distance / steps as f64;
+    let rotation = extent / steps as f64;
 
-    for _ in 0..steps as i32 {
+    for _ in 0..steps {
         turtle.forward(step);
         turtle.right(rotation);
     }
