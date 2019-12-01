@@ -1,7 +1,5 @@
 use std::ops::{Index, IndexMut};
 
-use turtle::rand::random;
-
 use crate::cell::Cell;
 use crate::wall::Wall;
 
@@ -149,16 +147,6 @@ impl Grid {
         Grid([Cells::default(); GRID_SIZE])
     }
 
-    pub fn random_walls() -> Grid {
-        let mut grid = [Cells::default(); GRID_SIZE];
-        for row in &mut grid {
-            for cell in row {
-                *cell = random();
-            }
-        }
-        Grid(grid)
-    }
-
     /// Returns true if there is NO wall between two adjacent cells
     pub fn is_open_between(&self, (row1, col1): (usize, usize), (row2, col2): (usize, usize)) -> bool {
         match (row2 as isize - row1 as isize, col2 as isize - col1 as isize) {
@@ -250,16 +238,6 @@ impl Grid {
     /// Returns the first row
     pub fn first_row(&self) -> GridCellIter<'_> {
         self.rows().next().unwrap()
-    }
-
-    /// Returns the last row
-    pub fn last_row(&self) -> GridCellIter<'_> {
-        self.rows().next_back().unwrap()
-    }
-
-    /// Returns the first column
-    pub fn first_col(&self) -> GridCellIter<'_> {
-        self.cols().next().unwrap()
     }
 
     /// Returns the last column

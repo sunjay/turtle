@@ -74,9 +74,4 @@ impl Maze {
     pub fn grid(&self) -> &Grid {
         &self.grid
     }
-
-    /// Returns a mutable reference inner grid of the maze
-    pub fn grid_mut(&mut self) -> &mut Grid {
-        &mut self.grid
-    }
 }

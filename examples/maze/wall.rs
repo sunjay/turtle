@@ -17,13 +17,6 @@ impl Random for Wall {
 }
 
 impl Wall {
-    pub fn is_open(&self) -> bool {
-        match *self {
-            Wall::Open => true,
-            Wall::Closed => false,
-        }
-    }
-
     pub fn is_closed(&self) -> bool {
         match *self {
             Wall::Open => false,

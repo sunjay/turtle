@@ -7,7 +7,7 @@ mod wall;
 use turtle::{Color, Turtle};
 
 use crate::grid::GridCellIter;
-pub use crate::maze::Maze;
+use crate::maze::Maze;
 use crate::solver::solve;
 
 // Dimensions of the maze in turtle steps (pixels)
