@@ -22,9 +22,7 @@ fn body(turtle: &mut Turtle) {
         circle(turtle, radius);
 
         turtle.pen_up();
-        turtle.right(90.0);
-        turtle.forward(radius * 2.0);
-        turtle.left(90.0);
+        sidestep_right(turtle, radius * 2.0);
         turtle.pen_down();
     }
 }
@@ -33,9 +31,7 @@ fn top_hat(turtle: &mut Turtle) {
     turtle.set_fill_color("black");
 
     turtle.pen_up();
-    turtle.left(90.0);
-    turtle.forward(10.0);
-    turtle.right(90.0);
+    sidestep_left(turtle, 10.0);
     turtle.pen_down();
 
     turtle.begin_fill();
@@ -43,9 +39,7 @@ fn top_hat(turtle: &mut Turtle) {
     turtle.end_fill();
 
     turtle.pen_up();
-    turtle.right(90.0);
-    turtle.forward(10.0);
-    turtle.left(90.0);
+    sidestep_right(turtle, 10.0);
     turtle.pen_down();
 
     turtle.begin_fill();
@@ -62,9 +56,8 @@ fn face(turtle: &mut Turtle) {
 fn nose(turtle: &mut Turtle) {
     // setup to draw nose
     turtle.pen_up();
-    turtle.left(90.0);
-    turtle.forward(50.0);
-    turtle.right(70.0);
+    sidestep_left(turtle, 50.0);
+    turtle.left(20.0);
     turtle.pen_down();
 
     // carrot nose
@@ -117,17 +110,20 @@ fn smile(turtle: &mut Turtle) {
     }
 }
 
-fn circle(turtle: &mut Turtle, radius: f64) {
-    let degrees = 180.0;
+/// Moves the turtle in the direction of its right side, retaining its original direction at the
+/// end. Essentially a "sidestep"
+fn sidestep_right(turtle: &mut Turtle, length: f64) {
+    turtle.right(90.0);
+    turtle.forward(length);
+    turtle.left(90.0);
+}
 
-    let circumference = 2.0 * PI * radius;
-    let step = circumference / degrees;
-    let rotation = 360.0 / degrees;
-
-    for _ in 0..degrees as i32 {
-        turtle.forward(step);
-        turtle.right(rotation);
-    }
+/// Moves the turtle in the direction of its left side, retaining its original direction at the
+/// end. Essentially a "sidestep"
+fn sidestep_left(turtle: &mut Turtle, length: f64) {
+    turtle.left(90.0);
+    turtle.forward(length);
+    turtle.right(90.0);
 }
 
 /// Draws a rectangle starting at the bottom center point
@@ -139,4 +135,21 @@ fn rectangle_bottom_center(turtle: &mut Turtle, width: f64, height: f64) {
     }
     turtle.right(90.0);
     turtle.forward(width/2.0);
+}
+
+fn circle(turtle: &mut Turtle, radius: f64) {
+    arc(turtle, radius, 360.0)
+}
+
+fn arc(turtle: &mut Turtle, radius: f64, extent: f64) {
+    let steps = 180.0;
+
+    let circumference = 2.0 * PI * radius;
+    let step = circumference / steps;
+    let rotation = extent / steps;
+
+    for _ in 0..steps as i32 {
+        turtle.forward(step);
+        turtle.right(rotation);
+    }
 }
