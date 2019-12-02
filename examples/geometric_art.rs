@@ -88,7 +88,7 @@ impl ArtisticTurtle {
         // Create an endless loop over the angles of 90 and 270 degrees
         // (corresponds to moving right and left, respectively).
         // Need `&mut` so the value does not move when we call `take()` twice
-        let angles = &mut [90.0, 270.0].into_iter().cycle();
+        let angles = &mut [90.0, 270.0].iter().cycle();
 
         // Create triangles from left to right.
         for angle in angles.take(self.col_count as usize) {
