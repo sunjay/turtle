@@ -26,16 +26,17 @@ fn update_window(window: &mut PistonWindow, current: DrawingState, next: Drawing
         window.set_size((next.width, next.height));
     }
     if next.maximized != current.maximized {
-        window.window.window.set_maximized(next.maximized);
+        window.window.ctx.window().set_maximized(next.maximized);
     }
     if next.fullscreen != current.fullscreen {
         if next.fullscreen {
             window
                 .window
-                .window
-                .set_fullscreen(Some(window.window.window.get_current_monitor()));
+                .ctx
+                .window()
+                .set_fullscreen(Some(window.window.ctx.window().get_current_monitor()));
         } else {
-            window.window.window.set_fullscreen(None);
+            window.window.ctx.window().set_fullscreen(None);
         }
     }
     next
@@ -88,7 +89,8 @@ impl Renderer {
 
         'renderloop: while let Some(event) = window.next() {
             match event {
-                PistonEvent::Input(Input::Resize(width, height)) => {
+                PistonEvent::Input(Input::Resize(args), _) => {
+                    let [width, height] = args.draw_size;
                     let width = width as u32;
                     let height = height as u32;
                     if width != current_drawing.width || height != current_drawing.height {
@@ -121,7 +123,7 @@ impl Renderer {
             // Update the window based on any changes in the DrawingState
             current_drawing = update_window(&mut window, current_drawing, state.drawing().clone());
 
-            window.draw_2d(&event, |c, g| {
+            window.draw_2d(&event, |c, g, _d| {
                 let view = c.get_view_size();
                 let width = view[0] as f64;
                 let height = view[1] as f64;

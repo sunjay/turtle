@@ -69,7 +69,7 @@ where
     use Event::*;
 
     let input_event = match *event {
-        PistonEvent::Input(ref input_event) => input_event,
+        PistonEvent::Input(ref input_event, _) => input_event,
         _ => return None,
     };
 
@@ -93,13 +93,13 @@ where
             },
         },
         Input::Move(motion) => match motion {
-            Motion::MouseCursor(x, y) => {
+            Motion::MouseCursor([x, y]) => {
                 let local = to_local_coords(Point { x, y });
                 MouseMove { x: local.x, y: local.y }
             }
             // Ignored in favor of MouseCursor
             Motion::MouseRelative(..) => return None,
-            Motion::MouseScroll(x, y) => MouseScroll { x, y },
+            Motion::MouseScroll([x, y]) => MouseScroll { x, y },
             Motion::ControllerAxis(axis) => ControllerAxisChange(axis),
             Motion::Touch(touch) => Touch(touch),
         },
@@ -108,7 +108,10 @@ where
         Input::Text(_) => return None,
         // Not supported
         Input::FileDrag(_) => return None,
-        Input::Resize(width, height) => WindowResized { width: width as u32, height: height as u32 },
+        Input::Resize(args) => {
+            let [width, height] = args.draw_size;
+            WindowResized { width: width as u32, height: height as u32 }
+        },
         Input::Focus(focused) => WindowFocused(focused),
         Input::Cursor(cursor) => WindowCursor(cursor),
         Input::Close(_) => WindowClosed,
