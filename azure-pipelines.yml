@@ -39,9 +39,7 @@ pool:
   vmImage: $(imageName)
 
 steps:
-- displayName: install
-  condition: ne( variables['Agent.OS'], 'Windows_NT' )
-  script: |
+- script: |
     # Remove rust-toolchain or we will always use the version specified there
     # regardless of what version is installed
     rm rust-toolchain
@@ -49,9 +47,9 @@ steps:
     # Set the PATH environment variable
     echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
     rustc --version --verbose
-- displayName: install (windows)
-  condition: eq( variables['Agent.OS'], 'Windows_NT' )
-  script: |
+  displayName: install
+  condition: ne( variables['Agent.OS'], 'Windows_NT' )
+- script: |
     # Remove rust-toolchain or we will always use the version specified there
     # regardless of what version is installed
     rm rust-toolchain
@@ -60,24 +58,26 @@ steps:
     # Set the PATH environment variable
     echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
     rustc --version --verbose
+  displayName: install (windows)
+  condition: eq( variables['Agent.OS'], 'Windows_NT' )
 
-- displayName: build
-  script: |
+- script: |
     rustc --version --verbose
     # -D warnings denies all warnings so that we always know when some code
     # introduces new ones
     RUSTFLAGS="-D warnings" cargo build --verbose --all
     RUSTFLAGS="-D warnings" cargo test --verbose --all --features "test" --no-run
+  displayName: build
 
 # Ensure that we can actually run without crashing on each supported platform
-- displayName: "smoke test"
-  script: |
+- script: |
     cargo run --verbose --example runtest
+  displayName: "smoke test"
 
-- displayName: test
-  script: |
+- script: |
     cargo test --verbose --features "test" --all
+  displayName: test
 
-- displayName: docs
-  script: |
+- script: |
     cargo doc --no-deps --verbose --all
+  displayName: docs
