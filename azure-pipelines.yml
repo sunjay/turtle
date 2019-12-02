@@ -3,17 +3,50 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- master
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-latest'
+    mac:
+      imageName: 'macOS-latest'
+    windows:
+      imageName: 'windows-latest'
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: $(imageName)
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+jobs:
+- job: install
+  steps:
+  - script: |
+      # Remove rust-toolchain or we will always use the version specified there
+      # regardless of what version is installed
+      rm rust-toolchain
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      # Set the PATH environment variable
+      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+      rustc --version --verbose
+- job: build
+  steps:
+  - script: |
+      rustc --version --verbose
+      # -D warnings denies all warnings so that we always know when some code
+      # introduces new ones
+      RUSTFLAGS="-D warnings" cargo build --verbose --all
+      RUSTFLAGS="-D warnings" cargo test --verbose --all --features "test" --no-run
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+# Ensure that we can actually run without crashing on each supported platform
+- job: "smoke test"
+  steps:
+  - script: |
+      cargo run --verbose --example runtest
+
+- job: test
+  steps:
+  - script: |
+      cargo test --verbose --features "test" --all
+
+- job: docs
+  steps:
+  - script: |
+      cargo doc --no-deps --verbose --all
