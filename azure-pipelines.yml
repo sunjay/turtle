@@ -72,7 +72,6 @@ steps:
 - script: |
     cargo run --verbose --example runtest
   displayName: "smoke test"
-  enabled: false
 
 - script: |
     cargo test --verbose --features "test" --all
