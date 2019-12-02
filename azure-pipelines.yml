@@ -5,48 +5,79 @@
 
 strategy:
   matrix:
-    linux:
-      imageName: 'ubuntu-latest'
-    mac:
-      imageName: 'macOS-latest'
-    windows:
+    windows-stable:
       imageName: 'windows-latest'
+      rustup_toolchain: stable
+    windows-beta:
+      imageName: 'windows-latest'
+      rustup_toolchain: beta
+    windows-nightly:
+      imageName: 'windows-latest'
+      rustup_toolchain: nightly
+
+    mac-stable:
+      imageName: 'macos-latest'
+      rustup_toolchain: stable
+    mac-beta:
+      imageName: 'macos-latest'
+      rustup_toolchain: beta
+    mac-nightly:
+      imageName: 'macos-latest'
+      rustup_toolchain: nightly
+
+    linux-stable:
+      imageName: 'ubuntu-latest'
+      rustup_toolchain: stable
+    linux-beta:
+      imageName: 'ubuntu-latest'
+      rustup_toolchain: beta
+    linux-nightly:
+      imageName: 'ubuntu-latest'
+      rustup_toolchain: nightly
 
 pool:
   vmImage: $(imageName)
 
-jobs:
-- job: install
-  steps:
-  - script: |
-      # Remove rust-toolchain or we will always use the version specified there
-      # regardless of what version is installed
-      rm rust-toolchain
-      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      # Set the PATH environment variable
-      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-      rustc --version --verbose
-- job: build
-  steps:
-  - script: |
-      rustc --version --verbose
-      # -D warnings denies all warnings so that we always know when some code
-      # introduces new ones
-      RUSTFLAGS="-D warnings" cargo build --verbose --all
-      RUSTFLAGS="-D warnings" cargo test --verbose --all --features "test" --no-run
+steps:
+- displayName: install
+  condition: ne( variables['Agent.OS'], 'Windows_NT' )
+  script: |
+    # Remove rust-toolchain or we will always use the version specified there
+    # regardless of what version is installed
+    rm rust-toolchain
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUSTUP_TOOLCHAIN
+    # Set the PATH environment variable
+    echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+    rustc --version --verbose
+- displayName: install (windows)
+  condition: eq( variables['Agent.OS'], 'Windows_NT' )
+  script: |
+    # Remove rust-toolchain or we will always use the version specified there
+    # regardless of what version is installed
+    rm rust-toolchain
+    curl -sSf -o rustup-init.exe https://win.rustup.rs
+    rustup-init.exe -y --default-toolchain %RUSTUP_TOOLCHAIN%
+    # Set the PATH environment variable
+    echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+    rustc --version --verbose
+
+- displayName: build
+  script: |
+    rustc --version --verbose
+    # -D warnings denies all warnings so that we always know when some code
+    # introduces new ones
+    RUSTFLAGS="-D warnings" cargo build --verbose --all
+    RUSTFLAGS="-D warnings" cargo test --verbose --all --features "test" --no-run
 
 # Ensure that we can actually run without crashing on each supported platform
-- job: "smoke test"
-  steps:
-  - script: |
-      cargo run --verbose --example runtest
+- displayName: "smoke test"
+  script: |
+    cargo run --verbose --example runtest
 
-- job: test
-  steps:
-  - script: |
-      cargo test --verbose --features "test" --all
+- displayName: test
+  script: |
+    cargo test --verbose --features "test" --all
 
-- job: docs
-  steps:
-  - script: |
-      cargo doc --no-deps --verbose --all
+- displayName: docs
+  script: |
+    cargo doc --no-deps --verbose --all
