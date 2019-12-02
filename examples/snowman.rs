@@ -10,7 +10,7 @@ fn main() {
     turtle.left(90.0);
     turtle.pen_down();
 
-    for &radius in [120.0, 80.0, 60.0].into_iter() {
+    for &radius in [120.0, 80.0, 60.0].iter() {
         circle(&mut turtle, radius);
 
         turtle.pen_up();
