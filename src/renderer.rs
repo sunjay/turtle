@@ -309,7 +309,7 @@ impl Renderer {
         let turtle_x = position.x;
         let turtle_y = position.y;
         let shell: Vec<_> = [[0., 15.], [10., 0.], [0., -15.]]
-            .into_iter()
+            .iter()
             .map(|pt| {
                 // Rotate each point by the heading and add the current turtle position
                 let x = cos * pt[0] - sin * pt[1] + turtle_x;
