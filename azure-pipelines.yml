@@ -46,6 +46,7 @@ steps:
     rm rust-toolchain
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUSTUP_TOOLCHAIN
     echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+    source $HOME/.cargo/env
     rustc --version --verbose
   displayName: install
   condition: ne( variables['Agent.OS'], 'Windows_NT' )
@@ -62,8 +63,9 @@ steps:
 # introduces new ones
 - script: |
     rustc --version --verbose
-    RUSTFLAGS="-D warnings" cargo build --verbose --all
-    RUSTFLAGS="-D warnings" cargo test --verbose --all --features "test" --no-run
+    cargo build --verbose --all
+    cargo test --verbose --all --features "test" --no-run
+  env: { RUSTFLAGS: "-D warnings" }
   displayName: build
 
 # Ensure that we can actually run without crashing on each supported platform
