@@ -39,6 +39,11 @@ pool:
   vmImage: $(imageName)
 
 steps:
+- script: |
+    apt-get install mesa-utils
+    glxinfo
+  displayName: dependencies (Linux)
+  condition: in(variables['agent.os'], 'Linux')
 # Need to remove rust-toolchain or we will always use the version specified
 # there regardless of what version is installed
 # Also need to set the PATH environment variable
@@ -48,7 +53,6 @@ steps:
     echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
     source $HOME/.cargo/env
     rustc --version --verbose
-    glxinfo
   displayName: install
   condition: ne( variables['Agent.OS'], 'Windows_NT' )
 - script: |
@@ -57,7 +61,6 @@ steps:
     rustup-init.exe -y --default-toolchain %RUSTUP_TOOLCHAIN%
     echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
     rustc --version --verbose
-    glxinfo
   displayName: install (windows)
   condition: eq( variables['Agent.OS'], 'Windows_NT' )
 
