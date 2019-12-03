@@ -4,8 +4,7 @@
 [![Docs.rs](https://docs.rs/turtle/badge.svg)](https://docs.rs/turtle)
 [![Crates.io](https://img.shields.io/crates/l/turtle.svg)](https://crates.io/crates/turtle)
 [![Crates.io](https://img.shields.io/crates/d/turtle.svg)](https://crates.io/crates/turtle)
-[![Build Status](https://travis-ci.org/sunjay/turtle.svg?branch=master)](https://travis-ci.org/sunjay/turtle)
-[![Build status](https://ci.appveyor.com/api/projects/status/scg3x6ti49o8sdii/branch/master?svg=true)](https://ci.appveyor.com/project/sunjay/turtle/branch/master)
+[![Build Status](https://dev.azure.com/sunjayv/turtle/_apis/build/status/sunjay.turtle?branchName=master)](https://dev.azure.com/sunjayv/turtle/_build/latest?definitionId=1&branchName=master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/rust-turtle/discuss)
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/sunjay)
 
