@@ -40,7 +40,7 @@ pool:
 
 steps:
 - script: |
-    apt-get install mesa-utils
+    sudo apt-get install mesa-utils
     glxinfo
   displayName: dependencies (Linux)
   condition: in(variables['agent.os'], 'Linux')
