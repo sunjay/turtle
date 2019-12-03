@@ -24,11 +24,9 @@ include = ["/README.md", "LICENSE", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md",
 features = [ "unstable" ]
 
 [badges]
-# Appveyor: `repository` is required. `branch` is optional; default is `master`
-appveyor = { repository = "sunjay/turtle" }
-
-# Travis CI: `repository` in format "<user>/<project>" is required.
-travis-ci = { repository = "sunjay/turtle" }
+# Azure DevOps: `project` is required. `pipeline` is required. `build` is optional; default is `1`
+# Note: project = `organization/project`, pipeline = `name_of_pipeline`, build = `definitionId`
+azure-devops = { project = "sunjayv/turtle", pipeline = "sunjay.turtle" }
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
