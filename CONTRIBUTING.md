@@ -52,20 +52,20 @@ what you can do when you get stuck.
 
 Create a new issue by following the instructions under [Bug Reports][bug-reports].
 If you are not sure whether your problem qualifies for an issue, or if you're
-having any trouble with any of this, come ask in the [Turtle Gitter] chat room.
+having any trouble with any of this, come ask in the [Turtle Zulip] chat room.
 We are happy to help you!
 
 **Still stuck?**
 
 If none of the above seems to apply, feel free to come ask in
-the [Turtle Gitter] chat room or in the [Rust Users Forum]. Someone will help
+the [Turtle Zulip] chat room or in the [Rust Users Forum]. Someone will help
 you find what you need. :smile:
 
 [Google]: http://google.com/
 [DuckDuckGo]: https://duckduckgo.com/
 [Stack Overflow]: https://stackoverflow.com/
 [Rust Users Forum]: https://users.rust-lang.org/
-[Turtle Gitter]: https://gitter.im/rust-turtle/discuss
+[Turtle Zulip]: https://turtle.zulipchat.com
 
 ## Bug Reports
 [bug-reports]: #bug-reports

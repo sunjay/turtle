@@ -5,7 +5,7 @@
 [![Crates.io](https://img.shields.io/crates/l/turtle.svg)](https://crates.io/crates/turtle)
 [![Crates.io](https://img.shields.io/crates/d/turtle.svg)](https://crates.io/crates/turtle)
 [![Build Status](https://dev.azure.com/sunjayv/turtle/_apis/build/status/sunjay.turtle?branchName=master)](https://dev.azure.com/sunjayv/turtle/_build/latest?definitionId=1&branchName=master)
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/rust-turtle/discuss)
+[![Zulip](https://img.shields.io/badge/chat-on%20zulip-success)](https://turtle.zulipchat.com)
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/sunjay)
 
 *Tweet your drawings to us on Twitter at [@RustTurtle](https://twitter.com/RustTurtle) and follow us to see what is being created!*
@@ -55,16 +55,16 @@ directory for more examples of how to use this crate.
 
 The following are some resources you can use to find help when you run into a
 problem. The links are listed in the order you should try each one, but feel
-free to come to the [Turtle Gitter] anytime if you are lost.
+free to come to the [Turtle Zulip] anytime if you are lost.
 
-* **Help with the Rust Language** - [Google], [Stack Overflow], [Rust Users Forum], [Turtle Gitter]
-* **Help with Turtle** - [Stack Overflow], [Turtle Gitter], [Google], [Rust Users Forum]
-* **Found a bug?** - [Open an issue][issues] (feel free to ask about your bug in the [Turtle Gitter] if you are not sure)
+* **Help with the Rust Language** - [Google], [Stack Overflow], [Rust Users Forum], [Turtle Zulip]
+* **Help with Turtle** - [Stack Overflow], [Turtle Zulip], [Google], [Rust Users Forum]
+* **Found a bug?** - [Open an issue][issues] (feel free to ask about your bug in the [Turtle Zulip] if you are not sure)
 
 [Google]: http://google.com/
 [Stack Overflow]: https://stackoverflow.com/
 [Rust Users Forum]: https://users.rust-lang.org/
-[Turtle Gitter]: https://gitter.im/rust-turtle/discuss
+[Turtle Zulip]: https://turtle.zulipchat.com
 [issues]: https://github.com/sunjay/turtle/issues
 
 ## Contributing
