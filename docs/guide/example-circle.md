@@ -238,6 +238,8 @@ If you need help, see the [Getting Help] section of the guide.
 - (***) draw a flower with circular petals with a stem
 - (***) draw a flower with oval petals with a stem and oval leaves
   - Bonus: color the flower with [`begin_fill`] and [`end_fill`]
+- (***) draw the sun as a circle with triangles around it
+  - Bonus: color the sun with [`begin_fill`] and [`end_fill`]
 - (***) circle with dashed lines
   - use [`pen_up`] and [`pen_down`]
 
