@@ -38,6 +38,13 @@ TODO
 
 ## Exercises
 
+- (**) draw more accurate approximation of circle with only a few lines
+  - refer to how the curves with fewer lines from the circle lesson missed the
+    final position because they were bad approximations
+  - we can use turn_towards or go_to to better approximate the circle even with
+    only a few lines
+  - needs the formula x^2 + y^2 = 1
+  - goal of this exercise is only to do the 90&deg; arc
 - (***) draw bezier curve (see examples/bezier.rs)
 
 [`forward`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.forward
