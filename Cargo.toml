@@ -38,6 +38,11 @@ rand = "0.6"
 
 svg = "0.6.0"
 
+# Dependencies used when developing `turtle` directly, but not when using it as
+# a library.
+[dev-dependencies]
+bitvec = "0.16"
+
 # Dependencies that don't support / shouldn't be used with WASM
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 piston_window = "0.105"

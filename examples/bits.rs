@@ -1,98 +1,118 @@
-use std::fmt;
+//! View bits in memory with turtles
+//!
+//! This example uses [@myrrlyn]’s [`bitvec`] crate to turn data into strings of
+//! bits, and then draws them on the screen.
+//!
+//! [@myrrlyn]: //github.com/myrrlyn
+//! [`bitvec`]: //crates.io/crates/bitvec
+
+use bitvec::prelude::*;
+use turtle::Turtle;
+
+const BIT_WIDTH: f64 = 20.0;
+const BIT_HEIGHT: f64 = 10.0;
+const BIT_MARGIN: f64 = BIT_WIDTH / 2.0;
+const BIT_BOX: f64 = BIT_WIDTH + BIT_MARGIN;
 
 fn main() {
-    let mut bits = BitVec::with_capacity(17);
-    bits.set(0, true);
-    bits.set(1, true);
-    bits.set(3, true);
-    bits.set(8, true);
-    bits.set(10, true);
-    bits.set(16, true);
-    println!("{}", bits);
-    bits.set(0, false);
-    bits.set(8, false);
-    println!("{}", bits);
-}
+    // Replace this text with a message of your own to see how it changes on the
+    // screen.
+    let text = "Hello, world!";
 
-/// The number of bits in a single element of the bytes Vec in BitVec
-/// Set to 8 because BitVec stores u8 values. If we stored u16, we would use 16 here
-const BITS: usize = 8;
+    // This block sets up the turtle to draw bits more or less centered in the
+    // screen. The turtle works by walking horizontally for each bit in a byte,
+    // then backtracking and walking vertically to the next byte.
+    let mut turtle = Turtle::new();
+    turtle.pen_up();
+    let right_edge = BIT_BOX * 4.0;
+    let top_edge = BIT_HEIGHT * (text.len() as f64 / 2.0);
+    // The turtle starts from the top right of the region, and moves left
+    turtle.go_to((right_edge, top_edge));
+    turtle.set_heading(180.0);
 
-/// An implementation of a vector of bits that can be easily set individually
-/// Note that this is meant to be a teaching implementation and so is not necessarily the most
-/// sophisticated or performant way to do everything. The goal is to make the code understandable
-/// and correct.
-/// See the bit-vec crate and others on crates.io for more advanced implementations.
-#[derive(Debug, Clone, Default)]
-pub struct BitVec {
-    bytes: Vec<u8>,
-}
+    // Now let’s draw some data on the screen, as individual bits
 
-impl fmt::Display for BitVec {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // EXERCISE: Only print the bytes up to the length of bytes that have been pushed, not
-        // the entire capacity. (Similar to how Vec prints its len, not its capacity)
-        for byte in &self.bytes {
-            write!(f, "{:0width$b}", byte, width = BITS)?;
-        }
-        Ok(())
+    // Rust strings can iterate over the bytes used to represent them.
+    for byte in text.bytes() {
+        // For each byte (`u8`), we use `bitvec` to make a view into its bits.
+        //
+        // The `LittleEndian` means that the view moves from right to left
+        // across the byte, which fits how our turtle moves from right to left
+        // across the screen.
+        let bits = byte.bits::<LittleEndian>();
+        // Then we draw the byte’s bits as a row
+        draw_row(&mut turtle, bits);
+        // And reset the turtle to the right edge.
+        turtle.set_x(right_edge);
+    }
+
+    // `bitvec` can look at more than just `u8`. Let’s try looking at the bits
+    // that represent a number!
+
+    // First we need to pick a number. Rust provides some interesting numbers
+    // for us.
+    let tau = std::f64::consts::PI * 2.0;
+    // But `bitvec` doesn’t know how to view all numbers. The standard library
+    // provides a function `to_bits(f64) -> u64`, which turns it into a number
+    // `bitvec` does know how to view.
+    let raw_number = tau.to_bits();
+    // `bitvec` can also view bits from left to right, with `BigEndian`.
+    let bits = raw_number.bits::<BigEndian>();
+
+    // Since we are reading bits from left to right, the turtle should move from
+    // left to right also.
+    let left_edge = -right_edge;
+    turtle.set_x(left_edge * 2.0);
+    turtle.set_heading(0.0);
+
+    // The `&BitSlice` type acts just like `&[bool]`, so it comes with a
+    // `.chunks` method which divides it into smaller pieces. `bitvec` can take
+    // any number, not just multiples of 8, but 16 is a convenient number to
+    // look at.
+    for row in bits.chunks(16) {
+        // Each chunk produced is a smaller `&BitSlice`, just like
+        // `&[bool].chunks` produces smaller `&[bool]`s, so we can draw it.
+        draw_row(&mut turtle, row);
+        // After each row, the turtle has to go back to the left edge.
+        turtle.set_x(left_edge * 2.0);
     }
 }
 
-impl BitVec {
-    /// Create a new BitVec with the given size in bits
-    /// Note that the actual size of the vector is in bytes so `bits` will be rounded up to the
-    /// nearest multiple of 8 >= bits.
-    pub fn with_capacity(bits: usize) -> Self {
-        if bits > 0 {
-            // Ceiling division of bits / BITS so that we get >= bits capacity
-            // From: https://stackoverflow.com/a/2745086/551904
-            let capacity = 1 + ((bits - 1) / BITS);
-            Self { bytes: vec![0; capacity] }
-        } else {
-            Default::default()
+/// Draw a row of bits on the screen.
+///
+/// This takes a reference to a turtle, which draws, and a reference to a slice
+/// of bits, which provides the data to draw.
+fn draw_row<C, T>(t: &mut Turtle, row: &BitSlice<C, T>)
+where C: Cursor, T: BitStore {
+    // `&BitSlice` can iterate over bits. It is just like `&[bool]`, and so it
+    // produces `&bool` for each loop.
+    for bit in row {
+        // This checks if the bit produced by the row is `1` or `0`, and sets
+        // the pen color to black (`1`) or light grey (`0`)
+        if *bit {
+            t.set_pen_color("black");
         }
-    }
-
-    /// Returns the size in bits of the array
-    pub fn len(&self) -> usize {
-        self.len_bytes() * BITS
-    }
-
-    /// Returns the size in bytes of the array
-    pub fn len_bytes(&self) -> usize {
-        self.bytes.len()
-    }
-
-    /// Set the bit at the given index to the given value
-    ///
-    /// Bits are set left to right, much like how an actual Vec might be indexed
-    ///
-    /// # Panics
-    /// Panics if index >= len()
-    pub fn set(&mut self, index: usize, value: bool) {
-        let byte_index = index / BITS;
-        let byte = &mut self.bytes[byte_index];
-        let bit_index = index % BITS;
-        // We want to make sure that bits are set left to right
-        // This depends on the platform's endianess
-        //TODO: Check this somehow
-        let bit_index = if cfg!(target_endian = "big") {
-            bit_index
-        } else {
-            BITS - 1 - bit_index
-        };
-        if value {
-            // Set the bit to 1 by performing a bitwise OR with each bit in the byte.
-            // `1 << bit_index` will make sure the bit_index bit is 1.
-            // 1 OR anything will always result in 1, so the bit will be set to 1.
-            *byte |= 1 << bit_index;
-        } else {
-            // Set the bit to 0 by performing a bitwise AND with each bit
-            // `!(1 << bit_index)` sets the bit_index bit to 0 and the other bits to 1.
-            // 1 AND x will always leave x as is.
-            // 0 AND x will set the bit to 0.
-            *byte &= !(1 << bit_index);
+        else {
+            t.set_pen_color("light grey");
         }
+
+        // For each bit, the loop puts down the pen to draw a line of the bit
+        // color, then picks up the pen to add some spacing between them
+        t.pen_down();
+        t.forward(BIT_WIDTH);
+        t.pen_up();
+        t.forward(BIT_MARGIN);
     }
+
+    // After the row is complete, the turtle picks up its pen,
+    t.pen_up();
+    // rememebers which direction it was going,
+    let old_heading = t.heading();
+    // turns to face down the screen,
+    t.set_heading(270.0);
+    // moves down by a row,
+    t.forward(BIT_HEIGHT);
+    // then goes back to its old direction.
+    t.set_heading(old_heading);
+    // This way each row gets spacing between them.
 }
