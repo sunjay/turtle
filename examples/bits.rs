@@ -1,6 +1,6 @@
 //! View bits in memory with turtles
 //!
-//! This example uses [@myrrlyn]’s [`bitvec`] crate to turn data into strings of
+//! This example uses [@myrrlyn]'s [`bitvec`] crate to turn data into strings of
 //! bits, and then draws them on the screen.
 //!
 //! You are encouraged to change both the data used to seed the turtle, and the
@@ -9,8 +9,10 @@
 //! [@myrrlyn]: //github.com/myrrlyn
 //! [`bitvec`]: //crates.io/crates/bitvec
 
-// The `bitvec` crate provides a bunch of types for us to use with one import
+// The `bitvec` crate provides a lot of types; we only need a few:
 use bitvec::prelude::*;
+    // This trait provides the `.bits::<_>()` method which we use on Rust types
+    // to make `bitvec` views,
 use turtle::Turtle;
 
 /// Set the line length for each displayed bit
@@ -23,13 +25,6 @@ const BIT_MARGIN: f64 = BIT_WIDTH / 2.0;
 const BIT_BOX: f64 = BIT_WIDTH + BIT_MARGIN;
 
 fn main() {
-    // Replace this text with a message of your own to see how it changes on the
-    // screen.
-    //
-    // Try translating the displayed lines to binary numbers and work out their
-    // encoding!
-    let text = "¡Hola, mundo! 🌍🌏🌎";
-
     // This block sets up the turtle to draw bits more or less centered in the
     // screen. The turtle works by walking horizontally for each bit in a byte,
     // then backtracking and walking vertically to the next byte.
@@ -38,38 +33,77 @@ fn main() {
     // Compute the boundaries of the part of the screen where the turtle will
     // draw
     let right_edge = BIT_BOX * 4.0;
+
+    // Now let's draw some data on the screen, as individual bits
+
+    // Replace this text with a message of your own to see how it changes on the
+    // screen.
+    //
+    // Try translating the displayed lines to binary numbers and work out their
+    // encoding!
+    let text = "¡Hola, mundo! 🌍🌏🌎";
+
+    // Place the turtle according to the length of the text span
     let top_edge = BIT_HEIGHT * (text.len() as f64 / 2.0);
     // The turtle starts from the top right of the region,
     turtle.go_to((right_edge, top_edge));
     // and walks left
     turtle.set_heading(180.0);
 
-    // Now let’s draw some data on the screen, as individual bits
+    // Rust strings can iterate over their individual characters. This block
+    // loops over characters, collecting their start point in the text so that
+    // we can grab the encoded bytes of each one.
+    let mut row_num = 0;
+    for (char_num, (start, codepoint)) in text.char_indices().enumerate() {
+        println!("Character {}: {}", char_num, codepoint);
+        // Each character has a variable width, so we need to find that.
+        let byte_count = codepoint.len_utf8();
+        // And then collect the bytes of the string that make up the character.
+        let row = &text.as_bytes()[start ..][.. byte_count];
 
-    // Rust strings can iterate over the bytes used to represent them.
-    for byte in text.bytes() {
         // For each byte (`u8`), we use `bitvec` to make a view into its bits.
+        // `bitvec` provides the `.bits::<_>()` method on Rust integers for easy
+        // access to its view types.
         //
-        // The `LittleEndian` means that the view moves from right to left
-        // across the byte, which fits how our turtle moves from right to left
-        // across the screen.
-        let bits = byte.bits::<LittleEndian>();
-        // Then we draw the byte’s bits as a row
-        draw_row(&mut turtle, bits);
-        // And reset the turtle to the right edge.
-        turtle.set_x(right_edge);
+        // The `LittleEndian` means that the view moves from least significant
+        // bit to most significant. Since we want to display on screen the most
+        // significant bit on the left, and the least on the right, the turtle
+        // will have to move from right to left to match.
+        //
+        // These types describe different ways to view the same data. You can
+        // read more about them in the `bitvec` docs, and at Wikipedia:
+        // https://docs.rs/bitvec/0.16.1/bitvec/cursor/index.html
+        // https://en.wikipedia.org/wiki/Endianness#Bit_endianness
+        for byte in row {
+            println!("  Byte {:02}:\n    Value: 0x{:02X}\n    Bits: {:08b}", row_num, byte, byte);
+
+            let bits = byte.bits::<LittleEndian>();
+
+            // Then we draw the byte's bits as a row
+            draw_row(&mut turtle, bits);
+            // And reset the turtle to the right edge.
+            turtle.set_x(right_edge);
+
+            row_num += 1;
+        }
     }
 
-    // `bitvec` can look at more than just `u8`. Let’s try looking at the bits
+    // `bitvec` can look at more than just `u8`. Let's try looking at the bits
     // that represent a number!
 
     // First we need to pick a number. Rust provides some interesting numbers
     // for us.
-    let tau = std::f64::consts::PI * 2.0;
-    // But `bitvec` doesn’t know how to view all numbers. The standard library
+    let num = std::f64::consts::PI * 2.0;
+
+    // But `bitvec` doesn't know how to view all numbers. The standard library
     // provides a function `to_bits(f64) -> u64`, which turns it into a number
     // `bitvec` does know how to view.
-    let raw_number = tau.to_bits();
+    //
+    // The `f64` data type has a memory encoding standardized by the IEEE-754
+    // document. You can read more about it here:
+    // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+    let raw_number = num.to_bits();
+
     // `bitvec` can also view bits from left to right, with `BigEndian`.
     let bits = raw_number.bits::<BigEndian>();
 
@@ -85,7 +119,8 @@ fn main() {
     // any number, not just multiples of 8, but 16 is a convenient number to
     // look at. Try changing it to a different number, like 10, to see what
     // happens!
-    for row in bits.chunks(16) {
+    for (num, row) in bits.chunks(16).enumerate() {
+        println!("Row {} bits: {:b}", num, row);
         // Each chunk produced is a smaller `&BitSlice`, just like
         // `&[bool].chunks` produces smaller `&[bool]`s, so we can draw it.
         draw_row(&mut turtle, row);
@@ -102,17 +137,17 @@ fn draw_row<C, T>(t: &mut Turtle, row: &BitSlice<C, T>)
 where C: Cursor, T: BitStore {
     // `&BitSlice` can iterate over bits. It is just like `&[bool]`, and so it
     // produces `&bool` for each loop.
-    for bit in row {
+    for &bit in row {
         // This checks if the bit produced by the row is `1` or `0`, and sets
         // the pen color to black (`1`) or light grey (`0`)
-        if *bit {
+        if bit {
             t.set_pen_color("black");
         }
         else {
             t.set_pen_color("light grey");
         }
 
-        // For each bit, the loop puts down the pen to draw a line of the bit’s
+        // For each bit, the loop puts down the pen to draw a line of the bit's
         // color, then picks up the pen to add some horizontal spacing between
         // them.
         t.pen_down();
