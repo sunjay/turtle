@@ -25,7 +25,10 @@ const BIT_BOX: f64 = BIT_WIDTH + BIT_MARGIN;
 fn main() {
     // Replace this text with a message of your own to see how it changes on the
     // screen.
-    let text = "Hello, world!";
+    //
+    // Try translating the displayed lines to binary numbers and work out their
+    // encoding!
+    let text = "¡Hola, mundo! 🌍🌏🌎";
 
     // This block sets up the turtle to draw bits more or less centered in the
     // screen. The turtle works by walking horizontally for each bit in a byte,
