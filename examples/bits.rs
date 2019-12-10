@@ -42,37 +42,13 @@ const BIT_MARGIN: f64 = BIT_WIDTH / 2.0;
 /// Compute the total width of a bit plus its spacing
 const BIT_BOX: f64 = BIT_WIDTH + BIT_MARGIN;
 
-fn main() {
-    // This block sets up the turtle to draw bits more or less centered in the
-    // screen. The turtle works by walking horizontally for each bit in a byte,
-    // then backtracking and walking vertically to the next byte.
-    let mut turtle = Turtle::new();
-    // The turtle starts in the center of the screen, but we want to move it
-    // around before drawing.
-    turtle.pen_up();
-    // Compute the boundaries of the part of the screen where the turtle will
-    // draw. We expect to be drawing eight bits, with half to the right of
-    // center and half to the left.
-    let right_edge = BIT_BOX * 8.0 / 2.0;
-    // We also expect to be drawing a row for each byte in the text, with an
-    // additional separator row for each *character*, half above and half below
-    // the center of the screen. This computes how many rows of text we will
-    // draw, then moves the turtle appropriately.
-    let byte_rows = TEXT.len();
-    let char_gaps = TEXT.chars().count();
-    let top_edge = BIT_HEIGHT * ((byte_rows + char_gaps) as f64 / 2.0);
-    // The turtle starts from the top right of the region,
-    turtle.go_to((right_edge, top_edge));
-    // and walks left
-    turtle.set_heading(180.0);
-
-    // Render the text as bits of memory.
-
+/// Draws the bits of a text span on the screen.
+fn draw_text(turtle: &mut Turtle, text: &str) {
     // Rust strings can iterate over their individual characters. This block
     // loops over characters, collecting their start point in the text so that
     // we can grab the encoded bytes of each one.
     let mut row_num = 0;
-    for (char_num, (start, codepoint)) in TEXT.char_indices().enumerate() {
+    for (char_num, (start, codepoint)) in text.char_indices().enumerate() {
         println!("Character {}: {}", char_num, codepoint);
         // Each character has a variable width, so we need to find that.
         let byte_count = codepoint.len_utf8();
@@ -82,7 +58,7 @@ fn main() {
         // need to select the range beginning at `start`, running for
         // `byte_count`. Another style of writing this that you might see in
         // Rust libraries is `[start ..][.. length]`.
-        let row: &[u8] = &TEXT.as_bytes()[start .. start + byte_count];
+        let row: &[u8] = &text.as_bytes()[start .. start + byte_count];
 
         // For each byte (`u8`), we use `bitvec` to make a view into its bits.
         // `bitvec` provides the `.bits::<_>()` method on Rust integers for easy
@@ -93,8 +69,9 @@ fn main() {
         // significant bit on the left, and the least on the right, the turtle
         // will have to move from right to left to match.
         //
-        // These types describe different ways to view the same data. You can
-        // read more about them in the `bitvec` docs, and at Wikipedia:
+        // The `LittleEndian` and `BigEndian` types describe different ways to
+        // view the same data. You can read more about them in the `bitvec`
+        // docs, and at Wikipedia:
         // https://docs.rs/bitvec/0.16.1/bitvec/cursor/index.html
         // https://en.wikipedia.org/wiki/Endianness#Bit_endianness
         for byte in row {
@@ -103,18 +80,21 @@ fn main() {
             let bits: &BitSlice<_, _> = byte.bits::<LittleEndian>();
 
             // Then we draw the byte's bits as a row
-            draw_row(&mut turtle, bits);
-            // And reset the turtle to the right edge.
-            turtle.set_x(right_edge);
+            draw_row(turtle, bits);
+            //  And go to the next row
+            next_row(turtle, 90.0);
 
             row_num += 1;
         }
         // This puts a dividing line between each *character* in the text.
         // Some characters may have more than one byte, and those bytes will be
         // grouped together.
-        delimit(&mut turtle, 8.0 * BIT_BOX - BIT_MARGIN);
+        delimit(turtle, 8.0 * BIT_BOX - BIT_MARGIN);
     }
+}
 
+/// Draws the bits of a number on screen.
+fn draw_number(turtle: &mut Turtle, number: f64) {
     // `bitvec` can look at more than just `u8`. Let's try looking at the bits
     // that represent a number!
     //
@@ -127,18 +107,10 @@ fn main() {
     // You can read more about the rules for `f64`'s storage in memory, and
     // behavior in programs, here:
     // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
-    let raw_number: u64 = NUMBER.to_bits();
+    let raw_number: u64 = number.to_bits();
 
     // `bitvec` can also view bits from left to right, with `BigEndian`.
     let bits: &BitSlice<_, _> = raw_number.bits::<BigEndian>();
-
-    // Since we are reading bits from left to right, the turtle should move from
-    // left to right also. You can change the `* 2.0` to move the section
-    // horizontally.
-    let left_edge = -right_edge * 2.0;
-    turtle.set_x(left_edge);
-    // Walk from left to right
-    turtle.set_heading(0.0);
 
     // The `&BitSlice` type acts just like `&[bool]`, so it comes with a
     // `.chunks` method which divides it into smaller pieces. `bitvec` can take
@@ -149,10 +121,52 @@ fn main() {
         println!("Row {} bits: {:b}", num, row);
         // Each chunk produced is a smaller `&BitSlice`, just like
         // `&[bool].chunks` produces smaller `&[bool]`s, so we can draw it.
-        draw_row(&mut turtle, row);
-        // After each row, the turtle has to go back to the left edge.
-        turtle.set_x(left_edge);
+        draw_row(turtle, row);
+
+        next_row(turtle, -90.0);
     }
+}
+
+fn main() {
+    // This block sets up the turtle to draw bits more or less centered in the
+    // screen. The turtle works by walking horizontally for each bit in a byte,
+    // then backtracking and walking vertically to the next byte.
+    let mut turtle = Turtle::new();
+    // The turtle starts in the center of the screen, but we want to move it
+    // around before drawing.
+    turtle.pen_up();
+
+    // Compute the boundaries of the part of the screen where the turtle will
+    // draw. We expect to be drawing eight bits, with half to the right of
+    // center and half to the left.
+    let right_edge = BIT_BOX * 8.0 / 2.0;
+    // We also expect to be drawing a row for each byte in the text, with an
+    // additional separator row for each *character*, half above and half below
+    // the center of the screen. This computes how many rows of text we will
+    // draw, then moves the turtle appropriately.
+    let byte_rows = TEXT.len();
+    let char_gaps = TEXT.chars().count();
+    let top_edge = BIT_HEIGHT * ((byte_rows + char_gaps) as f64 / 2.0);
+    // The turtle starts from the top right of the region,
+    turtle.forward(top_edge);
+    turtle.right(90.0);
+    turtle.forward(right_edge);
+    // and walks left
+    turtle.left(180.0);
+
+    draw_text(&mut turtle, TEXT);
+
+    // The `draw_number` function reads bits from left to right, so the turtle
+    // should also walk from left to right. The `draw_number` function expects
+    // that it will be drawing rows sixteen bits long, so it needs to move
+    // forward another four bits' worth of space in order to be in the correct
+    // spot.
+    turtle.forward(8.0 * BIT_BOX / 2.0);
+    turtle.forward(16.0 * BIT_BOX / 2.0);
+    // Then, it needs to turn around, to walk in the other direction.
+    turtle.right(180.0);
+
+    draw_number(&mut turtle, NUMBER);
 
     // Reader exercise:
     //
@@ -188,7 +202,7 @@ fn main() {
 /// (`BigEndian`) or right to left (`LittleEndian`), because we assume that the
 /// turtle is going to start on the correct side and be facing the correct way
 /// for this drawing to work.
-fn draw_row<C, T>(t: &mut Turtle, row: &BitSlice<C, T>)
+fn draw_row<C, T>(turtle: &mut Turtle, row: &BitSlice<C, T>)
 where C: Cursor, T: BitStore {
     // `&BitSlice` can iterate over bits. It is just like `&[bool]`, and so it
     // produces `&bool` for each loop.
@@ -196,45 +210,40 @@ where C: Cursor, T: BitStore {
         // This checks if the bit produced by the row is `1` or `0`, and sets
         // the pen color to black (`1`) or light grey (`0`)
         if bit {
-            t.set_pen_color("black");
+            turtle.set_pen_color("black");
         }
         else {
-            t.set_pen_color("light grey");
+            turtle.set_pen_color("light grey");
         }
 
         // For each bit, the loop puts down the pen to draw a line of the bit's
         // color, then picks up the pen to add some horizontal spacing between
         // them.
-        t.pen_down();
-        t.forward(BIT_WIDTH);
-        t.pen_up();
-        t.forward(BIT_MARGIN);
+        turtle.pen_down();
+        turtle.forward(BIT_WIDTH);
+        turtle.pen_up();
+        turtle.forward(BIT_MARGIN);
     }
-
-    next_row(t, BIT_HEIGHT);
+    //  Rewind the turtle
+    for _ in 0 .. row.len() {
+        turtle.backward(BIT_BOX);
+    }
 }
 
 /// Produces a separator line to demark different sections of memory.
-fn delimit(t: &mut Turtle, width: f64) {
-    t.set_pen_color("grey");
-    t.pen_down();
-    t.forward(width);
-    t.backward(width);
+fn delimit(turtle: &mut Turtle, width: f64) {
+    turtle.set_pen_color("grey");
+    turtle.pen_down();
+    turtle.forward(width);
+    turtle.backward(width);
 
-    next_row(t, BIT_HEIGHT);
+    next_row(turtle, 90.0);
 }
 
 /// Moves the turtle down a row
-fn next_row(t: &mut Turtle, by: f64) {
-    // To move down, the turtle picks up its pen,
-    t.pen_up();
-    // rememebers which direction it was going,
-    let old_heading = t.heading();
-    // turns to face down the screen,
-    t.set_heading(270.0);
-    // moves down by a row,
-    t.forward(by);
-    // then goes back to its old direction.
-    t.set_heading(old_heading);
-    // This way each row gets vertical spacing between them.
+fn next_row(turtle: &mut Turtle, angle: f64) {
+    turtle.pen_up();
+    turtle.left(angle);
+    turtle.forward(BIT_HEIGHT);
+    turtle.right(angle);
 }
