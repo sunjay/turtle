@@ -42,6 +42,72 @@ const BIT_MARGIN: f64 = BIT_WIDTH / 2.0;
 /// Compute the total width of a bit plus its spacing
 const BIT_BOX: f64 = BIT_WIDTH + BIT_MARGIN;
 
+fn main() {
+    // This block sets up the turtle to draw bits more or less centered in the
+    // screen. The turtle works by walking horizontally for each bit in a byte,
+    // then backtracking and walking vertically to the next byte.
+    let mut turtle = Turtle::new();
+    // The turtle starts in the center of the screen, but we want to move it
+    // around before drawing.
+    turtle.pen_up();
+
+    // Compute the boundaries of the part of the screen where the turtle will
+    // draw. We expect to be drawing eight bits, with half to the right of
+    // center and half to the left.
+    let right_edge = BIT_BOX * 8.0 / 2.0;
+    // We also expect to be drawing a row for each byte in the text, with an
+    // additional separator row for each *character*, half above and half below
+    // the center of the screen. This computes how many rows of text we will
+    // draw, then moves the turtle appropriately.
+    let byte_rows = TEXT.len();
+    let char_gaps = TEXT.chars().count();
+    let top_edge = BIT_HEIGHT * ((byte_rows + char_gaps) as f64 / 2.0);
+    // The turtle starts from the top right of the region,
+    turtle.forward(top_edge);
+    turtle.right(90.0);
+    turtle.forward(right_edge);
+    // and walks left
+    turtle.left(180.0);
+
+    draw_text(&mut turtle, TEXT);
+
+    // The `draw_number` function reads bits from left to right, so the turtle
+    // should also walk from left to right. The `draw_number` function expects
+    // that it will be drawing rows sixteen bits long, so it needs to move
+    // forward another four bits' worth of space in order to be in the correct
+    // spot.
+    turtle.forward(8.0 * BIT_BOX / 2.0);
+    turtle.forward(16.0 * BIT_BOX / 2.0);
+    // Then, it needs to turn around, to walk in the other direction.
+    turtle.right(180.0);
+
+    draw_number(&mut turtle, NUMBER);
+
+    // Reader exercise:
+    //
+    // The IEEE-754 format for `f64` numbers separates them into three parts:
+    //
+    // 1. The sign marks whether the number is positive or negative: 1 bit
+    // 2. The exponent marks how far from zero the number is: 11 bits
+    // 3. The fraction describes the number: 52 bits.
+    //
+    // Using these widths (1 bit, 11 bits, 52 bits), the knowledge that
+    // `&BitSlice` is a normal Rust slice, and the API documentation for
+    // `std::iter::Iterator`, see if you can display each portion of an `f64`
+    // as its own row.
+    //
+    // Hints:
+    //
+    // - The variable `bits` is set up to view the entire number, from most
+    // significant bit to least.
+    // - You can get access to a structure that performs iteration by calling
+    //   `bits.iter()`.
+    // - You can use the `Iterator::by_ref` method to prevent `Iterator` adapter
+    //   functions from destroying the source iterator.
+    // - `&BitSlice` is an ordinary Rust slice, so you can use `[start .. end]`
+    //   range indexing to get smaller pieces of it.
+}
+
 /// Draws the bits of a text span on the screen.
 fn draw_text(turtle: &mut Turtle, text: &str) {
     // Rust strings can iterate over their individual characters. This block
@@ -125,72 +191,6 @@ fn draw_number(turtle: &mut Turtle, number: f64) {
 
         next_row(turtle, -90.0);
     }
-}
-
-fn main() {
-    // This block sets up the turtle to draw bits more or less centered in the
-    // screen. The turtle works by walking horizontally for each bit in a byte,
-    // then backtracking and walking vertically to the next byte.
-    let mut turtle = Turtle::new();
-    // The turtle starts in the center of the screen, but we want to move it
-    // around before drawing.
-    turtle.pen_up();
-
-    // Compute the boundaries of the part of the screen where the turtle will
-    // draw. We expect to be drawing eight bits, with half to the right of
-    // center and half to the left.
-    let right_edge = BIT_BOX * 8.0 / 2.0;
-    // We also expect to be drawing a row for each byte in the text, with an
-    // additional separator row for each *character*, half above and half below
-    // the center of the screen. This computes how many rows of text we will
-    // draw, then moves the turtle appropriately.
-    let byte_rows = TEXT.len();
-    let char_gaps = TEXT.chars().count();
-    let top_edge = BIT_HEIGHT * ((byte_rows + char_gaps) as f64 / 2.0);
-    // The turtle starts from the top right of the region,
-    turtle.forward(top_edge);
-    turtle.right(90.0);
-    turtle.forward(right_edge);
-    // and walks left
-    turtle.left(180.0);
-
-    draw_text(&mut turtle, TEXT);
-
-    // The `draw_number` function reads bits from left to right, so the turtle
-    // should also walk from left to right. The `draw_number` function expects
-    // that it will be drawing rows sixteen bits long, so it needs to move
-    // forward another four bits' worth of space in order to be in the correct
-    // spot.
-    turtle.forward(8.0 * BIT_BOX / 2.0);
-    turtle.forward(16.0 * BIT_BOX / 2.0);
-    // Then, it needs to turn around, to walk in the other direction.
-    turtle.right(180.0);
-
-    draw_number(&mut turtle, NUMBER);
-
-    // Reader exercise:
-    //
-    // The IEEE-754 format for `f64` numbers separates them into three parts:
-    //
-    // 1. The sign marks whether the number is positive or negative: 1 bit
-    // 2. The exponent marks how far from zero the number is: 11 bits
-    // 3. The fraction describes the number: 52 bits.
-    //
-    // Using these widths (1 bit, 11 bits, 52 bits), the knowledge that
-    // `&BitSlice` is a normal Rust slice, and the API documentation for
-    // `std::iter::Iterator`, see if you can display each portion of an `f64`
-    // as its own row.
-    //
-    // Hints:
-    //
-    // - The variable `bits` is set up to view the entire number, from most
-    // significant bit to least.
-    // - You can get access to a structure that performs iteration by calling
-    //   `bits.iter()`.
-    // - You can use the `Iterator::by_ref` method to prevent `Iterator` adapter
-    //   functions from destroying the source iterator.
-    // - `&BitSlice` is an ordinary Rust slice, so you can use `[start .. end]`
-    //   range indexing to get smaller pieces of it.
 }
 
 /// Draw a row of bits on the screen.
