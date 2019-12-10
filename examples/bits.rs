@@ -9,17 +9,12 @@
 //! [@myrrlyn]: //github.com/myrrlyn
 //! [`bitvec`]: //crates.io/crates/bitvec
 
-// The `bitvec` crate provides a lot of types; we only need a few:
+// This imports the things we need from `bitvec`, including the `Bits` trait for
+// the `.bits::<_>()` method we use to view memory.
 use bitvec::prelude::*;
 use turtle::Turtle;
 
 // Modify these constants to change the behavior of the example.
-
-/// This controls the width of the drawn line for each bit.
-const BIT_WIDTH: f64 = 20.0;
-
-/// This controls the vertical spacing between rows of bit lines.
-const BIT_HEIGHT: f64 = 10.0;
 
 /// This text will be inspected as individual bytes, and drawn on the screen.
 /// You can change it to see what different text looks like when viewed as bits.
@@ -35,10 +30,15 @@ static TEXT: &str = "¡Hola, mundo! 🌍🌏🌎";
 /// because it is well-known, and has an interesting pattern.
 const NUMBER: f64 = std::f64::consts::PI;
 
-// These are helpers for the turtle's actions.
+/// This controls the width of the drawn line for each bit.
+const BIT_WIDTH: f64 = 20.0;
+
+/// This controls the vertical spacing between rows of bit lines.
+const BIT_HEIGHT: f64 = 10.0;
 
 /// Set the horizontal spacing between successive bits in a row
 const BIT_MARGIN: f64 = BIT_WIDTH / 2.0;
+
 /// Compute the total width of a bit plus its spacing
 const BIT_BOX: f64 = BIT_WIDTH + BIT_MARGIN;
 
@@ -47,14 +47,20 @@ fn main() {
     // screen. The turtle works by walking horizontally for each bit in a byte,
     // then backtracking and walking vertically to the next byte.
     let mut turtle = Turtle::new();
-    // The turtle starts in the center, but we want to move it around before
-    // drawing.
+    // The turtle starts in the center of the screen, but we want to move it
+    // around before drawing.
     turtle.pen_up();
     // Compute the boundaries of the part of the screen where the turtle will
-    // draw
-    let right_edge = BIT_BOX * 4.0;
-    // Place the turtle according to the length of the text span
-    let top_edge = BIT_HEIGHT * (TEXT.len() as f64 / 2.0);
+    // draw. We expect to be drawing eight bits, with half to the right of
+    // center and half to the left.
+    let right_edge = BIT_BOX * 8.0 / 2.0;
+    // We also expect to be drawing a row for each byte in the text, with an
+    // additional separator row for each *character*, half above and half below
+    // the center of the screen. This computes how many rows of text we will
+    // draw, then moves the turtle appropriately.
+    let byte_rows = TEXT.len();
+    let char_gaps = TEXT.chars().count();
+    let top_edge = BIT_HEIGHT * ((byte_rows + char_gaps) as f64 / 2.0);
     // The turtle starts from the top right of the region,
     turtle.go_to((right_edge, top_edge));
     // and walks left
@@ -103,17 +109,23 @@ fn main() {
 
             row_num += 1;
         }
+        // This puts a dividing line between each *character* in the text.
+        // Some characters may have more than one byte, and those bytes will be
+        // grouped together.
+        delimit(&mut turtle, 8.0 * BIT_BOX - BIT_MARGIN);
     }
 
     // `bitvec` can look at more than just `u8`. Let's try looking at the bits
     // that represent a number!
     //
-    // But `bitvec` doesn't know how to view all numbers. The standard library
-    // provides a function `to_bits(f64) -> u64`, which turns it into a number
-    // `bitvec` does know how to view.
+    // Some numbers, like `f64`, have special rules for their representation in
+    // bits. `bitvec` only knows about raw bits, so it does not provide direct
+    // support for `f64`. Rust lets us get the bit representation from an `f64`
+    // with the method `to_bits(f64) -> u64`, which forgets about the `f64`
+    // rules and uses the number's storage as ordinary bits.
     //
-    // The `f64` data type has a memory encoding standardized by the IEEE-754
-    // document. You can read more about it here:
+    // You can read more about the rules for `f64`'s storage in memory, and
+    // behavior in programs, here:
     // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
     let raw_number: u64 = NUMBER.to_bits();
 
@@ -121,7 +133,8 @@ fn main() {
     let bits: &BitSlice<_, _> = raw_number.bits::<BigEndian>();
 
     // Since we are reading bits from left to right, the turtle should move from
-    // left to right also. Change the `* 2.0` to move the section horizontally.
+    // left to right also. You can change the `* 2.0` to move the section
+    // horizontally.
     let left_edge = -right_edge * 2.0;
     turtle.set_x(left_edge);
     // Walk from left to right
@@ -170,6 +183,11 @@ fn main() {
 ///
 /// This takes a reference to a turtle, which draws, and a reference to a slice
 /// of bits, which provides the data to draw.
+///
+/// Note that this works whether we're going through the bits left to right
+/// (`BigEndian`) or right to left (`LittleEndian`), because we assume that the
+/// turtle is going to start on the correct side and be facing the correct way
+/// for this drawing to work.
 fn draw_row<C, T>(t: &mut Turtle, row: &BitSlice<C, T>)
 where C: Cursor, T: BitStore {
     // `&BitSlice` can iterate over bits. It is just like `&[bool]`, and so it
@@ -193,14 +211,29 @@ where C: Cursor, T: BitStore {
         t.forward(BIT_MARGIN);
     }
 
-    // After the row is complete, the turtle picks up its pen,
+    next_row(t, BIT_HEIGHT);
+}
+
+/// Produces a separator line to demark different sections of memory.
+fn delimit(t: &mut Turtle, width: f64) {
+    t.set_pen_color("grey");
+    t.pen_down();
+    t.forward(width);
+    t.backward(width);
+
+    next_row(t, BIT_HEIGHT);
+}
+
+/// Moves the turtle down a row
+fn next_row(t: &mut Turtle, by: f64) {
+    // To move down, the turtle picks up its pen,
     t.pen_up();
     // rememebers which direction it was going,
     let old_heading = t.heading();
     // turns to face down the screen,
     t.set_heading(270.0);
     // moves down by a row,
-    t.forward(BIT_HEIGHT);
+    t.forward(by);
     // then goes back to its old direction.
     t.set_heading(old_heading);
     // This way each row gets vertical spacing between them.
