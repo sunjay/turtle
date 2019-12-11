@@ -82,30 +82,6 @@ fn main() {
     turtle.right(180.0);
 
     draw_number(&mut turtle, NUMBER);
-
-    // Reader exercise:
-    //
-    // The IEEE-754 format for `f64` numbers separates them into three parts:
-    //
-    // 1. The sign marks whether the number is positive or negative: 1 bit
-    // 2. The exponent marks how far from zero the number is: 11 bits
-    // 3. The fraction describes the number: 52 bits.
-    //
-    // Using these widths (1 bit, 11 bits, 52 bits), the knowledge that
-    // `&BitSlice` is a normal Rust slice, and the API documentation for
-    // `std::iter::Iterator`, see if you can display each portion of an `f64`
-    // as its own row.
-    //
-    // Hints:
-    //
-    // - The variable `bits` is set up to view the entire number, from most
-    // significant bit to least.
-    // - You can get access to a structure that performs iteration by calling
-    //   `bits.iter()`.
-    // - You can use the `Iterator::by_ref` method to prevent `Iterator` adapter
-    //   functions from destroying the source iterator.
-    // - `&BitSlice` is an ordinary Rust slice, so you can use `[start .. end]`
-    //   range indexing to get smaller pieces of it.
 }
 
 /// Draws the bits of a text span on the screen.
@@ -191,6 +167,30 @@ fn draw_number(turtle: &mut Turtle, number: f64) {
 
         next_row(turtle, -90.0);
     }
+
+    // Reader exercise:
+    //
+    // The IEEE-754 format for `f64` numbers separates them into three parts:
+    //
+    // 1. The sign marks whether the number is positive or negative: 1 bit
+    // 2. The exponent marks how far from zero the number is: 11 bits
+    // 3. The fraction describes the number: 52 bits.
+    //
+    // Using these widths (1 bit, 11 bits, 52 bits), the knowledge that
+    // `&BitSlice` is a normal Rust slice, and the API documentation for
+    // `std::iter::Iterator`, see if you can display each portion of an `f64`
+    // as its own row.
+    //
+    // Hints:
+    //
+    // - The variable `bits` is set up to view the entire number, from most
+    // significant bit to least.
+    // - You can get access to a structure that performs iteration by calling
+    //   `bits.iter()`.
+    // - You can use the `Iterator::by_ref` method to prevent `Iterator` adapter
+    //   functions from destroying the source iterator.
+    // - `&BitSlice` is an ordinary Rust slice, so you can use `[start .. end]`
+    //   range indexing to get smaller pieces of it.
 }
 
 /// Draw a row of bits on the screen.
