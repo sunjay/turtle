@@ -12,12 +12,6 @@ categories = ["rendering", "rendering::graphics-api", "rendering::engine", "game
 license = "MPL-2.0"
 edition = "2018"
 
-# Ignore all files so we can explicitly whitelist what we want to be included in
-# the package
-include = ["/README.md", "LICENSE", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md",
-  "CHANGELOG.md", "src/**/*.rs", "examples/**/*.rs", "examples/**/*.txt",
-  "tests/**/*.rs", "Cargo.toml", ".rustfmt.toml", "rust-toolchain"]
-
 # Make sure docs are always generated with the "unstable" feature activated
 [package.metadata.docs.rs]
 features = [ "unstable" ]
