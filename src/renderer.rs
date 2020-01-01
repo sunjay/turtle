@@ -90,7 +90,7 @@ impl Renderer {
         'renderloop: while let Some(event) = window.next() {
             match event {
                 PistonEvent::Input(Input::Resize(args), _) => {
-                    let [width, height] = args.draw_size;
+                    let [width, height] = args.window_size;
                     let width = width as u32;
                     let height = height as u32;
                     if width != current_drawing.width || height != current_drawing.height {
