@@ -109,7 +109,7 @@ where
         // Not supported
         Input::FileDrag(_) => return None,
         Input::Resize(args) => {
-            let [width, height] = args.draw_size;
+            let [width, height] = args.window_size;
             WindowResized { width: width as u32, height: height as u32 }
         },
         Input::Focus(focused) => WindowFocused(focused),
