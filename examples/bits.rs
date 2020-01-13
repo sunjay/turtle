@@ -28,7 +28,7 @@ static TEXT: &str = "¡Hola, mundo! 🌍🌏🌎";
 /// interesting numbers in its standard library; you can replace this with other
 /// numbers to see what they look like. Pi is provided as the default solely
 /// because it is well-known, and has an interesting pattern.
-const NUMBER: f64 = std::f64::consts::PI;
+const NUMBER: f32 = std::f32::consts::PI;
 
 /// This controls the width of the drawn line for each bit.
 const BIT_WIDTH: f64 = 20.0;
@@ -136,20 +136,20 @@ fn draw_text(turtle: &mut Turtle, text: &str) {
 }
 
 /// Draws the bits of a number on screen.
-fn draw_number(turtle: &mut Turtle, number: f64) {
+fn draw_number(turtle: &mut Turtle, number: f32) {
     // `bitvec` can look at more than just `u8`. Let's try looking at the bits
     // that represent a number!
     //
-    // Some numbers, like `f64`, have special rules for their representation in
+    // Some numbers, like `f32`, have special rules for their representation in
     // bits. `bitvec` only knows about raw bits, so it does not provide direct
-    // support for `f64`. Rust lets us get the bit representation from an `f64`
-    // with the method `to_bits(f64) -> u64`, which forgets about the `f64`
+    // support for `f32`. Rust lets us get the bit representation from an `f32`
+    // with the method `to_bits(f32) -> u32`, which forgets about the `f32`
     // rules and uses the number's storage as ordinary bits.
     //
-    // You can read more about the rules for `f64`'s storage in memory, and
+    // You can read more about the rules for `f32`'s storage in memory, and
     // behavior in programs, here:
     // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
-    let raw_number: u64 = number.to_bits();
+    let raw_number: u32 = number.to_bits();
 
     // `bitvec` can also view bits from left to right, with `Msb0`.
     let bits: &BitSlice<_, _> = raw_number.bits::<Msb0>();
@@ -170,15 +170,15 @@ fn draw_number(turtle: &mut Turtle, number: f64) {
 
     // Reader exercise:
     //
-    // The IEEE-754 format for `f64` numbers separates them into three parts:
+    // The IEEE-754 format for `f32` numbers separates them into three parts:
     //
     // 1. The sign marks whether the number is positive or negative: 1 bit
-    // 2. The exponent marks how far from zero the number is: 11 bits
-    // 3. The fraction describes the number: 52 bits.
+    // 2. The exponent marks how far from zero the number is: 8 bits
+    // 3. The fraction describes the number: 23 bits.
     //
-    // Using these widths (1 bit, 11 bits, 52 bits), the knowledge that
+    // Using these widths (1 bit, 8 bits, 23 bits), the knowledge that
     // `&BitSlice` is a normal Rust slice, and the API documentation for
-    // `std::iter::Iterator`, see if you can display each portion of an `f64`
+    // `std::iter::Iterator`, see if you can display each portion of an `f32`
     // as its own row.
     //
     // Hints:
