@@ -106,20 +106,20 @@ fn draw_text(turtle: &mut Turtle, text: &str) {
         // `bitvec` provides the `.bits::<_>()` method on Rust integers for easy
         // access to its view types.
         //
-        // The `LittleEndian` means that the view moves from least significant
-        // bit to most significant. Since we want to display on screen the most
+        // The `Lsb0` means that the view moves from least significant bit to
+        // most significant. Since we want to display on screen the most
         // significant bit on the left, and the least on the right, the turtle
         // will have to move from right to left to match.
         //
-        // The `LittleEndian` and `BigEndian` types describe different ways to
-        // view the same data. You can read more about them in the `bitvec`
-        // docs, and at Wikipedia:
+        // The `Lsb0` and `Msb0` types describe different ways to view the same
+        // data. You can read more about them in the `bitvec` docs, and at
+        // Wikipedia:
         // https://docs.rs/bitvec/0.16.1/bitvec/cursor/index.html
         // https://en.wikipedia.org/wiki/Endianness#Bit_endianness
         for byte in row {
             println!("  Byte {:02}:\n    Value: 0x{:02X}\n    Bits: {:08b}", row_num, byte, byte);
 
-            let bits: &BitSlice<_, _> = byte.bits::<LittleEndian>();
+            let bits: &BitSlice<_, _> = byte.bits::<Lsb0>();
 
             // Then we draw the byte's bits as a row
             draw_row(turtle, bits);
@@ -151,8 +151,8 @@ fn draw_number(turtle: &mut Turtle, number: f64) {
     // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
     let raw_number: u64 = number.to_bits();
 
-    // `bitvec` can also view bits from left to right, with `BigEndian`.
-    let bits: &BitSlice<_, _> = raw_number.bits::<BigEndian>();
+    // `bitvec` can also view bits from left to right, with `Msb0`.
+    let bits: &BitSlice<_, _> = raw_number.bits::<Msb0>();
 
     // The `&BitSlice` type acts just like `&[bool]`, so it comes with a
     // `.chunks` method which divides it into smaller pieces. `bitvec` can take
@@ -199,11 +199,11 @@ fn draw_number(turtle: &mut Turtle, number: f64) {
 /// of bits, which provides the data to draw.
 ///
 /// Note that this works whether we're going through the bits left to right
-/// (`BigEndian`) or right to left (`LittleEndian`), because we assume that the
-/// turtle is going to start on the correct side and be facing the correct way
-/// for this drawing to work.
-fn draw_row<C, T>(turtle: &mut Turtle, row: &BitSlice<C, T>)
-where C: Cursor, T: BitStore {
+/// (`Msb0`) or right to left (`Lsb0`), because we assume that the turtle is
+/// going to start on the correct side and be facing the correct way for this
+/// drawing to work.
+fn draw_row<O, T>(turtle: &mut Turtle, row: &BitSlice<O, T>)
+where O: BitOrder, T: BitStore {
     // `&BitSlice` can iterate over bits. It is just like `&[bool]`, and so it
     // produces `&bool` for each loop.
     for &bit in row {
