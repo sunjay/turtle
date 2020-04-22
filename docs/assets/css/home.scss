@@ -62,6 +62,11 @@
 .home-section {
   background: #fff;
 
+  h2 {
+    color: #fff;
+    font-weight: 400;
+  }
+
   &:last-child {
     margin-bottom: -30px;
   }
