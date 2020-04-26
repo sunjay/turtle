@@ -228,23 +228,58 @@ stuck on an exercise, it is totally okay to move on and come back to it later.
 
 If you need help, see the [Getting Help] section of the guide.
 
-- (*) change radius of circle
-- (*) change angle to something bigger or smaller without changing anything
-  else and see what happens
-- (**) draw a circle backwards
-- (**) draw two circles side by side
-- (**) draw half of a circle on the left and the other half on the right (s-curve)
-- (***) draw a flower of s-curves
-- (***) draw a flower with circular petals with a stem
-- (***) draw a flower with oval petals with a stem and oval leaves
-  - Bonus: color the flower with [`begin_fill`] and [`end_fill`]
-- (***) draw the sun as a circle with triangles around it
-  - Bonus: color the sun with [`begin_fill`] and [`end_fill`]
-- (***) circle with dashed lines
-  - use [`pen_up`] and [`pen_down`]
+* **Exercise 1: `(*)`** Instead of drawing the circle on the right half of the
+  window, draw it on the left half.
+  ![turtle circle left]({% link assets/images/guide/example-circle/exercise-circle-left.png %}){: .figborder .figlimitsize}
+* **Exercise 2: `(*)`** Change the radius of circle to a different value. What
+  changes do you need to make for the circle to get bigger or smaller?
+* **Exercise 4: `(*)`** Change angle in the final program to a value bigger and
+  then a smaller value without changing anything else. What happens to the
+  resulting drawing?
+* **Exercise 5: `(**)`** Draw a circle by moving the turtle backwards instead of
+  forwards.<br>
+  **Hint:** [Basic Movement] mentions two ways to go backwards.
+* **Exercise 6: `(**)`** Draw two circles side by side centered within the window.
+  ![turtle two circles]({% link assets/images/guide/example-circle/exercise-double-circle.png %}){: .figborder .figlimitsize}
+* **Exercise 7: `(**)`** Draw half of the circle on the left side of the screen
+  and the other half on the right side of the screen. This forms a curve that
+  resembles the letter "s".
+  ![turtle s-curve]({% link assets/images/guide/example-circle/exercise-s-curve.png %}){: .figborder .figlimitsize}
+  **Hint:** To get back to the original position of the turtle, you can draw over
+  the line you just drew.<br>
+  **Bonus:** For an extra challenge, look up the [`pen_up`], [`pen_down`], and
+  [`home`] methods in the documentation. You can use these to immediately return
+  back to the center without drawing a line.
+* **Exercise 8: `(***)`** Draw a flower using the s-curves from the previous
+  exercise.
+  ![turtle s-curve flower]({% link assets/images/guide/example-circle/exercise-s-curve-flower.png %}){: .figborder .figlimitsize}
+  **Tip:** Use a smaller circle radius if you want to match this image exactly.
+* **Exercise 9: `(***)`** Draw a flower with circular petals and a stem
+  ![turtle circular flower]({% link assets/images/guide/example-circle/exercise-circular-flower.png %}){: .figborder .figlimitsize}
+  **Tip:** Use a smaller circle radius if you want to match this image exactly.<br>
+  **Bonus:** Color the flower with [`begin_fill`] and [`end_fill`]. Make the stem thicker using [`set_pen_size`].
+* **Exercise 10: `(***)`** Draw a circle with a dashed line instead of the single
+  solid line used so far.
+  ![turtle dashed circle]({% link assets/images/guide/example-circle/exercise-dashed-circle.png %}){: .figborder .figlimitsize}
+  **Hint:** Use [`pen_up`] and [`pen_down`].<br>
+  **Hint:** The loop variable in the code from this lesson was ignored using `_`.
+  If you make that into a proper variable (e.g. `i`), you can use it to decide
+  when to lift the pen.
+* **Exercise 11: `(***)`** Draw the sun as a circle in the center of the window.
+  Draw triangles surrounding the sun to act as the sun's rays.<br>
+  **Bonus:** Color the sun and the surrounding triangles with [`begin_fill`] and [`end_fill`].
+
+<!-- TODO: This exercise is currently too hard because ovals are hard to draw with `forward` and `right`
+* **Exercise 12: `(***)`** draw a flower with oval petals with a stem and oval leaves
+  **Tip:** Use a smaller circle radius if you want to match this image exactly.<br>
+  **Bonus:** Color the flower with [`begin_fill`] and [`end_fill`]. Make the stem thicker using [`set_pen_size`].
+  -->
 
 [Getting Help]: {% link guide/getting-help.md %}
+[Basic Movement]: {% link guide/basic-movement.md %}
+[`set_pen_size`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.set_pen_size
 [`begin_fill`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.begin_fill
 [`end_fill`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.end_fill
 [`pen_up`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.pen_up
 [`pen_down`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.pen_down
+[`home`]: https://docs.rs/turtle/{{ site.data.lib.latest.version }}/turtle/struct.Turtle.html#method.home
