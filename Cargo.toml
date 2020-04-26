@@ -23,13 +23,19 @@ azure-devops = { project = "sunjayv/turtle", pipeline = "sunjay.turtle" }
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_derive = "1.0"
 serde_json = "1.0"
 
 interpolation = "0.2"
 rand = "0.6"
 
 svg = "0.8.0"
+
+ipc-channel = "0.14"
+
+[dependencies.tokio]
+version = "0.2"
+default-features = false
+features = ["process", "io-util", "rt-core"]
 
 # Dependencies used when developing `turtle` directly, but not when using it as
 # a library.

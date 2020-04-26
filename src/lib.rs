@@ -34,11 +34,11 @@
 //! # Unstable features
 //! Some parts of this library are unstable, such as maximizing and unmaximizing the window.
 //! You can explicitly opt-in to using those features with the `unstable` feature like so:
-//! 
+//!
 //! ```bash
 //! $ cargo build --features "unstable"
 //! ```
-//! 
+//!
 //! If you want to use this from inside your own crate, you will need to add this to your Cargo.toml
 //! ```toml
 //! [dependencies]
@@ -50,6 +50,10 @@
 
 #[cfg(all(test, not(feature = "test")))]
 compile_error!("Make sure you run tests with `cargo test --features test`");
+
+mod ipc_protocol;
+mod renderer_server;
+mod renderer_client;
 
 mod turtle_window;
 
