@@ -5,7 +5,7 @@ docs_title: "Getting Help"
 permalink: /guide/getting-help/
 ---
 
-*(The content below is from the [GitHub README](https://github.com/sunjay/turtle#need-help). This page has not been written yet.)*
+*(This page has not been written yet. The content below is from the [GitHub README](https://github.com/sunjay/turtle#need-help).)*
 
 The following are some resources you can use to find help when you run into a
 problem. The links are listed in the order you should try each one, but feel
