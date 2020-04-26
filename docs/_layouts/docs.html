@@ -50,7 +50,7 @@ layout: default
           {% for gpage in section.pages %}
             {% if state == 1 %}
               <li>
-                <a href="{{ gpage.url }}">{{ gpage.title }} &#9656;</a>
+                <a{% if gpage.disabled %} class="disabled"{% else %} href="{{ gpage.url }}"{% endif %}>{{ gpage.title }} &#9656;</a>
               </li>
 
               {% assign state = 2 %}
@@ -60,7 +60,7 @@ layout: default
             {% if gpage.url == page.url %}
               {% if prev %}
                 <li>
-                  <a href="{{ prev.url }}">&#9666; {{ prev.title }}</a>
+                  <a{% if prev.disabled %} class="disabled"{% else %} href="{{ prev.url }}"{% endif %}>&#9666; {{ prev.title }}</a>
                 </li>
               {% else %}
                 <li>&nbsp;</li>
