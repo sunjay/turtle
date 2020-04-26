@@ -149,6 +149,14 @@
     &.active {
       font-weight: bold;
     }
+
+    & .disabled,
+    & .disabled:visited,
+    & .disabled:hover {
+      color: #616161;
+      cursor: not-allowed;
+      font-weight: normal;
+    }
   }
 
   @media (min-width: 768px) {
@@ -176,6 +184,14 @@
   a:hover {
     color: #03a9f4;
     font-weight: bold;
+  }
+
+  .disabled,
+  .disabled:visited,
+  .disabled:hover {
+    color: #616161;
+    cursor: not-allowed;
+    font-weight: normal;
   }
 
   @media (min-width: 768px) {

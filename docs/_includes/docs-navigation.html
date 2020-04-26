@@ -5,7 +5,9 @@
   <ul>
   {% for gpage in section.pages %}
     <li{% if gpage.url == page.url %} class="active"{% endif %}>
-      <a href="{{ gpage.url }}">{{ gpage.title }}</a>
+      <a {% if gpage.disabled %}class="disabled"{% else %}href="{{ gpage.url }}"{% endif %}>
+        {{ gpage.title }}
+      </a>
     </li>
   {% endfor %}
   </ul>
