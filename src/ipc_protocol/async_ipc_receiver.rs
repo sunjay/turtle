@@ -34,6 +34,16 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
                 // NOTE: If the future from `AsyncIpcReceiver::recv` is dropped before the next
                 // value is sent, the next value will be received by the next caller of
                 // `AsyncIpcReceiver::recv`.
+                //
+                // A way to fix this is to have `AsyncIpcReceiver::recv` send a oneshot channel to
+                // this thread. That oneshot channel will be sent the next value, thus guaranteeing
+                // that each call to `recv` gets the next value from `ipc_receiver.recv()`.
+                //
+                // While this consistency is nice, it was decided to leave the implementation
+                // simple for now. That means the semantics of `AsyncIpcReceiver` are closer to a
+                // single producer/single consumer system with a queue, rather than the single
+                // channel that it is meant to model. This is (probably) fine given that this API
+                // is only used in a single producer/single consumer context.
                 match sender.send(next_value) {
                     Ok(()) => {},
                     // Main thread has quit, so this thread should terminate too
@@ -47,8 +57,12 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
 
     /// Receives the next value from the IPC receiver.
     ///
-    /// NOTE: If the future returned from this method is dropped before being completed, the next
-    /// call to this method will get the value that the previous call would have received.
+    /// NOTE: Usually, a channel API guarantees that each call to recv will get the next value from
+    /// the channel. While this is still the case here under normal usage, if the future returned
+    /// from this method is dropped before being completed, the next call to this method will get
+    /// the value that the *previous* call would have received. This is closer to the semantics of
+    /// a single producer/single consumer with a queue. If those semantics pose a problem, make
+    /// sure that the future is not dropped before being completed!
     pub async fn recv(&mut self) -> Result<T, IpcError> {
         // This should never return None because the spawned thread runs forever
         self.receiver.recv().await
