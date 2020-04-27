@@ -3,7 +3,7 @@ use std::env;
 use std::process::{Stdio, exit};
 
 use tokio::io::AsyncWriteExt;
-use tokio::process::{Command, Child, ChildStdin};
+use tokio::process::{Command, ChildStdin};
 
 use crate::ipc_protocol::RENDERER_PROCESS_ENV_VAR;
 
@@ -48,20 +48,20 @@ impl RendererServerProcess {
                 // Something went wrong, likely the other thread panicked
                 exit(1);
             }
-
-            println!("child status was: {}", status);
         });
 
         Self {child_stdin}
     }
 
-    /// Writes the given bytes to the stdin of the process
+    /// Writes the given bytes followed by a newline b'\n' to the stdin of the process
     ///
     /// Unlike `std::io::Write::write`, this returns an error in the case all of the bytes could
     /// not be written for some reason.
-    pub async fn write<S: AsRef<[u8]>>(&mut self, data: S) -> io::Result<()> {
+    pub async fn writeln<S: AsRef<[u8]>>(&mut self, data: S) -> io::Result<()> {
         let data = data.as_ref();
         let bytes_written = self.child_stdin.write(data).await?;
+        self.child_stdin.write_u8(b'\n').await?;
+
         if bytes_written == data.len() {
             Ok(())
 

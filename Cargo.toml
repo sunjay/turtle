@@ -30,12 +30,14 @@ rand = "0.6"
 
 svg = "0.8.0"
 
+futures = "0.3"
 ipc-channel = "0.14"
+thiserror = "1.0"
 
 [dependencies.tokio]
 version = "0.2"
 default-features = false
-features = ["process", "io-util", "rt-core"]
+features = ["process", "io-util", "rt-core", "blocking", "sync"]
 
 # Dependencies used when developing `turtle` directly, but not when using it as
 # a library.
