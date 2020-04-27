@@ -54,11 +54,6 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> Stream for AsyncIpcReceiv
     type Item = Result<T, IpcError>;
 
     fn poll_next(self: Pin<&mut Self>, ctx: &mut Context) -> Poll<Option<Self::Item>> {
-        // This is safe because `receiver` is pinned whenever `Self` is pinned.
-        //
-        // Note that this requires upholding several invariants as documented here:
-        // https://doc.rust-lang.org/std/pin/index.html#pinning-is-structural-for-field
-        let receiver = unsafe { self.map_unchecked_mut(|r| &mut r.receiver) };
-        Stream::poll_next(receiver, ctx)
+        Stream::poll_next(Pin::new(&mut self.get_mut().receiver), ctx)
     }
 }
