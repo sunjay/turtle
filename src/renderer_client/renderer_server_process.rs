@@ -5,7 +5,8 @@ use std::process::{Stdio, exit};
 use tokio::io::AsyncWriteExt;
 use tokio::process::{Command, ChildStdin};
 
-use crate::ipc_protocol::RENDERER_PROCESS_ENV_VAR;
+/// The environment variable that is set to indicate that the current process is a server process
+pub const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
 
 #[derive(Debug)]
 pub struct RendererServerProcess {
