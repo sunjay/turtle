@@ -14,7 +14,7 @@ use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender};
 
-use crate::renderer_server::RendererServerProcess;
+use crate::renderer_client::RendererServerProcess;
 
 use async_ipc_receiver::AsyncIpcReceiver;
 
