@@ -18,9 +18,6 @@ use crate::renderer_client::RendererServerProcess;
 
 use async_ipc_receiver::AsyncIpcReceiver;
 
-/// The environment variable that is set to indicate that the current process is a server process
-pub const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
-
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum ConnectionError {
