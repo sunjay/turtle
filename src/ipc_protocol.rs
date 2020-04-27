@@ -57,10 +57,7 @@ enum HandshakeResponse {
     Response(ServerResponse),
 }
 
-/// Represents one end of an IPC connection
-///
-/// The connection is parameterized by the type of message that will be sent from this end and
-/// received from the other end.
+/// Represents the client side of the IPC connection
 pub struct ClientConnection {
     sender: mpsc::UnboundedSender<ClientRequest>,
     receiver: mpsc::UnboundedReceiver<Result<HandshakeResponse, SendError>>,
