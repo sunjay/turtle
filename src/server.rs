@@ -11,7 +11,7 @@ use crate::app::TurtleApp;
 use crate::messenger::{self, Disconnected};
 use crate::query::{DrawingCommand, Query, Request, Response, StateUpdate};
 use crate::query::DrawingCommand::{BeginFill, EndFill};
-use crate::renderer::Renderer;
+use crate::renderer2::Renderer;
 use crate::Event;
 
 /// Start the turtle window in advance
