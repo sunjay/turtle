@@ -31,6 +31,9 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
                     value => value,
                 };
 
+                // NOTE: If the future from `AsyncIpcReceiver::recv` is dropped before the next
+                // value is sent, the next value will be received by the next caller of
+                // `AsyncIpcReceiver::recv`.
                 match sender.send(next_value) {
                     Ok(()) => {},
                     // Main thread has quit, so this thread should terminate too
@@ -43,6 +46,9 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
     }
 
     /// Receives the next value from the IPC receiver.
+    ///
+    /// NOTE: If the future returned from this method is dropped before being completed, the next
+    /// call to this method will get the value that the previous call would have received.
     pub async fn recv(&mut self) -> Result<T, IpcError> {
         // This should never return None because the spawned thread runs forever
         self.receiver.recv().await
