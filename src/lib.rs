@@ -71,7 +71,7 @@ mod point;
 mod query;
 mod radians;
 #[cfg(not(target_arch = "wasm32"))]
-mod renderer;
+mod renderer2;
 mod renderer_process;
 #[cfg(not(target_arch = "wasm32"))]
 mod server;
