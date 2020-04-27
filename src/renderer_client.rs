@@ -1,3 +1,7 @@
+mod renderer_server_process;
+
+pub use renderer_server_process::*;
+
 /// Manages a single connection to a renderer server.
 ///
 /// Each new client spawns a new server (i.e. a new window on desktop platforms).
