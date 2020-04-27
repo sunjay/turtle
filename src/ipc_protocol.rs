@@ -3,26 +3,27 @@
 //! This is the common "language" between client/server. It defines both the protocol for
 //! connection and for send messages back and forth.
 
+mod async_ipc_receiver;
 mod messages;
 
 pub use messages::*;
 
 use std::io;
-use std::thread;
 
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
-use ipc_channel::ipc::{IpcOneShotServer, IpcSender};
-use tokio::sync::mpsc;
+use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender};
 
 use crate::renderer_server::RendererServerProcess;
+
+use async_ipc_receiver::AsyncIpcReceiver;
 
 /// The environment variable that is set to indicate that the current process is a server process
 pub const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
 
 #[derive(Debug, Error)]
 #[error(transparent)]
-pub enum ClientConnectionError {
+pub enum ConnectionError {
     IpcChannelError(#[from] ipc_channel::Error),
     IOError(#[from] io::Error),
     JoinError(#[from] tokio::task::JoinError),
@@ -58,59 +59,59 @@ enum HandshakeResponse {
 }
 
 /// Represents the client side of the IPC connection
+#[derive(Debug)]
 pub struct ClientConnection {
-    sender: mpsc::UnboundedSender<ClientRequest>,
-    receiver: mpsc::UnboundedReceiver<Result<HandshakeResponse, SendError>>,
+    sender: IpcSender<ClientRequest>,
+    receiver: AsyncIpcReceiver<HandshakeResponse>,
 }
 
 impl ClientConnection {
-    pub async fn new(process: &mut RendererServerProcess) -> Result<Self, ClientConnectionError> {
+    pub async fn new(process: &mut RendererServerProcess) -> Result<Self, ConnectionError> {
         // Send the oneshot token to the server which will then respond with its own oneshot token
-        let (server, server_name) = tokio::task::spawn_blocking(IpcOneShotServer::new).await??;
+        let (server, server_name) = IpcOneShotServer::new()?;
         process.writeln(server_name).await?;
 
-        let (server_receiver, response): (_, HandshakeResponse) = tokio::task::spawn_blocking(|| {
+        let (receiver, response): (_, HandshakeResponse) = tokio::task::spawn_blocking(|| {
             server.accept()
         }).await??;
 
-        let server_sender = match response {
+        let sender = match response {
             HandshakeResponse::HandshakeFinish(sender) => sender,
             _ => unreachable!("bug: server did not send back Sender at the end of handshake"),
         };
-
-        // IpcSender and IpcReceiver can't be shared between threads, so we have to spawn our own
-        // thread to be able to use them asynchronously.
-        let (sender, mut request_receiver) = mpsc::unbounded_channel();
-        let (response_sender, receiver) = mpsc::unbounded_channel();
-        thread::spawn(move || {
-            // This isn't a thread managed by tokio, so it seems like using
-            // tokio::task::block_in_place would be inappropriate. Using `block_on` instead, though
-            // I'm not sure if this will accidentally spawn a second executor...
-            use futures::executor::block_on;
-
-            loop {
-                let req = block_on(request_receiver.recv())
-                    .expect("bug: the main thread exited earlier than expected");
-                // Send the request to the server, then wait for the response
-                let response = server_sender.send(req)
-                    .map_err(SendError::from)
-                    .and_then(|()| server_receiver.recv().map_err(SendError::from));
-
-                response_sender.send(response)
-                    .expect("bug: the main thread exited earlier than expected");
-            }
-        });
+        let receiver = AsyncIpcReceiver::new(receiver);
 
         Ok(Self {sender, receiver})
     }
 
     pub async fn send(&mut self, req: ClientRequest) -> Result<ServerResponse, SendError> {
-        self.sender.send(req).expect("bug: the server thread exited earlier than expected");
-        let response = self.receiver.recv().await
-            .expect("bug: the server thread exited earlier than expected")?;
+        self.sender.send(req)?;
+        let response = self.receiver.recv().await?;
         match response {
             HandshakeResponse::Response(response) => Ok(response),
             _ => unreachable!("bug: server did not send response after request"),
         }
+    }
+}
+
+/// Represents the server side of the IPC connection
+#[derive(Debug)]
+pub struct ServerConnection {
+    sender: IpcSender<HandshakeResponse>,
+    receiver: AsyncIpcReceiver<ClientRequest>,
+}
+
+impl ServerConnection {
+    /// Establishes a connection with IPC channel one shot server with the given name
+    pub fn connect(one_shot_name: String) -> Result<Self, ConnectionError> {
+        let (server_sender, receiver) = ipc::channel()?;
+        let sender = IpcSender::connect(one_shot_name)?;
+
+        // Finish handshake by giving client a sender it can use to send messages to the server
+        sender.send(HandshakeResponse::HandshakeFinish(server_sender))?;
+
+        let receiver = AsyncIpcReceiver::new(receiver);
+
+        Ok(Self {sender, receiver})
     }
 }
