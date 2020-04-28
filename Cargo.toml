@@ -38,7 +38,7 @@ bitvec = "0.17"
 
 # Dependencies that don't support / shouldn't be used with WASM
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-piston_window = "0.107"
+piston_window = "0.108"
 
 # Dependencies specifically for WASM
 [target.'cfg(target_arch = "wasm32")'.dependencies]
