@@ -12,7 +12,7 @@ use std::io;
 
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
-use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender};
+use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender, IpcError};
 
 use crate::renderer_client::RendererServerProcess;
 
@@ -32,7 +32,7 @@ pub enum SendError {
     IpcChannelError(#[from] ipc_channel::Error),
     // IpcError does not implement Display for some reason...
     #[error("IPC Error: {0:?}")]
-    IpcError(ipc_channel::ipc::IpcError),
+    IpcError(IpcError),
 }
 
 impl From<ipc_channel::ipc::IpcError> for SendError {
@@ -81,6 +81,7 @@ impl ClientConnection {
         Ok(Self {sender, receiver})
     }
 
+    /// Sends a request and awaits the response
     pub async fn send(&mut self, req: ClientRequest) -> Result<ServerResponse, SendError> {
         self.sender.send(req)?;
         let response = self.receiver.recv().await?;
@@ -99,7 +100,7 @@ pub struct ServerConnection {
 }
 
 impl ServerConnection {
-    /// Establishes a connection with IPC channel one shot server with the given name
+    /// Establishes a connection with the IPC channel one shot server with the given name
     pub fn connect(one_shot_name: String) -> Result<Self, ConnectionError> {
         let (server_sender, receiver) = ipc::channel()?;
         let sender = IpcSender::connect(one_shot_name)?;
@@ -110,5 +111,17 @@ impl ServerConnection {
         let receiver = AsyncIpcReceiver::new(receiver);
 
         Ok(Self {sender, receiver})
+    }
+
+    /// Returns the next request, waiting until one is available
+    pub async fn recv(&mut self) -> Result<ClientRequest, IpcError> {
+        self.receiver.recv().await
+    }
+
+    /// Sends a response to the client
+    ///
+    /// This should only ever be done in response to a request
+    pub fn send(&mut self, res: ServerResponse) -> Result<(), ipc_channel::Error> {
+        self.sender.send(HandshakeResponse::Response(res))
     }
 }
