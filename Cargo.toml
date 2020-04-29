@@ -30,6 +30,16 @@ rand = "0.6"
 
 svg = "0.8.0"
 
+pathfinder_canvas = "0.5"
+# These versions must stay synced with the dependencies of pathfinder_canvas
+pathfinder_renderer = "0.5"
+pathfinder_resources = "0.5"
+pathfinder_color = "0.5"
+pathfinder_geometry = "0.5"
+pathfinder_gl = "0.5"
+glutin = "0.23"
+gl = "0.14"
+
 ipc-channel = "0.14"
 thiserror = "1.0"
 
