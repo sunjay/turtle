@@ -57,6 +57,7 @@ compile_error!("Make sure you run tests with `cargo test --features test`");
 mod ipc_protocol;
 mod renderer_server;
 mod renderer_client;
+mod renderer;
 
 mod turtle_window;
 
