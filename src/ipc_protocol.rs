@@ -82,7 +82,7 @@ impl ClientConnection {
     }
 
     /// Sends a request and awaits the response
-    pub async fn send(&mut self, req: ClientRequest) -> Result<ServerResponse, SendError> {
+    pub async fn send(&self, req: ClientRequest) -> Result<ServerResponse, SendError> {
         self.sender.send(req)?;
         let response = self.receiver.recv().await?;
         match response {
@@ -114,7 +114,7 @@ impl ServerConnection {
     }
 
     /// Returns the next request, waiting until one is available
-    pub async fn recv(&mut self) -> Result<ClientRequest, IpcError> {
+    pub async fn recv(&self) -> Result<ClientRequest, IpcError> {
         self.receiver.recv().await
     }
 

@@ -1,9 +1,7 @@
 use std::thread;
-use std::pin::Pin;
-use std::task::{Poll, Context};
 
-use tokio::sync::mpsc;
-use tokio::stream::Stream;
+use tokio::sync::{mpsc, oneshot};
+use tokio::runtime::Handle;
 use serde::{Serialize, de::DeserializeOwned};
 use ipc_channel::ipc::{IpcReceiver, IpcError};
 
@@ -15,12 +13,16 @@ use ipc_channel::ipc::{IpcReceiver, IpcError};
 /// and over again for each received value.
 #[derive(Debug)]
 pub struct AsyncIpcReceiver<T: Serialize + DeserializeOwned + Send + 'static> {
-    receiver: mpsc::UnboundedReceiver<Result<T, IpcError>>,
+    /// Each AsyncIpcReceiver::recv() call sends a oneshot channel that collects the result when
+    /// it is ready. This ensures proper ordering even if the future from `recv` is dropped and has
+    /// the added benefit of allowing `recv()` to take `&self` instead of `&mut self`. The second
+    /// benefit allows some operations that use this struct to be lock-free.
+    channel_sender: mpsc::UnboundedSender<oneshot::Sender<Result<T, IpcError>>>,
 }
 
 impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
     pub fn new(ipc_receiver: IpcReceiver<T>) -> Self {
-        let (sender, receiver) = mpsc::unbounded_channel();
+        let (channel_sender, mut receiver) = mpsc::unbounded_channel();
 
         thread::spawn(move || {
             loop {
@@ -31,49 +33,31 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
                     value => value,
                 };
 
-                // NOTE: If the future from `AsyncIpcReceiver::recv` is dropped before the next
-                // value is sent, the next value will be received by the next caller of
-                // `AsyncIpcReceiver::recv`.
-                //
-                // A way to fix this is to have `AsyncIpcReceiver::recv` send a oneshot channel to
-                // this thread. That oneshot channel will be sent the next value, thus guaranteeing
-                // that each call to `recv` gets the next value from `ipc_receiver.recv()`.
-                //
-                // While this consistency is nice, it was decided to leave the implementation
-                // simple for now. That means the semantics of `AsyncIpcReceiver` are closer to a
-                // single producer/single consumer system with a queue, rather than the single
-                // channel that it is meant to model. This is (probably) fine given that this API
-                // is only used in a single producer/single consumer context.
-                match sender.send(next_value) {
-                    Ok(()) => {},
+                let handle = Handle::current();
+                let value_sender: oneshot::Sender<_> = match handle.block_on(receiver.recv()) {
+                    Some(value_sender) => value_sender,
                     // Main thread has quit, so this thread should terminate too
-                    Err(_) => break,
+                    None => break,
+                };
+                match value_sender.send(next_value) {
+                    Ok(()) => {}, // Sent successfully
+                    Err(_) => {}, // Future was dropped, so this value will not be sent
                 }
             }
         });
 
-        Self {receiver}
+        Self {channel_sender}
     }
 
-    /// Receives the next value from the IPC receiver.
-    ///
-    /// NOTE: Usually, a channel API guarantees that each call to recv will get the next value from
-    /// the channel. While this is still the case here under normal usage, if the future returned
-    /// from this method is dropped before being completed, the next call to this method will get
-    /// the value that the *previous* call would have received. This is closer to the semantics of
-    /// a single producer/single consumer with a queue. If those semantics pose a problem, make
-    /// sure that the future is not dropped before being completed!
-    pub async fn recv(&mut self) -> Result<T, IpcError> {
-        // This should never return None because the spawned thread runs forever
-        self.receiver.recv().await
-            .expect("bug: thread carrying sender terminated before main thread")
-    }
-}
+    /// Receives the next value from the IPC receiver
+    pub async fn recv(&self) -> Result<T, IpcError> {
+        let (sender, receiver) = oneshot::channel();
 
-impl<T: Serialize + DeserializeOwned + Send + 'static> Stream for AsyncIpcReceiver<T> {
-    type Item = Result<T, IpcError>;
+        // The channels should never return errors because the spawned thread runs forever
+        self.channel_sender.send(sender)
+            .unwrap_or_else(|_| panic!("bug: thread managing IPC receiver terminated before main thread"));
 
-    fn poll_next(self: Pin<&mut Self>, ctx: &mut Context) -> Poll<Option<Self::Item>> {
-        Stream::poll_next(Pin::new(&mut self.get_mut().receiver), ctx)
+        receiver.await
+            .expect("bug: thread managing IPC receiver terminated before main thread")
     }
 }
