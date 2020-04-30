@@ -1,6 +1,10 @@
+mod state;
+mod app;
+mod renderer;
 mod main;
 mod start;
 
+pub(crate) use app::TurtleId;
 pub use start::start;
 
 use glutin::event_loop::EventLoopProxy;

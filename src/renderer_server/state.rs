@@ -5,10 +5,6 @@ use serde::{Serialize, Deserialize};
 use crate::radians::Radians;
 use crate::{color, Color, Point, Speed};
 
-/// The unique ID of a particular turtle
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TurtleId(usize);
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DrawingState {
     pub title: String,

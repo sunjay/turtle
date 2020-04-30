@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
 
 use crate::{Color, Point, Speed, Event, Distance, Size};
-use crate::state::TurtleId;
+use crate::renderer_server::TurtleId;
 use crate::radians::Radians;
 
 /// The different kinds of requests that can be sent from a client
