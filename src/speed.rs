@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::f64;
 use std::f64::consts::PI;
 use std::fmt;
 
@@ -172,6 +171,13 @@ impl PartialOrd for SpeedLevel {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Speed(SpeedLevel);
 
+/// The default speed is "normal"
+impl Default for Speed {
+    fn default() -> Self {
+        "normal".into()
+    }
+}
+
 impl Speed {
     /// Returns the speed value that will make the turtle move and rotate instantly. This means
     /// that instead of the turtle's movements being animated, it will directly move to wherever
@@ -284,10 +290,10 @@ impl<B: Into<Speed>> RandomRange<B> for Speed {
 }
 
 impl<'a> From<&'a str> for Speed {
-    fn from(s: &'a str) -> Self {
+    fn from(level_name: &'a str) -> Self {
         use SpeedLevel::*;
 
-        Speed(match s {
+        Speed(match level_name {
             "slowest" => Value(1),
             "slower" => Value(5),
             "slow" => Value(8),

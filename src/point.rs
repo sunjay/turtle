@@ -136,7 +136,7 @@ use crate::rand::{Random, RandomRange};
 /// [`Drawing::set_center()`]: struct.Drawing.html#method.set_center
 /// [`random()`]: rand/fn.random.html
 /// [`random_range()`]: rand/fn.random_range.html
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Point {
     /// The x-coordinate of the Point
     pub x: f64,
@@ -148,7 +148,7 @@ impl Point {
     /// Returns a Point that represents the origin of the coordinate system.
     ///
     /// For our "cartesian" coordinate system, this is always (0.0, 0.0)
-    pub fn origin() -> Self {
+    pub const fn origin() -> Self {
         Self { x: 0.0, y: 0.0 }
     }
 

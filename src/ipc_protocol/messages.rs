@@ -3,11 +3,8 @@ use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
 
 use crate::{Color, Point, Speed, Event, Distance, Size};
+use crate::state::TurtleId;
 use crate::radians::Radians;
-
-//TODO: Put this struct where it belongs and define it properly
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TurtleId;
 
 /// The different kinds of requests that can be sent from a client
 ///
