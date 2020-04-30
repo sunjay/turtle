@@ -26,21 +26,6 @@ pub enum ConnectionError {
     JoinError(#[from] tokio::task::JoinError),
 }
 
-#[derive(Debug, Error)]
-#[error(transparent)]
-pub enum SendError {
-    IpcChannelError(#[from] ipc_channel::Error),
-    // IpcError does not implement Display for some reason...
-    #[error("IPC Error: {0:?}")]
-    IpcError(IpcError),
-}
-
-impl From<ipc_channel::ipc::IpcError> for SendError {
-    fn from(err: ipc_channel::ipc::IpcError) -> Self {
-        SendError::IpcError(err)
-    }
-}
-
 /// Represents either a sender from the connection handshake or a response
 #[derive(Debug, Serialize, Deserialize)]
 enum HandshakeResponse {
@@ -81,9 +66,13 @@ impl ClientConnection {
         Ok(Self {sender, receiver})
     }
 
-    /// Sends a request and awaits the response
-    pub async fn send(&self, req: ClientRequest) -> Result<ServerResponse, SendError> {
-        self.sender.send(req)?;
+    /// Sends a request to the server via IPC
+    pub fn send(&self, req: ClientRequest) -> Result<(), ipc_channel::Error> {
+        self.sender.send(req)
+    }
+
+    /// Waits for a response from the server via IPC
+    pub async fn recv(&self) -> Result<ServerResponse, IpcError> {
         let response = self.receiver.recv().await?;
         match response {
             HandshakeResponse::Response(response) => Ok(response),
