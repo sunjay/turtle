@@ -77,7 +77,7 @@ mod renderer_process;
 #[cfg(not(target_arch = "wasm32"))]
 mod server;
 mod speed;
-mod state;
+mod state2;
 mod timer;
 mod turtle;
 

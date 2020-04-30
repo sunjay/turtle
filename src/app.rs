@@ -3,7 +3,7 @@ compile_error!("This module should not be included when compiling to wasm");
 
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use crate::state::{DrawingState, Path, TurtleState};
+use crate::state2::{DrawingState, Path, TurtleState};
 
 /// Types that will be shared with another thread
 pub type Shared<T> = Arc<RwLock<T>>;
