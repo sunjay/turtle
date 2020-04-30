@@ -3,6 +3,7 @@ mod main;
 
 pub use start::start;
 
+use glutin::event_loop::EventLoopProxy;
 use tokio::io::{self, AsyncBufReadExt};
 
 use crate::ipc_protocol::{ServerConnection, ConnectionError};
@@ -11,11 +12,12 @@ use crate::ipc_protocol::{ServerConnection, ConnectionError};
 #[derive(Debug)]
 struct RendererServer {
     conn: ServerConnection,
+    event_loop: EventLoopProxy<()>,
 }
 
 impl RendererServer {
     /// Establishes a connection to the client by reading from stdin
-    pub async fn new() -> Result<Self, ConnectionError> {
+    pub async fn new(event_loop: EventLoopProxy<()>) -> Result<Self, ConnectionError> {
         let stdin = io::stdin();
         let mut reader = io::BufReader::new(stdin);
 
@@ -29,11 +31,11 @@ impl RendererServer {
         assert_eq!(oneshot_name.pop(), Some('\n'));
         let conn = ServerConnection::connect(oneshot_name)?;
 
-        Ok(Self {conn})
+        Ok(Self {conn, event_loop})
     }
 
     /// Serves requests from the client forever
-    pub fn serve() -> ! {
+    pub async fn serve(&mut self) -> ! {
         loop {}
     }
 }
