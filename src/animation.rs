@@ -2,7 +2,7 @@
 use interpolation::lerp;
 
 use crate::radians::{self, Radians};
-use crate::state::{Path, TurtleState};
+use crate::state2::{Path, TurtleState};
 use crate::timer::Timer;
 
 pub trait Animation {

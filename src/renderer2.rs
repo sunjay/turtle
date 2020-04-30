@@ -15,7 +15,7 @@ use crate::app::TurtleApp;
 use crate::event::from_piston_event;
 use crate::extensions::ConvertScreenCoordinates;
 use crate::query::DrawingCommand;
-use crate::state::{DrawingState, Path, Pen, Polygon, TurtleState};
+use crate::state2::{DrawingState, Path, Pen, Polygon, TurtleState};
 use crate::{color, Color, Event, Point};
 
 fn update_window(window: &mut PistonWindow, current: DrawingState, next: DrawingState) -> DrawingState {

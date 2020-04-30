@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use serde::{Serialize, Deserialize};
 
-use crate::state::{DrawingState, Path, TurtleState};
+use crate::state2::{DrawingState, Path, TurtleState};
 use crate::{Color, Event};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

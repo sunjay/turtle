@@ -5,7 +5,7 @@ use crate::animation::{Animation, AnimationStatus, MoveAnimation, RotateAnimatio
 use crate::query::{DrawingCommand, Query, Request, Response, StateUpdate};
 use crate::radians::Radians;
 use crate::renderer_process::RendererProcess;
-use crate::state::{DrawingState, Path, TurtleState};
+use crate::state2::{DrawingState, Path, TurtleState};
 use crate::timer::Timer;
 use crate::{start, Distance, Event, Point};
 
