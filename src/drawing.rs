@@ -3,6 +3,8 @@ use std::fmt::Debug;
 use std::rc::Rc;
 use std::path::Path;
 
+use serde::{Serialize, Deserialize};
+
 use crate::state::DrawingState;
 use crate::turtle_window::TurtleWindow;
 use crate::{Color, Event, Point};
@@ -28,7 +30,7 @@ use crate::{Color, Event, Point};
 /// assert_eq!(size.width, 800);
 /// assert_eq!(size.height, 600);
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Size {
     /// The width in pixels
     pub width: u32,
@@ -580,6 +582,7 @@ impl Drawing {
     ///
     /// ![squares](https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/docs/squares.svg?sanitize=true)
     pub fn save_svg<P: AsRef<Path>>(&self, path: P) {
+        //TODO: This function should return Result
         self.window.borrow().save_svg(path)
     }
 }
