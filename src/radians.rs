@@ -20,7 +20,7 @@ pub struct Radians(f64);
 
 impl Radians {
     /// Create a new instance of Radians from a value in radians
-    pub fn from_radians_value(radians: f64) -> Radians {
+    pub const fn from_radians_value(radians: f64) -> Radians {
         Radians(radians)
     }
 
