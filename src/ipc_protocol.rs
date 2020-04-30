@@ -89,10 +89,10 @@ pub struct ServerConnection {
 }
 
 impl ServerConnection {
-    /// Establishes a connection with the IPC channel one shot server with the given name
-    pub fn connect(one_shot_name: String) -> Result<Self, ConnectionError> {
+    /// Establishes a connection with the IPC channel oneshot server with the given name
+    pub fn connect(oneshot_name: String) -> Result<Self, ConnectionError> {
         let (server_sender, receiver) = ipc::channel()?;
-        let sender = IpcSender::connect(one_shot_name)?;
+        let sender = IpcSender::connect(oneshot_name)?;
 
         // Finish handshake by giving client a sender it can use to send messages to the server
         sender.send(HandshakeResponse::HandshakeFinish(server_sender))?;
