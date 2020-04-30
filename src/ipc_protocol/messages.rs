@@ -19,6 +19,11 @@ use crate::radians::Radians;
 /// and avoid race conditions while an animation is running.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ClientRequest {
+    /// Sent initially and on creating any turtle in order to get a `TurtleId`
+    ///
+    /// Response: `ServerResponse::NewTurtle`
+    CreateTurtle,
+
     /// Export the drawing in its current state to the given path using the given format
     ///
     /// Response: `ServerResponse::ExportComplete`
@@ -100,6 +105,9 @@ pub enum ClientRequest {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ServerResponse {
+    /// The ID of a newly created turtle, guaranteed to be unique
+    NewTurtle(TurtleId),
+
     /// The result of the export, possibly an error if something went wrong
     ExportComplete(Result<(), String>),
 
