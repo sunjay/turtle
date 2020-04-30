@@ -10,9 +10,7 @@ use glutin::{
 };
 use tokio::runtime::Runtime;
 
-use crate::renderer::Renderer;
-
-use super::RendererServer;
+use super::{RendererServer, renderer::Renderer};
 
 /// Run the renderer process in the current thread
 ///
