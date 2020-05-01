@@ -6,11 +6,19 @@ use glutin::{
     ContextBuilder,
     dpi::LogicalSize,
     window::WindowBuilder,
+    event::{
+        Event as GlutinEvent,
+        WindowEvent,
+        DeviceEvent,
+        KeyboardInput,
+        VirtualKeyCode,
+        ElementState,
+    },
     event_loop::{ControlFlow, EventLoop, EventLoopProxy},
 };
 use tokio::runtime::Runtime;
 
-use super::{RendererServer, renderer::Renderer};
+use super::{RendererServer, RequestRedraw, renderer::Renderer};
 
 /// Run the renderer process in the current thread
 ///
@@ -23,7 +31,7 @@ pub fn main() {
     let width = 800.0; // px
     let height = 600.0; // px
 
-    let event_loop = EventLoop::new();
+    let event_loop = EventLoop::with_user_event();
 
     // Spawn the actual server thread(s) that will handle incoming IPC messages and asynchronous
     // update the shared state
@@ -50,10 +58,43 @@ pub fn main() {
     let draw_size = gl_context.window().inner_size();
     let mut renderer = Renderer::new(draw_size);
 
-    loop {
-        let draw_size = gl_context.window().inner_size();
-        renderer.render((/* TODO */), draw_size);
-    }
+    event_loop.run(move |event, _, control_flow| match event {
+        // Quit if the window is closed or if Esc is pressed and then released
+        GlutinEvent::WindowEvent {
+            event: WindowEvent::CloseRequested,
+            ..
+        } | GlutinEvent::WindowEvent {
+            event: WindowEvent::Destroyed,
+            ..
+        } | GlutinEvent::DeviceEvent {
+            event: DeviceEvent::Key(KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::Escape),
+                ..
+            }),
+            ..
+        } => {
+            *control_flow = ControlFlow::Exit;
+        },
+
+        GlutinEvent::WindowEvent {window_id, event} => {
+            //TODO: Check if event modifies state and then send event
+        },
+        GlutinEvent::DeviceEvent {device_id, event} => {
+            //TODO: Check if event modifies state and then send event
+        },
+
+        GlutinEvent::UserEvent(RequestRedraw) => {
+            gl_context.window().request_redraw();
+        },
+
+        GlutinEvent::RedrawRequested(_) => {
+            let draw_size = gl_context.window().inner_size();
+            renderer.render((/* TODO */), draw_size);
+        },
+
+        _ => {},
+    });
 }
 
 fn assert_main_thread() {
@@ -66,7 +107,7 @@ fn assert_main_thread() {
     }
 }
 
-fn spawn_async_server(event_loop: EventLoopProxy<()>) {
+fn spawn_async_server(event_loop: EventLoopProxy<RequestRedraw>) {
     let mut runtime = Runtime::new()
         .expect("unable to spawn tokio runtime to run turtle async server");
 
