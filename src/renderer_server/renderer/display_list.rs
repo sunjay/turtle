@@ -8,7 +8,7 @@ pub enum DrawPrim {
 pub struct PrimHandle(usize);
 
 /// A list of drawing primitives in the order that they are rendered
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct DisplayList {
     items: Vec<DrawPrim>,
 }
