@@ -108,13 +108,15 @@ fn assert_main_thread() {
 }
 
 fn spawn_async_server(event_loop: EventLoopProxy<RequestRedraw>) {
-    let mut runtime = Runtime::new()
-        .expect("unable to spawn tokio runtime to run turtle async server");
+    thread::spawn(move || {
+        let mut runtime = Runtime::new()
+            .expect("unable to spawn tokio runtime to run turtle async server");
 
-    // Spawn root task
-    runtime.block_on(async {
-        let mut server = RendererServer::new(event_loop).await
-            .expect("unable to establish turtle server connection");
-        server.serve().await;
+        // Spawn root task
+        runtime.block_on(async {
+            let mut server = RendererServer::new(event_loop).await
+                .expect("unable to establish turtle server connection");
+            server.serve().await;
+        });
     });
 }
