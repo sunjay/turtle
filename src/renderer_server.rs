@@ -12,7 +12,7 @@ use std::sync::Arc;
 use glutin::event_loop::EventLoopProxy;
 use tokio::io::{self, AsyncBufReadExt};
 
-use crate::ipc_protocol::{ServerConnection, ConnectionError};
+use crate::ipc_protocol::{ServerConnection, ConnectionError, ClientRequest, ServerResponse};
 
 use app::App;
 
@@ -49,6 +49,20 @@ impl RendererServer {
 
     /// Serves requests from the client forever
     pub async fn serve(&mut self) -> ! {
-        loop {}
+        loop {
+            let request = self.conn.recv().await
+                .expect("unable to receive request from IPC client");
+
+            use ClientRequest::*;
+            match request {
+                CreateTurtle => {
+                    let id = self.app.add_turtle().await;
+                    self.conn.send(ServerResponse::NewTurtle(id))
+                        .expect("unable to send IPC response");
+                },
+
+                _ => todo!()
+            }
+        }
     }
 }
