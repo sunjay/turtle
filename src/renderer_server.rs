@@ -12,16 +12,20 @@ use tokio::io::{self, AsyncBufReadExt};
 
 use crate::ipc_protocol::{ServerConnection, ConnectionError};
 
+/// A custom event used to tell the glutin event loop to redraw the window
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct RequestRedraw;
+
 /// Manages one or more connections to renderer clients
 #[derive(Debug)]
 struct RendererServer {
     conn: ServerConnection,
-    event_loop: EventLoopProxy<()>,
+    event_loop: EventLoopProxy<RequestRedraw>,
 }
 
 impl RendererServer {
     /// Establishes a connection to the client by reading from stdin
-    pub async fn new(event_loop: EventLoopProxy<()>) -> Result<Self, ConnectionError> {
+    pub async fn new(event_loop: EventLoopProxy<RequestRedraw>) -> Result<Self, ConnectionError> {
         let stdin = io::stdin();
         let mut reader = io::BufReader::new(stdin);
 
