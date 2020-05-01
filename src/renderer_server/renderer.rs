@@ -1,3 +1,5 @@
+pub mod display_list;
+
 use glutin::dpi::PhysicalSize;
 use pathfinder_canvas::{Canvas, CanvasFontContext, Path2D};
 use pathfinder_color::ColorF;
