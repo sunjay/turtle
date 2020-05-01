@@ -53,7 +53,8 @@ pub fn main() {
     let gl_context = ContextBuilder::new()
         .with_gl(GlRequest::Latest)
         .with_gl_profile(GlProfile::Core)
-        //TODO: .with_double_buffer(Some(true))
+        .with_vsync(true)
+        .with_double_buffer(Some(true))
         .build_windowed(window_builder, &event_loop)
         .expect("bug: either could not create window or could not build OpenGL context");
 
@@ -98,6 +99,7 @@ pub fn main() {
         GlutinEvent::RedrawRequested(_) => {
             let draw_size = gl_context.window().inner_size();
             renderer.render((/* TODO */), draw_size);
+            gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
         },
 
         _ => {},
