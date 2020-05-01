@@ -16,6 +16,8 @@ use pathfinder_renderer::{
     },
 };
 
+use display_list::{DrawPrim, DisplayList};
+
 /// A renderer that draws on the current OpenGL context
 pub struct Renderer {
     renderer: PathfinderRenderer<GLDevice>,
@@ -44,7 +46,7 @@ impl Renderer {
     /// Draw the given primitives onto a canvas of the given size
     ///
     /// Size is passed in to ensure that it is up-to-date
-    pub fn render(&mut self, prims: (/* TODO */), draw_size: PhysicalSize<u32>) {
+    pub fn render(&mut self, display_list: &DisplayList, draw_size: PhysicalSize<u32>) {
         //TODO: Use background color from Drawing state
         let background_color = ColorF::white();
 
