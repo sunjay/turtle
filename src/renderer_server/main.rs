@@ -1,4 +1,5 @@
 use std::thread;
+use std::sync::Arc;
 
 use glutin::{
     GlProfile,
@@ -16,9 +17,14 @@ use glutin::{
     },
     event_loop::{ControlFlow, EventLoop, EventLoopProxy},
 };
-use tokio::runtime::Runtime;
+use tokio::runtime::{Runtime, Handle};
 
-use super::{RendererServer, RequestRedraw, renderer::Renderer};
+use super::{
+    RendererServer,
+    RequestRedraw,
+    app::App,
+    renderer::Renderer,
+};
 
 /// Run the renderer process in the current thread
 ///
@@ -26,21 +32,22 @@ use super::{RendererServer, RequestRedraw, renderer::Renderer};
 pub fn main() {
     assert_main_thread();
 
-    //TODO: Use title, width and height from Drawing state instead of these hard-coded values
-    let title = "Turtle";
-    let width = 800.0; // px
-    let height = 600.0; // px
+    let app = Arc::new(App::default());
 
     let event_loop = EventLoop::with_user_event();
 
     // Spawn the actual server thread(s) that will handle incoming IPC messages and asynchronous
     // update the shared state
     let event_loop_proxy = event_loop.create_proxy();
-    spawn_async_server(event_loop_proxy);
+    spawn_async_server(app.clone(), event_loop_proxy);
 
-    let window_builder = WindowBuilder::new()
-        .with_title(title)
-        .with_inner_size(LogicalSize {width, height});
+    let window_builder = {
+        let handle = Handle::current();
+        let drawing = handle.block_on(app.drawing_mut());
+        WindowBuilder::new()
+            .with_title(&drawing.title)
+            .with_inner_size(LogicalSize {width: drawing.width, height: drawing.height})
+    };
 
     // Create an OpenGL 3.x context for Pathfinder to use
     let gl_context = ContextBuilder::new()
@@ -107,14 +114,14 @@ fn assert_main_thread() {
     }
 }
 
-fn spawn_async_server(event_loop: EventLoopProxy<RequestRedraw>) {
+fn spawn_async_server(app: Arc<App>, event_loop: EventLoopProxy<RequestRedraw>) {
     thread::spawn(move || {
         let mut runtime = Runtime::new()
             .expect("unable to spawn tokio runtime to run turtle async server");
 
         // Spawn root task
         runtime.block_on(async {
-            let mut server = RendererServer::new(event_loop).await
+            let mut server = RendererServer::new(app, event_loop).await
                 .expect("unable to establish turtle server connection");
             server.serve().await;
         });
