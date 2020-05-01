@@ -14,7 +14,7 @@ use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender, IpcError};
 
-use crate::renderer_client::RendererServerProcess;
+use crate::renderer_client::{ClientId, RendererServerProcess};
 
 use async_ipc_receiver::AsyncIpcReceiver;
 
@@ -34,16 +34,16 @@ enum HandshakeResponse {
     /// Provides the sender that the client should use to send further requests to the server. This
     /// message is only ever sent **once** for each client at the beginning when the connection is
     /// first established.
-    HandshakeFinish(IpcSender<ClientRequest>),
+    HandshakeFinish(IpcSender<(ClientId, ClientRequest)>),
 
     /// A response from the server sent in response to a request
-    Response(ServerResponse),
+    Response(ClientId, ServerResponse),
 }
 
 /// Represents the client side of the IPC connection
 #[derive(Debug)]
 pub struct ClientConnection {
-    sender: IpcSender<ClientRequest>,
+    sender: IpcSender<(ClientId, ClientRequest)>,
     receiver: AsyncIpcReceiver<HandshakeResponse>,
 }
 
@@ -67,15 +67,15 @@ impl ClientConnection {
     }
 
     /// Sends a request to the server via IPC
-    pub fn send(&self, req: ClientRequest) -> Result<(), ipc_channel::Error> {
-        self.sender.send(req)
+    pub fn send(&self, id: ClientId, req: ClientRequest) -> Result<(), ipc_channel::Error> {
+        self.sender.send((id, req))
     }
 
     /// Waits for a response from the server via IPC
-    pub async fn recv(&self) -> Result<ServerResponse, IpcError> {
+    pub async fn recv(&self) -> Result<(ClientId, ServerResponse), IpcError> {
         let response = self.receiver.recv().await?;
         match response {
-            HandshakeResponse::Response(response) => Ok(response),
+            HandshakeResponse::Response(id, response) => Ok((id, response)),
             _ => unreachable!("bug: server did not send response after request"),
         }
     }
@@ -85,7 +85,7 @@ impl ClientConnection {
 #[derive(Debug)]
 pub struct ServerConnection {
     sender: IpcSender<HandshakeResponse>,
-    receiver: AsyncIpcReceiver<ClientRequest>,
+    receiver: AsyncIpcReceiver<(ClientId, ClientRequest)>,
 }
 
 impl ServerConnection {
@@ -103,14 +103,14 @@ impl ServerConnection {
     }
 
     /// Returns the next request, waiting until one is available
-    pub async fn recv(&self) -> Result<ClientRequest, IpcError> {
+    pub async fn recv(&self) -> Result<(ClientId, ClientRequest), IpcError> {
         self.receiver.recv().await
     }
 
     /// Sends a response to the client
     ///
     /// This should only ever be done in response to a request
-    pub fn send(&mut self, res: ServerResponse) -> Result<(), ipc_channel::Error> {
-        self.sender.send(HandshakeResponse::Response(res))
+    pub fn send(&mut self, id: ClientId, res: ServerResponse) -> Result<(), ipc_channel::Error> {
+        self.sender.send(HandshakeResponse::Response(id, res))
     }
 }

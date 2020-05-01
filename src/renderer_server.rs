@@ -50,14 +50,14 @@ impl RendererServer {
     /// Serves requests from the client forever
     pub async fn serve(&mut self) -> ! {
         loop {
-            let request = self.conn.recv().await
+            let (client_id, request) = self.conn.recv().await
                 .expect("unable to receive request from IPC client");
 
             use ClientRequest::*;
             match request {
                 CreateTurtle => {
                     let id = self.app.add_turtle().await;
-                    self.conn.send(ServerResponse::NewTurtle(id))
+                    self.conn.send(client_id, ServerResponse::NewTurtle(id))
                         .expect("unable to send IPC response");
                 },
 
