@@ -66,8 +66,10 @@
 
 use std::sync::Arc;
 
-use tokio::sync::{Mutex, Barrier};
+use tokio::sync::{Mutex, MutexGuard, Barrier};
+use futures_util::future::join_all;
 
+use super::state::DrawingState;
 use super::app::{App, TurtleDrawings, TurtleId};
 
 #[derive(Debug, Clone)]
@@ -93,15 +95,76 @@ pub enum RequiredTurtles {
 #[derive(Default, Debug, Clone)]
 pub struct RequiredData {
     /// If true, the drawing state will be locked and provided in the data
-    drawing: bool,
+    pub drawing: bool,
 
     /// Requests access to none, some, or all of the turtles
-    turtles: Option<RequiredTurtles>,
+    pub turtles: Option<RequiredTurtles>,
+}
+
+/// Provides access to turtles
+///
+/// Due to some limitations of the locking APIs, these are not provided as lock guards. Each turtle
+/// must be locked before it can be used. It is guaranteed that no other call to `get()` through
+/// `AccessControl` will have access to the same turtles, so the locking should be uncontended. The
+/// only caveat is that the renderer may have locked all of the turtles, so the command may have to
+/// wait for that operation to complete.
+#[derive(Debug)]
+enum Turtles {
+    // NOTE: A similar note to the one on `RequiredTurtles` applies here too
+
+    /// Access to a single turtle
+    One(Arc<Mutex<TurtleDrawings>>),
+
+    /// Access to two turtles
+    Two(Arc<Mutex<TurtleDrawings>>, Arc<Mutex<TurtleDrawings>>),
+
+    /// Access to all the turtles
+    All(Vec<Arc<Mutex<TurtleDrawings>>>),
+}
+
+#[derive(Debug)]
+pub enum TurtlesGuard<'a> {
+    // NOTE: A similar note to the one on `RequiredTurtles` applies here too
+
+    /// Access to a single turtle
+    One(MutexGuard<'a, TurtleDrawings>),
+
+    /// Access to two turtles
+    Two(MutexGuard<'a, TurtleDrawings>, MutexGuard<'a, TurtleDrawings>),
+
+    /// Access to all the turtles
+    All(Vec<MutexGuard<'a, TurtleDrawings>>),
 }
 
 /// A locked version of all the required data once it is ready
 #[derive(Debug)]
-pub struct DataGuard {
+pub struct DataGuard<'a> {
+    /// If `RequiredData::drawing` was true, this field will contain the locked drawing state
+    drawing: Option<MutexGuard<'a, DrawingState>>,
+
+    /// The turtles requested in `RequiredData::turtles`
+    turtles: Option<Turtles>,
+}
+
+impl<'a> DataGuard<'a> {
+    /// Gets a mutable reference to the drawing state or panics if it was not requested in `get()`
+    pub fn drawing_mut(&mut self) -> &mut DrawingState {
+        self.drawing.as_mut()
+            .expect("attempt to fetch drawing when it was not requested")
+    }
+
+    /// Gets the mutable locked turtles that were requested or panics if none were requested
+    pub async fn turtles_mut(&mut self) -> TurtlesGuard<'_> {
+        let turtles = self.turtles.as_mut()
+            .expect("attempt to fetch turtles when none were requested");
+
+        use Turtles::*;
+        match turtles {
+            One(turtle) => TurtlesGuard::One(turtle.lock().await),
+            Two(turtle1, turtle2) => TurtlesGuard::Two(turtle1.lock().await, turtle2.lock().await),
+            All(turtles) => TurtlesGuard::All(join_all(turtles.iter().map(|t| t.lock())).await),
+        }
+    }
 }
 
 /// Manages access to the app state, enforcing the rules around sequential consistency and
@@ -127,7 +190,7 @@ impl AccessControl {
     }
 
     /// Requests the opportunity to potentially read or modify all turtles
-    pub async fn get(&self, req_data: RequiredData) -> DataGuard {
+    pub async fn get(&self, req_data: RequiredData) -> DataGuard<'_> {
         todo!()
     }
 }
