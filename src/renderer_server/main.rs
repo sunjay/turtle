@@ -23,7 +23,6 @@ use tokio::{
 };
 
 use super::{
-    RendererServer,
     RequestRedraw,
     app::App,
     renderer::{
@@ -143,9 +142,9 @@ fn spawn_async_server(
 
         // Spawn root task
         runtime.block_on(async {
-            let mut server = RendererServer::new(app, display_list, event_loop).await
+            let conn = super::connect().await
                 .expect("unable to establish turtle server connection");
-            server.serve().await;
+            super::serve(conn, app, display_list, event_loop).await;
         });
     });
 }
