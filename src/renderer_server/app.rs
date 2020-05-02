@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 use tokio::sync::{RwLock, Mutex, MutexGuard};
 
 use super::state::{TurtleState, DrawingState};
-use super::renderer::display_list::{DisplayList, PrimHandle};
+use super::renderer::display_list::PrimHandle;
 
 /// The unique ID of a particular turtle
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -19,8 +19,6 @@ pub struct TurtleDrawings {
 /// The entire state of the application, shared between threads in the server
 #[derive(Default, Debug)]
 pub struct App {
-    /// All of the drawing primitives in the order in which they wil be drawn
-    display_list: Mutex<DisplayList>,
     /// The current state of the drawing
     drawing: Mutex<DrawingState>,
     /// Each `TurtleId` indexes into this field
@@ -40,11 +38,6 @@ impl App {
         let id = TurtleId(turtles.len());
         turtles.push(Default::default());
         id
-    }
-
-    /// Returns a mutable handle to the display list
-    pub async fn display_list_mut(&self) -> MutexGuard<'_, DisplayList> {
-        self.display_list.lock().await
     }
 
     /// Returns a mutable handle to the drawing state
