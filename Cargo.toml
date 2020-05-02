@@ -43,6 +43,8 @@ gl = "0.14"
 ipc-channel = "0.14"
 thiserror = "1.0"
 
+futures-util = "0.3"
+
 [dependencies.tokio]
 version = "0.2"
 default-features = false
