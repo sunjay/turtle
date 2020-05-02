@@ -24,55 +24,44 @@ use renderer::display_list::DisplayList;
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct RequestRedraw;
 
-/// Manages one or more connections to renderer clients
-#[derive(Debug)]
-struct RendererServer {
+/// Establishes a connection to the client by reading from stdin
+async fn connect() -> Result<ServerConnection, ConnectionError> {
+    let stdin = io::stdin();
+    let mut reader = io::BufReader::new(stdin);
+
+    let mut oneshot_name = String::new();
+    reader.read_line(&mut oneshot_name).await?;
+    if oneshot_name.is_empty() {
+        panic!("bug: unexpected EOF when reading oneshot server name");
+    }
+
+    // Remove the trailing newline
+    assert_eq!(oneshot_name.pop(), Some('\n'));
+    let conn = ServerConnection::connect(oneshot_name)?;
+
+    Ok(conn)
+}
+
+/// Serves requests from the client forever
+async fn serve(
+    mut conn: ServerConnection,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopProxy<RequestRedraw>,
+) -> ! {
+    loop {
+        let (client_id, request) = conn.recv().await
+            .expect("unable to receive request from IPC client");
 
-    conn: ServerConnection,
-}
+        use ClientRequest::*;
+        match request {
+            CreateTurtle => {
+                let id = app.add_turtle().await;
+                conn.send(client_id, ServerResponse::NewTurtle(id))
+                    .expect("unable to send IPC response");
+            },
 
-impl RendererServer {
-    /// Establishes a connection to the client by reading from stdin
-    pub async fn new(
-        app: Arc<App>,
-        display_list: Arc<Mutex<DisplayList>>,
-        event_loop: EventLoopProxy<RequestRedraw>,
-    ) -> Result<Self, ConnectionError> {
-        let stdin = io::stdin();
-        let mut reader = io::BufReader::new(stdin);
-
-        let mut oneshot_name = String::new();
-        reader.read_line(&mut oneshot_name).await?;
-        if oneshot_name.is_empty() {
-            panic!("bug: unexpected EOF when reading oneshot server name");
-        }
-
-        // Remove the trailing newline
-        assert_eq!(oneshot_name.pop(), Some('\n'));
-        let conn = ServerConnection::connect(oneshot_name)?;
-
-        Ok(Self {app, display_list, event_loop, conn})
-    }
-
-    /// Serves requests from the client forever
-    pub async fn serve(&mut self) -> ! {
-        loop {
-            let (client_id, request) = self.conn.recv().await
-                .expect("unable to receive request from IPC client");
-
-            use ClientRequest::*;
-            match request {
-                CreateTurtle => {
-                    let id = self.app.add_turtle().await;
-                    self.conn.send(client_id, ServerResponse::NewTurtle(id))
-                        .expect("unable to send IPC response");
-                },
-
-                _ => todo!()
-            }
+            _ => todo!()
         }
     }
 }
