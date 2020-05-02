@@ -40,7 +40,6 @@ pathfinder_gl = "0.5"
 glutin = "0.23"
 gl = "0.14"
 
-sharded-slab = "0.0.9"
 ipc-channel = "0.14"
 thiserror = "1.0"
 
