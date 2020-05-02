@@ -1,5 +1,6 @@
 mod state;
 mod app;
+mod access_control;
 mod renderer;
 mod main;
 mod start;
@@ -18,6 +19,7 @@ use tokio::{
 use crate::ipc_protocol::{ServerConnection, ConnectionError, ClientRequest, ServerResponse};
 
 use app::App;
+use access_control::AccessControl;
 use renderer::display_list::DisplayList;
 
 /// A custom event used to tell the glutin event loop to redraw the window
@@ -49,6 +51,8 @@ async fn serve(
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopProxy<RequestRedraw>,
 ) -> ! {
+    let app_control = AccessControl::new(app);
+
     loop {
         let (client_id, request) = conn.recv().await
             .expect("unable to receive request from IPC client");
@@ -56,7 +60,7 @@ async fn serve(
         use ClientRequest::*;
         match request {
             CreateTurtle => {
-                let id = app.add_turtle().await;
+                let id = app_control.add_turtle().await;
                 conn.send(client_id, ServerResponse::NewTurtle(id))
                     .expect("unable to send IPC response");
             },
