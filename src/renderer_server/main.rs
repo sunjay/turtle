@@ -17,13 +17,19 @@ use glutin::{
     },
     event_loop::{ControlFlow, EventLoop, EventLoopProxy},
 };
-use tokio::runtime::{Runtime, Handle};
+use tokio::{
+    sync::Mutex,
+    runtime::{Runtime, Handle},
+};
 
 use super::{
     RendererServer,
     RequestRedraw,
     app::App,
-    renderer::Renderer,
+    renderer::{
+        Renderer,
+        display_list::DisplayList,
+    },
 };
 
 /// Run the renderer process in the current thread
@@ -32,14 +38,21 @@ use super::{
 pub fn main() {
     assert_main_thread();
 
+    // The state of the drawing and the state/drawings associated with each turtle
     let app = Arc::new(App::default());
+    // All of the drawing primitives in the order in which they wil be drawn
+    //
+    // This is managed separately from the rest of the app state because the display list is shared
+    // among pretty much everything and so critical sections containing the display list need to be
+    // as short as possible.
+    let display_list = Arc::new(Mutex::new(DisplayList::default()));
 
     let event_loop = EventLoop::with_user_event();
 
     // Spawn the actual server thread(s) that will handle incoming IPC messages and asynchronous
     // update the shared state
     let event_loop_proxy = event_loop.create_proxy();
-    spawn_async_server(app.clone(), event_loop_proxy);
+    spawn_async_server(app.clone(), display_list.clone(), event_loop_proxy);
 
     let window_builder = {
         let handle = Handle::current();
@@ -98,7 +111,7 @@ pub fn main() {
 
         GlutinEvent::RedrawRequested(_) => {
             let handle = Handle::current();
-            let display_list = handle.block_on(app.display_list_mut());
+            let display_list = handle.block_on(display_list.lock());
 
             let draw_size = gl_context.window().inner_size();
             renderer.render(&display_list, draw_size);
@@ -119,14 +132,18 @@ fn assert_main_thread() {
     }
 }
 
-fn spawn_async_server(app: Arc<App>, event_loop: EventLoopProxy<RequestRedraw>) {
+fn spawn_async_server(
+    app: Arc<App>,
+    display_list: Arc<Mutex<DisplayList>>,
+    event_loop: EventLoopProxy<RequestRedraw>,
+) {
     thread::spawn(move || {
         let mut runtime = Runtime::new()
             .expect("unable to spawn tokio runtime to run turtle async server");
 
         // Spawn root task
         runtime.block_on(async {
-            let mut server = RendererServer::new(app, event_loop).await
+            let mut server = RendererServer::new(app, display_list, event_loop).await
                 .expect("unable to establish turtle server connection");
             server.serve().await;
         });

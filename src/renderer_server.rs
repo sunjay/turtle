@@ -10,11 +10,15 @@ pub use start::start;
 use std::sync::Arc;
 
 use glutin::event_loop::EventLoopProxy;
-use tokio::io::{self, AsyncBufReadExt};
+use tokio::{
+    sync::Mutex,
+    io::{self, AsyncBufReadExt},
+};
 
 use crate::ipc_protocol::{ServerConnection, ConnectionError, ClientRequest, ServerResponse};
 
 use app::App;
+use renderer::display_list::DisplayList;
 
 /// A custom event used to tell the glutin event loop to redraw the window
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -24,13 +28,19 @@ struct RequestRedraw;
 #[derive(Debug)]
 struct RendererServer {
     app: Arc<App>,
-    conn: ServerConnection,
+    display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopProxy<RequestRedraw>,
+
+    conn: ServerConnection,
 }
 
 impl RendererServer {
     /// Establishes a connection to the client by reading from stdin
-    pub async fn new(app: Arc<App>, event_loop: EventLoopProxy<RequestRedraw>) -> Result<Self, ConnectionError> {
+    pub async fn new(
+        app: Arc<App>,
+        display_list: Arc<Mutex<DisplayList>>,
+        event_loop: EventLoopProxy<RequestRedraw>,
+    ) -> Result<Self, ConnectionError> {
         let stdin = io::stdin();
         let mut reader = io::BufReader::new(stdin);
 
@@ -44,7 +54,7 @@ impl RendererServer {
         assert_eq!(oneshot_name.pop(), Some('\n'));
         let conn = ServerConnection::connect(oneshot_name)?;
 
-        Ok(Self {app, conn, event_loop})
+        Ok(Self {app, display_list, event_loop, conn})
     }
 
     /// Serves requests from the client forever
