@@ -14,6 +14,12 @@ pub struct TurtleId(usize);
 pub struct TurtleDrawings {
     pub state: TurtleState,
     pub drawings: Vec<PrimHandle>,
+    /// If the turtle is currently filling, this is the handle to the fill polygon that new points
+    /// should be appended to
+    ///
+    /// This handle will already be present in `drawings`, so it does not need to be added after
+    /// the fill has begun.
+    pub current_fill_polygon: Option<PrimHandle>,
 }
 
 /// The entire state of the application, shared between threads in the server

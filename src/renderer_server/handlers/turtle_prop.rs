@@ -57,7 +57,7 @@ pub async fn set_turtle_prop(
     }).await;
     let mut turtles = data.turtles_mut().await;
 
-    let TurtleDrawings {state: turtle, ..} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
 
     use TurtlePropValue::*;
     use PenPropValue::*;
@@ -65,12 +65,15 @@ pub async fn set_turtle_prop(
         Pen(IsEnabled(is_enabled)) => turtle.pen.is_enabled = is_enabled,
         Pen(Thickness(thickness)) => turtle.pen.thickness = thickness,
         Pen(Color(color)) => turtle.pen.color = color,
-        FillColor(fill_color) => turtle.fill_color = fill_color,
-        IsFilling(is_filling) => turtle.is_filling = is_filling,
-        Position(position) => turtle.position = position,
-        PositionX(x) => turtle.position.x = x,
-        PositionY(y) => turtle.position.y = y,
-        Heading(heading) => turtle.heading = heading,
+        FillColor(fill_color) => {
+            turtle.fill_color = fill_color;
+            //TODO: Update current fill polygon color if there is a fill polygon
+        },
+        IsFilling(_) => unreachable!("bug: should have used `BeginFill` and `EndFill` instead"),
+        Position(_) |
+        PositionX(_) |
+        PositionY(_) => unreachable!("bug: should have used `MoveTo` instead"),
+        Heading(heading) => unreachable!("bug: should have used `RotateInPlace` instead"),
         Speed(speed) => turtle.speed = speed,
         IsVisible(is_visible) => turtle.is_visible = is_visible,
     }
