@@ -65,8 +65,10 @@
 //! at the front of all the queues it is in.
 
 use std::sync::Arc;
+use std::future::Future;
+use std::collections::HashMap;
 
-use tokio::sync::{Mutex, MutexGuard, Barrier};
+use tokio::sync::{RwLock, Mutex, MutexGuard, Barrier, oneshot, mpsc};
 use futures_util::future::join_all;
 
 use super::state::DrawingState;
@@ -167,17 +169,50 @@ impl<'a> DataGuard<'a> {
     }
 }
 
-/// Manages access to the app state, enforcing the rules around sequential consistency and
-/// concurrent access
-#[derive(Debug)]
-pub struct AccessControl {
-    app: Arc<App>,
+struct DataRequest<T> {
+    data_ready: Arc<Barrier>,
+    data: oneshot::Sender<T>,
+    operation_complete: Arc<Barrier>,
+    complete: oneshot::Receiver<()>,
 }
 
-impl AccessControl {
-    pub fn new(app: Arc<App>) -> Self {
+struct DataChannel<'a, T: 'a> {
+    app: Arc<App>,
+    /// Defines how to get the data to be sent from this channel from App
+    ///
+    /// Using a function pointer avoids an extra generic parameter that really isn't needed
+    lock_data: fn(&'a App) -> Box<dyn Future<Output=T>>,
+    sender: mpsc::UnboundedSender<DataRequest<T>>,
+    receiver: mpsc::UnboundedReceiver<T>,
+}
+
+impl<'a, T: 'a> DataChannel<'a, T> {
+    pub async fn spawn(app: Arc<App>, lock_data: fn(&'a App) -> Box<dyn Future<Output=T>>) -> Self {
+        todo!()
+    }
+}
+
+/// Manages access to the app state, enforcing the rules around sequential consistency and
+/// concurrent access
+pub struct AccessControl<'a> {
+    app: Arc<App>,
+    drawing_channel: DataChannel<'a, MutexGuard<'a, DrawingState>>,
+    turtle_channels: RwLock<HashMap<TurtleId, DataChannel<'a, Arc<Mutex<TurtleDrawings>>>>>,
+}
+
+impl<'a> AccessControl<'a> {
+    /// Creates a struct that will manage access to the given App data
+    ///
+    /// This struct assumes that App will only be managed here. That is, App should never be
+    /// mutated without first going through this struct. Reading data externally is fine.
+    pub async fn new(app: Arc<App>) -> AccessControl<'a> {
+        assert_eq!(app.turtles_len().await, 0,
+            "bug: access control assumes that turtles are only added through itself");
+
         Self {
             app,
+            drawing_channel: DataChannel::spawn(app.clone(), |app| Box::new(app.drawing_mut())).await,
+            turtle_channels: Default::default(),
         }
     }
 
@@ -186,7 +221,13 @@ impl AccessControl {
     /// This does not need any ordering protection because it is impossible for any command to
     /// depend on the data for a turtle that hasn't been created yet.
     pub async fn add_turtle(&self) -> TurtleId {
-        self.app.add_turtle().await
+        let id = self.app.add_turtle().await;
+
+        let chan = DataChannel::spawn(self.app.clone(), |app| Box::new(app.turtle(id))).await;
+        let mut turtle_channels = self.turtle_channels.write().await;
+        turtle_channels.insert(id, chan);
+
+        id
     }
 
     /// Requests the opportunity to potentially read or modify all turtles
