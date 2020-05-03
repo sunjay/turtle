@@ -188,6 +188,32 @@ pub enum TurtlesGuard<'a> {
     All(Vec<MutexGuard<'a, TurtleDrawings>>),
 }
 
+impl<'a> TurtlesGuard<'a> {
+    pub fn one_mut(&mut self) -> &mut TurtleDrawings {
+        use TurtlesGuard::*;
+        match self {
+            One(turtle) => turtle,
+            _ => unreachable!("bug: expected exactly one turtle"),
+        }
+    }
+
+    pub fn two_mut(&mut self) -> (&mut TurtleDrawings, &mut TurtleDrawings) {
+        use TurtlesGuard::*;
+        match self {
+            Two(turtle1, turtle2) => (turtle1, turtle2),
+            _ => unreachable!("bug: expected exactly two turtles"),
+        }
+    }
+
+    pub fn all_mut(&mut self) -> &[MutexGuard<TurtleDrawings>] {
+        use TurtlesGuard::*;
+        match self {
+            All(turtles) => turtles,
+            _ => unreachable!("bug: expected all of the turtles"),
+        }
+    }
+}
+
 /// A locked version of all the required data once it is ready
 #[derive(Debug)]
 pub struct DataGuard<'a> {
@@ -202,13 +228,13 @@ impl<'a> DataGuard<'a> {
     /// Gets a mutable reference to the drawing state or panics if it was not requested in `get()`
     pub fn drawing_mut(&mut self) -> &mut DrawingState {
         self.drawing.as_mut()
-            .expect("attempt to fetch drawing when it was not requested")
+            .expect("bug: attempt to fetch drawing when it was not requested")
     }
 
     /// Gets the mutable locked turtles that were requested or panics if none were requested
     pub async fn turtles_mut(&mut self) -> TurtlesGuard<'_> {
         let turtles = self.turtles.as_mut()
-            .expect("attempt to fetch turtles when none were requested");
+            .expect("bug: attempt to fetch turtles when none were requested");
 
         use Turtles::*;
         match turtles {
