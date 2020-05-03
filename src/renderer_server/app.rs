@@ -45,6 +45,10 @@ impl App {
         self.drawing.lock().await
     }
 
+    pub async fn turtles_len(&self) -> usize {
+        self.turtles.read().await.len()
+    }
+
     /// Returns a handle to a the state and drawings of the given turtle
     pub async fn turtle(&self, id: TurtleId) -> Arc<Mutex<TurtleDrawings>> {
         let TurtleId(index) = id;

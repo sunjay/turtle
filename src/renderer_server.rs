@@ -51,7 +51,7 @@ async fn serve(
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopProxy<RequestRedraw>,
 ) -> ! {
-    let app_control = AccessControl::new(app);
+    let app_control = AccessControl::new(app).await;
 
     loop {
         let (client_id, request) = conn.recv().await
