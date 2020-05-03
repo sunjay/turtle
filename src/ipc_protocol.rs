@@ -12,6 +12,7 @@ use std::io;
 
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
+use tokio::sync::Mutex;
 use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender, IpcError};
 
 use crate::renderer_client::{ClientId, RendererServerProcess};
@@ -84,7 +85,7 @@ impl ClientConnection {
 /// Represents the server side of the IPC connection
 #[derive(Debug)]
 pub struct ServerConnection {
-    sender: IpcSender<HandshakeResponse>,
+    sender: Mutex<IpcSender<HandshakeResponse>>,
     receiver: AsyncIpcReceiver<(ClientId, ClientRequest)>,
 }
 
@@ -97,6 +98,7 @@ impl ServerConnection {
         // Finish handshake by giving client a sender it can use to send messages to the server
         sender.send(HandshakeResponse::HandshakeFinish(server_sender))?;
 
+        let sender = Mutex::new(sender);
         let receiver = AsyncIpcReceiver::new(receiver);
 
         Ok(Self {sender, receiver})
@@ -110,7 +112,8 @@ impl ServerConnection {
     /// Sends a response to the client
     ///
     /// This should only ever be done in response to a request
-    pub fn send(&mut self, id: ClientId, res: ServerResponse) -> Result<(), ipc_channel::Error> {
-        self.sender.send(HandshakeResponse::Response(id, res))
+    pub async fn send(&self, id: ClientId, res: ServerResponse) -> Result<(), ipc_channel::Error> {
+        self.sender.lock().await
+            .send(HandshakeResponse::Response(id, res))
     }
 }

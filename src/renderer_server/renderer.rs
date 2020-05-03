@@ -1,4 +1,5 @@
 pub mod display_list;
+pub mod export;
 
 use glutin::dpi::PhysicalSize;
 use pathfinder_canvas::{Canvas, CanvasFontContext, Path2D};
