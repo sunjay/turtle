@@ -3,7 +3,7 @@ mod drawing_prop;
 mod turtle_prop;
 mod animation;
 
-pub use export_drawings::*;
-pub use drawing_prop::*;
-pub use turtle_prop::*;
-pub use animation::*;
+pub(crate) use export_drawings::*;
+pub(crate) use drawing_prop::*;
+pub(crate) use turtle_prop::*;
+pub(crate) use animation::*;

@@ -11,7 +11,7 @@ use crate::renderer_client::ClientId;
 use super::super::app::{TurtleId, TurtleDrawings};
 use super::super::access_control::{AccessControl, RequiredData, RequiredTurtles};
 
-pub async fn turtle_prop(
+pub(crate) async fn turtle_prop(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -46,7 +46,7 @@ pub async fn turtle_prop(
         .expect("unable to send response to IPC client");
 }
 
-pub async fn set_turtle_prop(
+pub(crate) async fn set_turtle_prop(
     app_control: &AccessControl,
     id: TurtleId,
     prop_value: TurtlePropValue,

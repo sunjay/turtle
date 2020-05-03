@@ -14,7 +14,7 @@ use super::super::app::{TurtleId, TurtleDrawings};
 use super::super::access_control::{AccessControl, RequiredData, RequiredTurtles};
 use super::super::renderer::display_list::{DisplayList, PrimHandle};
 
-pub async fn move_forward(
+pub(crate) async fn move_forward(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -46,7 +46,7 @@ pub async fn move_forward(
         .expect("unable to send response to IPC client");
 }
 
-pub async fn move_to(
+pub(crate) async fn move_to(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -80,7 +80,7 @@ async fn animate_movement(
     //TODO
 }
 
-pub async fn rotate_in_place(
+pub(crate) async fn rotate_in_place(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,

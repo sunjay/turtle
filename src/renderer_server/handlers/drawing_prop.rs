@@ -8,7 +8,7 @@ use crate::renderer_client::ClientId;
 
 use super::super::access_control::{AccessControl, RequiredData};
 
-pub async fn drawing_prop(
+pub(crate) async fn drawing_prop(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -37,7 +37,7 @@ pub async fn drawing_prop(
         .expect("unable to send response to IPC client");
 }
 
-pub async fn set_drawing_prop(app_control: &AccessControl, prop_value: DrawingPropValue) {
+pub(crate) async fn set_drawing_prop(app_control: &AccessControl, prop_value: DrawingPropValue) {
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: None,
