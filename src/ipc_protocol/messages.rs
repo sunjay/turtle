@@ -64,6 +64,18 @@ pub enum ClientRequest {
     ///
     /// Response: `ServerResponse::AnimationComplete`
     MoveForward(TurtleId, Distance),
+    /// Move a turtle to the given position
+    ///
+    /// The turtle movement is animated at its current speed. This may draw a line if the turtle's
+    /// pen is down. It may also result in a change to the current fill if the turtle is currently
+    /// filling a shape.
+    ///
+    /// The response to this request provides no additional information, but is necessary to ensure
+    /// that animations that should be sequenced, can be sequenced correctly. Without a signal for
+    /// when the animation is complete, there would be no way to know when to start the next one.
+    ///
+    /// Response: `ServerResponse::AnimationComplete`
+    MoveTo(TurtleId, Point),
     /// Rotate a turtle in place by the given angle in the given direction
     ///
     /// The turtle rotates with an animation at its current speed. It will not draw any line while
