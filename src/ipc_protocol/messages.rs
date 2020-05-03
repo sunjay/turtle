@@ -143,8 +143,8 @@ pub enum DrawingProp {
     Size,
     Width,
     Height,
-    Maximized,
-    Fullscreen,
+    IsMaximized,
+    IsFullscreen,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -155,8 +155,8 @@ pub enum DrawingPropValue {
     Size(Size),
     Width(u32),
     Height(u32),
-    Maximized(bool),
-    Fullscreen(bool),
+    IsMaximized(bool),
+    IsFullscreen(bool),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
