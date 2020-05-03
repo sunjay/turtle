@@ -22,6 +22,8 @@ use tokio::{
     runtime::{Runtime, Handle},
 };
 
+use crate::ipc_protocol::ServerConnection;
+
 use super::{
     RequestRedraw,
     app::App,
@@ -142,7 +144,7 @@ fn spawn_async_server(
 
         // Spawn root task
         runtime.block_on(async {
-            let conn = super::connect().await
+            let conn = ServerConnection::connect_stdin().await
                 .expect("unable to establish turtle server connection");
             super::serve(conn, app, display_list, event_loop).await;
         });
