@@ -26,10 +26,14 @@ use crate::ipc_protocol::{
     ExportFormat,
     DrawingProp,
     DrawingPropValue,
+    TurtleProp,
+    TurtlePropValue,
+    PenProp,
+    PenPropValue,
 };
 use crate::renderer_client::ClientId;
 
-use app::App;
+use app::{App, TurtleDrawings};
 use access_control::{AccessControl, RequiredData, RequiredTurtles};
 use renderer::{export, display_list::DisplayList};
 
@@ -114,6 +118,13 @@ async fn run_request(
             set_drawing_prop(&app_control, prop_value).await
         },
 
+        TurtleProp(id, prop) => {
+            turtle_prop(&conn, client_id, &app_control, id, prop).await
+        },
+        SetTurtleProp(id, prop_value) => {
+            set_turtle_prop(&app_control, id, prop_value).await
+        },
+
         _ => todo!()
     }
 }
@@ -195,5 +206,70 @@ async fn set_drawing_prop(app_control: &AccessControl, prop_value: DrawingPropVa
         Height(height) => drawing.height = height,
         IsMaximized(is_maximized) => drawing.is_maximized = is_maximized,
         IsFullscreen(is_fullscreen) => drawing.is_fullscreen = is_fullscreen,
+    }
+}
+
+async fn turtle_prop(
+    conn: &ServerConnection,
+    client_id: ClientId,
+    app_control: &AccessControl,
+    id: TurtleId,
+    prop: TurtleProp,
+) {
+    let mut data = app_control.get(RequiredData {
+        drawing: false,
+        turtles: Some(RequiredTurtles::One(id)),
+    }).await;
+    let mut turtles = data.turtles_mut().await;
+
+    let TurtleDrawings {state: turtle, ..} = turtles.one_mut();
+
+    use TurtleProp::*;
+    use PenProp::*;
+    let value = match prop {
+        Pen(IsEnabled) => TurtlePropValue::Pen(PenPropValue::IsEnabled(turtle.pen.is_enabled)),
+        Pen(Thickness) => TurtlePropValue::Pen(PenPropValue::Thickness(turtle.pen.thickness)),
+        Pen(Color) => TurtlePropValue::Pen(PenPropValue::Color(turtle.pen.color)),
+        FillColor => TurtlePropValue::FillColor(turtle.fill_color),
+        IsFilling => TurtlePropValue::IsFilling(turtle.is_filling),
+        Position => TurtlePropValue::Position(turtle.position),
+        PositionX => TurtlePropValue::PositionX(turtle.position.x),
+        PositionY => TurtlePropValue::PositionY(turtle.position.y),
+        Heading => TurtlePropValue::Heading(turtle.heading),
+        Speed => TurtlePropValue::Speed(turtle.speed),
+        IsVisible => TurtlePropValue::IsVisible(turtle.is_visible),
+    };
+
+    conn.send(client_id, ServerResponse::TurtleProp(id, value)).await
+        .expect("unable to send response to IPC client");
+}
+
+async fn set_turtle_prop(
+    app_control: &AccessControl,
+    id: TurtleId,
+    prop_value: TurtlePropValue,
+) {
+    let mut data = app_control.get(RequiredData {
+        drawing: false,
+        turtles: Some(RequiredTurtles::One(id)),
+    }).await;
+    let mut turtles = data.turtles_mut().await;
+
+    let TurtleDrawings {state: turtle, ..} = turtles.one_mut();
+
+    use TurtlePropValue::*;
+    use PenPropValue::*;
+    match prop_value {
+        Pen(IsEnabled(is_enabled)) => turtle.pen.is_enabled = is_enabled,
+        Pen(Thickness(thickness)) => turtle.pen.thickness = thickness,
+        Pen(Color(color)) => turtle.pen.color = color,
+        FillColor(fill_color) => turtle.fill_color = fill_color,
+        IsFilling(is_filling) => turtle.is_filling = is_filling,
+        Position(position) => turtle.position = position,
+        PositionX(x) => turtle.position.x = x,
+        PositionY(y) => turtle.position.y = y,
+        Heading(heading) => turtle.heading = heading,
+        Speed(speed) => turtle.speed = speed,
+        IsVisible(is_visible) => turtle.is_visible = is_visible,
     }
 }
