@@ -166,8 +166,8 @@ async fn drawing_prop(
         Size => DrawingPropValue::Size(crate::Size {width: drawing.width, height: drawing.height}),
         Width => DrawingPropValue::Width(drawing.width),
         Height => DrawingPropValue::Height(drawing.height),
-        Maximized => DrawingPropValue::Maximized(drawing.is_maximized),
-        Fullscreen => DrawingPropValue::Fullscreen(drawing.is_fullscreen),
+        IsMaximized => DrawingPropValue::IsMaximized(drawing.is_maximized),
+        IsFullscreen => DrawingPropValue::IsFullscreen(drawing.is_fullscreen),
     };
 
     conn.send(client_id, ServerResponse::DrawingProp(value)).await
@@ -184,16 +184,16 @@ async fn set_drawing_prop(app_control: &AccessControl, prop_value: DrawingPropVa
 
     use DrawingPropValue::*;
     match prop_value {
-        Title(value) => drawing.title = value,
-        Background(value) => drawing.background = value,
-        Center(value) => drawing.center = value,
+        Title(title) => drawing.title = title,
+        Background(background) => drawing.background = background,
+        Center(center) => drawing.center = center,
         Size(crate::Size {width, height}) => {
             drawing.width = width;
             drawing.height = height;
         },
-        Width(value) => drawing.width = value,
-        Height(value) => drawing.height = value,
-        Maximized(value) => drawing.is_maximized = value,
-        Fullscreen(value) => drawing.is_fullscreen = value,
+        Width(width) => drawing.width = width,
+        Height(height) => drawing.height = height,
+        IsMaximized(is_maximized) => drawing.is_maximized = is_maximized,
+        IsFullscreen(is_fullscreen) => drawing.is_fullscreen = is_fullscreen,
     }
 }
