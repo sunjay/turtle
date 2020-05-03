@@ -12,7 +12,7 @@ use crate::renderer_client::ClientId;
 use super::super::access_control::{AccessControl, RequiredData, RequiredTurtles};
 use super::super::renderer::{export, display_list::DisplayList};
 
-pub async fn export_drawings(
+pub(crate) async fn export_drawings(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,

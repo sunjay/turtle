@@ -28,7 +28,7 @@ use renderer::display_list::DisplayList;
 
 /// A custom event used to tell the glutin event loop to redraw the window
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct RequestRedraw;
+pub(crate) struct RequestRedraw;
 
 /// Serves requests from the client forever
 async fn serve(
