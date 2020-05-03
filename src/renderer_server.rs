@@ -24,6 +24,8 @@ use crate::ipc_protocol::{
     ClientRequest,
     ServerResponse,
     ExportFormat,
+    DrawingProp,
+    DrawingPropValue,
 };
 use crate::renderer_client::ClientId;
 
@@ -101,6 +103,17 @@ async fn run_request(
             export_drawings(&conn, client_id, &app_control, &display_list, &path, format).await;
         },
 
+        NextEvent => {
+            todo!()
+        },
+
+        DrawingProp(prop) => {
+            drawing_prop(&conn, client_id, &app_control, prop).await
+        },
+        SetDrawingProp(prop_value) => {
+            set_drawing_prop(&app_control, prop_value).await
+        },
+
         _ => todo!()
     }
 }
@@ -130,4 +143,57 @@ async fn export_drawings(
 
     conn.send(client_id, ServerResponse::ExportComplete(res)).await
         .expect("unable to send response to IPC client");
+}
+
+async fn drawing_prop(
+    conn: &ServerConnection,
+    client_id: ClientId,
+    app_control: &AccessControl,
+    prop: DrawingProp,
+) {
+    let mut data = app_control.get(RequiredData {
+        drawing: true,
+        turtles: None,
+    }).await;
+
+    let drawing = data.drawing_mut();
+
+    use DrawingProp::*;
+    let value = match prop {
+        Title => DrawingPropValue::Title(drawing.title.clone()),
+        Background => DrawingPropValue::Background(drawing.background),
+        Center => DrawingPropValue::Center(drawing.center),
+        Size => DrawingPropValue::Size(crate::Size {width: drawing.width, height: drawing.height}),
+        Width => DrawingPropValue::Width(drawing.width),
+        Height => DrawingPropValue::Height(drawing.height),
+        Maximized => DrawingPropValue::Maximized(drawing.is_maximized),
+        Fullscreen => DrawingPropValue::Fullscreen(drawing.is_fullscreen),
+    };
+
+    conn.send(client_id, ServerResponse::DrawingProp(value)).await
+        .expect("unable to send response to IPC client");
+}
+
+async fn set_drawing_prop(app_control: &AccessControl, prop_value: DrawingPropValue) {
+    let mut data = app_control.get(RequiredData {
+        drawing: true,
+        turtles: None,
+    }).await;
+
+    let drawing = data.drawing_mut();
+
+    use DrawingPropValue::*;
+    match prop_value {
+        Title(value) => drawing.title = value,
+        Background(value) => drawing.background = value,
+        Center(value) => drawing.center = value,
+        Size(crate::Size {width, height}) => {
+            drawing.width = width;
+            drawing.height = height;
+        },
+        Width(value) => drawing.width = value,
+        Height(value) => drawing.height = value,
+        Maximized(value) => drawing.is_maximized = value,
+        Fullscreen(value) => drawing.is_fullscreen = value,
+    }
 }

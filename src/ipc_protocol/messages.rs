@@ -37,11 +37,11 @@ pub enum ClientRequest {
     /// Get the given property of the drawing
     ///
     /// Response: `ServerResponse::DrawingProp`
-    DrawingProp(TurtleProp),
+    DrawingProp(DrawingProp),
     /// Set the given property of the drawing
     ///
     /// Response: N/A
-    SetDrawingProp(TurtlePropValue),
+    SetDrawingProp(DrawingPropValue),
 
     /// Get the given property of a turtle
     ///
@@ -138,7 +138,7 @@ pub enum ExportFormat {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DrawingProp {
     Title,
-    BackgroundColor,
+    Background,
     Center,
     Size,
     Width,
@@ -150,7 +150,7 @@ pub enum DrawingProp {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DrawingPropValue {
     Title(String),
-    BackgroundColor(Color),
+    Background(Color),
     Center(Point),
     Size(Size),
     Width(u32),
