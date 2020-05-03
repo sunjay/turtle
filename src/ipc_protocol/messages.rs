@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
 
 use crate::{Color, Point, Speed, Event, Distance, Size};
-use crate::renderer_server::TurtleId;
+use crate::renderer_server::{TurtleId, ExportError};
 use crate::radians::Radians;
 
 /// The different kinds of requests that can be sent from a client
@@ -109,7 +109,7 @@ pub enum ServerResponse {
     NewTurtle(TurtleId),
 
     /// The result of the export, possibly an error if something went wrong
-    ExportComplete(Result<(), String>),
+    ExportComplete(Result<(), ExportError>),
 
     /// The next event
     Event(Event),
