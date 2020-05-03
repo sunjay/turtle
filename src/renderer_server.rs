@@ -96,6 +96,16 @@ async fn run_request(
             handlers::set_turtle_prop(&app_control, id, prop_value).await
         },
 
+        MoveForward(id, distance) => {
+            handlers::move_forward(&conn, client_id, &app_control, &display_list, id, distance).await
+        },
+        MoveTo(id, target_pos) => {
+            handlers::move_to(&conn, client_id, &app_control, &display_list, id, target_pos).await
+        },
+        RotateInPlace(id, angle, direction) => {
+            handlers::rotate_in_place(&conn, client_id, &app_control, id, angle, direction).await
+        },
+
         _ => todo!()
     }
 }

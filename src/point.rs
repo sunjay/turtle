@@ -216,14 +216,14 @@ impl Point {
         }
     }
 
-    /// Returns the square of the length of this point.
+    /// Returns the square of the length/magnitude of this point.
     ///
     /// The length of a point is defined as `sqrt(x^2 + y^2)`
     pub fn square_len(self) -> f64 {
         self.x.powi(2) + self.y.powi(2)
     }
 
-    /// Returns the length of this point.
+    /// Returns the length/magnitude of this point.
     ///
     /// The length of a point is defined as `sqrt(x^2 + y^2)`
     pub fn len(self) -> f64 {
