@@ -93,7 +93,7 @@ async fn run_request(
             handlers::turtle_prop(&conn, client_id, &app_control, id, prop).await
         },
         SetTurtleProp(id, prop_value) => {
-            handlers::set_turtle_prop(&app_control, id, prop_value).await
+            handlers::set_turtle_prop(&app_control, &display_list, &event_loop, id, prop_value).await
         },
 
         MoveForward(id, distance) => {

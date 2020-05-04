@@ -760,11 +760,11 @@ impl Turtle {
 
     /// Sets the fill color to the given color.
     ///
-    /// **Note:** The fill color must be set **before** `begin_fill()` is called in order to be
-    /// used when filling the shape.
-    ///
     /// Any type that can be converted into a color can be passed into this function.
     /// See the [`color` module](color/index.html) for more information.
+    ///
+    /// **Note:** Changing the fill color after calling `begin_fill` will cause the filled shape to
+    /// update to the new color.
     ///
     /// # Example
     ///

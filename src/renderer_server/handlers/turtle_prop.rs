@@ -1,3 +1,6 @@
+use glutin::event_loop::EventLoopProxy;
+use tokio::sync::Mutex;
+
 use crate::ipc_protocol::{
     ServerConnection,
     ServerResponse,
@@ -9,8 +12,10 @@ use crate::ipc_protocol::{
 use crate::renderer_client::ClientId;
 
 use super::super::{
+    RequestRedraw,
     app::{TurtleId, TurtleDrawings},
     access_control::{AccessControl, RequiredData, RequiredTurtles},
+    renderer::display_list::DisplayList,
 };
 
 pub(crate) async fn turtle_prop(
@@ -50,6 +55,8 @@ pub(crate) async fn turtle_prop(
 
 pub(crate) async fn set_turtle_prop(
     app_control: &AccessControl,
+    display_list: &Mutex<DisplayList>,
+    event_loop: &Mutex<EventLoopProxy<RequestRedraw>>,
     id: TurtleId,
     prop_value: TurtlePropValue,
 ) {
@@ -69,7 +76,16 @@ pub(crate) async fn set_turtle_prop(
         Pen(Color(color)) => turtle.pen.color = color,
         FillColor(fill_color) => {
             turtle.fill_color = fill_color;
-            //TODO: Update current fill polygon color if there is a fill polygon
+
+            // Update the current fill polygon to the new color
+            if let Some(poly_handle) = *current_fill_polygon {
+                let mut display_list = display_list.lock().await;
+                display_list.polygon_set_fill_color(poly_handle, fill_color);
+
+                // Signal the main thread that the image has changed
+                event_loop.lock().await.send_event(RequestRedraw)
+                    .expect("bug: event loop closed before animation completed");
+            }
         },
         IsFilling(_) => unreachable!("bug: should have used `BeginFill` and `EndFill` instead"),
         Position(_) |
