@@ -8,7 +8,7 @@ use crate::ipc_protocol::{
     RotationDirection,
 };
 use crate::renderer_client::ClientId;
-use crate::radians::Radians;
+use crate::radians::{self, Radians};
 use crate::{Distance, Point};
 
 use super::super::{
@@ -211,7 +211,7 @@ impl MoveAnimation {
         let &mut Self {
             ref mut running,
             timer: _,
-            ref mut start,
+            ref start,
             start_pos,
             target_pos,
             total_micros,
@@ -258,12 +258,144 @@ pub(crate) async fn rotate_in_place(
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
     }).await;
-    let mut turtles = data.turtles_mut().await;
 
-    let TurtleDrawings {state: turtle, ..} = turtles.one_mut();
+    // Borrow the data initially to setup the animation but then drop it so the lock on the turtle
+    // is released (allows for rendering to occur)
+    let mut anim = {
+        let mut turtles = data.turtles_mut().await;
+        let turtle = turtles.one_mut();
 
-    //TODO
+        RotateAnimation::new(turtle, angle, direction)
+    };
+
+    while anim.running {
+        // Signal the main thread that the image has changed
+        event_loop.lock().await.send_event(RequestRedraw)
+            .expect("bug: event loop closed before animation completed");
+
+        // Sleep until it is time to update the animation again
+        anim.timer.tick().await;
+
+        // This lock is dropped at the end of this loop iteration to allow rendering to occur
+        // while we wait
+        let mut turtles = data.turtles_mut().await;
+        let turtle = turtles.one_mut();
+
+        anim.step(turtle);
+    }
 
     conn.send(client_id, ServerResponse::AnimationComplete(id)).await
         .expect("unable to send response to IPC client");
+}
+
+struct RotateAnimation {
+    /// true if the animation should continue, false if it should stop
+    running: bool,
+    /// A timer used to delay the execution of the animation to a reasonable FPS
+    timer: time::Interval,
+    /// The instant that the animation started, used to precisely determine how long the animation
+    /// has been running
+    start: time::Instant,
+    /// The start angle of the turtle
+    start_heading: Radians,
+    /// The angle in radians that the turtle is to have rotated by the end of the animation
+    delta_angle: Radians,
+    /// The direction of rotation
+    direction: RotationDirection,
+    /// The total duration of the animation in microseconds
+    total_micros: f64,
+}
+
+impl RotateAnimation {
+    fn new(
+        turtle: &mut TurtleDrawings,
+        delta_angle: Radians,
+        direction: RotationDirection,
+    ) -> Self {
+        let frame_duration = time::Duration::from_millis(MICROS_PER_SEC / FPS);
+        // Need to start at now() + frame_duration or else timer will initially tick for 0 seconds
+        let timer = time::interval_at(time::Instant::now() + frame_duration, frame_duration);
+
+        let TurtleState {heading, speed, ..} = turtle.state;
+        if speed.is_instant() {
+            // Set to the final heading with no animation
+            turtle.state.heading = rotate(heading, delta_angle, direction);
+
+            Self {
+                // stop the animation right away since it has already completed
+                running: false,
+                timer,
+                start: time::Instant::now(),
+                start_heading: heading,
+                delta_angle,
+                direction,
+                total_micros: 0.0,
+            }
+
+        } else {
+            let rad_per_sec = speed.to_rad_per_sec();
+            // Use microseconds instead of ms for greater precision
+            let total_micros = (delta_angle * MICROS_PER_SEC as f64 / rad_per_sec).to_radians();
+
+            // No need to update heading since the turtle hasn't rotated yet
+
+            Self {
+                running: true,
+                timer,
+                start: time::Instant::now(),
+                start_heading: heading,
+                delta_angle,
+                direction,
+                total_micros,
+            }
+        }
+
+    }
+
+    /// Advances the animation based on the amount of time that has elapsed so far
+    fn step(&mut self, turtle: &mut TurtleDrawings) {
+        let &mut Self {
+            ref mut running,
+            timer: _,
+            ref start,
+            start_heading,
+            delta_angle,
+            direction,
+            total_micros,
+        } = self;
+
+        let elapsed = start.elapsed().as_micros() as f64;
+        if elapsed >= total_micros {
+            *running = false;
+
+            // Set to the final heading
+            turtle.state.heading = rotate(start_heading, delta_angle, direction);
+
+        } else {
+            // t is the total progress made in the animation so far
+            let t = elapsed / total_micros;
+            let current_delta = lerp(&radians::ZERO, &delta_angle, &t);
+
+            turtle.state.heading = rotate(start_heading, current_delta, direction);
+            debug_assert!(!turtle.state.heading.is_nan(), "bug: heading became NaN");
+        }
+    }
+}
+
+/// Rotates the given `angle` by the given `rotation` in the given `direction`
+///
+/// Let's say you have a starting angle X. Standard angles go counterclockwise, so
+/// if clockwise is true, we need to subtract the `rotation` from X resulting in
+/// `X - rotation`. If clockwise is false, we can just add normally.
+fn rotate(angle: Radians, rotation: Radians, direction: RotationDirection) -> Radians {
+    use RotationDirection::*;
+    let angle = match direction {
+        Clockwise => angle - rotation,
+        Counterclockwise => angle + rotation,
+    };
+
+    // Normalize the angle to be between 0 and 2*pi
+    // Formula adapted from: https://stackoverflow.com/a/24234924/551904
+    // More info: https://stackoverflow.com/a/28316446/551904
+    angle - radians::TWO_PI * (angle / radians::TWO_PI).floor()
 }
