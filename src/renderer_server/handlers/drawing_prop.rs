@@ -45,6 +45,7 @@ pub(crate) async fn set_drawing_prop(app_control: &AccessControl, prop_value: Dr
 
     let drawing = data.drawing_mut();
 
+    //TODO: Send `RequestRedraw` since many of these change the image
     //TODO: Send events through EventLoopProxy that indicate changes in the window (e.g. for
     // changes to `is_maximized` we should call the appropriate method on the Window)
     use DrawingPropValue::*;
