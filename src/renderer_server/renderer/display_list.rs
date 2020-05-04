@@ -1,4 +1,4 @@
-use crate::Point;
+use crate::{Point, Color};
 
 use super::super::state::Pen;
 
@@ -24,6 +24,11 @@ impl DisplayList {
     }
 
     pub fn replace_line(&mut self, handle: PrimHandle, start: Point, end: Point, pen: &Pen) {
+        todo!()
+    }
+
+    /// Creates a polygon with one point, and pushes it into the display list
+    pub fn push_polygon_start(&mut self, start: Point, color: Color) -> PrimHandle {
         todo!()
     }
 }
