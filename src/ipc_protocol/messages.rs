@@ -94,12 +94,16 @@ pub enum ClientRequest {
     /// That is, if the color changes in the middle of filling, the entire filled area will change
     /// color. It does not matter what the fill color was when this request was first sent.
     ///
+    /// If the turtle was already filling when this request was sent, this request is ignored.
+    ///
     /// Response: N/A
     BeginFill(TurtleId),
-    /// Completes a fill polygon using a turtle's current position
+    /// Completes a fill polygon at the turtle's current position
     ///
     /// No further points will be added to the polygon and it will remain the color that it was at
     /// the time that this request was sent.
+    ///
+    /// If the turtle was not filling when this request was sent, this request is ignored.
     ///
     /// Response: N/A
     EndFill(TurtleId),

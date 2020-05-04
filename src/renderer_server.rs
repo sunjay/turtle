@@ -106,6 +106,13 @@ async fn run_request(
             handlers::rotate_in_place(&conn, client_id, &app_control, &event_loop, id, angle, direction).await
         },
 
+        BeginFill(id) => {
+            handlers::begin_fill(&app_control, &display_list, &event_loop, id).await
+        },
+        EndFill(id) => {
+            handlers::end_fill(&app_control, id).await
+        },
+
         _ => todo!()
     }
 }
