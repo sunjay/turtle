@@ -97,13 +97,13 @@ async fn run_request(
         },
 
         MoveForward(id, distance) => {
-            handlers::move_forward(&conn, client_id, &app_control, &display_list, id, distance).await
+            handlers::move_forward(&conn, client_id, &app_control, &display_list, &event_loop, id, distance).await
         },
         MoveTo(id, target_pos) => {
-            handlers::move_to(&conn, client_id, &app_control, &display_list, id, target_pos).await
+            handlers::move_to(&conn, client_id, &app_control, &display_list, &event_loop, id, target_pos).await
         },
         RotateInPlace(id, angle, direction) => {
-            handlers::rotate_in_place(&conn, client_id, &app_control, id, angle, direction).await
+            handlers::rotate_in_place(&conn, client_id, &app_control, &event_loop, id, angle, direction).await
         },
 
         _ => todo!()

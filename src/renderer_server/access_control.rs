@@ -122,6 +122,10 @@ pub struct RequiredData {
 /// `AccessControl` will have access to the same turtles, so the locking should be uncontended. The
 /// only caveat is that the renderer may have locked all of the turtles, so the command may have to
 /// wait for that operation to complete.
+///
+/// This "limitation" turns out to be convenient, as it allows turtle locks to be unlocked
+/// temporarily during an animation. This unlocking is critical, as without it the renderer could
+/// not draw while an animation was taking place.
 #[derive(Debug)]
 enum Turtles {
     // NOTE: A similar note to the one on `RequiredTurtles` applies here too

@@ -48,7 +48,16 @@ futures-util = "0.3"
 [dependencies.tokio]
 version = "0.2"
 default-features = false
-features = ["process", "io-std", "io-util", "rt-core", "blocking", "sync", "stream"]
+features = [
+  "process",
+  "io-std",
+  "io-util",
+  "rt-core",
+  "blocking",
+  "sync",
+  "stream",
+  "time",
+]
 
 # Dependencies used when developing `turtle` directly, but not when using it as
 # a library.
