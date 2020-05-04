@@ -2,14 +2,19 @@ use std::io;
 use std::env;
 use std::process::{Stdio, exit};
 
-use tokio::io::AsyncWriteExt;
-use tokio::process::{Command, ChildStdin};
+use tokio::{
+    runtime,
+    io::AsyncWriteExt,
+    task::JoinHandle,
+    process::{Command, ChildStdin},
+};
 
 /// The environment variable that is set to indicate that the current process is a server process
 pub const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
 
 #[derive(Debug)]
 pub struct RendererServerProcess {
+    task_handle: Option<JoinHandle<()>>,
     /// A handle to the stdin of the child process
     child_stdin: ChildStdin,
 }
@@ -36,7 +41,7 @@ impl RendererServerProcess {
 
         // Ensure the child process is spawned in the runtime so it can
         // make progress on its own while we send it input.
-        tokio::spawn(async {
+        let task_handle = Some(tokio::spawn(async {
             // We want to await in a separate task because otherwise the current task would not
             // make any progress until the child process is complete
             let status = child.await
@@ -49,9 +54,9 @@ impl RendererServerProcess {
                 // Something went wrong, likely the other thread panicked
                 exit(1);
             }
-        });
+        }));
 
-        Self {child_stdin}
+        Self {task_handle, child_stdin}
     }
 
     /// Writes the given bytes followed by a newline b'\n' to the stdin of the process
@@ -73,5 +78,28 @@ impl RendererServerProcess {
             let err_msg = format!("expected to write `{}` bytes, but actually wrote `{}`", data.len(), bytes_written);
             Err(io::Error::new(io::ErrorKind::WriteZero, err_msg))
         }
+    }
+}
+
+impl Drop for RendererServerProcess {
+    fn drop(&mut self) {
+        use std::thread;
+
+        // If the current thread is panicking, we want to abort right away
+        // because otherwise there is code in the rendering thread that will call
+        // process::exit(0) and then the exit code will be 0 instead of 1
+        if thread::panicking() {
+            exit(1);
+        }
+
+        // If this is just a normal ending of the main thread, we want to leave the renderer
+        // running so that the user can see their drawing as long as they keep the window open
+        let runtime = runtime::Handle::current();
+        // This unwrap is safe because no struct gets dropped twice
+        let task_handle = self.task_handle.take().unwrap();
+        runtime.block_on(task_handle).unwrap_or_else(|_| {
+            // If this returns an error, the other thread panicked
+            exit(1);
+        });
     }
 }
