@@ -48,6 +48,11 @@ impl DisplayList {
         todo!()
     }
 
+    /// Sets the fill color of a polygon to the given color
+    pub fn polygon_set_fill_color(&mut self, handle: PrimHandle, color: Color) {
+        todo!()
+    }
+
     /// Removes the given items from the display list
     pub fn remove<I: Iterator<Item=PrimHandle>>(&mut self, items: I) {
         todo!()
