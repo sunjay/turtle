@@ -445,6 +445,14 @@ impl AccessControl {
 
         // Now wait for data channels to signal that data is ready
 
+        //TODO: It may be possible to wait on just a single oneshot channel instead of all of them.
+        //  We could use BarrierWaitResult::is_leader to determine which woken task should send
+        //  across the channel to notify this task.
+        //TODO: Another possible option is to try and simplifify this whole thing to use a
+        //  different API (e.g. `tokio::sync::Notify`) to provide this `get()` method by simply
+        //  tracking which pieces of data are ready. Need to explore if there is a simpler way than
+        //  all of the barrier stuff being used right now.
+
         let drawing = match drawing_ready {
             Some(ready) => {
                 // Wait to be signaled before locking
