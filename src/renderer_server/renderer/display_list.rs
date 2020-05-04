@@ -31,4 +31,14 @@ impl DisplayList {
     pub fn push_polygon_start(&mut self, start: Point, color: Color) -> PrimHandle {
         todo!()
     }
+
+    /// Removes the given items from the display list
+    pub fn remove<I: Iterator<Item=PrimHandle>>(&mut self, items: I) {
+        todo!()
+    }
+
+    /// Removes all items from the display list
+    pub fn clear(&mut self) {
+        todo!()
+    }
 }

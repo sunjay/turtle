@@ -113,6 +113,9 @@ async fn run_request(
             handlers::end_fill(&app_control, id).await
         },
 
-        _ => todo!()
+        Clear(id) => match id {
+            Some(id) => handlers::clear_turtle(&app_control, &display_list, &event_loop, id).await,
+            None => handlers::clear(&app_control, &display_list, &event_loop).await,
+        },
     }
 }
