@@ -73,7 +73,7 @@ pub(crate) async fn set_turtle_prop(
         Position(_) |
         PositionX(_) |
         PositionY(_) => unreachable!("bug: should have used `MoveTo` instead"),
-        Heading(heading) => unreachable!("bug: should have used `RotateInPlace` instead"),
+        Heading(_) => unreachable!("bug: should have used `RotateInPlace` instead"),
         Speed(speed) => turtle.speed = speed,
         IsVisible(is_visible) => turtle.is_visible = is_visible,
     }
