@@ -140,6 +140,8 @@ struct MoveAnimation {
     total_micros: f64,
     /// A handle to the line that is manipulated by thsi animation
     prim: PrimHandle,
+    /// The index of this point in the fill polygon (if any)
+    fill_poly_index: Option<usize>,
 }
 
 impl MoveAnimation {
@@ -160,10 +162,10 @@ impl MoveAnimation {
             let prim = display_list.push_line(position, target_pos, pen);
             turtle.drawings.push(prim);
 
-            if let Some(poly_handle) = turtle.current_fill_polygon {
-                //TODO: Push point into polygon
-                todo!()
-            }
+            // Append to the current fill polygon, if any
+            let fill_poly_index = turtle.current_fill_polygon.map(|poly_handle| {
+                display_list.polygon_push(poly_handle, position)
+            });
 
             Self {
                 // stop the animation right away since it has already completed
@@ -174,6 +176,7 @@ impl MoveAnimation {
                 target_pos,
                 total_micros: 0.0,
                 prim,
+                fill_poly_index,
             }
 
         } else {
@@ -188,10 +191,10 @@ impl MoveAnimation {
             let prim = display_list.push_line(position, position, pen);
             turtle.drawings.push(prim);
 
-            if let Some(poly_handle) = turtle.current_fill_polygon {
-                //TODO: Push point into polygon
-                todo!()
-            }
+            // Append to the current fill polygon, if any
+            let fill_poly_index = turtle.current_fill_polygon.map(|poly_handle| {
+                display_list.polygon_push(poly_handle, position)
+            });
 
             Self {
                 running: true,
@@ -201,6 +204,7 @@ impl MoveAnimation {
                 target_pos,
                 total_micros,
                 prim,
+                fill_poly_index,
             }
         }
 
@@ -216,6 +220,7 @@ impl MoveAnimation {
             target_pos,
             total_micros,
             prim,
+            fill_poly_index,
         } = self;
 
         let elapsed = start.elapsed().as_micros() as f64;
@@ -224,9 +229,10 @@ impl MoveAnimation {
             turtle.state.position = target_pos;
             display_list.replace_line(prim, start_pos, target_pos, &turtle.state.pen);
 
+            // Replace the point in the current fill polygon, if any
             if let Some(poly_handle) = turtle.current_fill_polygon {
-                //TODO: Replace point in fill polygon
-                todo!()
+                // This unwrap is safe because `current_fill_polygon` is `Some`
+                display_list.polygon_update(poly_handle, fill_poly_index.unwrap(), target_pos);
             }
 
         } else {
@@ -237,9 +243,10 @@ impl MoveAnimation {
             turtle.state.position = current_pos;
             display_list.replace_line(prim, start_pos, current_pos, &turtle.state.pen);
 
+            // Replace the point in the current fill polygon, if any
             if let Some(poly_handle) = turtle.current_fill_polygon {
-                //TODO: Replace point in fill polygon
-                todo!()
+                // This unwrap is safe because `current_fill_polygon` is `Some`
+                display_list.polygon_update(poly_handle, fill_poly_index.unwrap(), current_pos);
             }
         }
     }
