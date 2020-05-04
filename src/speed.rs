@@ -220,7 +220,7 @@ impl Speed {
     }
 
     /// Converts a speed to its value as a movement speed in pixels per second
-    pub(crate) fn to_movement(self) -> Distance {
+    pub(crate) fn to_px_per_sec(self) -> Distance {
         use SpeedLevel::*;
         match self.0 {
             Value(speed) => f64::from(speed) * 50.0,
@@ -229,7 +229,7 @@ impl Speed {
     }
 
     /// Converts a speed to its value as radians per second
-    pub(crate) fn to_rotation(self) -> Radians {
+    pub(crate) fn to_rad_per_sec(self) -> Radians {
         use SpeedLevel::*;
         Radians::from_radians_value(match self.0 {
             Value(speed) => f64::from(speed) * (3.0 * PI),

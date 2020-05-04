@@ -117,7 +117,7 @@ impl TurtleWindow {
         if !distance.is_normal() {
             return;
         }
-        let speed = speed.to_movement(); // px per second
+        let speed = speed.to_px_per_sec(); // px per second
                                          // We take the absolute value because the time is always positive, even if distance is negative
         let total_millis = (distance / speed * 1000.).abs();
 
@@ -151,8 +151,8 @@ impl TurtleWindow {
         };
         let end = start + movement;
 
-        let speed = speed.to_movement(); // px per second
-                                         // We take the absolute value because the time is always positive, even if distance is negative
+        let speed = speed.to_px_per_sec(); // px per second
+        // We take the absolute value because the time is always positive, even if distance is negative
         let total_millis = (distance / speed * 1000.).abs();
 
         let animation = MoveAnimation {
@@ -171,7 +171,7 @@ impl TurtleWindow {
         }
 
         let TurtleState { heading, speed, .. } = self.fetch_turtle();
-        let speed = speed.to_rotation(); // radians per second
+        let speed = speed.to_rad_per_sec(); // radians per second
         let total_millis = angle / speed * 1000.;
         // We take the absolute value because the time is always positive, even if angle is negative
         let total_millis = total_millis.to_radians().abs();
