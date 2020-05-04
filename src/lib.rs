@@ -57,6 +57,7 @@ compile_error!("Make sure you run tests with `cargo test --features test`");
 mod ipc_protocol;
 mod renderer_server;
 mod renderer_client;
+mod async_turtle;
 
 mod turtle_window;
 
@@ -98,7 +99,8 @@ pub use crate::point::Point;
 #[cfg(target_arch = "wasm32")]
 pub use renderer_process::{alloc, dealloc, dealloc_str};
 pub use crate::speed::Speed;
-pub use crate::turtle::{Angle, Distance, Turtle};
+pub use crate::async_turtle::{Angle, Distance};
+pub use crate::turtle::Turtle;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use crate::server::start;
