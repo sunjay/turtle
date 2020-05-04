@@ -5,8 +5,10 @@
 
 mod async_ipc_receiver;
 mod messages;
+mod protocol;
 
 pub use messages::*;
+pub use protocol::*;
 
 use std::io;
 

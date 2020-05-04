@@ -5,7 +5,7 @@ pub use renderer_server_process::*;
 use std::sync::Arc;
 
 use serde::{Serialize, Deserialize};
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{mpsc, RwLock, Mutex};
 
 use crate::ipc_protocol::{ClientConnection, ConnectionError, ClientRequest, ServerResponse};
 
@@ -80,7 +80,7 @@ impl ClientDispatcher {
 pub struct RendererClient {
     dispatcher: Arc<ClientDispatcher>,
     id: ClientId,
-    receiver: mpsc::UnboundedReceiver<ServerResponse>,
+    receiver: Mutex<mpsc::UnboundedReceiver<ServerResponse>>,
 }
 
 impl RendererClient {
@@ -88,6 +88,7 @@ impl RendererClient {
     pub async fn new() -> Result<Self, ConnectionError> {
         let dispatcher = Arc::new(ClientDispatcher::new().await?);
         let (id, receiver) = dispatcher.add_client().await;
+        let receiver = Mutex::new(receiver);
 
         Ok(Self {dispatcher, id, receiver})
     }
@@ -96,11 +97,24 @@ impl RendererClient {
     pub async fn split(&self) -> Self {
         let dispatcher = self.dispatcher.clone();
         let (id, receiver) = dispatcher.add_client().await;
+        let receiver = Mutex::new(receiver);
 
         Self {dispatcher, id, receiver}
     }
 
+    /// Sends a message to the server process
+    ///
+    /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
     pub async fn send(&self, req: ClientRequest) -> Result<(), ipc_channel::Error> {
         self.dispatcher.send(self.id, req).await
+    }
+
+    /// Receives a response from the server process
+    ///
+    /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
+    pub async fn recv(&self) -> ServerResponse {
+        let mut receiver = self.receiver.lock().await;
+        receiver.recv().await
+            .expect("bug: unable to receive response from server process")
     }
 }

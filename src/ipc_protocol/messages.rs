@@ -196,9 +196,13 @@ pub enum TurtlePropValue {
     FillColor(Color),
     /// NOTE: Instead of using this with `SetTurtleProp`, use `BeginFill` and `EndFill` instead.
     IsFilling(bool),
+    /// NOTE: Instead of using this with `SetTurtleProp`, use `MoveTo` instead.
     Position(Point),
+    /// NOTE: Instead of using this with `SetTurtleProp`, use `MoveTo` instead.
     PositionX(f64),
+    /// NOTE: Instead of using this with `SetTurtleProp`, use `MoveTo` instead.
     PositionY(f64),
+    /// NOTE: Instead of using this with `SetTurtleProp`, use `RotateInPlace` instead.
     Heading(Radians),
     Speed(Speed),
     IsVisible(bool),
