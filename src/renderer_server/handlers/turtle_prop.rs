@@ -74,6 +74,7 @@ pub(crate) async fn set_turtle_prop(
         Pen(IsEnabled(is_enabled)) => turtle.pen.is_enabled = is_enabled,
         Pen(Thickness(thickness)) => turtle.pen.thickness = thickness,
         Pen(Color(color)) => turtle.pen.color = color,
+
         FillColor(fill_color) => {
             turtle.fill_color = fill_color;
 
@@ -87,12 +88,21 @@ pub(crate) async fn set_turtle_prop(
                     .expect("bug: event loop closed before animation completed");
             }
         },
+
         IsFilling(_) => unreachable!("bug: should have used `BeginFill` and `EndFill` instead"),
         Position(_) |
         PositionX(_) |
         PositionY(_) => unreachable!("bug: should have used `MoveTo` instead"),
         Heading(_) => unreachable!("bug: should have used `RotateInPlace` instead"),
+
         Speed(speed) => turtle.speed = speed,
-        IsVisible(is_visible) => turtle.is_visible = is_visible,
+
+        IsVisible(is_visible) => {
+            turtle.is_visible = is_visible;
+
+            // Signal the main thread that the image has changed
+            event_loop.lock().await.send_event(RequestRedraw)
+                .expect("bug: event loop closed before animation completed");
+        },
     }
 }
