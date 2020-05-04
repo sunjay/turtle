@@ -9,8 +9,10 @@ use crate::ipc_protocol::{
 };
 use crate::renderer_client::ClientId;
 
-use super::super::access_control::{AccessControl, RequiredData, RequiredTurtles};
-use super::super::renderer::{export, display_list::DisplayList};
+use super::super::{
+    access_control::{AccessControl, RequiredData, RequiredTurtles},
+    renderer::{export, display_list::DisplayList},
+};
 
 pub(crate) async fn export_drawings(
     conn: &ServerConnection,

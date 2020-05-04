@@ -8,8 +8,10 @@ use crate::ipc_protocol::{
 };
 use crate::renderer_client::ClientId;
 
-use super::super::app::{TurtleId, TurtleDrawings};
-use super::super::access_control::{AccessControl, RequiredData, RequiredTurtles};
+use super::super::{
+    app::{TurtleId, TurtleDrawings},
+    access_control::{AccessControl, RequiredData, RequiredTurtles},
+};
 
 pub(crate) async fn turtle_prop(
     conn: &ServerConnection,
