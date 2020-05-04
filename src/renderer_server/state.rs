@@ -44,7 +44,6 @@ impl Default for DrawingState {
 pub struct TurtleState {
     pub pen: Pen,
     pub fill_color: Color,
-    pub is_filling: bool,
     pub position: Point,
     pub heading: Radians,
     pub speed: Speed,
@@ -53,7 +52,6 @@ pub struct TurtleState {
 
 impl TurtleState {
     pub const DEFAULT_FILL_COLOR: Color = color::BLACK;
-    pub const DEFAULT_IS_FILLING: bool = false;
     pub const DEFAULT_POSITION: Point = Point::origin();
     pub const DEFAULT_HEADING: Radians = Radians::from_radians_value(PI / 2.0);
     pub const DEFAULT_IS_VISIBLE: bool = true;
@@ -64,7 +62,6 @@ impl Default for TurtleState {
         Self {
             pen: Pen::default(),
             fill_color: Self::DEFAULT_FILL_COLOR,
-            is_filling: Self::DEFAULT_IS_FILLING,
             position: Self::DEFAULT_POSITION,
             heading: Self::DEFAULT_HEADING,
             speed: Speed::default(),

@@ -24,7 +24,7 @@ pub(crate) async fn turtle_prop(
     }).await;
     let mut turtles = data.turtles_mut().await;
 
-    let TurtleDrawings {state: turtle, ..} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
 
     use TurtleProp::*;
     use PenProp::*;
@@ -33,7 +33,7 @@ pub(crate) async fn turtle_prop(
         Pen(Thickness) => TurtlePropValue::Pen(PenPropValue::Thickness(turtle.pen.thickness)),
         Pen(Color) => TurtlePropValue::Pen(PenPropValue::Color(turtle.pen.color)),
         FillColor => TurtlePropValue::FillColor(turtle.fill_color),
-        IsFilling => TurtlePropValue::IsFilling(turtle.is_filling),
+        IsFilling => TurtlePropValue::IsFilling(current_fill_polygon.is_some()),
         Position => TurtlePropValue::Position(turtle.position),
         PositionX => TurtlePropValue::PositionX(turtle.position.x),
         PositionY => TurtlePropValue::PositionY(turtle.position.y),
