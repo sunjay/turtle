@@ -209,7 +209,7 @@ impl<'a> TurtlesGuard<'a> {
         }
     }
 
-    pub fn all_mut(&mut self) -> &[MutexGuard<TurtleDrawings>] {
+    pub fn all_mut(&mut self) -> &mut [MutexGuard<'a, TurtleDrawings>] {
         use TurtlesGuard::*;
         match self {
             All(turtles) => turtles,

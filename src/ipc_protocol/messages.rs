@@ -113,8 +113,9 @@ pub enum ClientRequest {
     /// If no ID is provided, all drawings from all turtles will be cleared.
     ///
     /// The cleared turtles will not move. None of their positions, headings, pens, or other
-    /// properties will change. No properties on the drawing will change, including the background
-    /// image, title, etc.
+    /// properties will change. If a turtle was current filling, it will stop filling and its
+    /// fill polygon will also be cleared. No properties on the drawing will change, including the
+    /// background image, title, etc.
     ///
     /// Response: N/A
     Clear(Option<TurtleId>),
