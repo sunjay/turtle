@@ -10,6 +10,9 @@ use crate::radians::{self, Radians};
 use crate::turtle_window::TurtleWindow;
 use crate::{Color, Drawing, Point, Speed};
 
+use crate::async_turtle::{Distance, Angle};
+
+//TODO: Delete this since it has moved to `async_turtle`
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum AngleUnit {
     Degrees,
@@ -31,16 +34,6 @@ impl AngleUnit {
         }
     }
 }
-
-/// Any distance value (positive or negative)
-pub type Distance = f64;
-
-/// An angle value without a unit
-///
-/// The unit with which this angle will be interpreted depends on whether the Turtle is set to use
-/// degrees or radians. See the [`use_degrees()`](struct.Turtle.html#method.use_degrees) or
-/// [`use_radians()`](struct.Turtle.html#method.use_radians) methods for more information.
-pub type Angle = f64;
 
 /// A turtle with a pen attached to its tail
 ///
@@ -921,6 +914,7 @@ impl Turtle {
     pub fn reset(&mut self) {
         self.clear();
         self.window.borrow_mut().with_turtle_mut(|turtle| *turtle = Default::default());
+        //TODO: This next line is a bug (does not match the docs for this method)
         self.window.borrow_mut().with_drawing_mut(|drawing| *drawing = Default::default());
     }
 
@@ -1130,9 +1124,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
-    )]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
     fn rejects_invalid_pen_color() {
         let mut turtle = Turtle::new();
         turtle.set_pen_color(Color {
@@ -1144,9 +1136,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
-    )]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
     fn rejects_invalid_fill_color() {
         let mut turtle = Turtle::new();
         turtle.set_fill_color(Color {
