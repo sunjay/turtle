@@ -98,7 +98,7 @@ pub enum ClientRequest {
     ///
     /// Response: N/A
     BeginFill(TurtleId),
-    /// Completes a fill polygon at the turtle's current position
+    /// Completes a fill polygon at a turtle's current position
     ///
     /// No further points will be added to the polygon and it will remain the color that it was at
     /// the time that this request was sent.
@@ -112,8 +112,9 @@ pub enum ClientRequest {
     ///
     /// If no ID is provided, all drawings from all turtles will be cleared.
     ///
-    /// The turtle will not move. None of its position, heading, pen, or other properties will
-    /// change. No properties on the drawing will change, including the background image/title/etc.
+    /// The cleared turtles will not move. None of their positions, headings, pens, or other
+    /// properties will change. No properties on the drawing will change, including the background
+    /// image, title, etc.
     ///
     /// Response: N/A
     Clear(Option<TurtleId>),
