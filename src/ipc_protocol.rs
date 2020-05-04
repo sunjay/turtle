@@ -44,7 +44,7 @@ enum HandshakeResponse {
 /// Represents the client side of the IPC connection
 #[derive(Debug)]
 pub struct ClientConnection {
-    sender: IpcSender<(ClientId, ClientRequest)>,
+    sender: Mutex<IpcSender<(ClientId, ClientRequest)>>,
     receiver: AsyncIpcReceiver<HandshakeResponse>,
 }
 
@@ -62,14 +62,16 @@ impl ClientConnection {
             HandshakeResponse::HandshakeFinish(sender) => sender,
             _ => unreachable!("bug: server did not send back Sender at the end of handshake"),
         };
+
+        let sender = Mutex::new(sender);
         let receiver = AsyncIpcReceiver::new(receiver);
 
         Ok(Self {sender, receiver})
     }
 
     /// Sends a request to the server via IPC
-    pub fn send(&self, id: ClientId, req: ClientRequest) -> Result<(), ipc_channel::Error> {
-        self.sender.send((id, req))
+    pub async fn send(&self, id: ClientId, req: ClientRequest) -> Result<(), ipc_channel::Error> {
+        self.sender.lock().await.send((id, req))
     }
 
     /// Waits for a response from the server via IPC
