@@ -69,6 +69,8 @@ use std::ops::{Deref, DerefMut};
 use std::collections::HashMap;
 
 use tokio::sync::{RwLock, Mutex, MutexGuard, Barrier, oneshot, mpsc};
+//TODO: Replace this with a `tokio` equivalent when tokio-rs/tokio#2478 is resolved:
+//  https://github.com/tokio-rs/tokio/issues/2478
 use futures_util::future::join_all;
 
 use super::state::DrawingState;
