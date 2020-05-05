@@ -197,24 +197,20 @@ impl Turtle {
         self.turtle
     }
 
-    /// Retrieve a read-only handle to the drawing.
-    ///
-    /// The returned type can be used as if it had the type `&Drawing`.
+    /// Retrieve a read-only reference to the drawing.
     ///
     /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
     /// listing of the information that you can retrieve from the drawing.
-    pub fn drawing(&self) -> DrawingRef {
-        self.turtle.drawing().into()
+    pub fn drawing(&self) -> &Drawing {
+        todo!()
     }
 
     /// Retrieve a mutable reference to the drawing
     ///
-    /// The returned type can be used as if it had the type `&mut Drawing`.
-    ///
     /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
     /// listing of the ways that you can manipulate the drawing.
-    pub fn drawing_mut(&mut self) -> DrawingMut {
-        self.turtle.drawing_mut().into()
+    pub fn drawing_mut(&mut self) -> &mut Drawing {
+        todo!()
     }
 
     /// Returns the current speed of the turtle.
