@@ -158,8 +158,6 @@ use std::iter::repeat;
 use std::f64::EPSILON;
 
 use serde::{Serialize, Deserialize};
-#[cfg(not(target_arch = "wasm32"))]
-use piston_window::types;
 
 use crate::rand::{Random, RandomRange};
 
@@ -1139,20 +1137,6 @@ impl<B: Into<Color>> RandomRange<B> for Color {
             blue: RandomRange::random_range(low.blue, high.blue),
             alpha: RandomRange::random_range(low.alpha, high.alpha),
         }
-    }
-}
-
-// Docs are hidden because this is an implementation detail
-#[doc(hidden)]
-#[cfg(not(target_arch = "wasm32"))]
-impl From<Color> for types::Color {
-    fn from(color: Color) -> Self {
-        [
-            color.red as f32 / 255.0,
-            color.green as f32 / 255.0,
-            color.blue as f32 / 255.0,
-            color.alpha as f32,
-        ]
     }
 }
 
