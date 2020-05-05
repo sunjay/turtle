@@ -19,7 +19,7 @@ use glutin::{
 };
 use tokio::{
     sync::Mutex,
-    runtime::{Runtime, Handle},
+    runtime::{self, Runtime},
 };
 
 use crate::ipc_protocol::ServerConnection;
@@ -55,9 +55,14 @@ pub fn main() {
     let event_loop_proxy = event_loop.create_proxy();
     spawn_async_server(app.clone(), display_list.clone(), event_loop_proxy);
 
+    // A single-threaded runtime for driving futures on the main thread only
+    let basic_rt = runtime::Builder::new()
+        .basic_scheduler()
+        .build()
+        .expect("unable to spawn tokio runtime to run turtle server process");
+
     let window_builder = {
-        let handle = Handle::current();
-        let drawing = handle.block_on(app.drawing_mut());
+        let drawing = basic_rt.handle().block_on(app.drawing_mut());
         WindowBuilder::new()
             .with_title(&drawing.title)
             .with_inner_size(LogicalSize {width: drawing.width, height: drawing.height})
@@ -120,14 +125,12 @@ pub fn main() {
         },
 
         GlutinEvent::RedrawRequested(_) => {
-            let handle = Handle::current();
-
             let drawing = {
                 // Hold the drawing lock for as little time as possible
-                let drawing = handle.block_on(app.drawing_mut());
+                let drawing = basic_rt.handle().block_on(app.drawing_mut());
                 drawing.clone()
             };
-            let display_list = handle.block_on(display_list.lock());
+            let display_list = basic_rt.handle().block_on(display_list.lock());
 
             let draw_size = gl_context.window().inner_size();
             renderer.render(draw_size, &display_list, &drawing);
@@ -155,7 +158,7 @@ fn spawn_async_server(
 ) {
     thread::spawn(move || {
         let mut runtime = Runtime::new()
-            .expect("unable to spawn tokio runtime to run turtle async server");
+            .expect("unable to spawn tokio runtime to run turtle server process");
 
         // Spawn root task
         runtime.block_on(async {
