@@ -107,6 +107,6 @@ pub use crate::turtle::Turtle;
 use crate::renderer_server::ExportError;
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use crate::server::start;
+pub use crate::renderer_server::start;
 #[cfg(target_arch = "wasm32")]
 pub fn start() {}
