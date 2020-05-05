@@ -32,6 +32,12 @@ impl Drawing {
     ///
     /// [`add_turtle()`](struct.Drawing.html#method.add_turtle)
     pub fn new() -> Drawing {
+        // This needs to be called as close to the start of the program as possible. We call it
+        // here since Drawing::new() or AsyncDrawing::new() are commonly called at the beginning
+        // of many programs that use the turtle crate.
+        // We can't call start() within another tokio runtime, so we have to do it before block_on
+        crate::start();
+
         Drawing {
             drawing: block_on(AsyncDrawing::new()),
             turtles: 0,

@@ -49,6 +49,12 @@ impl Turtle {
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
     /// [`turtle::start()`](fn.start.html) in order to avoid any problems.
     pub fn new() -> Turtle {
+        // This needs to be called as close to the start of the program as possible. We call it
+        // here since Turtle::new() or AsyncTurtle::new() are commonly called at the beginning
+        // of many programs that use the turtle crate.
+        // We can't call start() within another tokio runtime, so we have to do it before block_on
+        crate::start();
+
         Turtle {
             turtle: block_on(AsyncTurtle::new()),
         }
