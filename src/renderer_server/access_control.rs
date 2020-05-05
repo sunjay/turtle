@@ -90,6 +90,7 @@ pub enum RequiredTurtles {
     /// Request access to two turtles
     ///
     /// Note that if the two IDs are the same, this will cause a deadlock.
+    #[allow(dead_code)] //TODO(#16): This will be used for the multiple turtles feature (for Turtle::clone())
     Two(TurtleId, TurtleId),
 
     /// Request access to all the turtles
@@ -203,6 +204,7 @@ impl<'a> TurtlesGuard<'a> {
         }
     }
 
+    #[allow(dead_code)] //TODO(#16): This will be used for the multiple turtles feature (for Turtle::clone())
     pub fn two_mut(&mut self) -> (&mut TurtleDrawings, &mut TurtleDrawings) {
         use TurtlesGuard::*;
         match self {

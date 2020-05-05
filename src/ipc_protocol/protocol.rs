@@ -112,26 +112,6 @@ impl ProtocolClient {
         }
     }
 
-    pub async fn drawing_width(&self) -> Result<u32, ipc_channel::Error> {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::Width)).await?;
-
-        let response = self.client.recv().await;
-        match response {
-            ServerResponse::DrawingProp(DrawingPropValue::Width(value)) => Ok(value),
-            _ => unreachable!("bug: expected to receive `DrawingProp` in response to `DrawingProp` request"),
-        }
-    }
-
-    pub async fn drawing_height(&self) -> Result<u32, ipc_channel::Error> {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::Height)).await?;
-
-        let response = self.client.recv().await;
-        match response {
-            ServerResponse::DrawingProp(DrawingPropValue::Height(value)) => Ok(value),
-            _ => unreachable!("bug: expected to receive `DrawingProp` in response to `DrawingProp` request"),
-        }
-    }
-
     pub async fn drawing_is_maximized(&self) -> Result<bool, ipc_channel::Error> {
         self.client.send(ClientRequest::DrawingProp(DrawingProp::IsMaximized)).await?;
 
@@ -166,14 +146,6 @@ impl ProtocolClient {
 
     pub async fn drawing_set_size(&self, value: Size) -> Result<(), ipc_channel::Error> {
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Size(value))).await
-    }
-
-    pub async fn drawing_set_width(&self, value: u32) -> Result<(), ipc_channel::Error> {
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Width(value))).await
-    }
-
-    pub async fn drawing_set_height(&self, value: u32) -> Result<(), ipc_channel::Error> {
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Height(value))).await
     }
 
     pub async fn drawing_set_is_maximized(&self, value: bool) -> Result<(), ipc_channel::Error> {
@@ -263,32 +235,6 @@ impl ProtocolClient {
         let response = self.client.recv().await;
         match response {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::Position(value)) => {
-                debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
-                Ok(value)
-            },
-            _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
-        }
-    }
-
-    pub async fn turtle_position_x(&self, id: TurtleId) -> Result<f64, ipc_channel::Error> {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::PositionX)).await?;
-
-        let response = self.client.recv().await;
-        match response {
-            ServerResponse::TurtleProp(recv_id, TurtlePropValue::PositionX(value)) => {
-                debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
-                Ok(value)
-            },
-            _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
-        }
-    }
-
-    pub async fn turtle_position_y(&self, id: TurtleId) -> Result<f64, ipc_channel::Error> {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::PositionY)).await?;
-
-        let response = self.client.recv().await;
-        match response {
-            ServerResponse::TurtleProp(recv_id, TurtlePropValue::PositionY(value)) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 Ok(value)
             },
@@ -414,6 +360,7 @@ impl ProtocolClient {
         self.client.send(ClientRequest::EndFill(id)).await
     }
 
+    #[allow(dead_code)] //TODO(#16): This is part of the multiple turtles feature (for Drawing::clear())
     pub async fn clear(&self) -> Result<(), ipc_channel::Error> {
         self.client.send(ClientRequest::Clear(None)).await
     }
