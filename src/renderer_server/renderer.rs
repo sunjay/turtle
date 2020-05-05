@@ -126,6 +126,11 @@ impl Renderer {
         canvas.set_line_cap(LineCap::Round);
         canvas.set_line_join(LineJoin::Round);
 
+        //TODO: Remove this line once servo/pathfinder#318 is fixed.
+        //  Link: https://github.com/servo/pathfinder/issues/318
+        // Need to render *something* every time to get pathfinder to even render a background
+        canvas.stroke_rect(pathfinder_geometry::rect::RectF::new(vec2f(0.0, 0.0), vec2f(1.0, 1.0)));
+
         // Draw each primitive
         let dpi_scale = self.dpi_scale;
         let center = drawing.center;
