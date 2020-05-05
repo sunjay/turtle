@@ -351,6 +351,14 @@ impl ProtocolClient {
         self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::IsVisible(value))).await
     }
 
+    pub async fn turtle_reset_heading(&self, id: TurtleId) -> Result<(), ipc_channel::Error> {
+        self.client.send(ClientRequest::ResetTurtleProp(id, TurtleProp::Heading)).await
+    }
+
+    pub async fn reset_turtle(&self, id: TurtleId) -> Result<(), ipc_channel::Error> {
+        self.client.send(ClientRequest::ResetTurtle(id)).await
+    }
+
     pub async fn move_forward(&self, id: TurtleId, distance: Distance) -> Result<(), ipc_channel::Error> {
         self.client.send(ClientRequest::MoveForward(id, distance)).await?;
 
