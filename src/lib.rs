@@ -49,10 +49,16 @@
 #![deny(unused_must_use)]
 
 #![doc(html_logo_url = "https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/turtle-logo-512.png")]
-#![cfg_attr(target_arch = "wasm32", crate_type = "cdylib")]
 
 #[cfg(all(test, not(feature = "test")))]
 compile_error!("Make sure you run tests with `cargo test --features test`");
+
+mod radians;
+mod point;
+mod speed;
+pub mod color;
+pub mod event;
+pub mod rand;
 
 mod ipc_protocol;
 mod renderer_server;
@@ -60,53 +66,15 @@ mod renderer_client;
 mod async_drawing;
 mod async_turtle;
 mod sync_runtime;
-mod turtle;
-
-mod turtle_window;
-
-mod animation;
-#[cfg(not(target_arch = "wasm32"))]
-mod app;
 mod drawing;
-mod extensions;
-#[cfg(not(target_arch = "wasm32"))]
-mod messenger;
-mod point;
-mod query;
-mod radians;
-#[cfg(not(target_arch = "wasm32"))]
-mod renderer2;
-mod renderer_process;
-#[cfg(not(target_arch = "wasm32"))]
-mod server;
-mod speed;
-mod state2;
-mod timer;
-
-pub mod color;
-#[cfg(not(target_arch = "wasm32"))]
-pub mod event;
-#[cfg(target_arch = "wasm32")]
-mod event {
-    use serde::{Serialize, Deserialize};
-    #[derive(Debug, Clone, Serialize, Deserialize)]
-    pub enum Event {}
-}
-pub mod rand;
+mod turtle;
 
 pub use crate::color::Color;
 pub use crate::async_drawing::Size;
 pub use crate::drawing::Drawing;
 pub use crate::event::Event;
 pub use crate::point::Point;
-#[cfg(target_arch = "wasm32")]
-pub use renderer_process::{alloc, dealloc, dealloc_str};
 pub use crate::speed::Speed;
 pub use crate::async_turtle::{Angle, Distance};
 pub use crate::turtle::Turtle;
-use crate::renderer_server::ExportError;
-
-#[cfg(not(target_arch = "wasm32"))]
-pub use crate::renderer_server::start;
-#[cfg(target_arch = "wasm32")]
-pub fn start() {}
+pub use crate::renderer_server::{start, ExportError};
