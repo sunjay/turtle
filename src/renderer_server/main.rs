@@ -112,10 +112,16 @@ pub fn main() {
 
         GlutinEvent::RedrawRequested(_) => {
             let handle = Handle::current();
+
+            let drawing = {
+                // Hold the drawing lock for as little time as possible
+                let drawing = handle.block_on(app.drawing_mut());
+                drawing.clone()
+            };
             let display_list = handle.block_on(display_list.lock());
 
             let draw_size = gl_context.window().inner_size();
-            renderer.render(&display_list, draw_size);
+            renderer.render(draw_size, &display_list, &drawing);
             gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
         },
 

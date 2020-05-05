@@ -19,6 +19,9 @@ use pathfinder_renderer::{
 
 use crate::color::RGB_MAX_VAL;
 use crate::{Point, Color};
+
+use super::state::DrawingState;
+
 use display_list::{DrawPrim, DisplayList};
 
 /// Converts a color from the representation in this crate to the one used in the renderer
@@ -91,19 +94,20 @@ impl Renderer {
     /// Draw the given primitives onto a canvas of the given size
     ///
     /// Size is passed in to ensure that it is up-to-date
-    pub fn render(&mut self, display_list: &DisplayList, draw_size: PhysicalSize<u32>) {
-        //TODO: Use background color from Drawing state
-        let background_color = ColorF::white();
-
-        //TODO: Potentially re-create renderer/etc. if draw_size has changed
+    pub fn render(&mut self, draw_size: PhysicalSize<u32>, display_list: &DisplayList, drawing: &DrawingState) {
+        // Set the current draw size
+        self.renderer.replace_dest_framebuffer(
+            DestFramebuffer::full_window(vec2i(draw_size.width as i32, draw_size.height as i32))
+        );
 
         // Clear to background color
-        self.renderer.set_options(RendererOptions { background_color: Some(background_color) });
+        self.renderer.set_options(RendererOptions {
+            background_color: Some(convert_color(drawing.background)),
+        });
 
         let mut canvas = Canvas::new(vec2f(draw_size.width as f32, draw_size.height as f32))
             .get_context_2d(self.font_context.clone());
 
-        //TODO: A `Point` is in logical coordinates, whereas Vector2F is in screen coordinates
         //TODO: Draw primitives
         let mut path = Path2D::new();
         path.move_to(vec2f(50.0, 140.0));
