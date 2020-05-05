@@ -65,19 +65,10 @@ impl RendererServerProcess {
     /// not be written for some reason.
     pub async fn writeln<S: AsRef<[u8]>>(&mut self, data: S) -> io::Result<()> {
         let data = data.as_ref();
-        let bytes_written = self.child_stdin.write(data).await?;
-        self.child_stdin.write_u8(b'\n').await?;
+        self.child_stdin.write_all(data).await?;
+        self.child_stdin.write_all(&[b'\n']).await?;
 
-        if bytes_written == data.len() {
-            Ok(())
-
-        } else {
-            // From the docs: "This typically means that an operation could only succeed if it
-            // wrote a particular number of bytes but only a smaller number of bytes could be
-            // written."
-            let err_msg = format!("expected to write `{}` bytes, but actually wrote `{}`", data.len(), bytes_written);
-            Err(io::Error::new(io::ErrorKind::WriteZero, err_msg))
-        }
+        Ok(())
     }
 }
 
