@@ -6,7 +6,10 @@ use crate::ipc_protocol::{
 };
 use crate::renderer_client::ClientId;
 
-use super::super::access_control::{AccessControl, RequiredData};
+use super::super::{
+    state::DrawingState,
+    access_control::{AccessControl, RequiredData},
+};
 
 pub(crate) async fn drawing_prop(
     conn: &ServerConnection,
@@ -46,8 +49,8 @@ pub(crate) async fn set_drawing_prop(app_control: &AccessControl, prop_value: Dr
     let drawing = data.drawing_mut();
 
     //TODO: Send `RequestRedraw` since many of these change the image
-    //TODO: Send events through EventLoopProxy that indicate changes in the window (e.g. for
-    // changes to `is_maximized` we should call the appropriate method on the Window)
+    //TODO: Send events through EventLoopProxy that indicate changes to make in the window
+    //  (e.g. for changes to `is_maximized` we should call the appropriate method on the Window)
     use DrawingPropValue::*;
     match prop_value {
         Title(title) => drawing.title = title,
@@ -61,5 +64,32 @@ pub(crate) async fn set_drawing_prop(app_control: &AccessControl, prop_value: Dr
         Height(height) => drawing.height = height,
         IsMaximized(is_maximized) => drawing.is_maximized = is_maximized,
         IsFullscreen(is_fullscreen) => drawing.is_fullscreen = is_fullscreen,
+    }
+}
+
+pub(crate) async fn reset_drawing_prop(app_control: &AccessControl, prop: DrawingProp) {
+    let mut data = app_control.get(RequiredData {
+        drawing: true,
+        turtles: None,
+    }).await;
+
+    let drawing = data.drawing_mut();
+
+    //TODO: Send `RequestRedraw` since many of these change the image
+    //TODO: Send events through EventLoopProxy that indicate changes to make in the window
+    //  (e.g. for changes to `is_maximized` we should call the appropriate method on the Window)
+    use DrawingProp::*;
+    match prop {
+        Title => drawing.title = DrawingState::DEFAULT_TITLE.to_string(),
+        Background => drawing.background = DrawingState::DEFAULT_BACKGROUND,
+        Center => drawing.center = DrawingState::DEFAULT_CENTER,
+        Size => {
+            drawing.width = DrawingState::DEFAULT_WIDTH;
+            drawing.height = DrawingState::DEFAULT_HEIGHT;
+        },
+        Width => drawing.width = DrawingState::DEFAULT_WIDTH,
+        Height => drawing.height = DrawingState::DEFAULT_HEIGHT,
+        IsMaximized => drawing.is_maximized = DrawingState::DEFAULT_IS_MAXIMIZED,
+        IsFullscreen => drawing.is_fullscreen = DrawingState::DEFAULT_IS_FULLSCREEN,
     }
 }

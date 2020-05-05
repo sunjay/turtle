@@ -13,6 +13,7 @@ use crate::renderer_client::ClientId;
 
 use super::super::{
     RequestRedraw,
+    state::{self, TurtleState},
     app::{TurtleId, TurtleDrawings},
     access_control::{AccessControl, RequiredData, RequiredTurtles},
     renderer::display_list::DisplayList,
@@ -105,4 +106,102 @@ pub(crate) async fn set_turtle_prop(
                 .expect("bug: event loop closed before animation completed");
         },
     }
+}
+
+pub(crate) async fn reset_turtle_prop(
+    app_control: &AccessControl,
+    display_list: &Mutex<DisplayList>,
+    event_loop: &Mutex<EventLoopProxy<RequestRedraw>>,
+    id: TurtleId,
+    prop: TurtleProp,
+) {
+    let mut data = app_control.get(RequiredData {
+        drawing: false,
+        turtles: Some(RequiredTurtles::One(id)),
+    }).await;
+    let mut turtles = data.turtles_mut().await;
+
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
+
+    let mut drawing_changed = false;
+
+    use TurtleProp::*;
+    use PenProp::*;
+    match prop {
+        Pen(IsEnabled) => turtle.pen.is_enabled = state::Pen::DEFAULT_IS_ENABLED,
+        Pen(Thickness) => turtle.pen.thickness = state::Pen::DEFAULT_THICKNESS,
+        Pen(Color) => turtle.pen.color = state::Pen::DEFAULT_COLOR,
+
+        FillColor => {
+            turtle.fill_color = TurtleState::DEFAULT_FILL_COLOR;
+
+            // Update the current fill polygon to the new color
+            if let Some(poly_handle) = *current_fill_polygon {
+                let mut display_list = display_list.lock().await;
+                display_list.polygon_set_fill_color(poly_handle, TurtleState::DEFAULT_FILL_COLOR);
+
+                drawing_changed = true;
+            }
+        },
+
+        IsFilling => unreachable!("bug: should have used `BeginFill` and `EndFill` instead"),
+
+        Position => {
+            turtle.position = TurtleState::DEFAULT_POSITION;
+            drawing_changed = true;
+        },
+        PositionX => {
+            turtle.position.x = TurtleState::DEFAULT_POSITION.x;
+            drawing_changed = true;
+        },
+        PositionY => {
+            turtle.position.y = TurtleState::DEFAULT_POSITION.y;
+            drawing_changed = true;
+        },
+
+        Heading => {
+            turtle.heading = TurtleState::DEFAULT_HEADING;
+            drawing_changed = true;
+        },
+
+        Speed => turtle.speed = crate::Speed::default(),
+
+        IsVisible => {
+            turtle.is_visible = TurtleState::DEFAULT_IS_VISIBLE;
+            drawing_changed = true;
+        },
+    }
+
+    if drawing_changed {
+        // Signal the main thread that the image has changed
+        event_loop.lock().await.send_event(RequestRedraw)
+            .expect("bug: event loop closed before animation completed");
+    }
+}
+
+pub(crate) async fn reset_turtle(
+    app_control: &AccessControl,
+    display_list: &Mutex<DisplayList>,
+    event_loop: &Mutex<EventLoopProxy<RequestRedraw>>,
+    id: TurtleId,
+) {
+    let mut data = app_control.get(RequiredData {
+        drawing: false,
+        turtles: Some(RequiredTurtles::One(id)),
+    }).await;
+    let mut turtles = data.turtles_mut().await;
+
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
+
+    *turtle = TurtleState::default();
+
+    // Update the current fill polygon to the new color
+    if let Some(poly_handle) = *current_fill_polygon {
+        let mut display_list = display_list.lock().await;
+        display_list.polygon_set_fill_color(poly_handle, TurtleState::DEFAULT_FILL_COLOR);
+    }
+
+    // Signal the main thread that the image has changed
+    event_loop.lock().await.send_event(RequestRedraw)
+        .expect("bug: event loop closed before animation completed");
 }
