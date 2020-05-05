@@ -1,39 +1,8 @@
-use std::cell::RefCell;
 use std::fmt::Debug;
-use std::rc::Rc;
-use std::thread;
-use std::time::Duration;
 
-#[cfg(not(target_arch = "wasm32"))]
-use crate::event::{Event, MouseButton};
-use crate::radians::{self, Radians};
-use crate::turtle_window::TurtleWindow;
 use crate::{Color, Drawing, Point, Speed};
-
-use crate::async_turtle::{Distance, Angle};
-
-//TODO: Delete this since it has moved to `async_turtle`
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum AngleUnit {
-    Degrees,
-    Radians,
-}
-
-impl AngleUnit {
-    fn to_radians(self, angle: Angle) -> Radians {
-        match self {
-            AngleUnit::Degrees => Radians::from_degrees_value(angle),
-            AngleUnit::Radians => Radians::from_radians_value(angle),
-        }
-    }
-
-    fn to_angle(self, angle: Radians) -> Angle {
-        match self {
-            AngleUnit::Degrees => angle.to_degrees(),
-            AngleUnit::Radians => angle.to_radians(),
-        }
-    }
-}
+use crate::async_turtle::{AsyncTurtle, Distance, Angle};
+use crate::sync_runtime::block_on;
 
 /// A turtle with a pen attached to its tail
 ///
@@ -46,14 +15,18 @@ impl AngleUnit {
 /// See the documentation for the methods below to learn about the different drawing commands you
 /// can use with the turtle.
 pub struct Turtle {
-    window: Rc<RefCell<TurtleWindow>>,
-    drawing: Drawing,
-    angle_unit: AngleUnit,
+    turtle: AsyncTurtle,
 }
 
 impl Default for Turtle {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl From<AsyncTurtle> for Turtle {
+    fn from(turtle: AsyncTurtle) -> Self {
+        Turtle {turtle}
     }
 }
 
@@ -76,11 +49,8 @@ impl Turtle {
     /// **Note:** If you do not create the `Turtle` right at the beginning of `main()`, call
     /// [`turtle::start()`](fn.start.html) in order to avoid any problems.
     pub fn new() -> Turtle {
-        let window = Rc::new(RefCell::new(TurtleWindow::new()));
         Turtle {
-            window: window.clone(),
-            drawing: Drawing::with_window(window),
-            angle_unit: AngleUnit::Degrees,
+            turtle: block_on(AsyncTurtle::new()),
         }
     }
 
@@ -108,7 +78,7 @@ impl Turtle {
     /// # assert_eq!(turtle.position().y.round(), -113.0);
     /// ```
     pub fn forward(&mut self, distance: Distance) {
-        self.window.borrow_mut().forward(distance);
+        block_on(self.turtle.forward(distance))
     }
 
     /// Move the turtle backwards by the given amount of `distance`. If the pen is down, the turtle
@@ -135,8 +105,7 @@ impl Turtle {
     /// # assert_eq!(turtle.position().y.round(), 69.0);
     /// ```
     pub fn backward(&mut self, distance: Distance) {
-        // Moving backwards is essentially moving forwards with a negative distance
-        self.window.borrow_mut().forward(-distance);
+        block_on(self.turtle.backward(distance))
     }
 
     /// Instruct the turtle to turn right (clockwise) by the given angle. Since the turtle rotates
@@ -173,8 +142,7 @@ impl Turtle {
     /// # assert_eq!((turtle.heading() * 1e5).trunc(), expected);
     /// ```
     pub fn right(&mut self, angle: Angle) {
-        let angle = self.angle_unit.to_radians(angle);
-        self.window.borrow_mut().rotate(angle, true);
+        block_on(self.turtle.right(angle))
     }
 
     /// Instruct the turtle to turn left (counterclockwise) by the given angle. Since the turtle
@@ -208,8 +176,7 @@ impl Turtle {
     /// # );
     /// ```
     pub fn left(&mut self, angle: Angle) {
-        let angle = self.angle_unit.to_radians(angle);
-        self.window.borrow_mut().rotate(angle, false);
+        block_on(self.turtle.left(angle))
     }
 
     /// Waits for the specified number of seconds before executing the next command.
@@ -223,10 +190,11 @@ impl Turtle {
     /// turtle.forward(50.0);
     /// ```
     pub fn wait(&mut self, secs: f64) {
-        if !secs.is_normal() {
-            return;
-        }
-        thread::sleep(Duration::from_millis((secs * 1000.0) as u64));
+        block_on(self.turtle.wait(secs))
+    }
+
+    pub(crate) fn into_async(self) -> AsyncTurtle {
+        self.turtle
     }
 
     /// Retrieve a read-only reference to the drawing.
@@ -234,7 +202,7 @@ impl Turtle {
     /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
     /// listing of the information that you can retrieve from the drawing.
     pub fn drawing(&self) -> &Drawing {
-        &self.drawing
+        todo!()
     }
 
     /// Retrieve a mutable reference to the drawing
@@ -242,7 +210,7 @@ impl Turtle {
     /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
     /// listing of the ways that you can manipulate the drawing.
     pub fn drawing_mut(&mut self) -> &mut Drawing {
-        &mut self.drawing
+        todo!()
     }
 
     /// Returns the current speed of the turtle.
@@ -256,7 +224,7 @@ impl Turtle {
     ///
     /// See the documentation for the [`Speed` struct](struct.Speed.html) for more information.
     pub fn speed(&self) -> Speed {
-        self.window.borrow().fetch_turtle().speed
+        block_on(self.turtle.speed())
     }
 
     /// Set the turtle's movement and rotation speed to the given value. A higher value will make
@@ -360,7 +328,7 @@ impl Turtle {
     /// [`From`]: https://doc.rust-lang.org/std/convert/trait.From.html
     /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.speed = speed.into());
+        block_on(self.turtle.set_speed(speed))
     }
 
     /// Returns the turtle's current location (x, y)
@@ -373,7 +341,7 @@ impl Turtle {
     /// assert_eq!(pos.round(), Point {x: 0.0, y: 100.0});
     /// ```
     pub fn position(&self) -> Point {
-        self.window.borrow().fetch_turtle().position
+        block_on(self.turtle.position())
     }
 
     /// Moves the turtle directly to the given position. See the [`Point` struct](struct.Point.html)
@@ -394,21 +362,19 @@ impl Turtle {
     /// assert_eq!(turtle.position(), Point {x: 100.0, y: -150.0});
     /// ```
     pub fn go_to<P: Into<Point>>(&mut self, position: P) {
-        self.window.borrow_mut().go_to(position.into());
+        block_on(self.turtle.go_to(position))
     }
 
     /// Goes to the given x-coordinate, keeping the y-coordinate and heading of the turtle the
     /// same. See [`go_to()`](struct.Turtle.html#method.go_to) for more information.
     pub fn set_x(&mut self, x: f64) {
-        let y = self.position().y;
-        self.go_to([x, y]);
+        block_on(self.turtle.set_x(x))
     }
 
     /// Goes to the given y-coordinate, keeping the x-coordinate and heading of the turtle the
     /// same. See [`go_to()`](struct.Turtle.html#method.go_to) for more information.
     pub fn set_y(&mut self, y: f64) {
-        let x = self.position().x;
-        self.go_to([x, y]);
+        block_on(self.turtle.set_y(y))
     }
 
     /// Moves instantaneously to the origin and resets the heading to face north.
@@ -427,10 +393,7 @@ impl Turtle {
     /// assert_eq!(turtle.position().round(), start_position);
     /// ```
     pub fn home(&mut self) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| {
-            turtle.position = Point::origin();
-            turtle.heading = radians::PI / 2.0;
-        });
+        block_on(self.turtle.home())
     }
 
     /// Returns the turtle's current heading.
@@ -468,8 +431,7 @@ impl Turtle {
     /// assert_eq!(turtle.heading().round(), 22.0);
     /// ```
     pub fn heading(&self) -> Angle {
-        let heading = self.window.borrow().fetch_turtle().heading;
-        self.angle_unit.to_angle(heading)
+        block_on(self.turtle.heading())
     }
 
     /// Rotate the turtle so that its heading is the given angle.
@@ -512,28 +474,21 @@ impl Turtle {
     /// assert_eq!(turtle.heading().round(), 7.0);
     /// ```
     pub fn set_heading(&mut self, angle: Angle) {
-        let angle = self.angle_unit.to_radians(angle);
-        let heading = self.window.borrow().fetch_turtle().heading;
-        // Find the amount we need to turn to reach the target heading based on our current heading
-        let angle = angle - heading;
-        // Normalize the angle to be between -180 and 179 so that we rotate as little as possible
-        // Formula from: https://stackoverflow.com/a/24234924/551904
-        let angle = angle - radians::TWO_PI * ((angle + radians::PI) / radians::TWO_PI).floor();
-        self.window.borrow_mut().rotate(angle, false);
+        block_on(self.turtle.set_heading(angle))
     }
 
     /// Returns true if `Angle` values will be interpreted as degrees.
     ///
     /// See [`use_degrees()`](struct.Turtle.html#method.use_degrees) for more information.
     pub fn is_using_degrees(&self) -> bool {
-        self.angle_unit == AngleUnit::Degrees
+        self.turtle.is_using_degrees()
     }
 
     /// Returns true if `Angle` values will be interpreted as radians.
     ///
     /// See [`use_radians()`](struct.Turtle.html#method.use_degrees) for more information.
     pub fn is_using_radians(&self) -> bool {
-        self.angle_unit == AngleUnit::Radians
+        self.turtle.is_using_radians()
     }
 
     /// Change the angle unit to degrees.
@@ -550,7 +505,7 @@ impl Turtle {
     /// turtle.right(1.0);
     /// ```
     pub fn use_degrees(&mut self) {
-        self.angle_unit = AngleUnit::Degrees;
+        self.turtle.use_degrees()
     }
 
     /// Change the angle unit to radians.
@@ -566,7 +521,7 @@ impl Turtle {
     /// turtle.right(1.0);
     /// ```
     pub fn use_radians(&mut self) {
-        self.angle_unit = AngleUnit::Radians;
+        self.turtle.use_radians()
     }
 
     /// Return true if pen is down, false if it’s up.
@@ -581,7 +536,7 @@ impl Turtle {
     /// assert!(turtle.is_pen_down());
     /// ```
     pub fn is_pen_down(&self) -> bool {
-        self.window.borrow().fetch_turtle().pen.enabled
+        block_on(self.turtle.is_pen_down())
     }
 
     /// Pull the pen down so that the turtle draws while moving.
@@ -599,7 +554,7 @@ impl Turtle {
     /// turtle.forward(100.0);
     /// ```
     pub fn pen_down(&mut self) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.enabled = true);
+        block_on(self.turtle.pen_down())
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
@@ -616,7 +571,7 @@ impl Turtle {
     /// turtle.forward(100.0);
     /// ```
     pub fn pen_up(&mut self) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.enabled = false);
+        block_on(self.turtle.pen_up())
     }
 
     /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
@@ -630,7 +585,7 @@ impl Turtle {
     ///
     /// See [`set_pen_size()`](struct.Turtle.html#method.set_pen_size) for more details.
     pub fn pen_size(&self) -> f64 {
-        self.window.borrow().fetch_turtle().pen.thickness
+        block_on(self.turtle.pen_size())
     }
 
     /// Sets the thickness of the pen to the given size. The thickness is measured in pixels.
@@ -673,12 +628,7 @@ impl Turtle {
     /// Notice that while the turtle travels in a straight line, it produces different thicknesses
     /// of lines which appear like large rectangles.
     pub fn set_pen_size(&mut self, thickness: f64) {
-        assert!(
-            thickness >= 0.0 && thickness.is_finite(),
-            "Invalid thickness: {}. The pen thickness must be greater than or equal to zero",
-            thickness
-        );
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.thickness = thickness);
+        block_on(self.turtle.set_pen_size(thickness))
     }
 
     /// Returns the color of the pen.
@@ -692,7 +642,7 @@ impl Turtle {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn pen_color(&self) -> Color {
-        self.window.borrow().fetch_turtle().pen.color
+        block_on(self.turtle.pen_color())
     }
 
     /// Sets the color of the pen to the given color.
@@ -724,13 +674,7 @@ impl Turtle {
     ///
     /// ![turtle pen color](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/colored_circle.png)
     pub fn set_pen_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
-        let pen_color = color.into();
-        assert!(
-            pen_color.is_valid(),
-            "Invalid color: {:?}. See the color module documentation for more information.",
-            color
-        );
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.pen.color = pen_color);
+        block_on(self.turtle.set_pen_color(color))
     }
 
     /// Returns the current fill color.
@@ -748,7 +692,7 @@ impl Turtle {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn fill_color(&self) -> Color {
-        self.window.borrow().fetch_turtle().fill_color
+        block_on(self.turtle.fill_color())
     }
 
     /// Sets the fill color to the given color.
@@ -763,13 +707,7 @@ impl Turtle {
     ///
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for an example.
     pub fn set_fill_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
-        let fill_color = color.into();
-        assert!(
-            fill_color.is_valid(),
-            "Invalid color: {:?}. See the color module documentation for more information.",
-            color
-        );
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.fill_color = fill_color);
+        block_on(self.turtle.set_fill_color(color))
     }
 
     /// Return true if the turtle is currently filling the shape drawn
@@ -788,7 +726,7 @@ impl Turtle {
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for more
     /// information and an example.
     pub fn is_filling(&self) -> bool {
-        self.window.borrow().fetch_turtle().is_filling
+        block_on(self.turtle.is_filling())
     }
 
     /// Begin filling the shape drawn by the turtle's movements.
@@ -836,7 +774,7 @@ impl Turtle {
     ///
     /// ![turtle fill example](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/red_circle.png)
     pub fn begin_fill(&mut self) {
-        self.window.borrow_mut().begin_fill();
+        block_on(self.turtle.begin_fill())
     }
 
     /// Stop filling the shape drawn by the turtle's movements.
@@ -846,7 +784,7 @@ impl Turtle {
     ///
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for more information.
     pub fn end_fill(&mut self) {
-        self.window.borrow_mut().end_fill();
+        block_on(self.turtle.end_fill())
     }
 
     /// Returns true if the turtle is visible.
@@ -861,7 +799,7 @@ impl Turtle {
     /// assert!(turtle.is_visible());
     /// ```
     pub fn is_visible(&self) -> bool {
-        self.window.borrow().fetch_turtle().visible
+        block_on(self.turtle.is_visible())
     }
 
     /// Makes the turtle invisible. The shell will not be shown, but drawings will continue.
@@ -876,7 +814,7 @@ impl Turtle {
     /// assert!(!turtle.is_visible());
     /// ```
     pub fn hide(&mut self) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.visible = false);
+        block_on(self.turtle.hide())
     }
 
     /// Makes the turtle visible.
@@ -890,7 +828,7 @@ impl Turtle {
     /// assert!(turtle.is_visible());
     /// ```
     pub fn show(&mut self) {
-        self.window.borrow_mut().with_turtle_mut(|turtle| turtle.visible = true);
+        block_on(self.turtle.show())
     }
 
     /// Delete the turtle's drawings from the screen, re-center the turtle and reset all of the
@@ -912,10 +850,7 @@ impl Turtle {
     /// assert_ne!(turtle.drawing().background_color(), "green".into());
     /// ```
     pub fn reset(&mut self) {
-        self.clear();
-        self.window.borrow_mut().with_turtle_mut(|turtle| *turtle = Default::default());
-        //TODO: This next line is a bug (does not match the docs for this method)
-        self.window.borrow_mut().with_drawing_mut(|drawing| *drawing = Default::default());
+        block_on(self.turtle.reset())
     }
 
     /// Delete the turtle's drawings from the screen.
@@ -946,7 +881,7 @@ impl Turtle {
     ///
     /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/clear_after_click.png)
     pub fn clear(&mut self) {
-        self.window.borrow_mut().clear();
+        block_on(self.turtle.clear())
     }
 
     /// Rotates the turtle to face the given point. See the [`Point` struct](struct.Point.html)
@@ -986,31 +921,7 @@ impl Turtle {
     /// }
     /// ```
     pub fn turn_towards<P: Into<Point>>(&mut self, target: P) {
-        let target: Point = target.into();
-        let position = self.position();
-
-        // If the target is (approximately) on the turtle don't turn
-        if (target - position).is_not_normal() {
-            return;
-        }
-
-        let heading = self.window.borrow().fetch_turtle().heading;
-
-        // Calculate the target angle to reach
-        let angle = (target - position).atan2();
-        let angle = Radians::from_radians_value(angle);
-        // Calculate how much turning will be needed (angle - heading)
-        // And clamp it make sure the turtle doesn't turn more than 360 degrees
-        let angle = (angle - heading) % radians::TWO_PI;
-        // Try to rotate as little as possible
-        let angle = if angle.abs() > radians::PI {
-            // Use signum to make sure the angle has the right sign
-            // And the turtle turns the right way
-            -angle.signum() * (radians::TWO_PI - angle.abs())
-        } else {
-            angle
-        };
-        self.window.borrow_mut().rotate(angle, false);
+        block_on(self.turtle.turn_towards(target))
     }
 
     /// Convenience function that waits for a click to occur before returning.
@@ -1035,14 +946,7 @@ impl Turtle {
     /// ```
     #[cfg(not(target_arch = "wasm32"))] //FIXME: Port to WASM
     pub fn wait_for_click(&mut self) {
-        loop {
-            if let Some(Event::MouseButtonReleased(MouseButton::Left)) = self.drawing_mut().poll_event() {
-                break;
-            }
-
-            // Sleep for ~1 frame (at 120fps) to avoid pegging the CPU.
-            thread::sleep(Duration::from_millis(1000 / 120));
-        }
+        block_on(self.turtle.wait_for_click())
     }
 }
 
