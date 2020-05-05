@@ -954,6 +954,8 @@ impl Turtle {
 mod tests {
     use super::*;
 
+    use crate::radians;
+
     #[test]
     fn is_using_radians_degrees() {
         // is_using_radians and is_using_degrees should be inverses of each other
