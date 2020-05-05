@@ -141,8 +141,10 @@ impl AsyncTurtle {
     }
 
     pub async fn home(&mut self) {
-        //TODO: Add `ResetTurtleProp(TurtleId, TurtleProp)` request and use it here
-        todo!()
+        self.client.move_to(self.id, Point::origin()).await
+            .expect("unable to communicate with turtle server process");
+        self.client.turtle_reset_heading(self.id).await
+            .expect("unable to communicate with turtle server process");
     }
 
     pub async fn heading(&self) -> Angle {
@@ -276,8 +278,9 @@ impl AsyncTurtle {
     }
 
     pub async fn reset(&mut self) {
-        //TODO: Add `ResetTurtle(TurtleId)` request and use it here
-        todo!()
+        self.clear().await;
+        self.client.reset_turtle(self.id).await
+            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn clear(&mut self) {
