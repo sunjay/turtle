@@ -42,6 +42,10 @@ pub enum ClientRequest {
     ///
     /// Response: N/A
     SetDrawingProp(DrawingPropValue),
+    /// Resets the given property of the drawing
+    ///
+    /// Response: N/A
+    ResetDrawingProp(DrawingProp),
 
     /// Get the given property of a turtle
     ///
@@ -51,6 +55,14 @@ pub enum ClientRequest {
     ///
     /// Response: N/A
     SetTurtleProp(TurtleId, TurtlePropValue),
+    /// Resets the given property of a turtle
+    ///
+    /// Response: N/A
+    ResetTurtleProp(TurtleId, TurtleProp),
+    /// Resets all properties of a turtle
+    ///
+    /// Response: N/A
+    ResetTurtle(TurtleId),
 
     /// Move a turtle forward by the given amount
     ///

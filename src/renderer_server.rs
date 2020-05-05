@@ -88,12 +88,21 @@ async fn run_request(
         SetDrawingProp(prop_value) => {
             handlers::set_drawing_prop(&app_control, prop_value).await
         },
+        ResetDrawingProp(prop) => {
+            handlers::reset_drawing_prop(&app_control, prop).await
+        },
 
         TurtleProp(id, prop) => {
             handlers::turtle_prop(&conn, client_id, &app_control, id, prop).await
         },
         SetTurtleProp(id, prop_value) => {
             handlers::set_turtle_prop(&app_control, &display_list, &event_loop, id, prop_value).await
+        },
+        ResetTurtleProp(id, prop) => {
+            handlers::reset_turtle_prop(&app_control, &display_list, &event_loop, id, prop).await
+        },
+        ResetTurtle(id) => {
+            handlers::reset_turtle(&app_control, &display_list, &event_loop, id).await
         },
 
         MoveForward(id, distance) => {
