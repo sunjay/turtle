@@ -58,6 +58,7 @@ mod ipc_protocol;
 mod renderer_server;
 mod renderer_client;
 mod async_turtle;
+mod sync_runtime;
 
 mod turtle_window;
 
