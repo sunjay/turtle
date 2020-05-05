@@ -944,7 +944,6 @@ impl Turtle {
     ///     turtle.forward(100.0);
     /// }
     /// ```
-    #[cfg(not(target_arch = "wasm32"))] //FIXME: Port to WASM
     pub fn wait_for_click(&mut self) {
         block_on(self.turtle.wait_for_click())
     }
