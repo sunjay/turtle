@@ -1,11 +1,9 @@
-use std::cell::RefCell;
 use std::fmt::Debug;
-use std::rc::Rc;
 use std::path::Path;
 
-use crate::state2::DrawingState;
-use crate::turtle_window::TurtleWindow;
-use crate::{Turtle, Color, Event, Point, Size};
+use crate::{Turtle, Color, Event, Point, Size, ExportError};
+use crate::async_drawing::AsyncDrawing;
+use crate::sync_runtime::block_on;
 
 /// Represents the drawing that the turtle is creating
 ///
@@ -13,17 +11,36 @@ use crate::{Turtle, Color, Event, Point, Size};
 /// and [`drawing_mut()`](struct.Turtle.html#method.drawing_mut) methods on the
 /// [`Turtle` struct](struct.Turtle.html).
 pub struct Drawing {
-    window: Rc<RefCell<TurtleWindow>>,
+    drawing: AsyncDrawing,
     //TODO: Remove this field when multiple turtles are supported
     turtles: usize,
 }
 
+impl From<AsyncDrawing> for Drawing {
+    fn from(drawing: AsyncDrawing) -> Self {
+        //TODO: There is no way to set `turtles` properly here, but that's okay since it is going
+        // to be removed soon.
+        Self {drawing, turtles: 1}
+    }
+}
+
 impl Drawing {
-    pub(crate) fn with_window(window: Rc<RefCell<TurtleWindow>>) -> Self {
-        Self { window, turtles: 0 }
+    /// Creates a new drawing
+    ///
+    /// This will immediately open a new window with a completely blank image. To create a new
+    /// turtle in the image, use the [`add_turtle()`] method.
+    ///
+    /// [`add_turtle()`](struct.Drawing.html#method.add_turtle)
+    pub fn new() -> Drawing {
+        Drawing {
+            drawing: block_on(AsyncDrawing::new()),
+            turtles: 0,
+        }
     }
 
     /// Adds a new turtle to this drawing and returns it
+    ///
+    /// The newly created turtle will appear at center of the drawing.
     ///
     /// Note that until the multiple turtles feature becomes stable, this method can only be called
     /// once.
@@ -31,7 +48,11 @@ impl Drawing {
         assert!(self.turtles == 0, "Multiple turtles are unstable! Only call `add_turtle` once.");
         self.turtles += 1;
 
-        todo!()
+        block_on(self.drawing.add_turtle()).into()
+    }
+
+    pub(crate) fn into_async(self) -> AsyncDrawing {
+        self.drawing
     }
 
     /// Returns the title of the drawing
@@ -43,7 +64,7 @@ impl Drawing {
     /// assert_eq!(&*turtle.drawing().title(), "Hello, world!");
     /// ```
     pub fn title(&self) -> String {
-        self.window.borrow().fetch_drawing().title
+        block_on(self.drawing.title())
     }
 
     /// Sets the title of the drawing to the given text
@@ -62,10 +83,8 @@ impl Drawing {
     /// This will produce the following:
     ///
     /// ![turtle set title](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/changed_title.png)
-    pub fn set_title(&mut self, title: &str) {
-        self.window
-            .borrow_mut()
-            .with_drawing_mut(|drawing| drawing.title = title.to_owned());
+    pub fn set_title<S: Into<String>>(&mut self, title: S) {
+        block_on(self.drawing.set_title(title))
     }
 
     /// Returns the color of the background.
@@ -79,7 +98,7 @@ impl Drawing {
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
     pub fn background_color(&self) -> Color {
-        self.window.borrow().fetch_drawing().background
+        block_on(self.drawing.background_color())
     }
 
     /// Sets the color of the background to the given color.
@@ -102,13 +121,7 @@ impl Drawing {
     ///
     /// ![turtle background](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/orange_background.png)
     pub fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
-        let bg_color = color.into();
-        assert!(
-            bg_color.is_valid(),
-            "Invalid color: {:?}. See the color module documentation for more information.",
-            color
-        );
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.background = bg_color);
+        block_on(self.drawing.set_background_color(color))
     }
 
     /// Returns the center of the drawing
@@ -121,7 +134,7 @@ impl Drawing {
     /// assert_eq!(turtle.drawing().center(), Point {x: 4.0, y: 3.0});
     /// ```
     pub fn center(&self) -> Point {
-        self.window.borrow().fetch_drawing().center
+        block_on(self.drawing.center())
     }
 
     /// Sets the center of the drawing to the given point. See the [`Point` struct](struct.Point.html)
@@ -161,11 +174,7 @@ impl Drawing {
     ///
     /// ![turtle center offset](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/circle_offset_center.png)
     pub fn set_center<P: Into<Point>>(&mut self, center: P) {
-        let center = center.into();
-        if !center.is_finite() {
-            return;
-        }
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.center = center);
+        block_on(self.drawing.set_center(center))
     }
 
     /// Resets the center of the drawing back to its initial value
@@ -180,8 +189,7 @@ impl Drawing {
     /// assert_eq!(turtle.drawing().center(), default_center);
     /// ```
     pub fn reset_center(&mut self) {
-        let default = DrawingState::default();
-        self.set_center(default.center);
+        block_on(self.drawing.reset_center())
     }
 
     /// Returns the size of the drawing
@@ -197,11 +205,7 @@ impl Drawing {
     /// assert_eq!(size.height, 1080);
     /// ```
     pub fn size(&self) -> Size {
-        let drawing = self.window.borrow().fetch_drawing();
-        Size {
-            width: drawing.width,
-            height: drawing.height,
-        }
+        block_on(self.drawing.size())
     }
 
     /// Sets the size of the drawing to the given width and height.
@@ -255,11 +259,7 @@ impl Drawing {
     /// Notice that the center of the drawing stays the same. To control that, see
     /// [`set_center()`](struct.Drawing.html#method.set_center).
     pub fn set_size<S: Into<Size>>(&mut self, size: S) {
-        let size = size.into();
-        self.window.borrow_mut().with_drawing_mut(|drawing| {
-            drawing.width = size.width;
-            drawing.height = size.height;
-        });
+        block_on(self.drawing.set_size(size))
     }
 
     /// Resets the size of the drawing back to its initial value
@@ -276,8 +276,7 @@ impl Drawing {
     /// assert_eq!(turtle.drawing().size(), default_size);
     /// ```
     pub fn reset_size(&mut self) {
-        let default = DrawingState::default();
-        self.set_size((default.width, default.height));
+        block_on(self.drawing.reset_size())
     }
 
     /// Returns true if the drawing is currently maximized.
@@ -312,7 +311,7 @@ impl Drawing {
     /// potentially inaccurate.
     #[cfg(feature = "unstable")]
     pub fn is_maximized(&self) -> bool {
-        self.window.borrow().fetch_drawing().maximized
+        block_on(self.drawing.is_maximized())
     }
 
     /// Maximizes the size of the drawing so that it takes up the entire display.
@@ -343,7 +342,7 @@ impl Drawing {
     /// it after that because by then the user may have pressed the maximize button on the window.
     #[cfg(feature = "unstable")]
     pub fn maximize(&mut self) {
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = true);
+        block_on(self.drawing.maximize())
     }
 
     /// Returns the size of the drawing to its value before it was maximized
@@ -374,7 +373,7 @@ impl Drawing {
     /// potentially inaccurate.
     #[cfg(feature = "unstable")]
     pub fn unmaximize(&mut self) {
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.maximized = false);
+        block_on(self.drawing.unmaximize())
     }
 
     /// Returns true if the drawing is currently full screen.
@@ -395,7 +394,7 @@ impl Drawing {
     /// assert_eq!(turtle.drawing().is_fullscreen(), false);
     /// ```
     pub fn is_fullscreen(&self) -> bool {
-        self.window.borrow().fetch_drawing().fullscreen
+        block_on(self.drawing.is_fullscreen())
     }
 
     /// Makes the drawing take up the entire screen hiding everything else that would have been
@@ -413,7 +412,7 @@ impl Drawing {
     /// assert_eq!(turtle.drawing().is_fullscreen(), true);
     /// ```
     pub fn enter_fullscreen(&mut self) {
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.fullscreen = true);
+        block_on(self.drawing.enter_fullscreen())
     }
 
     /// Returns the size of the drawing to its value before it became fullscreen.
@@ -433,7 +432,7 @@ impl Drawing {
     /// assert_eq!(turtle.drawing().is_fullscreen(), false);
     /// ```
     pub fn exit_fullscreen(&mut self) {
-        self.window.borrow_mut().with_drawing_mut(|drawing| drawing.fullscreen = false);
+        block_on(self.drawing.exit_fullscreen())
     }
 
     /// Returns the next event (if any). Returns `None` if there are no events to be processed at
@@ -506,7 +505,7 @@ impl Drawing {
     /// }
     /// ```
     pub fn poll_event(&mut self) -> Option<Event> {
-        self.window.borrow_mut().poll_event()
+        block_on(self.drawing.poll_event())
     }
 
     /// Saves the current drawings in SVG format at the location specified by `path`.
@@ -545,9 +544,8 @@ impl Drawing {
     /// This will produce the following image in the current directory under the name `squares.svg`:
     ///
     /// ![squares](https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/docs/squares.svg?sanitize=true)
-    pub fn save_svg<P: AsRef<Path>>(&self, path: P) {
-        //TODO: This function should return Result
-        self.window.borrow().save_svg(path)
+    pub fn save_svg<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {
+        block_on(self.drawing.save_svg(path))
     }
 }
 
@@ -558,9 +556,7 @@ mod tests {
     use crate::turtle::*;
 
     #[test]
-    #[should_panic(
-        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
-    )]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
     fn rejects_invalid_background_color() {
         let mut turtle = Turtle::new();
         turtle.drawing_mut().set_background_color(Color {

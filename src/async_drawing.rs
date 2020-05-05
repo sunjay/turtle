@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::ipc_protocol::ProtocolClient;
 use crate::async_turtle::AsyncTurtle;
-use crate::{Point, Color, Event, ExportError};
+use crate::{Drawing, Point, Color, Event, ExportError};
 
 /// Represents a size
 ///
@@ -58,10 +58,26 @@ pub struct AsyncDrawing {
     client: ProtocolClient,
 }
 
+impl From<Drawing> for AsyncDrawing {
+    fn from(drawing: Drawing) -> Self {
+        drawing.into_async()
+    }
+}
+
 impl AsyncDrawing {
+    pub async fn new() -> Self {
+        let client = ProtocolClient::new().await
+            .expect("unable to create renderer client");
+        Self {client}
+    }
+
     pub async fn add_turtle(&mut self) -> AsyncTurtle {
         let client = self.client.split().await;
         AsyncTurtle::with_client(client).await
+    }
+
+    pub fn into_sync(self) -> Drawing {
+        self.into()
     }
 
     pub async fn title(&self) -> String {

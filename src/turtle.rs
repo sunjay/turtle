@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
-use crate::{Color, Drawing, Point, Speed};
-use crate::async_turtle::{AsyncTurtle, Distance, Angle};
+use crate::{Color, Drawing, Point, Speed, Distance, Angle};
+use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
 
 /// A turtle with a pen attached to its tail
@@ -26,7 +26,7 @@ impl Default for Turtle {
 
 impl From<AsyncTurtle> for Turtle {
     fn from(turtle: AsyncTurtle) -> Self {
-        Turtle {turtle}
+        Self {turtle}
     }
 }
 
