@@ -99,6 +99,15 @@ pub fn main() {
             *control_flow = ControlFlow::Exit;
         },
 
+        GlutinEvent::WindowEvent {
+            event: WindowEvent::ScaleFactorChanged {scale_factor, ..},
+            ..
+        } => {
+            renderer.set_scale_factor(scale_factor);
+            //TODO: No idea if this next line is necessary or not
+            gl_context.window().request_redraw();
+        },
+
         GlutinEvent::WindowEvent {window_id, event} => {
             //TODO: Check if event modifies state and then send event
         },

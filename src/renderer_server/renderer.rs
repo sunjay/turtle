@@ -71,6 +71,8 @@ pub struct Renderer {
     renderer: PathfinderRenderer<GLDevice>,
     font_context: CanvasFontContext,
     scene: SceneProxy,
+    /// Information about DPI scaling: https://docs.rs/glutin/0.24.0/glutin/dpi/index.html
+    dpi_scale: f64,
 }
 
 impl Renderer {
@@ -88,7 +90,14 @@ impl Renderer {
             renderer,
             font_context: CanvasFontContext::from_system_source(),
             scene: SceneProxy::new(RayonExecutor),
+            // Default is 1.0 according to: https://docs.rs/glutin/0.24.0/glutin/dpi/index.html#events
+            dpi_scale: 1.0,
         }
+    }
+
+    /// Updates the scale factor used during rendering
+    pub fn set_scale_factor(&mut self, dpi_scale: f64) {
+        self.dpi_scale = dpi_scale;
     }
 
     /// Draw the given primitives onto a canvas of the given size
@@ -105,8 +114,14 @@ impl Renderer {
             background_color: Some(convert_color(drawing.background)),
         });
 
-        let mut canvas = Canvas::new(vec2f(draw_size.width as f32, draw_size.height as f32))
+        // The size of the framebuffer
+        let fb_size = vec2f(draw_size.width as f32, draw_size.height as f32);
+        let mut canvas = Canvas::new(fb_size)
             .get_context_2d(self.font_context.clone());
+
+        let dpi_scale = self.dpi_scale;
+        let center = drawing.center;
+        let fb_center = fb_size / 2.0;
 
         //TODO: Draw primitives
         let mut path = Path2D::new();
