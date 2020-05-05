@@ -82,7 +82,10 @@ impl Renderer {
             &EmbeddedResourceLoader::new(),
             DestFramebuffer::full_window(vec2i(draw_size.width as i32, draw_size.height as i32)),
             // This background color will be overwritten during the first render
-            RendererOptions { background_color: Some(ColorU::white().to_f32()) },
+            RendererOptions {
+                background_color: Some(ColorU::white().to_f32()),
+                ..RendererOptions::default()
+            },
         );
 
         Self {
@@ -111,6 +114,7 @@ impl Renderer {
         // Clear to background color
         self.renderer.set_options(RendererOptions {
             background_color: Some(convert_color(drawing.background).to_f32()),
+            ..RendererOptions::default()
         });
 
         // The size of the framebuffer
