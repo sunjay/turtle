@@ -59,6 +59,7 @@ impl Renderer {
         let mut canvas = Canvas::new(vec2f(draw_size.width as f32, draw_size.height as f32))
             .get_context_2d(self.font_context.clone());
 
+        //TODO: A `Point` is in logical coordinates, whereas Vector2F is in screen coordinates
         //TODO: Draw primitives
         let mut path = Path2D::new();
         path.move_to(vec2f(50.0, 140.0));

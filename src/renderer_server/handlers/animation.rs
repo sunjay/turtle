@@ -138,8 +138,8 @@ struct MoveAnimation {
     target_pos: Point,
     /// The total duration of the animation in microseconds
     total_micros: f64,
-    /// A handle to the line that is manipulated by thsi animation
-    prim: PrimHandle,
+    /// A handle to the line that is manipulated by this animation (if any)
+    prim: Option<PrimHandle>,
     /// The index of this point in the fill polygon (if any)
     fill_poly_index: Option<usize>,
 }
@@ -160,7 +160,7 @@ impl MoveAnimation {
             // Set to the final position and draw a line with no animation
             turtle.state.position = target_pos;
             let prim = display_list.push_line(position, target_pos, pen);
-            turtle.drawings.push(prim);
+            turtle.drawings.extend(prim);
 
             // Append to the current fill polygon, if any
             let fill_poly_index = turtle.current_fill_polygon.map(|poly_handle| {
@@ -189,7 +189,7 @@ impl MoveAnimation {
 
             // Start with a zero-length line since the animation hasn't started yet
             let prim = display_list.push_line(position, position, pen);
-            turtle.drawings.push(prim);
+            turtle.drawings.extend(prim);
 
             // Append to the current fill polygon, if any
             let fill_poly_index = turtle.current_fill_polygon.map(|poly_handle| {
@@ -227,7 +227,11 @@ impl MoveAnimation {
         if elapsed >= total_micros {
             *running = false;
             turtle.state.position = target_pos;
-            display_list.replace_line(prim, start_pos, target_pos, &turtle.state.pen);
+
+            // Update the end of the line we have been drawing, if any
+            if let Some(prim) = prim {
+                display_list.line_update_end(prim, target_pos);
+            }
 
             // Replace the point in the current fill polygon, if any
             if let Some(poly_handle) = turtle.current_fill_polygon {
@@ -241,7 +245,11 @@ impl MoveAnimation {
             let current_pos = lerp(&start_pos, &target_pos, &t);
 
             turtle.state.position = current_pos;
-            display_list.replace_line(prim, start_pos, current_pos, &turtle.state.pen);
+
+            // Update the end of the line we have been drawing, if any
+            if let Some(prim) = prim {
+                display_list.line_update_end(prim, current_pos);
+            }
 
             // Replace the point in the current fill polygon, if any
             if let Some(poly_handle) = turtle.current_fill_polygon {
