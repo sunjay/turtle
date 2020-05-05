@@ -57,8 +57,10 @@ compile_error!("Make sure you run tests with `cargo test --features test`");
 mod ipc_protocol;
 mod renderer_server;
 mod renderer_client;
+mod async_drawing;
 mod async_turtle;
 mod sync_runtime;
+mod turtle;
 
 mod turtle_window;
 
@@ -80,7 +82,6 @@ mod server;
 mod speed;
 mod state2;
 mod timer;
-mod turtle;
 
 pub mod color;
 #[cfg(not(target_arch = "wasm32"))]
@@ -94,7 +95,8 @@ mod event {
 pub mod rand;
 
 pub use crate::color::Color;
-pub use crate::drawing::{Drawing, Size};
+pub use crate::async_drawing::Size;
+pub use crate::drawing::Drawing;
 pub use crate::event::Event;
 pub use crate::point::Point;
 #[cfg(target_arch = "wasm32")]
