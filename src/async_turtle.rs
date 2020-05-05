@@ -117,7 +117,7 @@ impl AsyncTurtle {
         time::delay_for(time::Duration::from_millis((secs * 1000.0) as u64)).await
     }
 
-    fn into_sync(self) -> Turtle {
+    pub fn into_sync(self) -> Turtle {
         self.into()
     }
 
