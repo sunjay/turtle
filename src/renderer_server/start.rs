@@ -50,7 +50,7 @@ pub fn start() {
     // their programs. When we spawn the same executable, we don't pass along any environment,
     // input or command line arguments. That means that the user *needs* to run start() first or
     // else their program won't be able to run at all. This is a tradeoff of this design decision.
-    if env::var(RENDERER_PROCESS_ENV_VAR).unwrap_or_else(|_| "".to_owned()) == "true" {
+    if env::var(RENDERER_PROCESS_ENV_VAR).ok().as_deref() == Some("true") {
         // This code MUST be run on the main thread.
 
         // Run the renderer process
