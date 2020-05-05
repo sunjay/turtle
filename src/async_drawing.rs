@@ -66,6 +66,11 @@ impl From<Drawing> for AsyncDrawing {
 
 impl AsyncDrawing {
     pub async fn new() -> Self {
+        // This needs to be called as close to the start of the program as possible. We call it
+        // here since Drawing::new() or AsyncDrawing::new() are commonly called at the beginning
+        // of many programs that use the turtle crate.
+        crate::start();
+
         let client = ProtocolClient::new().await
             .expect("unable to create renderer client");
         Self {client}
