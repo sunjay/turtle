@@ -135,6 +135,8 @@ pub fn main() {
             let draw_size = gl_context.window().inner_size();
             renderer.render(draw_size, &display_list, &drawing);
             gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
+
+            *control_flow = ControlFlow::Wait;
         },
 
         _ => {},
