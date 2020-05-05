@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::state2::DrawingState;
 use crate::turtle_window::TurtleWindow;
-use crate::{Color, Event, Point, Size};
+use crate::{Turtle, Color, Event, Point, Size};
 
 /// Represents the drawing that the turtle is creating
 ///
@@ -14,11 +14,24 @@ use crate::{Color, Event, Point, Size};
 /// [`Turtle` struct](struct.Turtle.html).
 pub struct Drawing {
     window: Rc<RefCell<TurtleWindow>>,
+    //TODO: Remove this field when multiple turtles are supported
+    turtles: usize,
 }
 
 impl Drawing {
     pub(crate) fn with_window(window: Rc<RefCell<TurtleWindow>>) -> Self {
-        Self { window }
+        Self { window, turtles: 0 }
+    }
+
+    /// Adds a new turtle to this drawing and returns it
+    ///
+    /// Note that until the multiple turtles feature becomes stable, this method can only be called
+    /// once.
+    pub fn add_turtle(&mut self) -> Turtle {
+        assert!(self.turtles == 0, "Multiple turtles are unstable! Only call `add_turtle` once.");
+        self.turtles += 1;
+
+        todo!()
     }
 
     /// Returns the title of the drawing
