@@ -2,8 +2,8 @@ pub mod display_list;
 pub mod export;
 
 use glutin::dpi::PhysicalSize;
-use pathfinder_canvas::{Canvas, CanvasFontContext, Path2D};
-use pathfinder_color::ColorF;
+use pathfinder_canvas::{Canvas, CanvasFontContext, Path2D, LineCap, LineJoin, FillRule};
+use pathfinder_color::ColorU;
 use pathfinder_geometry::vector::{vec2f, vec2i, Vector2F};
 use pathfinder_gl::{GLDevice, GLVersion};
 use pathfinder_resources::embedded::EmbeddedResourceLoader;
@@ -17,22 +17,21 @@ use pathfinder_renderer::{
     },
 };
 
-use crate::color::RGB_MAX_VAL;
 use crate::{Point, Color};
 
 use super::state::DrawingState;
 
-use display_list::{DrawPrim, DisplayList};
+use display_list::{DisplayList, DrawPrim};
 
 /// Converts a color from the representation in this crate to the one used in the renderer
-fn convert_color(color: Color) -> ColorF {
+fn convert_color(color: Color) -> ColorU {
     let Color {red, green, blue, alpha} = color;
-    ColorF::new(
-        (red / RGB_MAX_VAL) as f32,
-        (green / RGB_MAX_VAL) as f32,
-        (blue / RGB_MAX_VAL) as f32,
-        alpha as f32,
-    )
+    ColorU {
+        r: red.round() as u8,
+        g: green.round() as u8,
+        b: blue.round() as u8,
+        a: (alpha * 255.0).round() as u8,
+    }
 }
 
 /// Converts a `Point` in logical or "world" coordinates to a `Vector2F` in screen coordinates
@@ -83,7 +82,7 @@ impl Renderer {
             &EmbeddedResourceLoader::new(),
             DestFramebuffer::full_window(vec2i(draw_size.width as i32, draw_size.height as i32)),
             // This background color will be overwritten during the first render
-            RendererOptions { background_color: Some(ColorF::white()) },
+            RendererOptions { background_color: Some(ColorU::white().to_f32()) },
         );
 
         Self {
@@ -111,7 +110,7 @@ impl Renderer {
 
         // Clear to background color
         self.renderer.set_options(RendererOptions {
-            background_color: Some(convert_color(drawing.background)),
+            background_color: Some(convert_color(drawing.background).to_f32()),
         });
 
         // The size of the framebuffer
@@ -119,17 +118,47 @@ impl Renderer {
         let mut canvas = Canvas::new(fb_size)
             .get_context_2d(self.font_context.clone());
 
+        // Set default options for all operations
+        canvas.set_line_cap(LineCap::Round);
+        canvas.set_line_join(LineJoin::Round);
+
+        // Draw each primitive
         let dpi_scale = self.dpi_scale;
         let center = drawing.center;
         let fb_center = fb_size / 2.0;
+        for prim in display_list.iter() {
+            use DrawPrim::*;
+            match prim {
+                Line(line) => {
+                    let mut path = Path2D::new();
+                    path.move_to(to_screen_coords(line.start, dpi_scale, center, fb_center));
+                    path.line_to(to_screen_coords(line.end, dpi_scale, center, fb_center));
 
-        //TODO: Draw primitives
-        let mut path = Path2D::new();
-        path.move_to(vec2f(50.0, 140.0));
-        path.line_to(vec2f(150.0, 60.0));
-        path.line_to(vec2f(250.0, 140.0));
-        path.close_path();
-        canvas.stroke_path(path);
+                    canvas.set_line_width(line.props.thickness as f32);
+                    canvas.set_stroke_style(convert_color(line.props.color));
+                    canvas.stroke_path(path);
+                },
+
+                Polygon(poly) => {
+                    // Skip obviously degenerate polygons
+                    if poly.points.len() <= 2 {
+                        continue;
+                    }
+
+                    let mut path = Path2D::new();
+
+                    path.move_to(to_screen_coords(poly.points[0], dpi_scale, center, fb_center));
+                    for &point in &poly.points[1..] {
+                        path.line_to(to_screen_coords(point, dpi_scale, center, fb_center));
+                    }
+
+                    path.close_path();
+
+                    canvas.set_fill_style(convert_color(poly.fill_color));
+                    canvas.fill_path(path, FillRule::Winding);
+                },
+            }
+        }
 
         // Build and render scene
         self.scene.replace_scene(canvas.into_canvas().into_scene());
