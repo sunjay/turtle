@@ -7,7 +7,7 @@ mod main;
 mod start;
 
 pub(crate) use app::TurtleId;
-pub(crate) use renderer::export::ExportError;
+pub use renderer::export::ExportError;
 pub use start::start;
 
 use std::sync::Arc;
