@@ -1,5 +1,3 @@
-use std::ops::{Deref, DerefMut};
-
 use serde::{Serialize, Deserialize};
 
 use crate::ipc_protocol::ProtocolClient;
@@ -61,12 +59,4 @@ impl AsyncDrawing {
 
         Self {client}
     }
-}
-
-pub struct AsyncDrawingRef<'a> {
-    client: &'a ProtocolClient,
-}
-
-pub struct AsyncDrawingMut<'a> {
-    client: &'a ProtocolClient,
 }

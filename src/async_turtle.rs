@@ -116,24 +116,8 @@ impl AsyncTurtle {
         self.into()
     }
 
-    /// Retrieve a read-only handle to the drawing.
-    ///
-    /// The returned type can be used as if it had the type `&AsyncDrawing`.
-    ///
-    /// See the documentation for the [`AsyncDrawing` struct](struct.AsyncDrawing.html) for a
-    /// complete listing of the information that you can retrieve from the drawing.
-    pub async fn drawing(&self) -> AsyncDrawingRef {
-        AsyncDrawingRef::new(&self.client)
-    }
-
-    /// Retrieve a mutable reference to the drawing
-    ///
-    /// The returned type can be used as if it had the type `&mut AsyncDrawing`.
-    ///
-    /// See the documentation for the [`AsyncDrawing` struct](struct.AsyncDrawing.html) for a
-    /// complete listing of the ways that you can manipulate the drawing.
-    pub async fn drawing_mut(&self) -> AsyncDrawingMut {
-        AsyncDrawingMut::new(&self.client)
+    pub async fn drawing(&self) -> Drawing {
+        todo!()
     }
 
     pub async fn speed(&self) -> Speed {
