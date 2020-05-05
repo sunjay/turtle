@@ -65,13 +65,6 @@ features = [
 [dev-dependencies]
 bitvec = "0.17"
 
-# Dependencies that don't support / shouldn't be used with WASM
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-piston_window = "0.108"
-
-# Dependencies specifically for WASM
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-
 [features]
 # The reason we do this is because doctests don't get cfg(test)
 # See: https://github.com/rust-lang/cargo/issues/4669
@@ -85,5 +78,7 @@ piston_window = "0.108"
 #   cargo test --features "test"
 test = []
 
-# Feature flag to disable unstable features by default and make consumers explicitly activate them.
+# Feature flag to disable unstable features by default.
+#
+# Users of the crate must explicitly opt-in to active them.
 unstable = []

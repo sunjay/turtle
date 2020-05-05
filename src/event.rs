@@ -2,21 +2,12 @@
 //!
 //! See [`Event`](enum.Event.html) for more information.
 
-#[cfg(target_arch = "wasm32")]
-compile_error!("This module should not be included when compiling to wasm");
-
 use serde::{Serialize, Deserialize};
-use piston_window::{Button, ButtonArgs, ButtonState, Event as PistonEvent, Input, Motion};
-pub use piston_window::{ControllerAxisArgs as ControllerAxis, ControllerButton, Key, MouseButton, TouchArgs as Touch};
-
-use crate::Point;
 
 /// Possible events returned from [`Drawing::poll_event()`](../struct.Drawing.html#method.poll_event).
 ///
-/// Events are used to make programs more interactive.
-/// See that method's documentation for more information about how to use events.
-///
-/// This type is meant to provide a simplified model of `piston_window`'s `Event` type.
+/// Events are used to make programs more interactive. See that method's documentation for more
+/// information about how to use events.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Event {
     /// Sent when a keyboard key is pressed
@@ -61,59 +52,27 @@ pub enum Event {
     WindowClosed,
 }
 
-/// Attempts to convert a piston Event to our event type
-pub(crate) fn from_piston_event<F>(event: &PistonEvent, to_local_coords: F) -> Option<Event>
-where
-    F: FnOnce(Point) -> Point,
-{
-    use Event::*;
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum Key {
+    //TODO
+}
 
-    let input_event = match *event {
-        PistonEvent::Input(ref input_event, _) => input_event,
-        _ => return None,
-    };
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum MouseButton {
+    //TODO
+}
 
-    Some(match *input_event {
-        Input::Button(ButtonArgs {
-            state,
-            button,
-            ..
-        }) => match state {
-            ButtonState::Press => match button {
-                Button::Keyboard(key) => KeyPressed(key),
-                Button::Mouse(button) => MouseButtonPressed(button),
-                Button::Controller(button) => ControllerButtonPressed(button),
-                Button::Hat(_) => unimplemented!(), //TODO: No idea what to do with this
-            },
-            ButtonState::Release => match button {
-                Button::Keyboard(key) => KeyReleased(key),
-                Button::Mouse(button) => MouseButtonReleased(button),
-                Button::Controller(button) => ControllerButtonReleased(button),
-                Button::Hat(_) => unimplemented!(), //TODO: No idea what to do with this
-            },
-        },
-        Input::Move(motion) => match motion {
-            Motion::MouseCursor([x, y]) => {
-                let local = to_local_coords(Point { x, y });
-                MouseMove { x: local.x, y: local.y }
-            }
-            // Ignored in favor of MouseCursor
-            Motion::MouseRelative(..) => return None,
-            Motion::MouseScroll([x, y]) => MouseScroll { x, y },
-            Motion::ControllerAxis(axis) => ControllerAxisChange(axis),
-            Motion::Touch(touch) => Touch(touch),
-        },
-        // Ignored because this value doesn't produce text reliably for all keys
-        // (especially when ctrl is pressed)
-        Input::Text(_) => return None,
-        // Not supported
-        Input::FileDrag(_) => return None,
-        Input::Resize(args) => {
-            let [width, height] = args.window_size;
-            WindowResized { width: width as u32, height: height as u32 }
-        },
-        Input::Focus(focused) => WindowFocused(focused),
-        Input::Cursor(cursor) => WindowCursor(cursor),
-        Input::Close(_) => WindowClosed,
-    })
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum ControllerButton {
+    //TODO
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum ControllerAxis {
+    //TODO
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum Touch {
+    //TODO
 }
