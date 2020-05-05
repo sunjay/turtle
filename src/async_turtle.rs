@@ -55,6 +55,11 @@ impl AsyncTurtle {
     pub async fn new() -> Self {
         let client = ProtocolClient::new().await
             .expect("unable to create renderer client");
+        Self::with_client(client).await
+    }
+
+    /// Creates a new turtle using the given client
+    pub(crate) async fn with_client(client: ProtocolClient) -> Self {
         let id = client.create_turtle().await
             .expect("unable to communicate with turtle server process");
         let angle_unit = AngleUnit::Degrees;

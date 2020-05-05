@@ -184,6 +184,14 @@ impl ProtocolClient {
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::IsFullscreen(value))).await
     }
 
+    pub async fn drawing_reset_center(&self) -> Result<(), ipc_channel::Error> {
+        self.client.send(ClientRequest::ResetDrawingProp(DrawingProp::Center)).await
+    }
+
+    pub async fn drawing_reset_size(&self) -> Result<(), ipc_channel::Error> {
+        self.client.send(ClientRequest::ResetDrawingProp(DrawingProp::Size)).await
+    }
+
     pub async fn turtle_pen_is_enabled(&self, id: TurtleId) -> Result<bool, ipc_channel::Error> {
         self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Pen(PenProp::IsEnabled))).await?;
 

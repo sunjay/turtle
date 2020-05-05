@@ -1,6 +1,11 @@
+use std::fmt::Debug;
+use std::path::Path;
+
 use serde::{Serialize, Deserialize};
 
 use crate::ipc_protocol::ProtocolClient;
+use crate::async_turtle::AsyncTurtle;
+use crate::{Point, Color, Event, ExportError};
 
 /// Represents a size
 ///
@@ -54,9 +59,113 @@ pub struct AsyncDrawing {
 }
 
 impl AsyncDrawing {
-    pub(crate) async fn from_client(client: &ProtocolClient) -> Self {
-        let client = client.split().await;
+    pub async fn add_turtle(&mut self) -> AsyncTurtle {
+        let client = self.client.split().await;
+        AsyncTurtle::with_client(client).await
+    }
 
-        Self {client}
+    pub async fn title(&self) -> String {
+        self.client.drawing_title().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn set_title<S: Into<String>>(&mut self, title: S) {
+        self.client.drawing_set_title(title.into()).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn background_color(&self) -> Color {
+        self.client.drawing_background().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
+        let bg_color = color.into();
+        assert!(
+            bg_color.is_valid(),
+            "Invalid color: {:?}. See the color module documentation for more information.",
+            color
+        );
+        self.client.drawing_set_background(bg_color).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn center(&self) -> Point {
+        self.client.drawing_center().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn set_center<P: Into<Point>>(&mut self, center: P) {
+        let center = center.into();
+        if !center.is_finite() {
+            return;
+        }
+        self.client.drawing_set_center(center).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn reset_center(&mut self) {
+        self.client.drawing_reset_center().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn size(&self) -> Size {
+        self.client.drawing_size().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn set_size<S: Into<Size>>(&mut self, size: S) {
+        let size = size.into();
+        assert!(size.width > 0 && size.height > 0, "The size of the drawing must be non-zero");
+
+        self.client.drawing_set_size(size).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn reset_size(&mut self) {
+        self.client.drawing_reset_size().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn is_maximized(&self) -> bool {
+        self.client.drawing_is_maximized().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn maximize(&mut self) {
+        self.client.drawing_set_is_maximized(true).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn unmaximize(&mut self) {
+        self.client.drawing_set_is_maximized(false).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn is_fullscreen(&self) -> bool {
+        self.client.drawing_is_fullscreen().await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn enter_fullscreen(&mut self) {
+        self.client.drawing_set_is_fullscreen(true).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    pub async fn exit_fullscreen(&mut self) {
+        self.client.drawing_set_is_fullscreen(false).await
+            .expect("unable to communicate with turtle server process")
+    }
+
+    /// `None` indicates that the application has quit and no events will ever be sent again
+    pub async fn poll_event(&mut self) -> Option<Event> {
+        //TODO: Figure out how to return `None`
+        Some(self.client.next_event().await
+            .expect("unable to communicate with turtle server process"))
+    }
+
+    pub async fn save_svg<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {
+        self.client.export_svg(path.as_ref().to_path_buf()).await
+            .expect("unable to communicate with turtle server process")
     }
 }
