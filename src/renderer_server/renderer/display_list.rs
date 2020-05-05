@@ -6,23 +6,15 @@ use super::super::state::Pen;
 
 #[derive(Debug, Clone)]
 pub struct Line {
+    /// The point where the line will begin when drawn
     pub start: Point,
+    /// The point where the line will end when drawn
     pub end: Point,
-    pub props: LineProps,
-}
 
-#[derive(Debug, Clone)]
-pub struct LineProps {
+    /// The thickness of the line in (logical) pixels
     pub thickness: f64,
+    /// The stroke color of the line
     pub color: Color,
-}
-
-impl<'a> From<&'a Pen> for LineProps {
-    fn from(pen: &'a Pen) -> Self {
-        let &Pen {is_enabled, thickness, color} = pen;
-        debug_assert!(is_enabled, "bug: lines with a disabled pen should never be drawn");
-        Self {thickness, color}
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -31,6 +23,7 @@ pub struct Polygon {
     ///
     /// A 1-point or 2-point polygon is trivially degenerate, so it is not drawn.
     pub points: Vec<Point>,
+
     /// The fill color of the polygon
     pub fill_color: Color,
 }
@@ -83,12 +76,14 @@ impl DisplayList {
     /// If a new line would not need to be drawn based on the pen configuration, `None` is
     /// returned. Otherwise, a handle to the line that will be drawn is returned.
     pub fn push_line(&mut self, start: Point, end: Point, pen: &Pen) -> Option<PrimHandle> {
+        let &Pen {is_enabled, thickness, color} = pen;
+
         // Do not draw lines for which the pen is disabled
-        if !pen.is_enabled {
+        if !is_enabled {
             return None;
         }
 
-        let handle = self.insert(DrawPrim::Line(Line {start, end, props: pen.into()}));
+        let handle = self.insert(DrawPrim::Line(Line {start, end, thickness, color}));
         Some(handle)
     }
 

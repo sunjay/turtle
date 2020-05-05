@@ -21,7 +21,7 @@ use crate::{Point, Color};
 
 use super::state::DrawingState;
 
-use display_list::{DisplayList, DrawPrim};
+use display_list::{DisplayList, DrawPrim, Line, Polygon};
 
 /// Converts a color from the representation in this crate to the one used in the renderer
 fn convert_color(color: Color) -> ColorU {
@@ -127,34 +127,34 @@ impl Renderer {
         let center = drawing.center;
         let fb_center = fb_size / 2.0;
         for prim in display_list.iter() {
-            use DrawPrim::*;
             match prim {
-                Line(line) => {
+                &DrawPrim::Line(Line {start, end, thickness, color}) => {
                     let mut path = Path2D::new();
-                    path.move_to(to_screen_coords(line.start, dpi_scale, center, fb_center));
-                    path.line_to(to_screen_coords(line.end, dpi_scale, center, fb_center));
 
-                    canvas.set_line_width(line.props.thickness as f32);
-                    canvas.set_stroke_style(convert_color(line.props.color));
+                    path.move_to(to_screen_coords(start, dpi_scale, center, fb_center));
+                    path.line_to(to_screen_coords(end, dpi_scale, center, fb_center));
+
+                    canvas.set_line_width((thickness * dpi_scale) as f32);
+                    canvas.set_stroke_style(convert_color(color));
                     canvas.stroke_path(path);
                 },
 
-                Polygon(poly) => {
+                &DrawPrim::Polygon(Polygon {ref points, fill_color}) => {
                     // Skip obviously degenerate polygons
-                    if poly.points.len() <= 2 {
+                    if points.len() <= 2 {
                         continue;
                     }
 
                     let mut path = Path2D::new();
 
-                    path.move_to(to_screen_coords(poly.points[0], dpi_scale, center, fb_center));
-                    for &point in &poly.points[1..] {
+                    path.move_to(to_screen_coords(points[0], dpi_scale, center, fb_center));
+                    for &point in &points[1..] {
                         path.line_to(to_screen_coords(point, dpi_scale, center, fb_center));
                     }
 
                     path.close_path();
 
-                    canvas.set_fill_style(convert_color(poly.fill_color));
+                    canvas.set_fill_style(convert_color(fill_color));
                     canvas.fill_path(path, FillRule::Winding);
                 },
             }
