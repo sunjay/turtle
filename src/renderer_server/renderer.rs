@@ -17,7 +17,20 @@ use pathfinder_renderer::{
     },
 };
 
+use crate::color::RGB_MAX_VAL;
+use crate::{Point, Color};
 use display_list::{DrawPrim, DisplayList};
+
+/// Converts a color from the representation in this crate to the one used in the renderer
+fn convert_color(color: Color) -> ColorF {
+    let Color {red, green, blue, alpha} = color;
+    ColorF::new(
+        (red / RGB_MAX_VAL) as f32,
+        (green / RGB_MAX_VAL) as f32,
+        (blue / RGB_MAX_VAL) as f32,
+        alpha as f32,
+    )
+}
 
 /// A renderer that draws on the current OpenGL context
 pub struct Renderer {

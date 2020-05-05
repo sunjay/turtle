@@ -162,7 +162,7 @@ use serde::{Serialize, Deserialize};
 use crate::rand::{Random, RandomRange};
 
 /// The maximum allowed value for RGB
-const RGB_MAX_VAL: f64 = 255.0;
+pub(crate) const RGB_MAX_VAL: f64 = 255.0;
 
 /// The minimum allowed value for RGB and HSL values
 const COLOR_MIN_VALUE: f64 = 0.0;
