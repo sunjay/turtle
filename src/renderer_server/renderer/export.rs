@@ -6,6 +6,7 @@ use serde::{Serialize, Deserialize};
 use super::display_list::DisplayList;
 use super::super::state::DrawingState;
 
+/// An error produced while exporting the drawing
 #[derive(Debug, Error, Serialize, Deserialize)]
 #[error("{0}")]
 pub struct ExportError(String);

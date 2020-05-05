@@ -104,6 +104,7 @@ pub use renderer_process::{alloc, dealloc, dealloc_str};
 pub use crate::speed::Speed;
 pub use crate::async_turtle::{Angle, Distance};
 pub use crate::turtle::Turtle;
+use crate::renderer_server::ExportError;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use crate::server::start;
