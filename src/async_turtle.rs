@@ -53,6 +53,11 @@ impl From<Turtle> for AsyncTurtle {
 
 impl AsyncTurtle {
     pub async fn new() -> Self {
+        // This needs to be called as close to the start of the program as possible. We call it
+        // here since Turtle::new() or AsyncTurtle::new() are commonly called at the beginning
+        // of many programs that use the turtle crate.
+        crate::start();
+
         let client = ProtocolClient::new().await
             .expect("unable to create renderer client");
         Self::with_client(client).await
