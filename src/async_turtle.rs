@@ -5,7 +5,7 @@ use tokio::time;
 use crate::radians::{self, Radians};
 use crate::ipc_protocol::{ProtocolClient, RotationDirection};
 use crate::renderer_server::TurtleId;
-use crate::{Color, Drawing, Point, Speed};
+use crate::{Turtle, Color, Drawing, Point, Speed};
 
 /// Any distance value (positive or negative)
 pub type Distance = f64;
@@ -43,6 +43,12 @@ pub struct AsyncTurtle {
     client: ProtocolClient,
     id: TurtleId,
     angle_unit: AngleUnit,
+}
+
+impl From<Turtle> for AsyncTurtle {
+    fn from(turtle: Turtle) -> Self {
+        turtle.into_async()
+    }
 }
 
 impl AsyncTurtle {
@@ -104,6 +110,10 @@ impl AsyncTurtle {
         }
 
         time::delay_for(time::Duration::from_millis((secs * 1000.0) as u64)).await
+    }
+
+    fn into_sync(self) -> Turtle {
+        self.into()
     }
 
     pub async fn drawing(&self) -> Drawing {
@@ -319,7 +329,7 @@ impl AsyncTurtle {
             .expect("unable to communicate with turtle server process")
     }
 
-    pub fn wait_for_click(&mut self) {
+    pub async fn wait_for_click(&mut self) {
         todo!()
     }
 }
