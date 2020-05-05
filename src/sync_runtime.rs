@@ -3,15 +3,16 @@
 
 use std::future::Future;
 
-use lazy_static::lazy_static;
+use once_cell::sync::OnceCell;
 use tokio::runtime::Runtime;
 
-lazy_static! {
-    /// The global runtime, spawned in the background the first time it is used
-    static ref RUNTIME: Runtime = Runtime::new()
-        .expect("unable to spawn tokio runtime");
-}
+/// The global runtime, spawned in the background the first time it is used
+///
+/// If this is never used, it will never spawn a runtime.
+static RUNTIME: OnceCell<Runtime> = OnceCell::new();
 
 pub fn block_on<F: Future>(future: F) -> F::Output {
-    RUNTIME.handle().block_on(future)
+    let runtime = RUNTIME.get_or_init(|| Runtime::new()
+        .expect("unable to spawn tokio runtime"));
+    runtime.handle().block_on(future)
 }
