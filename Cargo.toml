@@ -28,7 +28,7 @@ serde_json = "1.0"
 interpolation = "0.2"
 rand = "0.7"
 
-svg = "0.8.0"
+svg = "0.8"
 
 pathfinder_canvas = "0.5"
 # These versions must stay synced with the dependencies of pathfinder_canvas
