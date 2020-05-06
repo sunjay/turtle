@@ -157,12 +157,10 @@ fn spawn_async_server(
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopProxy<RequestRedraw>,
 ) {
-    thread::spawn(move || {
-        // Spawn root task
-        handle.spawn(async {
-            let conn = ServerConnection::connect_stdin().await
-                .expect("unable to establish turtle server connection");
-            super::serve(conn, app, display_list, event_loop).await;
-        });
+    // Spawn root task
+    handle.spawn(async {
+        let conn = ServerConnection::connect_stdin().await
+            .expect("unable to establish turtle server connection");
+        super::serve(conn, app, display_list, event_loop).await;
     });
 }
