@@ -24,6 +24,7 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
     pub fn new(ipc_receiver: IpcReceiver<T>) -> Self {
         let (channel_sender, mut receiver) = mpsc::unbounded_channel();
 
+        let handle = Handle::current();
         thread::spawn(move || {
             loop {
                 let next_value = match ipc_receiver.recv() {
@@ -33,7 +34,6 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
                     value => value,
                 };
 
-                let handle = Handle::current();
                 let value_sender: oneshot::Sender<_> = match handle.block_on(receiver.recv()) {
                     Some(value_sender) => value_sender,
                     // Main thread has quit, so this thread should terminate too
