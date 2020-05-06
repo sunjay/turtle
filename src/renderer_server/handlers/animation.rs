@@ -150,7 +150,7 @@ impl MoveAnimation {
         display_list: &mut DisplayList,
         target_pos: Point,
     ) -> Self {
-        let frame_duration = time::Duration::from_millis(MICROS_PER_SEC / FPS);
+        let frame_duration = time::Duration::from_micros(MICROS_PER_SEC / FPS);
         // Need to start at now() + frame_duration or else timer will initially tick for 0 seconds
         let timer = time::interval_at(time::Instant::now() + frame_duration, frame_duration);
 
@@ -327,7 +327,7 @@ impl RotateAnimation {
         delta_angle: Radians,
         direction: RotationDirection,
     ) -> Self {
-        let frame_duration = time::Duration::from_millis(MICROS_PER_SEC / FPS);
+        let frame_duration = time::Duration::from_micros(MICROS_PER_SEC / FPS);
         // Need to start at now() + frame_duration or else timer will initially tick for 0 seconds
         let timer = time::interval_at(time::Instant::now() + frame_duration, frame_duration);
 
