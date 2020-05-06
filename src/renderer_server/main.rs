@@ -19,7 +19,7 @@ use glutin::{
 };
 use tokio::{
     sync::Mutex,
-    runtime::{self, Runtime},
+    runtime::{Runtime, Handle},
 };
 
 use crate::ipc_protocol::ServerConnection;
@@ -39,6 +39,10 @@ use super::{
 pub fn main() {
     assert_main_thread();
 
+    // The runtime for driving async code
+    let runtime = Runtime::new()
+        .expect("unable to spawn tokio runtime to run turtle server process");
+
     // The state of the drawing and the state/drawings associated with each turtle
     let app = Arc::new(App::default());
     // All of the drawing primitives in the order in which they wil be drawn
@@ -53,16 +57,10 @@ pub fn main() {
     // Spawn the actual server thread(s) that will handle incoming IPC messages and asynchronous
     // update the shared state
     let event_loop_proxy = event_loop.create_proxy();
-    spawn_async_server(app.clone(), display_list.clone(), event_loop_proxy);
-
-    // A single-threaded runtime for driving futures on the main thread only
-    let basic_rt = runtime::Builder::new()
-        .basic_scheduler()
-        .build()
-        .expect("unable to spawn tokio runtime to run turtle server process");
+    spawn_async_server(runtime.handle().clone(), app.clone(), display_list.clone(), event_loop_proxy);
 
     let window_builder = {
-        let drawing = basic_rt.handle().block_on(app.drawing_mut());
+        let drawing = runtime.handle().block_on(app.drawing_mut());
         WindowBuilder::new()
             .with_title(&drawing.title)
             .with_inner_size(LogicalSize {width: drawing.width, height: drawing.height})
@@ -127,10 +125,10 @@ pub fn main() {
         GlutinEvent::RedrawRequested(_) => {
             let drawing = {
                 // Hold the drawing lock for as little time as possible
-                let drawing = basic_rt.handle().block_on(app.drawing_mut());
+                let drawing = runtime.handle().block_on(app.drawing_mut());
                 drawing.clone()
             };
-            let display_list = basic_rt.handle().block_on(display_list.lock());
+            let display_list = runtime.handle().block_on(display_list.lock());
 
             let draw_size = gl_context.window().inner_size();
             renderer.render(draw_size, &display_list, &drawing);
@@ -154,16 +152,14 @@ fn assert_main_thread() {
 }
 
 fn spawn_async_server(
+    handle: Handle,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopProxy<RequestRedraw>,
 ) {
     thread::spawn(move || {
-        let mut runtime = Runtime::new()
-            .expect("unable to spawn tokio runtime to run turtle server process");
-
         // Spawn root task
-        runtime.block_on(async {
+        handle.spawn(async {
             let conn = ServerConnection::connect_stdin().await
                 .expect("unable to establish turtle server connection");
             super::serve(conn, app, display_list, event_loop).await;
