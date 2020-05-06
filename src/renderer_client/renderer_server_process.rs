@@ -3,7 +3,7 @@ use std::env;
 use std::process::{Stdio, exit};
 
 use tokio::{
-    runtime,
+    runtime::Handle,
     io::AsyncWriteExt,
     task::JoinHandle,
     process::{Command, ChildStdin},
@@ -85,7 +85,7 @@ impl Drop for RendererServerProcess {
 
         // If this is just a normal ending of the main thread, we want to leave the renderer
         // running so that the user can see their drawing as long as they keep the window open
-        let runtime = runtime::Handle::current();
+        let runtime = Handle::current();
         // This unwrap is safe because no struct gets dropped twice
         let task_handle = self.task_handle.take().unwrap();
         runtime.block_on(task_handle).unwrap_or_else(|_| {
