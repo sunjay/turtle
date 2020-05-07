@@ -83,7 +83,7 @@ pub fn main() {
 
     // Need to draw using the physical size in pixels, not the logical size
     let draw_size = gl_context.window().inner_size();
-    let mut renderer = Renderer::new(draw_size);
+    let mut renderer = Renderer::new(draw_size, gl_context.window().scale_factor());
 
     event_loop.run(move |event, _, control_flow| match event {
         // Quit if the window is closed or if Esc is pressed and then released

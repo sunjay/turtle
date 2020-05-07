@@ -76,7 +76,7 @@ pub struct Renderer {
 
 impl Renderer {
     /// Creates a new renderer with the given physical size in pixels
-    pub fn new(draw_size: PhysicalSize<u32>) -> Self {
+    pub fn new(draw_size: PhysicalSize<u32>, dpi_scale: f64) -> Self {
         let renderer = PathfinderRenderer::new(
             GLDevice::new(GLVersion::GL3, 0),
             &EmbeddedResourceLoader::new(),
@@ -92,8 +92,7 @@ impl Renderer {
             renderer,
             font_context: CanvasFontContext::from_system_source(),
             scene: SceneProxy::new(RayonExecutor),
-            // Default is 1.0 according to: https://docs.rs/glutin/0.24.0/glutin/dpi/index.html#events
-            dpi_scale: 1.0,
+            dpi_scale,
         }
     }
 
