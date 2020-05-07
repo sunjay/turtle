@@ -1,6 +1,7 @@
 perf.data*
 flame.svg
 *.wat
+*.svg
 
 # Created by https://www.gitignore.io/api/rust
 
