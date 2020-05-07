@@ -64,15 +64,17 @@ async fn run_request(
     request: ClientRequest,
 ) {
     use ClientRequest::*;
-    match request {
+    let res = match request {
         CreateTurtle => {
             let id = app_control.add_turtle().await;
             conn.send(client_id, ServerResponse::NewTurtle(id)).await
                 .expect("unable to send IPC response");
+
+            Ok(())
         },
 
         Export(path, format) => {
-            handlers::export_drawings(&conn, client_id, &app_control, &display_list, &path, format).await;
+            handlers::export_drawings(&conn, client_id, &app_control, &display_list, &path, format).await
         },
 
         NextEvent => {
@@ -123,5 +125,13 @@ async fn run_request(
             Some(id) => handlers::clear_turtle(&app_control, &display_list, &event_loop, id).await,
             None => handlers::clear(&app_control, &display_list, &event_loop).await,
         },
+    };
+
+    match res {
+        Ok(()) => {},
+        //TODO: Use the error to figure out how to proceed
+        //TODO: Store a flag somewhere to stop all remaining requests from continuing
+        //  Maybe app_control.get() can return a Result?
+        Err(err) => todo!("{}", err),
     }
 }

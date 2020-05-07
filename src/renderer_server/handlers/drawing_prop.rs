@@ -9,6 +9,7 @@ use crate::ipc_protocol::{
 };
 use crate::renderer_client::ClientId;
 
+use super::HandlerError;
 use super::super::{
     main::MainThreadAction,
     state::DrawingState,
@@ -20,7 +21,7 @@ pub(crate) async fn drawing_prop(
     client_id: ClientId,
     app_control: &AccessControl,
     prop: DrawingProp,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: None,
@@ -40,15 +41,16 @@ pub(crate) async fn drawing_prop(
         IsFullscreen => DrawingPropValue::IsFullscreen(drawing.is_fullscreen),
     };
 
-    conn.send(client_id, ServerResponse::DrawingProp(value)).await
-        .expect("unable to send response to IPC client");
+    conn.send(client_id, ServerResponse::DrawingProp(value)).await?;
+
+    Ok(())
 }
 
 pub(crate) async fn set_drawing_prop(
     app_control: &AccessControl,
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     prop_value: DrawingPropValue,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: None,
@@ -56,14 +58,14 @@ pub(crate) async fn set_drawing_prop(
 
     let drawing = data.drawing_mut();
 
-    modify_drawing(drawing, event_loop, prop_value).await;
+    modify_drawing(drawing, event_loop, prop_value).await
 }
 
 pub(crate) async fn reset_drawing_prop(
     app_control: &AccessControl,
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     prop: DrawingProp,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: None,
@@ -84,22 +86,21 @@ pub(crate) async fn reset_drawing_prop(
         Height => DrawingPropValue::Height(DrawingState::DEFAULT_HEIGHT),
         IsMaximized => DrawingPropValue::IsMaximized(DrawingState::DEFAULT_IS_MAXIMIZED),
         IsFullscreen => DrawingPropValue::IsFullscreen(DrawingState::DEFAULT_IS_FULLSCREEN),
-    }).await;
+    }).await
 }
 
 async fn modify_drawing(
     drawing: &mut DrawingState,
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     prop_value: DrawingPropValue,
-) {
+) -> Result<(), HandlerError> {
     use DrawingPropValue::*;
     match prop_value {
         Title(title) => {
             drawing.title = title.clone();
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetTitle(title))
-                .expect("bug: event loop closed before animation completed");
+            event_loop.lock().await.send_event(MainThreadAction::SetTitle(title))?;
         },
 
         Background(background) => drawing.background = background,
@@ -114,7 +115,7 @@ async fn modify_drawing(
             event_loop.lock().await.send_event(MainThreadAction::SetSize(LogicalSize {
                 width: width as u32,
                 height: height as u32,
-            })).expect("bug: event loop closed before animation completed");
+            }))?;
         },
 
         Width(width) => {
@@ -124,7 +125,7 @@ async fn modify_drawing(
             event_loop.lock().await.send_event(MainThreadAction::SetSize(LogicalSize {
                 width: width as u32,
                 height: drawing.height as u32,
-            })).expect("bug: event loop closed before animation completed");
+            }))?;
         },
 
         Height(height) => {
@@ -134,23 +135,23 @@ async fn modify_drawing(
             event_loop.lock().await.send_event(MainThreadAction::SetSize(LogicalSize {
                 width: drawing.width as u32,
                 height: height as u32,
-            })).expect("bug: event loop closed before animation completed");
+            }))?;
         },
 
         IsMaximized(is_maximized) => {
             drawing.is_maximized = is_maximized;
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetIsMaximized(is_maximized))
-                .expect("bug: event loop closed before animation completed");
+            event_loop.lock().await.send_event(MainThreadAction::SetIsMaximized(is_maximized))?;
         },
 
         IsFullscreen(is_fullscreen) => {
             drawing.is_fullscreen = is_fullscreen;
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetIsFullscreen(is_fullscreen))
-                .expect("bug: event loop closed before animation completed");
+            event_loop.lock().await.send_event(MainThreadAction::SetIsFullscreen(is_fullscreen))?;
         },
     }
+
+    Ok(())
 }
