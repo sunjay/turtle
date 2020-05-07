@@ -65,7 +65,6 @@
 //! at the front of all the queues it is in.
 
 use std::sync::Arc;
-use std::ops::{Deref, DerefMut};
 use std::collections::HashMap;
 
 use tokio::sync::{RwLock, Mutex, MutexGuard, Barrier, oneshot, mpsc};
@@ -134,51 +133,13 @@ enum Turtles {
     // NOTE: A similar note to the one on `RequiredTurtles` applies here too
 
     /// Access to a single turtle
-    One(SendDrop<Arc<Mutex<TurtleDrawings>>>),
+    One(Arc<Mutex<TurtleDrawings>>),
 
     /// Access to two turtles
-    Two(SendDrop<Arc<Mutex<TurtleDrawings>>>, SendDrop<Arc<Mutex<TurtleDrawings>>>),
+    Two(Arc<Mutex<TurtleDrawings>>, Arc<Mutex<TurtleDrawings>>),
 
     /// Access to all the turtles
-    All(Vec<SendDrop<Arc<Mutex<TurtleDrawings>>>>),
-}
-
-/// Sends a message across a channel when dropping
-#[derive(Debug)]
-struct SendDrop<T> {
-    value: T,
-    sender: Option<oneshot::Sender<()>>,
-}
-
-impl<T> SendDrop<T> {
-    fn new(value: T, sender: oneshot::Sender<()>) -> Self {
-        Self {
-            value,
-            sender: Some(sender),
-        }
-    }
-}
-
-impl<T> Deref for SendDrop<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.value
-    }
-}
-
-impl<T> DerefMut for SendDrop<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.value
-    }
-}
-
-impl<T> Drop for SendDrop<T> {
-    fn drop(&mut self) {
-        // unwrap() is safe because a struct cannot be dropped twice
-        self.sender.take().unwrap().send(())
-            .expect("bug: data channel should run forever");
-    }
+    All(Vec<Arc<Mutex<TurtleDrawings>>>),
 }
 
 #[derive(Debug)]
@@ -226,10 +187,21 @@ impl<'a> TurtlesGuard<'a> {
 #[derive(Debug)]
 pub struct DataGuard<'a> {
     /// If `RequiredData::drawing` was true, this field will contain the locked drawing state
-    drawing: Option<SendDrop<MutexGuard<'a, DrawingState>>>,
+    drawing: Option<MutexGuard<'a, DrawingState>>,
 
     /// The turtles requested in `RequiredData::turtles`
     turtles: Option<Turtles>,
+
+    /// Channel to report to when the data guard is dropped
+    operation_complete_sender: Option<oneshot::Sender<()>>,
+}
+
+impl<'a> Drop for DataGuard<'a> {
+    fn drop(&mut self) {
+        // unwrap() is safe because a struct cannot be dropped twice
+        self.operation_complete_sender.take().unwrap().send(())
+            .expect("bug: tasks managing access to data should run forever");
+    }
 }
 
 impl<'a> DataGuard<'a> {
@@ -271,11 +243,12 @@ struct DataRequest {
     /// next task at the same time.
     all_complete_barrier: Arc<Barrier>,
 
-    /// Allows the task to signal the waiting task that the data is ready
+    /// Used to signal the task waiting for data that the data is ready
     ///
-    /// The waiting task must send a message to the received channel when it is done with the
-    /// resource it is using.
-    data_ready: oneshot::Sender<oneshot::Sender<()>>,
+    /// Only a single task will use this field, based on the result of `is_leader()`. The leader
+    /// task will then send a channel that the waiting task can use to indicate when the data is
+    /// no longer going to be used.
+    data_ready: Arc<Mutex<Option<oneshot::Sender<oneshot::Sender<()>>>>>,
 }
 
 /// Provides access to a task that manages access to a particular resource
@@ -300,17 +273,23 @@ impl DataChannel {
                     None => break,
                 };
 
-                all_data_ready_barrier.wait().await;
+                let res = all_data_ready_barrier.wait().await;
 
-                let (operation_complete, complete_receiver) = oneshot::channel();
-                match data_ready.send(operation_complete) {
-                    Ok(()) => {},
-                    Err(_) => {}, // Could just be that a future was dropped
-                };
+                if res.is_leader() {
+                    let data_ready = data_ready.lock().await.take()
+                        .expect("only the leader should use the data ready channel");
+                    let (operation_complete, complete_receiver) = oneshot::channel();
+                    match data_ready.send(operation_complete) {
+                        Ok(()) => {},
+                        Err(_) => {}, // Could just be that a future was dropped
+                    }
 
-                match complete_receiver.await {
-                    Ok(()) => {},
-                    Err(_) => {}, // Could just be that a future was dropped
+                    // Even though only a single task is waiting on this channel, all of the tasks
+                    // will wait on the barrier below until the data is no longer being used
+                    match complete_receiver.await {
+                        Ok(()) => {},
+                        Err(_) => {}, // Could just be that a future was dropped
+                    }
                 }
 
                 // This barrier will eventually be reached no matter what
@@ -323,7 +302,7 @@ impl DataChannel {
 
     pub fn send(&self, req: DataRequest) {
         self.sender.send(req)
-            .expect("bug: data channel should run forever")
+            .expect("bug: tasks managing access to data should run forever");
     }
 }
 
@@ -369,146 +348,116 @@ impl AccessControl {
     pub async fn get(&self, req_data: RequiredData) -> DataGuard<'_> {
         let RequiredData {drawing, turtles} = req_data;
 
+        //TODO: Explore if there is a different formulation of this struct that is simpler but
+        // still accomplishes all of the same goals.
+
         let turtles_len = self.app.turtles_len().await;
         let req_turtles = turtles.as_ref().map(|ts| ts.len(turtles_len)).unwrap_or(0);
 
-        // Calculate the total number of data channels that we will request access from
+        // Calculate the total number of data tasks that we will request access from
         let total_reqs = if drawing { 1 } else { 0 } + req_turtles;
+
+        // Send data requests to the tasks managing access to all the requested data
 
         let all_data_ready_barrier = Arc::new(Barrier::new(total_reqs));
         let all_complete_barrier = Arc::new(Barrier::new(total_reqs));
+        let (data_ready, data_ready_receiver) = oneshot::channel();
+        let data_ready = Arc::new(Mutex::new(Some(data_ready)));
 
-        // Start by sending data requests to the data channels for all requested data
-
-        let drawing_ready = if drawing {
-            let (data_ready, receiver) = oneshot::channel();
+        if drawing {
             self.drawing_channel.send(DataRequest {
                 all_data_ready_barrier: all_data_ready_barrier.clone(),
                 all_complete_barrier: all_complete_barrier.clone(),
-                data_ready,
+                data_ready: data_ready.clone(),
             });
-            Some(receiver)
-        } else {
-            None
-        };
+        }
 
         use RequiredTurtles::*;
-        let mut turtles_ready = match &turtles {
+        match &turtles {
             &Some(One(id)) => {
                 let channels = self.turtle_channels.read().await;
-
-                let (data_ready, receiver) = oneshot::channel();
                 channels[&id].send(DataRequest {
                     all_data_ready_barrier: all_data_ready_barrier.clone(),
                     all_complete_barrier: all_complete_barrier.clone(),
-                    data_ready,
+                    data_ready: data_ready.clone(),
                 });
-
-                vec![receiver]
             },
 
             &Some(Two(id1, id2)) => {
                 let channels = self.turtle_channels.read().await;
-
-                let (data_ready, receiver1) = oneshot::channel();
                 channels[&id1].send(DataRequest {
                     all_data_ready_barrier: all_data_ready_barrier.clone(),
                     all_complete_barrier: all_complete_barrier.clone(),
-                    data_ready,
+                    data_ready: data_ready.clone(),
                 });
 
-                let (data_ready, receiver2) = oneshot::channel();
                 channels[&id2].send(DataRequest {
                     all_data_ready_barrier: all_data_ready_barrier.clone(),
                     all_complete_barrier: all_complete_barrier.clone(),
-                    data_ready,
+                    data_ready: data_ready.clone(),
                 });
-
-                vec![receiver1, receiver2]
             },
 
             Some(All) => {
                 let channels = self.turtle_channels.read().await;
-                let mut receivers = Vec::with_capacity(turtles_len);
-
                 for id in self.app.turtle_ids().await {
-                    let (data_ready, receiver) = oneshot::channel();
                     channels[&id].send(DataRequest {
                         all_data_ready_barrier: all_data_ready_barrier.clone(),
                         all_complete_barrier: all_complete_barrier.clone(),
-                        data_ready,
+                        data_ready: data_ready.clone(),
                     });
-                    receivers.push(receiver);
                 }
-
-                receivers
             },
 
-            None => Vec::new(),
-        };
+            None => {},
+        }
 
-        // Now wait for data channels to signal that data is ready
+        // Now wait for data ready channel to signal that data is ready
 
-        //TODO: It may be possible to wait on just a single oneshot channel instead of all of them.
-        //  We could use BarrierWaitResult::is_leader to determine which woken task should send
-        //  across the channel to notify this task.
-        //TODO: Another possible option is to try and simplifify this whole thing to use a
-        //  different API (e.g. `tokio::sync::Notify`) to provide this `get()` method by simply
-        //  tracking which pieces of data are ready. Need to explore if there is a simpler way than
-        //  all of the barrier stuff being used right now.
+        let operation_complete_sender = data_ready_receiver.await
+            .expect("bug: tasks managing access to data should run forever");
 
-        let drawing = match drawing_ready {
-            Some(ready) => {
-                // Wait to be signaled before locking
-                let sender = ready.await
-                    .expect("bug: data channel should run forever");
-                Some(SendDrop::new(self.app.drawing_mut().await, sender))
-            },
-            None => None,
-        };
+        // Lock all the data that was requested (should only be contended by renderer)
+
+        // NOTE: To avoid deadlocking, all of the code follows a consistent locking order:
+        //
+        // 1. drawing.lock() (done below)
+        // 2. turtles.lock() (done partially here and then in handler code)
+        // 3. display_list.lock() (done in handler code as-needed)
+        // 4. event_loop.lock() (done in handler code as-needed)
+        //
+        // Any of these steps may be omitted, but the order must always be consistent.
+
+        let drawing = if drawing {
+            let drawing = self.app.drawing_mut().await;
+            Some(drawing)
+        } else { None };
 
         let turtles = match turtles {
             Some(One(id)) => {
-                let sender = turtles_ready.remove(0).await
-                    .expect("bug: data channel should run forever");
-                debug_assert!(turtles_ready.is_empty());
-
                 let turtle = self.app.turtle(id).await;
-                Some(Turtles::One(SendDrop::new(turtle, sender)))
+                Some(Turtles::One(turtle))
             },
 
             Some(Two(id1, id2)) => {
-                let sender1 = turtles_ready.remove(0).await
-                    .expect("bug: data channel should run forever");
-                let sender2 = turtles_ready.remove(0).await
-                    .expect("bug: data channel should run forever");
-                debug_assert!(turtles_ready.is_empty());
-
                 let turtle1 = self.app.turtle(id1).await;
                 let turtle2 = self.app.turtle(id2).await;
-                Some(Turtles::Two(
-                    SendDrop::new(turtle1, sender1),
-                    SendDrop::new(turtle2, sender2),
-                ))
+                Some(Turtles::Two(turtle1, turtle2))
             },
 
             Some(All) => {
                 let mut turtles = Vec::new();
-
-                for (id, turtle_ready) in self.app.turtle_ids().await.zip(turtles_ready) {
-                    let sender = turtle_ready.await
-                        .expect("bug: data channel should run forever");
-
+                for id in self.app.turtle_ids().await {
                     let turtle = self.app.turtle(id).await;
-                    turtles.push(SendDrop::new(turtle, sender));
+                    turtles.push(turtle);
                 }
-
                 Some(Turtles::All(turtles))
             },
 
             None => None,
         };
 
-        DataGuard {drawing, turtles}
+        let operation_complete_sender = Some(operation_complete_sender);
+        DataGuard {drawing, turtles, operation_complete_sender}
     }
 }
