@@ -5,6 +5,8 @@ use glutin::{
     GlProfile,
     GlRequest,
     ContextBuilder,
+    WindowedContext,
+    PossiblyCurrent,
     dpi::LogicalSize,
     window::WindowBuilder,
     event::{
@@ -123,22 +125,49 @@ pub fn main() {
         },
 
         GlutinEvent::RedrawRequested(_) => {
-            let drawing = {
-                // Hold the drawing lock for as little time as possible
-                let drawing = runtime.handle().block_on(app.drawing_mut());
-                drawing.clone()
-            };
-            let display_list = runtime.handle().block_on(display_list.lock());
-
-            let draw_size = gl_context.window().inner_size();
-            renderer.render(draw_size, &display_list, &drawing);
-            gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
-
+            let handle = runtime.handle();
+            handle.block_on(redraw(&app, &display_list, &gl_context, &mut renderer));
             *control_flow = ControlFlow::Wait;
         },
 
         _ => {},
     });
+}
+
+async fn redraw(
+    app: &App,
+    display_list: &Mutex<DisplayList>,
+    gl_context: &WindowedContext<PossiblyCurrent>,
+    renderer: &mut Renderer,
+) {
+    let drawing = {
+        // Hold the drawing lock for as little time as possible
+        let drawing = app.drawing_mut().await;
+        drawing.clone()
+    };
+
+    // Locking the turtles before the display list to be consistent with all of the request
+    // handlers. Inconsistent lock ordering can cause deadlock.
+    let mut turtles = Vec::new();
+    for id in app.turtle_ids().await {
+        turtles.push(app.turtle(id).await);
+    }
+    // Very important to have all the data locked before rendering. Do not want renderer to have
+    // to figure out how to lock.
+    let mut locked_turtles = Vec::with_capacity(turtles.len());
+    for turtle in &turtles {
+        locked_turtles.push(turtle.lock().await);
+    }
+    // Renderer only needs (read-only) access to TurtleState
+    // Doing this also decouples renderer code from runtime by not having to
+    // know about the `MutexGuard` type in tokio
+    let turtle_states = locked_turtles.iter().map(|t| &t.state);
+
+    let display_list = display_list.lock().await;
+
+    let draw_size = gl_context.window().inner_size();
+    renderer.render(draw_size, &display_list, &drawing, turtle_states);
+    gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
 }
 
 fn assert_main_thread() {
