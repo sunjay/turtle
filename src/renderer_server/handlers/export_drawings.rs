@@ -29,8 +29,6 @@ pub(crate) async fn export_drawings(
         drawing: true,
         turtles: Some(RequiredTurtles::All),
     }).await;
-    // Lock the turtles even though they aren't used
-    let mut _turtles = data.turtles_mut().await;
 
     // Wait to lock the display list until we actually have the data from the access controller
     let display_list = display_list.lock().await;
