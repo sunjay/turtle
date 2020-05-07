@@ -23,19 +23,16 @@ use crate::ipc_protocol::{
 use crate::renderer_client::ClientId;
 
 use app::App;
+use main::MainThreadAction;
 use access_control::AccessControl;
 use renderer::display_list::DisplayList;
-
-/// A custom event used to tell the glutin event loop to redraw the window
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct RequestRedraw;
 
 /// Serves requests from the client forever
 async fn serve(
     conn: ServerConnection,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: EventLoopProxy<RequestRedraw>,
+    event_loop: EventLoopProxy<MainThreadAction>,
 ) -> ! {
     let conn = Arc::new(conn);
     let app_control = Arc::new(AccessControl::new(app).await);
@@ -63,7 +60,7 @@ async fn run_request(
     client_id: ClientId,
     app_control: Arc<AccessControl>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: Arc<Mutex<EventLoopProxy<RequestRedraw>>>,
+    event_loop: Arc<Mutex<EventLoopProxy<MainThreadAction>>>,
     request: ClientRequest,
 ) {
     use ClientRequest::*;
@@ -86,10 +83,10 @@ async fn run_request(
             handlers::drawing_prop(&conn, client_id, &app_control, prop).await
         },
         SetDrawingProp(prop_value) => {
-            handlers::set_drawing_prop(&app_control, prop_value).await
+            handlers::set_drawing_prop(&app_control, &event_loop, prop_value).await
         },
         ResetDrawingProp(prop) => {
-            handlers::reset_drawing_prop(&app_control, prop).await
+            handlers::reset_drawing_prop(&app_control, &event_loop, prop).await
         },
 
         TurtleProp(id, prop) => {
