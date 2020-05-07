@@ -19,7 +19,7 @@ use pathfinder_renderer::{
 
 use crate::{Point, Color};
 
-use super::state::DrawingState;
+use super::state::{DrawingState, TurtleState};
 
 use display_list::{DisplayList, DrawPrim, Line, Polygon};
 
@@ -105,7 +105,13 @@ impl Renderer {
     /// Draw the given primitives onto a canvas of the given size
     ///
     /// Size is passed in to ensure that it is up-to-date
-    pub fn render(&mut self, draw_size: PhysicalSize<u32>, display_list: &DisplayList, drawing: &DrawingState) {
+    pub fn render<'a>(
+        &mut self,
+        draw_size: PhysicalSize<u32>,
+        display_list: &DisplayList,
+        drawing: &DrawingState,
+        turtles: impl Iterator<Item=&'a TurtleState>
+    ) {
         // Set the current draw size
         self.renderer.replace_dest_framebuffer(
             DestFramebuffer::full_window(vec2i(draw_size.width as i32, draw_size.height as i32))
@@ -167,6 +173,39 @@ impl Renderer {
                     canvas.fill_path(path, FillRule::Winding);
                 },
             }
+        }
+
+        // The turtle shell specified in logical coordinates relative to the turtle position
+        let shell = &[Point {x: 0.0, y: 15.0}, Point {x: 10.0, y: 0.0}, Point {x: 0.0, y: -15.0}];
+        for turtle in turtles {
+            let &TurtleState {position, heading, is_visible, ..} = turtle;
+            if !is_visible {
+                continue;
+            }
+
+            let Point {x: turtle_x, y: turtle_y} = position;
+            let cos = heading.cos();
+            let sin = heading.sin();
+            let shell_screen_coord = |Point {x, y}| {
+                // Rotate each point by the heading and add the current turtle position
+                let point = Point {
+                    x: cos * x - sin * y + turtle_x,
+                    y: sin * x + cos * y + turtle_y,
+                };
+                to_screen_coords(point, dpi_scale, center, fb_center)
+            };
+
+            let mut path = Path2D::new();
+            path.move_to(shell_screen_coord(shell[0]));
+            for &point in &shell[1..] {
+                path.line_to(shell_screen_coord(point));
+            }
+            path.close_path();
+            canvas.set_fill_style(ColorU::white());
+            canvas.fill_path(path.clone(), FillRule::Winding);
+            canvas.set_line_width((1.0 * dpi_scale) as f32);
+            canvas.set_stroke_style(ColorU::black());
+            canvas.stroke_path(path);
         }
 
         // Build and render scene
