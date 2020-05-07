@@ -12,7 +12,7 @@ use crate::radians::{self, Radians};
 use crate::{Distance, Point};
 
 use super::super::{
-    RequestRedraw,
+    main::MainThreadAction,
     state::TurtleState,
     app::{TurtleId, TurtleDrawings},
     access_control::{AccessControl, RequiredData, RequiredTurtles},
@@ -30,7 +30,7 @@ pub(crate) async fn move_forward(
     client_id: ClientId,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &Mutex<EventLoopProxy<RequestRedraw>>,
+    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
     distance: Distance,
 ) {
@@ -60,7 +60,7 @@ pub(crate) async fn move_forward(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.lock().await.send_event(RequestRedraw)
+        event_loop.lock().await.send_event(MainThreadAction::Redraw)
             .expect("bug: event loop closed before animation completed");
 
         // Sleep until it is time to update the animation again
@@ -84,7 +84,7 @@ pub(crate) async fn move_to(
     client_id: ClientId,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &Mutex<EventLoopProxy<RequestRedraw>>,
+    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
     target_pos: Point,
 ) {
@@ -105,7 +105,7 @@ pub(crate) async fn move_to(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.lock().await.send_event(RequestRedraw)
+        event_loop.lock().await.send_event(MainThreadAction::Redraw)
             .expect("bug: event loop closed before animation completed");
 
         // Sleep until it is time to update the animation again
@@ -264,7 +264,7 @@ pub(crate) async fn rotate_in_place(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
-    event_loop: &Mutex<EventLoopProxy<RequestRedraw>>,
+    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
     angle: Radians,
     direction: RotationDirection,
@@ -285,7 +285,7 @@ pub(crate) async fn rotate_in_place(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.lock().await.send_event(RequestRedraw)
+        event_loop.lock().await.send_event(MainThreadAction::Redraw)
             .expect("bug: event loop closed before animation completed");
 
         // Sleep until it is time to update the animation again

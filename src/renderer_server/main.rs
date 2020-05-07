@@ -8,7 +8,7 @@ use glutin::{
     WindowedContext,
     PossiblyCurrent,
     dpi::LogicalSize,
-    window::WindowBuilder,
+    window::{WindowBuilder, Fullscreen},
     event::{
         Event as GlutinEvent,
         WindowEvent,
@@ -27,13 +27,27 @@ use tokio::{
 use crate::ipc_protocol::ServerConnection;
 
 use super::{
-    RequestRedraw,
     app::App,
     renderer::{
         Renderer,
         display_list::DisplayList,
     },
 };
+
+/// A custom event used to perform actions within the glutin event loop on the main thread
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum MainThreadAction {
+    /// Redraw the window
+    Redraw,
+    /// Update the window title
+    SetTitle(String),
+    /// Update the window size (in logical coordinates)
+    SetSize(LogicalSize<u32>),
+    /// Change the maximized state of the window
+    SetIsMaximized(bool),
+    /// Change the fullscreen state of the window
+    SetIsFullscreen(bool),
+}
 
 /// Run the renderer process in the current thread
 ///
@@ -114,13 +128,38 @@ pub fn main() {
         },
 
         GlutinEvent::WindowEvent {window_id, event} => {
-            //TODO: Check if event modifies state and then send event
+            //TODO: Check if event modifies state and then redraw if necessary
         },
         GlutinEvent::DeviceEvent {device_id, event} => {
-            //TODO: Check if event modifies state and then send event
+            //TODO: Check if event modifies state and then redraw if necessary
         },
 
-        GlutinEvent::UserEvent(RequestRedraw) => {
+        GlutinEvent::UserEvent(MainThreadAction::Redraw) => {
+            gl_context.window().request_redraw();
+        },
+
+        GlutinEvent::UserEvent(MainThreadAction::SetTitle(title)) => {
+            gl_context.window().set_title(&title);
+        },
+
+        GlutinEvent::UserEvent(MainThreadAction::SetSize(size)) => {
+            gl_context.window().set_inner_size(size);
+            //TODO: No idea if this next line is necessary or not
+            gl_context.window().request_redraw();
+        },
+
+        GlutinEvent::UserEvent(MainThreadAction::SetIsMaximized(is_maximized)) => {
+            gl_context.window().set_maximized(is_maximized);
+            //TODO: No idea if this next line is necessary or not
+            gl_context.window().request_redraw();
+        },
+
+        GlutinEvent::UserEvent(MainThreadAction::SetIsFullscreen(is_fullscreen)) => {
+            gl_context.window().set_fullscreen(if is_fullscreen {
+                Some(Fullscreen::Borderless(gl_context.window().current_monitor()))
+            } else { None });
+
+            //TODO: No idea if this next line is necessary or not
             gl_context.window().request_redraw();
         },
 
@@ -184,7 +223,7 @@ fn spawn_async_server(
     handle: Handle,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: EventLoopProxy<RequestRedraw>,
+    event_loop: EventLoopProxy<MainThreadAction>,
 ) {
     // Spawn root task
     handle.spawn(async {

@@ -2,7 +2,7 @@ use glutin::event_loop::EventLoopProxy;
 use tokio::sync::Mutex;
 
 use super::super::{
-    RequestRedraw,
+    main::MainThreadAction,
     app::{TurtleId, TurtleDrawings},
     access_control::{AccessControl, RequiredData, RequiredTurtles},
     renderer::display_list::DisplayList,
@@ -11,7 +11,7 @@ use super::super::{
 pub(crate) async fn begin_fill(
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &Mutex<EventLoopProxy<RequestRedraw>>,
+    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
 ) {
     let mut data = app_control.get(RequiredData {
@@ -32,7 +32,7 @@ pub(crate) async fn begin_fill(
     drawings.push(poly_handle);
     *current_fill_polygon = Some(poly_handle);
 
-    event_loop.lock().await.send_event(RequestRedraw)
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)
         .expect("bug: event loop closed");
 }
 
