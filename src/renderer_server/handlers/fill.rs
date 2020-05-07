@@ -1,6 +1,7 @@
 use glutin::event_loop::EventLoopProxy;
 use tokio::sync::Mutex;
 
+use super::HandlerError;
 use super::super::{
     main::MainThreadAction,
     app::{TurtleId, TurtleDrawings},
@@ -13,7 +14,7 @@ pub(crate) async fn begin_fill(
     display_list: &Mutex<DisplayList>,
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -24,7 +25,7 @@ pub(crate) async fn begin_fill(
 
     // Ignore the request if we are already filling
     if current_fill_polygon.is_some() {
-        return;
+        return Ok(());
     }
 
     let mut display_list = display_list.lock().await;
@@ -32,14 +33,15 @@ pub(crate) async fn begin_fill(
     drawings.push(poly_handle);
     *current_fill_polygon = Some(poly_handle);
 
-    event_loop.lock().await.send_event(MainThreadAction::Redraw)
-        .expect("bug: event loop closed");
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
+
+    Ok(())
 }
 
 pub(crate) async fn end_fill(
     app_control: &AccessControl,
     id: TurtleId,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -52,4 +54,6 @@ pub(crate) async fn end_fill(
 
     // Changes nothing if we weren't filling already
     *current_fill_polygon = None;
+
+    Ok(())
 }

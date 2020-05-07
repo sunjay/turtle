@@ -11,6 +11,7 @@ use crate::ipc_protocol::{
 };
 use crate::renderer_client::ClientId;
 
+use super::HandlerError;
 use super::super::{
     main::MainThreadAction,
     state::{self, TurtleState},
@@ -25,7 +26,7 @@ pub(crate) async fn turtle_prop(
     app_control: &AccessControl,
     id: TurtleId,
     prop: TurtleProp,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -50,8 +51,9 @@ pub(crate) async fn turtle_prop(
         IsVisible => TurtlePropValue::IsVisible(turtle.is_visible),
     };
 
-    conn.send(client_id, ServerResponse::TurtleProp(id, value)).await
-        .expect("unable to send response to IPC client");
+    conn.send(client_id, ServerResponse::TurtleProp(id, value)).await?;
+
+    Ok(())
 }
 
 pub(crate) async fn set_turtle_prop(
@@ -60,7 +62,7 @@ pub(crate) async fn set_turtle_prop(
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
     prop_value: TurtlePropValue,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -85,8 +87,7 @@ pub(crate) async fn set_turtle_prop(
                 display_list.polygon_set_fill_color(poly_handle, fill_color);
 
                 // Signal the main thread that the image has changed
-                event_loop.lock().await.send_event(MainThreadAction::Redraw)
-                    .expect("bug: event loop closed before animation completed");
+                event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
             }
         },
 
@@ -102,10 +103,11 @@ pub(crate) async fn set_turtle_prop(
             turtle.is_visible = is_visible;
 
             // Signal the main thread that the image has changed
-            event_loop.lock().await.send_event(MainThreadAction::Redraw)
-                .expect("bug: event loop closed before animation completed");
+            event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
         },
     }
+
+    Ok(())
 }
 
 pub(crate) async fn reset_turtle_prop(
@@ -114,7 +116,7 @@ pub(crate) async fn reset_turtle_prop(
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
     prop: TurtleProp,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -174,9 +176,10 @@ pub(crate) async fn reset_turtle_prop(
 
     if drawing_changed {
         // Signal the main thread that the image has changed
-        event_loop.lock().await.send_event(MainThreadAction::Redraw)
-            .expect("bug: event loop closed before animation completed");
+        event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
     }
+
+    Ok(())
 }
 
 pub(crate) async fn reset_turtle(
@@ -184,7 +187,7 @@ pub(crate) async fn reset_turtle(
     display_list: &Mutex<DisplayList>,
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -202,6 +205,7 @@ pub(crate) async fn reset_turtle(
     }
 
     // Signal the main thread that the image has changed
-    event_loop.lock().await.send_event(MainThreadAction::Redraw)
-        .expect("bug: event loop closed before animation completed");
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
+
+    Ok(())
 }

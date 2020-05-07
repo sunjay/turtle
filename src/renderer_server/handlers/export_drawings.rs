@@ -9,6 +9,7 @@ use crate::ipc_protocol::{
 };
 use crate::renderer_client::ClientId;
 
+use super::HandlerError;
 use super::super::{
     access_control::{AccessControl, RequiredData, RequiredTurtles},
     renderer::{export, display_list::DisplayList},
@@ -21,7 +22,7 @@ pub(crate) async fn export_drawings(
     display_list: &Mutex<DisplayList>,
     path: &Path,
     format: ExportFormat,
-) {
+) -> Result<(), HandlerError> {
     // We need to lock everything to ensure that the export takes place in a sequentially
     // consistent way. We wouldn't want this to run while any lines are still being drawn.
     let mut data = app_control.get(RequiredData {
@@ -37,6 +38,7 @@ pub(crate) async fn export_drawings(
         Svg => export::save_svg(&display_list, data.drawing_mut(), path),
     };
 
-    conn.send(client_id, ServerResponse::ExportComplete(res)).await
-        .expect("unable to send response to IPC client");
+    conn.send(client_id, ServerResponse::ExportComplete(res)).await?;
+
+    Ok(())
 }

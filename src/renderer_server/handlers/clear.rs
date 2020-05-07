@@ -1,6 +1,7 @@
 use glutin::event_loop::EventLoopProxy;
 use tokio::sync::Mutex;
 
+use super::HandlerError;
 use super::super::{
     main::MainThreadAction,
     app::{TurtleId, TurtleDrawings},
@@ -12,7 +13,7 @@ pub(crate) async fn clear(
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
-) {
+) -> Result<(), HandlerError> {
     // We need to lock everything to ensure that the clear takes place in a sequentially
     // consistent way. We wouldn't want this to run while any lines are still being drawn.
     let mut data = app_control.get(RequiredData {
@@ -35,8 +36,9 @@ pub(crate) async fn clear(
     }
 
     // Signal the main thread that the image has changed
-    event_loop.lock().await.send_event(MainThreadAction::Redraw)
-        .expect("bug: event loop closed before animation completed");
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
+
+    Ok(())
 }
 
 pub(crate) async fn clear_turtle(
@@ -44,7 +46,7 @@ pub(crate) async fn clear_turtle(
     display_list: &Mutex<DisplayList>,
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -60,6 +62,7 @@ pub(crate) async fn clear_turtle(
     *current_fill_polygon = None;
 
     // Signal the main thread that the image has changed
-    event_loop.lock().await.send_event(MainThreadAction::Redraw)
-        .expect("bug: event loop closed before animation completed");
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
+
+    Ok(())
 }

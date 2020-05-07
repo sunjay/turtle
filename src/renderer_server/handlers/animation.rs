@@ -11,6 +11,7 @@ use crate::renderer_client::ClientId;
 use crate::radians::{self, Radians};
 use crate::{Distance, Point};
 
+use super::HandlerError;
 use super::super::{
     main::MainThreadAction,
     state::TurtleState,
@@ -33,7 +34,7 @@ pub(crate) async fn move_forward(
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
     distance: Distance,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -60,8 +61,7 @@ pub(crate) async fn move_forward(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.lock().await.send_event(MainThreadAction::Redraw)
-            .expect("bug: event loop closed before animation completed");
+        event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
 
         // Sleep until it is time to update the animation again
         anim.timer.tick().await;
@@ -75,8 +75,9 @@ pub(crate) async fn move_forward(
         anim.step(turtle, &mut display_list);
     }
 
-    conn.send(client_id, ServerResponse::AnimationComplete(id)).await
-        .expect("unable to send response to IPC client");
+    conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
+
+    Ok(())
 }
 
 pub(crate) async fn move_to(
@@ -87,7 +88,7 @@ pub(crate) async fn move_to(
     event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
     id: TurtleId,
     target_pos: Point,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -105,8 +106,7 @@ pub(crate) async fn move_to(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.lock().await.send_event(MainThreadAction::Redraw)
-            .expect("bug: event loop closed before animation completed");
+        event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
 
         // Sleep until it is time to update the animation again
         anim.timer.tick().await;
@@ -120,8 +120,9 @@ pub(crate) async fn move_to(
         anim.step(turtle, &mut display_list);
     }
 
-    conn.send(client_id, ServerResponse::AnimationComplete(id)).await
-        .expect("unable to send response to IPC client");
+    conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
+
+    Ok(())
 }
 
 struct MoveAnimation {
@@ -268,7 +269,7 @@ pub(crate) async fn rotate_in_place(
     id: TurtleId,
     angle: Radians,
     direction: RotationDirection,
-) {
+) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
@@ -285,8 +286,7 @@ pub(crate) async fn rotate_in_place(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.lock().await.send_event(MainThreadAction::Redraw)
-            .expect("bug: event loop closed before animation completed");
+        event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
 
         // Sleep until it is time to update the animation again
         anim.timer.tick().await;
@@ -299,8 +299,9 @@ pub(crate) async fn rotate_in_place(
         anim.step(turtle);
     }
 
-    conn.send(client_id, ServerResponse::AnimationComplete(id)).await
-        .expect("unable to send response to IPC client");
+    conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
+
+    Ok(())
 }
 
 struct RotateAnimation {
