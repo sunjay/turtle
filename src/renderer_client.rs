@@ -39,7 +39,7 @@ struct ClientDispatcher {
 
 impl ClientDispatcher {
     async fn new() -> Result<Self, ConnectionError> {
-        let mut proc = RendererServerProcess::spawn().await;
+        let mut proc = RendererServerProcess::spawn().await?;
         let conn = Arc::new(ClientConnection::new(&mut proc).await?);
         let clients = Arc::new(RwLock::new(Vec::<mpsc::UnboundedSender<_>>::new()));
 
