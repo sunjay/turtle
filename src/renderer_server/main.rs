@@ -1,4 +1,5 @@
 use std::thread;
+use std::time::{Instant, Duration};
 use std::sync::Arc;
 
 use glutin::{
@@ -35,6 +36,16 @@ use super::{
     },
 };
 
+/// The maximum rendering FPS allowed
+///
+/// Rendering is intentionally throttled to avoid too much contention over the display list. If
+/// multiple turtles are used or if many lines are drawn quickly, we may get >= 1 redraw request
+/// per *millisecond* this is far too many redraws. Limiting to this rate helps avoid that.
+const MAX_RENDERING_FPS: u64 = 60;
+
+// 1,000,000 us in 1 s
+const MICROS_PER_SEC: u64 = 1_000_000;
+
 /// A custom event used to perform actions within the glutin event loop on the main thread
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum MainThreadAction {
@@ -70,7 +81,6 @@ pub fn main() {
     let display_list = Arc::new(Mutex::new(DisplayList::default()));
 
     let event_loop = EventLoop::with_user_event();
-
     // Create the proxy that will be given to the thread managing IPC
     let event_loop_proxy = event_loop.create_proxy();
 
@@ -98,6 +108,10 @@ pub fn main() {
     let draw_size = gl_context.window().inner_size();
     let mut renderer = Renderer::new(draw_size, gl_context.window().scale_factor());
 
+    // For rate limiting rendering
+    let min_render_delay = Duration::from_micros(MICROS_PER_SEC / MAX_RENDERING_FPS);
+    // Subtracting the delay so we do an initial render right away
+    let mut last_render = Instant::now() - min_render_delay;
     event_loop.run(move |event, _, control_flow| match event {
         GlutinEvent::NewEvents(StartCause::Init) => {
             // Spawn the actual server thread(s) that will handle incoming IPC messages and
@@ -109,6 +123,12 @@ pub fn main() {
             // for IPC is spawned.
             let handle = runtime.handle().clone();
             spawn_async_server(handle, app.clone(), display_list.clone(), event_loop_proxy.clone());
+        },
+
+        GlutinEvent::NewEvents(StartCause::ResumeTimeReached {..}) => {
+            // A render was delayed in the `RedrawRequested` so let's try to do it again now that
+            // we have resumed
+            gl_context.window().request_redraw();
         },
 
         // Quit if the window is closed or if Esc is pressed and then released
@@ -175,9 +195,18 @@ pub fn main() {
         },
 
         GlutinEvent::RedrawRequested(_) => {
+            // Check if we just rendered
+            let last_render_delay = last_render.elapsed();
+            if last_render_delay < min_render_delay {
+                let remaining = min_render_delay - last_render_delay;
+                *control_flow = ControlFlow::WaitUntil(Instant::now() + remaining);
+                return;
+            }
+
             let handle = runtime.handle();
             handle.block_on(redraw(&app, &display_list, &gl_context, &mut renderer));
             *control_flow = ControlFlow::Wait;
+            last_render = Instant::now();
         },
 
         _ => {},
