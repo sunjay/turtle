@@ -7,8 +7,15 @@ use std::sync::Arc;
 use ipc_channel::ipc::IpcError;
 use serde::{Serialize, Deserialize};
 use tokio::sync::{mpsc, RwLock, Mutex};
+use thiserror::Error;
 
 use crate::ipc_protocol::{ClientConnection, ConnectionError, ClientRequest, ServerResponse};
+
+/// Signals that the IPC connection has been disconnected and therefore the window was probably
+/// closed
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
+#[error("Window closed. Cannot continue to run turtle commands. Stopping.")]
+struct Disconnected;
 
 /// A unique ID used to multiplex responses on the client side
 ///
@@ -35,7 +42,7 @@ struct ClientDispatcher {
     ///
     /// Using `RwLock` allows sending multiple times concurrently using `read()` and also allows
     /// more clients to be added using `write()`.
-    clients: Arc<RwLock<Vec<mpsc::UnboundedSender<ServerResponse>>>>,
+    clients: Arc<RwLock<Vec<mpsc::UnboundedSender<Result<ServerResponse, Disconnected>>>>>,
 }
 
 impl ClientDispatcher {
@@ -49,10 +56,21 @@ impl ClientDispatcher {
         tokio::spawn(async move {
             loop {
                 let (id, response) = match task_conn.recv().await {
-                    Ok(res) => res,
+                    Ok((id, response)) => (id, Ok(response)),
+
                     Err(IpcError::Disconnected) => {
-                        panic!("Window closed. Cannot continue to run turtle commands. Stopping.");
+                        // Alert all the clients of the disconnection
+                        let clients = task_clients.read().await;
+                        for client in &*clients {
+                            match client.send(Err(Disconnected)) {
+                                Ok(()) => {},
+                                // This particular client connection must have gotten dropped
+                                Err(_) => {},
+                            }
+                        }
+                        break;
                     },
+
                     Err(err) => panic!("Error while receiving IPC message: {:?}", err),
                 };
 
@@ -70,7 +88,7 @@ impl ClientDispatcher {
         Ok(Self {proc, conn, clients})
     }
 
-    async fn add_client(&self) -> (ClientId, mpsc::UnboundedReceiver<ServerResponse>) {
+    async fn add_client(&self) -> (ClientId, mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>) {
         let mut clients = self.clients.write().await;
 
         let id = ClientId(clients.len());
@@ -90,7 +108,7 @@ impl ClientDispatcher {
 pub struct RendererClient {
     dispatcher: Arc<ClientDispatcher>,
     id: ClientId,
-    receiver: Mutex<mpsc::UnboundedReceiver<ServerResponse>>,
+    receiver: Mutex<mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>>,
 }
 
 impl RendererClient {
@@ -116,6 +134,8 @@ impl RendererClient {
     ///
     /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
     pub async fn send(&self, req: ClientRequest) {
+        // The error produced by send is a serialization error, so it signals a bug in this code,
+        // not something that should be propagated to be handled elsewhere.
         self.dispatcher.send(self.id, req).await
             .expect("bug: error while sending message through IPC")
     }
@@ -126,6 +146,11 @@ impl RendererClient {
     pub async fn recv(&self) -> ServerResponse {
         let mut receiver = self.receiver.lock().await;
         receiver.recv().await
-            .expect("bug: unable to receive response from server process")
+            // Since this struct keeps a ref-counted copy of the senders, they can't have possibly
+            // been dropped at this point.
+            .expect("bug: client senders should not be dropped yet")
+            // This panic causes the program to exit if turtle commands continue after the window
+            // closes
+            .unwrap_or_else(|err| panic!("IPC response not received: {}", err))
     }
 }
