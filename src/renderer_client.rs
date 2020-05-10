@@ -14,7 +14,7 @@ use crate::ipc_protocol::{ClientConnection, ConnectionError, ClientRequest, Serv
 /// Signals that the IPC connection has been disconnected and therefore the window was probably
 /// closed
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
-#[error("Window closed. Cannot continue to run turtle commands. Stopping.")]
+#[error("Cannot continue to run turtle commands after window is closed. This panic stops the thread, but is not necessarily an error.")]
 struct Disconnected;
 
 /// A unique ID used to multiplex responses on the client side
