@@ -11,6 +11,7 @@ use glutin::{
     window::{WindowBuilder, Fullscreen},
     event::{
         Event as GlutinEvent,
+        StartCause,
         WindowEvent,
         DeviceEvent,
         KeyboardInput,
@@ -70,10 +71,8 @@ pub fn main() {
 
     let event_loop = EventLoop::with_user_event();
 
-    // Spawn the actual server thread(s) that will handle incoming IPC messages and asynchronous
-    // update the shared state
+    // Create the proxy that will be given to the thread managing IPC
     let event_loop_proxy = event_loop.create_proxy();
-    spawn_async_server(runtime.handle().clone(), app.clone(), display_list.clone(), event_loop_proxy);
 
     let window_builder = {
         let drawing = runtime.handle().block_on(app.drawing_mut());
@@ -100,6 +99,15 @@ pub fn main() {
     let mut renderer = Renderer::new(draw_size, gl_context.window().scale_factor());
 
     event_loop.run(move |event, _, control_flow| match event {
+        GlutinEvent::NewEvents(StartCause::Init) => {
+            // Spawn the actual server thread(s) that will handle incoming IPC messages and
+            // asynchronous update the shared state
+            // Note that putting this code here instead of before the event loop causes the turtle
+            // to wait for the window to open before `::new()` returns.
+            let handle = runtime.handle().clone();
+            spawn_async_server(handle, app.clone(), display_list.clone(), event_loop_proxy.clone());
+        },
+
         // Quit if the window is closed or if Esc is pressed and then released
         GlutinEvent::WindowEvent {
             event: WindowEvent::CloseRequested,
