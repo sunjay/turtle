@@ -15,11 +15,7 @@ use std::sync::Arc;
 use glutin::event_loop::EventLoopProxy;
 use tokio::sync::Mutex;
 
-use crate::ipc_protocol::{
-    ServerConnection,
-    ClientRequest,
-    ServerResponse,
-};
+use crate::ipc_protocol::{ServerConnection, ClientRequest};
 use crate::renderer_client::ClientId;
 
 use app::App;
@@ -66,11 +62,7 @@ async fn run_request(
     use ClientRequest::*;
     let res = match request {
         CreateTurtle => {
-            let id = app_control.add_turtle().await;
-            conn.send(client_id, ServerResponse::NewTurtle(id)).await
-                .expect("unable to send IPC response");
-
-            Ok(())
+            handlers::create_turtle(&conn, client_id, &app_control, &event_loop).await
         },
 
         Export(path, format) => {
