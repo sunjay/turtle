@@ -5,9 +5,9 @@ use std::process::{self, Stdio, ExitStatus};
 use tokio::{
     runtime,
     io::AsyncWriteExt,
-    task::JoinHandle,
     process::{Command, ChildStdin},
 };
+use futures_util::future::{FutureExt, RemoteHandle};
 
 /// The environment variable that is set to indicate that the current process is a server process
 pub const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
@@ -22,8 +22,10 @@ pub struct RendererServerProcess {
     /// worst cause a panic!().
     runtime_handle: runtime::Handle,
     /// A handle to the running task. This can be waited on to find out if the process exited
-    /// successfully
-    task_handle: Option<JoinHandle<io::Result<ExitStatus>>>,
+    /// successfully. A remote handle will also drop the future it is associated with when it is
+    /// dropped. (unlike a `JoinHandle` which will detach instead.) This is important to make sure
+    /// the window closes when the thread holding this struct panics.
+    task_handle: Option<RemoteHandle<io::Result<ExitStatus>>>,
     /// A handle to the stdin of the child process
     child_stdin: ChildStdin,
 }
@@ -47,9 +49,12 @@ impl RendererServerProcess {
         let child_stdin = child.stdin.take()
             .expect("renderer process was not spawned with a handle to stdin");
 
+
         // Spawn a separate task for the child process so this task can continue to make progress
-        // while that runs
-        let task_handle = Some(tokio::spawn(child));
+        // while that runs. The remote handle will drop that future when it is dropped.
+        let (child, child_handle) = child.remote_handle();
+        tokio::spawn(child);
+        let task_handle = Some(child_handle);
 
         // Keep a handle to the current runtime
         let runtime_handle = runtime::Handle::current();
@@ -77,6 +82,7 @@ impl Drop for RendererServerProcess {
         // If the current thread is panicking, we don't want to wait for the window to be closed
         // since the user likely has an issue to fix in their program.
         if thread::panicking() {
+            // The process is configured with `kill_on_drop` so this should close the window
             return;
         }
 
@@ -88,19 +94,12 @@ impl Drop for RendererServerProcess {
 
         // Wait for the child process to finish
         match self.runtime_handle.block_on(task_handle) {
-            Ok(proc_status) => match proc_status {
-                Ok(proc_status) => if !proc_status.success() {
-                    // Propagate error code from child process or exit with status code 1
-                    process::exit(proc_status.code().unwrap_or(1));
-                },
-                // Error while awaiting the child process
-                Err(err) => {
-                    panic!("error while running child process: {}", err);
-                },
+            Ok(proc_status) => if !proc_status.success() {
+                // Propagate error code from child process or exit with status code 1
+                process::exit(proc_status.code().unwrap_or(1));
             },
-            // Error caused by joining the task
             Err(err) => {
-                panic!("error while waiting on task managing child process: {}", err);
+                panic!("error while running child process: {}", err);
             },
         }
     }
