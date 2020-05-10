@@ -4,6 +4,7 @@ pub use renderer_server_process::*;
 
 use std::sync::Arc;
 
+use ipc_channel::ipc::IpcError;
 use serde::{Serialize, Deserialize};
 use tokio::sync::{mpsc, RwLock, Mutex};
 
@@ -47,8 +48,14 @@ impl ClientDispatcher {
         let task_clients = clients.clone();
         tokio::spawn(async move {
             loop {
-                let (id, response) = task_conn.recv().await
-                    .expect("server process shutdown");
+                let (id, response) = match task_conn.recv().await {
+                    Ok(res) => res,
+                    Err(IpcError::Disconnected) => {
+                        panic!("Window closed. Cannot continue to run turtle commands. Stopping.");
+                    },
+                    Err(err) => panic!("Error while receiving IPC message: {:?}", err),
+                };
+
                 let clients = task_clients.read().await;
 
                 let ClientId(index) = id;

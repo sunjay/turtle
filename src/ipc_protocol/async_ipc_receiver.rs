@@ -27,16 +27,14 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
         let handle = Handle::current();
         thread::spawn(move || {
             loop {
-                let next_value = match ipc_receiver.recv() {
-                    // No longer connected
-                    Err(IpcError::Disconnected) => break,
-                    // For anything else, just forward along the entire value
-                    value => value,
-                };
+                // This loop continues even if this call produces an error saying that IPC was
+                // disconnected. This allows callers of `recv` to detect the disconnection.
+                let next_value = ipc_receiver.recv();
 
                 let value_sender: oneshot::Sender<_> = match handle.block_on(receiver.recv()) {
                     Some(value_sender) => value_sender,
-                    // Main thread has quit, so this thread should terminate too
+                    // The sender for this channel only drops when the main thread has stopped,
+                    // so it's pretty safe to stop here
                     None => break,
                 };
                 match value_sender.send(next_value) {
@@ -53,7 +51,8 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
     pub async fn recv(&self) -> Result<T, IpcError> {
         let (sender, receiver) = oneshot::channel();
 
-        // The channels should never return errors because the spawned thread runs forever
+        // The channels should never return errors because the spawned thread runs as long as this
+        // thread is still running
         self.channel_sender.send(sender)
             .unwrap_or_else(|_| panic!("bug: thread managing IPC receiver terminated before main thread"));
 

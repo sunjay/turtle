@@ -12,6 +12,7 @@ pub use start::start;
 
 use std::sync::Arc;
 
+use ipc_channel::ipc::IpcError;
 use glutin::event_loop::EventLoopProxy;
 use tokio::sync::Mutex;
 
@@ -29,14 +30,18 @@ async fn serve(
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopProxy<MainThreadAction>,
-) -> ! {
+) {
     let conn = Arc::new(conn);
     let app_control = Arc::new(AccessControl::new(app).await);
     let event_loop = Arc::new(Mutex::new(event_loop));
 
     loop {
-        let (client_id, request) = conn.recv().await
-            .expect("unable to receive request from IPC client");
+        let (client_id, request) = match conn.recv().await {
+            Ok(req) => req,
+            // Client has disconnected completely, no purpose in continuing this loop
+            Err(IpcError::Disconnected) => break,
+            Err(err) => panic!("unable to receive request from IPC client: {:?}", err),
+        };
 
         // Each incoming request is given its own task configured specifically for each kind of
         // request. Having separate tasks allows requests that can run in parallel to do so.
