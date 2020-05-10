@@ -65,8 +65,7 @@ impl AsyncTurtle {
 
     /// Creates a new turtle using the given client
     pub(crate) async fn with_client(client: ProtocolClient) -> Self {
-        let id = client.create_turtle().await
-            .expect("unable to communicate with turtle server process");
+        let id = client.create_turtle().await;
         let angle_unit = AngleUnit::Degrees;
 
         Self {client, id, angle_unit}
@@ -78,7 +77,6 @@ impl AsyncTurtle {
         }
 
         self.client.move_forward(self.id, distance).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn backward(&mut self, distance: Distance) {
@@ -88,7 +86,6 @@ impl AsyncTurtle {
 
         // Moving backwards is essentially moving forwards with a negative distance
         self.client.move_forward(self.id, -distance).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn right(&mut self, angle: Angle) {
@@ -98,7 +95,6 @@ impl AsyncTurtle {
 
         let angle = self.angle_unit.to_radians(angle);
         self.client.rotate_in_place(self.id, angle, RotationDirection::Clockwise).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn left(&mut self, angle: Angle) {
@@ -108,7 +104,6 @@ impl AsyncTurtle {
 
         let angle = self.angle_unit.to_radians(angle);
         self.client.rotate_in_place(self.id, angle, RotationDirection::Counterclockwise).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn wait(&mut self, secs: f64) {
@@ -132,22 +127,18 @@ impl AsyncTurtle {
 
     pub async fn speed(&self) -> Speed {
         self.client.turtle_speed(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
         self.client.turtle_set_speed(self.id, speed.into()).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn position(&self) -> Point {
         self.client.turtle_position(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn go_to<P: Into<Point>>(&mut self, position: P) {
         self.client.move_to(self.id, position.into()).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn set_x(&mut self, x: f64) {
@@ -161,23 +152,19 @@ impl AsyncTurtle {
     }
 
     pub async fn home(&mut self) {
-        self.client.move_to(self.id, Point::origin()).await
-            .expect("unable to communicate with turtle server process");
-        self.client.turtle_reset_heading(self.id).await
-            .expect("unable to communicate with turtle server process");
+        self.client.move_to(self.id, Point::origin()).await;
+        self.client.turtle_reset_heading(self.id).await;
     }
 
     pub async fn heading(&self) -> Angle {
-        let heading = self.client.turtle_heading(self.id).await
-            .expect("unable to communicate with turtle server process");
+        let heading = self.client.turtle_heading(self.id).await;
         self.angle_unit.to_angle(heading)
     }
 
     pub async fn set_heading(&mut self, angle: Angle) {
         let angle = self.angle_unit.to_radians(angle);
 
-        let heading = self.client.turtle_heading(self.id).await
-            .expect("unable to communicate with turtle server process");
+        let heading = self.client.turtle_heading(self.id).await;
         // Find the amount we need to turn to reach the target heading based on our current heading
         let angle = angle - heading;
         // Normalize the angle to be between -180 and 179 so that we rotate as little as possible
@@ -185,7 +172,6 @@ impl AsyncTurtle {
         let angle = angle - radians::TWO_PI * ((angle + radians::PI) / radians::TWO_PI).floor();
 
         self.client.rotate_in_place(self.id, angle, RotationDirection::Counterclockwise).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub fn is_using_degrees(&self) -> bool {
@@ -206,22 +192,18 @@ impl AsyncTurtle {
 
     pub async fn is_pen_down(&self) -> bool {
         self.client.turtle_pen_is_enabled(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn pen_down(&mut self) {
         self.client.turtle_pen_set_is_enabled(self.id, true).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn pen_up(&mut self) {
         self.client.turtle_pen_set_is_enabled(self.id, false).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn pen_size(&self) -> f64 {
         self.client.turtle_pen_thickness(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn set_pen_size(&mut self, thickness: f64) {
@@ -232,12 +214,10 @@ impl AsyncTurtle {
         );
 
         self.client.turtle_pen_set_thickness(self.id, thickness).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn pen_color(&self) -> Color {
         self.client.turtle_pen_color(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn set_pen_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
@@ -248,12 +228,10 @@ impl AsyncTurtle {
             color
         );
         self.client.turtle_pen_set_color(self.id, pen_color).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn fill_color(&self) -> Color {
         self.client.turtle_fill_color(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn set_fill_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
@@ -264,48 +242,39 @@ impl AsyncTurtle {
             color
         );
         self.client.turtle_set_fill_color(self.id, fill_color).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn is_filling(&self) -> bool {
         self.client.turtle_is_filling(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn begin_fill(&mut self) {
         self.client.begin_fill(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn end_fill(&mut self) {
         self.client.end_fill(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn is_visible(&self) -> bool {
         self.client.turtle_is_visible(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn hide(&mut self) {
         self.client.turtle_set_is_visible(self.id, false).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn show(&mut self) {
         self.client.turtle_set_is_visible(self.id, true).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn reset(&mut self) {
         self.clear().await;
         self.client.reset_turtle(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn clear(&mut self) {
         self.client.clear_turtle(self.id).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn turn_towards<P: Into<Point>>(&mut self, target: P) {
@@ -317,8 +286,7 @@ impl AsyncTurtle {
             return;
         }
 
-        let heading = self.client.turtle_heading(self.id).await
-            .expect("unable to communicate with turtle server process");
+        let heading = self.client.turtle_heading(self.id).await;
 
         // Calculate the target angle to reach
         let angle = (target - position).atan2();
@@ -336,7 +304,6 @@ impl AsyncTurtle {
         };
 
         self.client.rotate_in_place(self.id, angle, RotationDirection::Counterclockwise).await
-            .expect("unable to communicate with turtle server process")
     }
 
     pub async fn wait_for_click(&mut self) {
