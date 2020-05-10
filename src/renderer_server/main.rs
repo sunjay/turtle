@@ -102,8 +102,11 @@ pub fn main() {
         GlutinEvent::NewEvents(StartCause::Init) => {
             // Spawn the actual server thread(s) that will handle incoming IPC messages and
             // asynchronous update the shared state
-            // Note that putting this code here instead of before the event loop causes the turtle
-            // to wait for the window to open before `::new()` returns.
+            //
+            // Note that putting this code here instead of before the event loop causes the
+            // `Turtle::new()`, etc. methods not to return before the window opens. Those methods
+            // can't return because the connection handshake cannot complete before the thread used
+            // for IPC is spawned.
             let handle = runtime.handle().clone();
             spawn_async_server(handle, app.clone(), display_list.clone(), event_loop_proxy.clone());
         },
