@@ -66,7 +66,19 @@ features = [
 [dev-dependencies]
 bitvec = "0.17"
 
-[profile.dev.package."*"]
+# Since the debug performance of turtle isn't all that great, we recommend that
+# every user of turtle add the following to their Cargo.toml
+#
+#     [profile.dev.package."*"]
+#     opt-level = 3
+#
+# This increases initial compile time a bit, but after that the library will
+# always work performantly even if the user's code itself is in debug mode still
+#
+# The following setting mimics that for the debug build of this crate.
+# We don't use `.package."*"` because the turtle crate *is* the package that
+# would be optimized with that setting in an application that uses this crate.
+[profile.dev]
 opt-level = 3
 
 [features]
