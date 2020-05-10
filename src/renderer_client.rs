@@ -59,8 +59,11 @@ impl ClientDispatcher {
                 let clients = task_clients.read().await;
 
                 let ClientId(index) = id;
-                clients[index].send(response)
-                    .expect("server process shutdown");
+                match clients[index].send(response) {
+                    Ok(()) => {},
+                    // This particular client connection must have gotten dropped
+                    Err(_) => {},
+                }
             }
         });
 
