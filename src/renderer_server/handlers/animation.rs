@@ -75,6 +75,10 @@ pub(crate) async fn move_forward(
         anim.step(turtle, &mut display_list);
     }
 
+    // Signal the main thread one last time that the image has changed
+    // This also runs if anim.running starts as false (for speed == instant)
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
+
     conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
 
     Ok(())
@@ -119,6 +123,10 @@ pub(crate) async fn move_to(
 
         anim.step(turtle, &mut display_list);
     }
+
+    // Signal the main thread one last time that the image has changed
+    // This also runs if anim.running starts as false (for speed == instant)
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
 
     conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
 
@@ -298,6 +306,10 @@ pub(crate) async fn rotate_in_place(
 
         anim.step(turtle);
     }
+
+    // Signal the main thread one last time that the image has changed
+    // This also runs if anim.running starts as false (for speed == instant)
+    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
 
     conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
 
