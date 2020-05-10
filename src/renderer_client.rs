@@ -115,8 +115,9 @@ impl RendererClient {
     /// Sends a message to the server process
     ///
     /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
-    pub async fn send(&self, req: ClientRequest) -> Result<(), ipc_channel::Error> {
+    pub async fn send(&self, req: ClientRequest) {
         self.dispatcher.send(self.id, req).await
+            .expect("bug: error while sending message through IPC")
     }
 
     /// Receives a response from the server process
