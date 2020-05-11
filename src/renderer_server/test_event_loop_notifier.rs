@@ -18,7 +18,7 @@ impl EventLoopNotifier {
         Ok(())
     }
 
-    pub async fn set_title(&self, title: String) -> Result<(), EventLoopClosed> {
+    pub async fn set_title(&self, _title: String) -> Result<(), EventLoopClosed> {
         Ok(())
     }
 
