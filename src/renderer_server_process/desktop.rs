@@ -47,7 +47,7 @@ impl RendererServerProcess {
             .spawn()?;
 
         let child_stdin = child.stdin.take()
-            .expect("renderer process was not spawned with a handle to stdin");
+            .expect("bug: renderer process was not spawned with a handle to stdin");
 
         // Spawn a separate task for the child process so this task can continue to make progress
         // while that runs. The remote handle will drop that future when it is dropped.
