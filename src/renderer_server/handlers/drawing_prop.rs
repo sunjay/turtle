@@ -1,6 +1,3 @@
-use glutin::{dpi::LogicalSize, event_loop::EventLoopProxy};
-use tokio::sync::Mutex;
-
 use crate::ipc_protocol::{
     ServerConnection,
     ServerResponse,
@@ -11,7 +8,7 @@ use crate::renderer_client::ClientId;
 
 use super::HandlerError;
 use super::super::{
-    main::MainThreadAction,
+    event_loop_notifier::EventLoopNotifier,
     state::DrawingState,
     access_control::{AccessControl, RequiredData},
 };
@@ -48,7 +45,7 @@ pub(crate) async fn drawing_prop(
 
 pub(crate) async fn set_drawing_prop(
     app_control: &AccessControl,
-    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
+    event_loop: &EventLoopNotifier,
     prop_value: DrawingPropValue,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -63,7 +60,7 @@ pub(crate) async fn set_drawing_prop(
 
 pub(crate) async fn reset_drawing_prop(
     app_control: &AccessControl,
-    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
+    event_loop: &EventLoopNotifier,
     prop: DrawingProp,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -91,7 +88,7 @@ pub(crate) async fn reset_drawing_prop(
 
 async fn modify_drawing(
     drawing: &mut DrawingState,
-    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
+    event_loop: &EventLoopNotifier,
     prop_value: DrawingPropValue,
 ) -> Result<(), HandlerError> {
     use DrawingPropValue::*;
@@ -100,7 +97,7 @@ async fn modify_drawing(
             drawing.title = title.clone();
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetTitle(title))?;
+            event_loop.set_title(title).await?;
         },
 
         Background(background) => drawing.background = background,
@@ -112,44 +109,35 @@ async fn modify_drawing(
             drawing.height = height;
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetSize(LogicalSize {
-                width: width as u32,
-                height: height as u32,
-            }))?;
+            event_loop.set_size((width as u32, height as u32)).await?;
         },
 
         Width(width) => {
             drawing.width = width;
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetSize(LogicalSize {
-                width: width as u32,
-                height: drawing.height as u32,
-            }))?;
+            event_loop.set_size((width as u32, drawing.height as u32)).await?;
         },
 
         Height(height) => {
             drawing.height = height;
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetSize(LogicalSize {
-                width: drawing.width as u32,
-                height: height as u32,
-            }))?;
+            event_loop.set_size((drawing.width as u32, height as u32)).await?;
         },
 
         IsMaximized(is_maximized) => {
             drawing.is_maximized = is_maximized;
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetIsMaximized(is_maximized))?;
+            event_loop.set_is_maximized(is_maximized).await?;
         },
 
         IsFullscreen(is_fullscreen) => {
             drawing.is_fullscreen = is_fullscreen;
 
             // Signal the main thread to change this property on the window
-            event_loop.lock().await.send_event(MainThreadAction::SetIsFullscreen(is_fullscreen))?;
+            event_loop.set_is_fullscreen(is_fullscreen).await?;
         },
     }
 

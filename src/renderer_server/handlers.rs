@@ -15,7 +15,8 @@ pub(crate) use fill::*;
 pub(crate) use clear::*;
 
 use thiserror::Error;
-use glutin::event_loop::EventLoopClosed;
+
+use super::event_loop_notifier::EventLoopClosed;
 
 #[derive(Debug, Error)]
 #[error(transparent)]
@@ -23,12 +24,5 @@ pub(crate) enum HandlerError {
     /// Unable to send response to IPC client
     IpcChannelError(#[from] ipc_channel::Error),
 
-    #[error("event loop closed while messages were still being sent to it")]
-    EventLoopClosed,
-}
-
-impl<T> From<EventLoopClosed<T>> for HandlerError {
-    fn from(_: EventLoopClosed<T>) -> Self {
-        HandlerError::EventLoopClosed
-    }
+    EventLoopClosed(#[from] EventLoopClosed),
 }

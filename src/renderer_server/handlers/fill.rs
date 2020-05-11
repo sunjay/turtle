@@ -1,9 +1,8 @@
-use glutin::event_loop::EventLoopProxy;
 use tokio::sync::Mutex;
 
 use super::HandlerError;
 use super::super::{
-    main::MainThreadAction,
+    event_loop_notifier::EventLoopNotifier,
     app::{TurtleId, TurtleDrawings},
     access_control::{AccessControl, RequiredData, RequiredTurtles},
     renderer::display_list::DisplayList,
@@ -12,7 +11,7 @@ use super::super::{
 pub(crate) async fn begin_fill(
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &Mutex<EventLoopProxy<MainThreadAction>>,
+    event_loop: &EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -33,7 +32,7 @@ pub(crate) async fn begin_fill(
     drawings.push(poly_handle);
     *current_fill_polygon = Some(poly_handle);
 
-    event_loop.lock().await.send_event(MainThreadAction::Redraw)?;
+    event_loop.request_redraw().await?;
 
     Ok(())
 }
