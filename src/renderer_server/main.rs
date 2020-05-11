@@ -85,7 +85,7 @@ pub fn main() {
         .with_vsync(true)
         .with_double_buffer(Some(true))
         .build_windowed(window_builder, &event_loop)
-        .expect("bug: either could not create window or could not build OpenGL context");
+        .expect("either could not create window or could not build OpenGL context");
 
     // Load OpenGL, and make the context current
     let gl_context = unsafe { gl_context.make_current().unwrap() };
