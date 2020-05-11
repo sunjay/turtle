@@ -199,8 +199,15 @@ pub struct DataGuard<'a> {
 impl<'a> Drop for DataGuard<'a> {
     fn drop(&mut self) {
         // unwrap() is safe because a struct cannot be dropped twice
-        self.operation_complete_sender.take().unwrap().send(())
-            .expect("bug: tasks managing access to data should run forever");
+        let sender = self.operation_complete_sender.take().unwrap();
+        match sender.send(()) {
+            Ok(()) => {},
+            // There are some cases (e.g. a panic) where AccessControl can get dropped before
+            // DataGuard. In that case, we the send might fail and we can just ignore that.
+            // This should never fail otherwise because the tasks managing access to data should
+            // run forever.
+            Err(_) => {}
+        }
     }
 }
 
