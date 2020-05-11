@@ -19,7 +19,7 @@ use glutin::{
         VirtualKeyCode,
         ElementState,
     },
-    event_loop::{ControlFlow, EventLoop, EventLoopProxy},
+    event_loop::{ControlFlow, EventLoop},
 };
 use tokio::{
     sync::Mutex,
@@ -34,7 +34,7 @@ use super::{
         Renderer,
         display_list::DisplayList,
     },
-    event_loop_notifier::MainThreadAction,
+    event_loop_notifier::{EventLoopNotifier, MainThreadAction},
 };
 
 /// The maximum rendering FPS allowed
@@ -69,6 +69,7 @@ pub fn main() {
     let event_loop = EventLoop::with_user_event();
     // Create the proxy that will be given to the thread managing IPC
     let event_loop_proxy = event_loop.create_proxy();
+    let event_loop_notifier = Arc::new(EventLoopNotifier::new(event_loop_proxy));
 
     let window_builder = {
         let drawing = runtime.handle().block_on(app.drawing_mut());
@@ -108,7 +109,7 @@ pub fn main() {
             // can't return because the connection handshake cannot complete before the thread used
             // for IPC is spawned.
             let handle = runtime.handle().clone();
-            spawn_async_server(handle, app.clone(), display_list.clone(), event_loop_proxy.clone());
+            spawn_async_server(handle, app.clone(), display_list.clone(), event_loop_notifier.clone());
         },
 
         GlutinEvent::NewEvents(StartCause::ResumeTimeReached {..}) => {
@@ -249,7 +250,7 @@ fn spawn_async_server(
     handle: Handle,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: EventLoopProxy<MainThreadAction>,
+    event_loop: Arc<EventLoopNotifier>,
 ) {
     // Spawn root task
     handle.spawn(async {
