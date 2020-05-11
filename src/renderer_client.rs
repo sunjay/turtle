@@ -1,7 +1,3 @@
-mod renderer_server_process;
-
-pub use renderer_server_process::*;
-
 use std::sync::Arc;
 
 use ipc_channel::ipc::IpcError;
@@ -10,6 +6,7 @@ use tokio::sync::{mpsc, RwLock, Mutex};
 use thiserror::Error;
 
 use crate::ipc_protocol::{ClientConnection, ConnectionError, ClientRequest, ServerResponse};
+use crate::renderer_server_process::RendererServerProcess;
 
 /// Signals that the IPC connection has been disconnected and therefore the window was probably
 /// closed

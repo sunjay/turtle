@@ -61,6 +61,7 @@ pub mod event;
 pub mod rand;
 
 mod ipc_protocol;
+mod renderer_server_process;
 mod renderer_server;
 mod renderer_client;
 mod async_drawing;

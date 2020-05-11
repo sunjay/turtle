@@ -17,7 +17,8 @@ use serde::{Serialize, Deserialize};
 use tokio::sync::Mutex;
 use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender, IpcError};
 
-use crate::renderer_client::{ClientId, RendererServerProcess};
+use crate::renderer_server_process::RendererServerProcess;
+use crate::renderer_client::ClientId;
 
 use async_ipc_receiver::AsyncIpcReceiver;
 
