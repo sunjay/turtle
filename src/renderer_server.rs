@@ -2,10 +2,21 @@ mod state;
 mod app;
 mod access_control;
 mod renderer;
-mod event_loop_notifier;
 mod handlers;
+#[cfg(not(any(feature = "test", test)))]
+mod event_loop_notifier;
+#[cfg(not(any(feature = "test", test)))]
 mod main;
 mod start;
+
+#[cfg(any(feature = "test", test))]
+mod test_main;
+#[cfg(any(feature = "test", test))]
+use test_main as main;
+#[cfg(any(feature = "test", test))]
+mod test_event_loop_notifier;
+#[cfg(any(feature = "test", test))]
+use test_event_loop_notifier as event_loop_notifier;
 
 pub(crate) use app::TurtleId;
 pub use renderer::export::ExportError;
@@ -14,7 +25,6 @@ pub use start::start;
 use std::sync::Arc;
 
 use ipc_channel::ipc::IpcError;
-use glutin::event_loop::EventLoopProxy;
 use tokio::sync::Mutex;
 
 use crate::ipc_protocol::{ServerConnection, ClientRequest};
@@ -23,18 +33,17 @@ use crate::renderer_client::ClientId;
 use app::App;
 use access_control::AccessControl;
 use renderer::display_list::DisplayList;
-use event_loop_notifier::{EventLoopNotifier, MainThreadAction};
+use event_loop_notifier::EventLoopNotifier;
 
 /// Serves requests from the client forever
 async fn serve(
     conn: ServerConnection,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: EventLoopProxy<MainThreadAction>,
+    event_loop: Arc<EventLoopNotifier>,
 ) {
     let conn = Arc::new(conn);
     let app_control = Arc::new(AccessControl::new(app).await);
-    let event_loop = Arc::new(EventLoopNotifier::new(event_loop));
 
     loop {
         let (client_id, request) = match conn.recv().await {
