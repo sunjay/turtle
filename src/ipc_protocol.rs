@@ -96,6 +96,7 @@ pub struct ServerConnection {
 
 impl ServerConnection {
     /// Establishes a connection to the client by reading from stdin
+    #[cfg(not(any(feature = "test", test)))]
     pub async fn connect_stdin() -> Result<Self, ConnectionError> {
         use tokio::io::{self, AsyncBufReadExt};
 

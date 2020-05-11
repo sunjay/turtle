@@ -32,7 +32,7 @@ pub struct RendererServerProcess {
 
 impl RendererServerProcess {
     /// Spawn a new process for the renderer
-    pub async fn spawn() -> io::Result<Self> {
+    pub fn spawn() -> io::Result<Self> {
         let current_exe = env::current_exe()?;
 
         // The new process is the same executable as this process but with a special environment

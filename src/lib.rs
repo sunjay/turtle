@@ -78,4 +78,9 @@ pub use crate::point::Point;
 pub use crate::speed::Speed;
 pub use crate::async_turtle::{Angle, Distance};
 pub use crate::turtle::Turtle;
-pub use crate::renderer_server::{start, ExportError};
+pub use crate::renderer_server::ExportError;
+
+#[cfg(not(any(feature = "test", test)))]
+pub use crate::renderer_server::start;
+#[cfg(any(feature = "test", test))]
+pub fn start() {}

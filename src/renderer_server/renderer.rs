@@ -1,3 +1,5 @@
+#![cfg_attr(any(feature = "test", test), allow(dead_code))]
+
 pub mod display_list;
 pub mod export;
 

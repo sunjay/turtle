@@ -7,12 +7,13 @@ mod handlers;
 mod event_loop_notifier;
 #[cfg(not(any(feature = "test", test)))]
 mod main;
+#[cfg(not(any(feature = "test", test)))]
 mod start;
 
 #[cfg(any(feature = "test", test))]
 mod test_main;
 #[cfg(any(feature = "test", test))]
-use test_main as main;
+pub(crate) use test_main::main;
 #[cfg(any(feature = "test", test))]
 mod test_event_loop_notifier;
 #[cfg(any(feature = "test", test))]
@@ -20,6 +21,7 @@ use test_event_loop_notifier as event_loop_notifier;
 
 pub(crate) use app::TurtleId;
 pub use renderer::export::ExportError;
+#[cfg(not(any(feature = "test", test)))]
 pub use start::start;
 
 use std::sync::Arc;
