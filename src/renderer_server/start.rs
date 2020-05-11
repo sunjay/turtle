@@ -2,7 +2,7 @@ use std::env;
 
 use super::main::main;
 
-use crate::renderer_client::RENDERER_PROCESS_ENV_VAR;
+use crate::renderer_server_process::RENDERER_PROCESS_ENV_VAR;
 
 /// Start the turtle window in advance
 ///
