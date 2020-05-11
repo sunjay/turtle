@@ -34,6 +34,7 @@ use super::{
         Renderer,
         display_list::DisplayList,
     },
+    event_loop_notifier::MainThreadAction,
 };
 
 /// The maximum rendering FPS allowed
@@ -45,21 +46,6 @@ const MAX_RENDERING_FPS: u64 = 60;
 
 // 1,000,000 us in 1 s
 const MICROS_PER_SEC: u64 = 1_000_000;
-
-/// A custom event used to perform actions within the glutin event loop on the main thread
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) enum MainThreadAction {
-    /// Redraw the window
-    Redraw,
-    /// Update the window title
-    SetTitle(String),
-    /// Update the window size (in logical coordinates)
-    SetSize(LogicalSize<u32>),
-    /// Change the maximized state of the window
-    SetIsMaximized(bool),
-    /// Change the fullscreen state of the window
-    SetIsFullscreen(bool),
-}
 
 /// Run the renderer process in the current thread
 ///

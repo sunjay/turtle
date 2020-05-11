@@ -2,6 +2,7 @@ mod state;
 mod app;
 mod access_control;
 mod renderer;
+mod event_loop_notifier;
 mod handlers;
 mod main;
 mod start;
@@ -20,9 +21,9 @@ use crate::ipc_protocol::{ServerConnection, ClientRequest};
 use crate::renderer_client::ClientId;
 
 use app::App;
-use main::MainThreadAction;
 use access_control::AccessControl;
 use renderer::display_list::DisplayList;
+use event_loop_notifier::{EventLoopNotifier, MainThreadAction};
 
 /// Serves requests from the client forever
 async fn serve(
@@ -33,7 +34,7 @@ async fn serve(
 ) {
     let conn = Arc::new(conn);
     let app_control = Arc::new(AccessControl::new(app).await);
-    let event_loop = Arc::new(Mutex::new(event_loop));
+    let event_loop = Arc::new(EventLoopNotifier::new(event_loop));
 
     loop {
         let (client_id, request) = match conn.recv().await {
@@ -61,7 +62,7 @@ async fn run_request(
     client_id: ClientId,
     app_control: Arc<AccessControl>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: Arc<Mutex<EventLoopProxy<MainThreadAction>>>,
+    event_loop: Arc<EventLoopNotifier>,
     request: ClientRequest,
 ) {
     use ClientRequest::*;
