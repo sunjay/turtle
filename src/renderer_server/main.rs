@@ -242,7 +242,12 @@ fn assert_main_thread() {
         // In order to maintain compatibility with MacOS, we need to make sure that windows are
         // only created on the main thread. We do this check on all platforms so that no one
         // can accidentally make a change that creates the window off of the main thread.
-        unreachable!("bug: windows can only be created on the main thread");
+        //
+        // It's easy for a user to accidentally cause this panic if they call `Turtle::new()` in a
+        // new thread. This message is meant to point them to the solution: `turtle::start()`
+        panic!("Windows can only be created on the main thread. \
+                Make sure you have called `turtle::start()` at the beginning of your program. \
+                See: <https://docs.rs/turtle/*/turtle/fn.start.html>");
     }
 }
 
