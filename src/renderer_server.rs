@@ -136,11 +136,15 @@ async fn run_request(
         },
     };
 
+    use handlers::HandlerError::*;
     match res {
         Ok(()) => {},
-        //TODO: Use the error to figure out how to proceed
-        //TODO: Store a flag somewhere to stop all remaining requests from continuing
-        //  Maybe app_control.get() can return a Result?
-        Err(err) => todo!("{}", err),
+        Err(IpcChannelError(err)) => panic!("Error while serializing response: {}", err),
+        // Main thread has ended, all tasks running requests will end very soon
+        //TODO: This potentially leaves the turtle/drawing state in an inconsistent state. Should
+        // we deal with that somehow? Panicking doesn't seem appropriate since this probably isn't
+        // an error, but we should definitely stop processing commands and make sure the process
+        // ends shortly after.
+        Err(EventLoopClosed(_)) => {},
     }
 }
