@@ -8,6 +8,7 @@ use serde::{Serialize, Deserialize};
 ///
 /// Events are used to make programs more interactive. See that method's documentation for more
 /// information about how to use events.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Event {
     /// Sent when a keyboard key is pressed
@@ -52,26 +53,31 @@ pub enum Event {
     WindowClosed,
 }
 
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Key {
     //TODO
 }
 
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum MouseButton {
     //TODO
 }
 
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum ControllerButton {
     //TODO
 }
 
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum ControllerAxis {
     //TODO
 }
 
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Touch {
     //TODO
