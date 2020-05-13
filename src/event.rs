@@ -2,7 +2,43 @@
 //!
 //! See [`Event`](enum.Event.html) for more information.
 
+use glutin::event::{WindowEvent, DeviceEvent};
 use serde::{Serialize, Deserialize};
+
+//TODO: Documentation
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum Key {
+    //TODO
+}
+
+//TODO: Documentation
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum MouseButton {
+    //TODO
+}
+
+//TODO: Documentation
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum ControllerButton {
+    //TODO
+}
+
+//TODO: Documentation
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum ControllerAxis {
+    //TODO
+}
+
+//TODO: Documentation
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum Touch {
+    //TODO
+}
 
 /// Possible events returned from [`Drawing::poll_event()`](../struct.Drawing.html#method.poll_event).
 ///
@@ -53,32 +89,12 @@ pub enum Event {
     WindowClosed,
 }
 
-#[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub enum Key {
-    //TODO
-}
+impl Event {
+    pub(crate) fn from_window_event(event: WindowEvent) -> Self {
+        todo!()
+    }
 
-#[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub enum MouseButton {
-    //TODO
-}
-
-#[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub enum ControllerButton {
-    //TODO
-}
-
-#[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub enum ControllerAxis {
-    //TODO
-}
-
-#[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub enum Touch {
-    //TODO
+    pub(crate) fn from_device_event(event: DeviceEvent) -> Self {
+        todo!()
+    }
 }

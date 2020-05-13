@@ -29,10 +29,10 @@ pub enum ClientRequest {
     /// Response: `ServerResponse::ExportComplete`
     Export(PathBuf, ExportFormat),
 
-    /// Get the next event
+    /// Get the next event (if any are currently available)
     ///
     /// Response: `ServerResponse::Event`
-    NextEvent,
+    PollEvent,
 
     /// Get the given property of the drawing
     ///
@@ -141,8 +141,11 @@ pub enum ServerResponse {
     /// The result of the export, possibly an error if something went wrong
     ExportComplete(Result<(), ExportError>),
 
-    /// The next event
-    Event(Event),
+    /// The next event, if any
+    ///
+    /// A response of `None` only indicates that no events are *currently* available, NOT that no
+    /// events will *ever* be available.
+    Event(Option<Event>),
 
     /// The value of the given property of the drawing
     DrawingProp(DrawingPropValue),

@@ -62,8 +62,8 @@ impl ProtocolClient {
         }
     }
 
-    pub async fn next_event(&self) -> Event {
-        self.client.send(ClientRequest::NextEvent).await;
+    pub async fn poll_event(&self) -> Option<Event> {
+        self.client.send(ClientRequest::PollEvent).await;
 
         let response = self.client.recv().await;
         match response {

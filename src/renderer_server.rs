@@ -27,10 +27,11 @@ pub use start::start;
 use std::sync::Arc;
 
 use ipc_channel::ipc::IpcError;
-use tokio::sync::Mutex;
+use tokio::sync::{mpsc, Mutex};
 
 use crate::ipc_protocol::{ServerConnection, ClientRequest};
 use crate::renderer_client::ClientId;
+use crate::Event;
 
 use app::App;
 use access_control::AccessControl;
@@ -43,9 +44,11 @@ async fn serve(
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: Arc<EventLoopNotifier>,
+    events_receiver: mpsc::UnboundedReceiver<Event>,
 ) {
     let conn = Arc::new(conn);
     let app_control = Arc::new(AccessControl::new(app).await);
+    let events_receiver = Arc::new(Mutex::new(events_receiver));
 
     loop {
         let (client_id, request) = match conn.recv().await {
@@ -63,6 +66,7 @@ async fn serve(
             app_control.clone(),
             display_list.clone(),
             event_loop.clone(),
+            events_receiver.clone(),
             request,
         ));
     }
@@ -74,6 +78,7 @@ async fn run_request(
     app_control: Arc<AccessControl>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: Arc<EventLoopNotifier>,
+    events_receiver: Arc<Mutex<mpsc::UnboundedReceiver<Event>>>,
     request: ClientRequest,
 ) {
     use ClientRequest::*;
@@ -86,8 +91,8 @@ async fn run_request(
             handlers::export_drawings(&conn, client_id, &app_control, &display_list, &path, format).await
         },
 
-        NextEvent => {
-            todo!()
+        PollEvent => {
+            handlers::poll_event(&conn, client_id, &events_receiver).await
         },
 
         DrawingProp(prop) => {
