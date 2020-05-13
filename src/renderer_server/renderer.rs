@@ -99,6 +99,11 @@ impl Renderer {
     }
 
     /// Updates the scale factor used during rendering
+    pub fn scale_factor(&self) -> f64 {
+        self.dpi_scale
+    }
+
+    /// Updates the scale factor used during rendering
     pub fn set_scale_factor(&mut self, dpi_scale: f64) {
         self.dpi_scale = dpi_scale;
     }
