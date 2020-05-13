@@ -12,7 +12,7 @@ use crate::renderer_server_process::RendererServerProcess;
 /// closed
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 #[error("Cannot continue to run turtle commands after window is closed. This panic stops the thread, but is not necessarily an error.")]
-pub struct Disconnected;
+struct Disconnected;
 
 /// A unique ID used to multiplex responses on the client side
 ///
@@ -138,27 +138,17 @@ impl RendererClient {
             .expect("bug: error while sending message through IPC")
     }
 
-    /// Receives a response from the server process, panicking if the server has disconnected
+    /// Receives a response from the server process
     ///
-    /// When possible, prefer using methods from `ProtocolClient` instead of using this directly.
+    /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
     pub async fn recv(&self) -> ServerResponse {
-        self.recv_disconnected().await
-            // This panic causes the program to exit if turtle commands continue after the window
-            // closes
-            .unwrap_or_else(|err| panic!("IPC response not received: {}", err))
-    }
-
-    /// Receives a response from the server process, returning an error if the server has been
-    /// disconnected
-    ///
-    /// If an error is produced, the window can be assumed to be closed
-    ///
-    /// When possible, prefer using methods from `ProtocolClient` instead of using this directly.
-    pub async fn recv_disconnected(&self) -> Result<ServerResponse, Disconnected> {
         let mut receiver = self.receiver.lock().await;
         receiver.recv().await
             // Since this struct keeps a ref-counted copy of the senders, they can't have possibly
             // been dropped at this point.
             .expect("bug: client senders should not be dropped yet")
+            // This panic causes the program to exit if turtle commands continue after the window
+            // closes
+            .unwrap_or_else(|err| panic!("IPC response not received: {}", err))
     }
 }
