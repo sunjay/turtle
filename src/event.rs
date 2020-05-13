@@ -5,7 +5,7 @@
 use serde::{Serialize, Deserialize};
 use glutin::{
     dpi::{LogicalSize, LogicalPosition},
-    event::{self as glutin_event, WindowEvent, DeviceEvent, KeyboardInput},
+    event::{self as glutin_event, WindowEvent, KeyboardInput},
 };
 
 /// Possible events returned from [`Drawing::poll_event()`](../struct.Drawing.html#method.poll_event).
@@ -88,11 +88,6 @@ impl Event {
             WindowEvent::ScaleFactorChanged {..} |
             WindowEvent::ThemeChanged(_) => None, // Not supported
         }
-    }
-
-    /// Returns `None` if the input event is not a supported variant of `Event`
-    pub(crate) fn from_device_event(event: DeviceEvent, scale_factor: f64) -> Option<Self> {
-        todo!()
     }
 }
 
