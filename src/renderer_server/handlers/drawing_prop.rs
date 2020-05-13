@@ -109,21 +109,21 @@ async fn modify_drawing(
             drawing.height = height;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_size((width as u32, height as u32)).await?;
+            event_loop.set_size((width, height)).await?;
         },
 
         Width(width) => {
             drawing.width = width;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_size((width as u32, drawing.height as u32)).await?;
+            event_loop.set_size((width, drawing.height)).await?;
         },
 
         Height(height) => {
             drawing.height = height;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_size((drawing.width as u32, height as u32)).await?;
+            event_loop.set_size((drawing.width, height)).await?;
         },
 
         IsMaximized(is_maximized) => {
