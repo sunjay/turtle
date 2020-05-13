@@ -48,6 +48,7 @@ pub enum Event {
 
 impl Event {
     /// Returns `None` if the input event is not a supported variant of `Event`
+    #[cfg_attr(any(feature = "test", test), allow(dead_code))]
     pub(crate) fn from_window_event(event: WindowEvent, scale_factor: f64) -> Option<Self> {
         match event {
             WindowEvent::Resized(size) => {
@@ -99,6 +100,7 @@ pub enum PressedState {
 }
 
 impl PressedState {
+    #[cfg_attr(any(feature = "test", test), allow(dead_code))]
     fn from_state(state: glutin_event::ElementState) -> PressedState {
         match state {
             glutin_event::ElementState::Pressed => PressedState::Pressed,
@@ -247,6 +249,7 @@ pub enum Key {
 }
 
 impl Key {
+    #[cfg_attr(any(feature = "test", test), allow(dead_code))]
     fn from_keycode(key: glutin_event::VirtualKeyCode) -> Option<Self> {
         use glutin_event::VirtualKeyCode::*;
         Some(match key {
@@ -437,6 +440,7 @@ pub enum MouseButton {
 }
 
 impl MouseButton {
+    #[cfg_attr(any(feature = "test", test), allow(dead_code))]
     fn from_button(button: glutin_event::MouseButton) -> Option<Self> {
         use glutin_event::MouseButton::*;
         match button {
