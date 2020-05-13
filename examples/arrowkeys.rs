@@ -1,6 +1,4 @@
-use turtle::event::Key::{Left, Right};
-use turtle::Event::KeyPressed;
-use turtle::Turtle;
+use turtle::{Turtle, Event, event::{Key, PressedState}};
 
 fn main() {
     let mut turtle = Turtle::new();
@@ -14,25 +12,26 @@ fn main() {
         turtle.forward(1.0);
 
         while let Some(event) = turtle.drawing_mut().poll_event() {
+            use Key::{LeftArrow, RightArrow};
             match event {
-                KeyPressed(key) => match key {
-                    Left => {
+                Event::Key(key, PressedState::Pressed) => match key {
+                    LeftArrow => {
                         turtle.set_speed(8);
                         for _ in 0..20 {
                             turtle.forward(1.0);
                             turtle.left(4.5);
                         }
                         turtle.set_speed(4);
-                    }
-                    Right => {
+                    },
+                    RightArrow => {
                         turtle.set_speed(8);
                         for _ in 0..20 {
                             turtle.forward(1.0);
                             turtle.right(4.5);
                         }
                         turtle.set_speed(4);
-                    }
-                    _ => {}
+                    },
+                    _ => {},
                 },
                 _ => {}
             }
