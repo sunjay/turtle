@@ -13,7 +13,7 @@ use glutin::{
 /// Events are used to make programs more interactive. See that method's documentation for more
 /// information about how to use events.
 #[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Event {
     /// Sent when a keyboard key is pressed or released
     Key(Key, PressedState),
