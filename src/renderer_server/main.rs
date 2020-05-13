@@ -158,7 +158,7 @@ pub fn main() {
             gl_context.window().request_redraw();
         },
 
-        GlutinEvent::WindowEvent {window_id, event} => {
+        GlutinEvent::WindowEvent {event, ..} => {
             //TODO: Check if event modifies state and then redraw if necessary
             match event {
                 _ => {}
@@ -167,8 +167,11 @@ pub fn main() {
             //TODO: There is no guarantee that sending this event here will actually allow a client
             // to receive it. After all, if the window closes and this process exits, there will be
             // no way to handle subsequent `NextEvent` requests.
-            events_sender.send(Event::from_window_event(event))
-                .expect("bug: server IPC thread should stay alive as long as server main thread");
+            let scale_factor = renderer.scale_factor();
+            if let Some(event) = Event::from_window_event(event, scale_factor) {
+                events_sender.send(event)
+                    .expect("bug: server IPC thread should stay alive as long as server main thread");
+            }
         },
         GlutinEvent::DeviceEvent {device_id, event} => {
             //TODO: Check if event modifies state and then redraw if necessary
@@ -179,8 +182,11 @@ pub fn main() {
             //TODO: There is no guarantee that sending this event here will actually allow a client
             // to receive it. After all, if the window closes and this process exits, there will be
             // no way to handle subsequent `NextEvent` requests.
-            events_sender.send(Event::from_device_event(event))
-                .expect("bug: server IPC thread should stay alive as long as server main thread");
+            let scale_factor = renderer.scale_factor();
+            if let Some(event) = Event::from_device_event(event, scale_factor) {
+                events_sender.send(event)
+                    .expect("bug: server IPC thread should stay alive as long as server main thread");
+            }
         },
 
         GlutinEvent::UserEvent(MainThreadAction::Redraw) => {
