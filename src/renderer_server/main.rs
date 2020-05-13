@@ -22,10 +22,11 @@ use glutin::{
     event_loop::{ControlFlow, EventLoop},
 };
 use tokio::{
-    sync::Mutex,
+    sync::{mpsc, Mutex},
     runtime::{Runtime, Handle},
 };
 
+use crate::Event;
 use crate::ipc_protocol::ServerConnection;
 
 use super::{
@@ -71,6 +72,12 @@ pub fn main() {
     let event_loop_proxy = event_loop.create_proxy();
     let event_loop_notifier = Arc::new(EventLoopNotifier::new(event_loop_proxy));
 
+    // A channel for transferring events
+    let (events_sender, events_receiver) = mpsc::unbounded_channel();
+    // Put the events_receiver in an Option so we can call `take()` in the event loop. Required
+    // because borrow checker cannot verify that `Init` event is only fired once.
+    let mut events_receiver = Some(events_receiver);
+
     let window_builder = {
         let drawing = runtime.handle().block_on(app.drawing_mut());
         WindowBuilder::new()
@@ -109,7 +116,13 @@ pub fn main() {
             // can't return because the connection handshake cannot complete before the thread used
             // for IPC is spawned.
             let handle = runtime.handle().clone();
-            spawn_async_server(handle, app.clone(), display_list.clone(), event_loop_notifier.clone());
+            spawn_async_server(
+                handle,
+                app.clone(),
+                display_list.clone(),
+                event_loop_notifier.clone(),
+                events_receiver.take().expect("bug: init event should only occur once"),
+            );
         },
 
         GlutinEvent::NewEvents(StartCause::ResumeTimeReached {..}) => {
@@ -147,9 +160,27 @@ pub fn main() {
 
         GlutinEvent::WindowEvent {window_id, event} => {
             //TODO: Check if event modifies state and then redraw if necessary
+            match event {
+                _ => {}
+            }
+
+            //TODO: There is no guarantee that sending this event here will actually allow a client
+            // to receive it. After all, if the window closes and this process exits, there will be
+            // no way to handle subsequent `NextEvent` requests.
+            events_sender.send(Event::from_window_event(event))
+                .expect("bug: server IPC thread should stay alive as long as server main thread");
         },
         GlutinEvent::DeviceEvent {device_id, event} => {
             //TODO: Check if event modifies state and then redraw if necessary
+            match event {
+                _ => {}
+            }
+
+            //TODO: There is no guarantee that sending this event here will actually allow a client
+            // to receive it. After all, if the window closes and this process exits, there will be
+            // no way to handle subsequent `NextEvent` requests.
+            events_sender.send(Event::from_device_event(event))
+                .expect("bug: server IPC thread should stay alive as long as server main thread");
         },
 
         GlutinEvent::UserEvent(MainThreadAction::Redraw) => {
@@ -256,11 +287,12 @@ fn spawn_async_server(
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: Arc<EventLoopNotifier>,
+    events_receiver: mpsc::UnboundedReceiver<Event>,
 ) {
     // Spawn root task
     handle.spawn(async {
         let conn = ServerConnection::connect_stdin().await
             .expect("unable to establish turtle server connection");
-        super::serve(conn, app, display_list, event_loop).await;
+        super::serve(conn, app, display_list, event_loop, events_receiver).await;
     });
 }

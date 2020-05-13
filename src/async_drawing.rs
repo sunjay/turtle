@@ -162,10 +162,8 @@ impl AsyncDrawing {
         self.client.drawing_set_is_fullscreen(false).await
     }
 
-    /// `None` indicates that the application has quit and no events will ever be sent again
     pub async fn poll_event(&mut self) -> Option<Event> {
-        //TODO: Figure out how to return `None`
-        Some(self.client.next_event().await)
+        self.client.poll_event().await
     }
 
     pub async fn save_svg<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {

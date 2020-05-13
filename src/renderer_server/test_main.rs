@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use tokio::sync::Mutex;
+use tokio::sync::{mpsc, Mutex};
 
 use crate::ipc_protocol::ServerConnection;
 
@@ -20,8 +20,10 @@ pub async fn main(server_name: String) {
 
     // Create the proxy that will be given to the thread managing IPC
     let event_loop_notifier = Arc::new(EventLoopNotifier::new());
+    // A channel for transferring events
+    let (_events_sender, events_receiver) = mpsc::unbounded_channel();
 
     let conn = ServerConnection::connect(server_name)
         .expect("unable to establish turtle server connection");
-    super::serve(conn, app, display_list, event_loop_notifier).await;
+    super::serve(conn, app, display_list, event_loop_notifier, events_receiver).await;
 }
