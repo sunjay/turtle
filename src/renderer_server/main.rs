@@ -159,15 +159,27 @@ pub fn main() {
         },
 
         GlutinEvent::WindowEvent {event, ..} => {
-            //TODO: Check if event modifies state and then redraw if necessary
+            let scale_factor = renderer.scale_factor();
             match event {
-                _ => {}
+                WindowEvent::Resized(size) => {
+                    let size = size.to_logical(scale_factor);
+                    let handle = runtime.handle();
+                    let mut drawing = handle.block_on(app.drawing_mut());
+                    drawing.width = size.width;
+                    drawing.height = size.height;
+                    //TODO: No idea if this next line is necessary or not
+                    gl_context.window().request_redraw();
+                },
+
+                //TODO: There are currently no events for updating is_maximized, so that property
+                // should not be relied on. https://github.com/rust-windowing/glutin/issues/1298
+
+                _ => {},
             }
 
             //TODO: There is no guarantee that sending this event here will actually allow a client
             // to receive it. After all, if the window closes and this process exits, there will be
             // no way to handle subsequent `NextEvent` requests.
-            let scale_factor = renderer.scale_factor();
             if let Some(event) = Event::from_window_event(event, scale_factor) {
                 events_sender.send(event)
                     .expect("bug: server IPC thread should stay alive as long as server main thread");
