@@ -173,21 +173,9 @@ pub fn main() {
                     .expect("bug: server IPC thread should stay alive as long as server main thread");
             }
         },
-        GlutinEvent::DeviceEvent {device_id, event} => {
-            //TODO: Check if event modifies state and then redraw if necessary
-            match event {
-                _ => {}
-            }
 
-            //TODO: There is no guarantee that sending this event here will actually allow a client
-            // to receive it. After all, if the window closes and this process exits, there will be
-            // no way to handle subsequent `NextEvent` requests.
-            let scale_factor = renderer.scale_factor();
-            if let Some(event) = Event::from_device_event(event, scale_factor) {
-                events_sender.send(event)
-                    .expect("bug: server IPC thread should stay alive as long as server main thread");
-            }
-        },
+        // Window events are currently sufficient for the turtle event API
+        GlutinEvent::DeviceEvent {..} => {},
 
         GlutinEvent::UserEvent(MainThreadAction::Redraw) => {
             gl_context.window().request_redraw();
