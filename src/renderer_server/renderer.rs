@@ -1,5 +1,3 @@
-#![cfg_attr(any(feature = "test", test), allow(dead_code))]
-
 pub mod display_list;
 pub mod export;
 
@@ -26,6 +24,7 @@ use super::state::{DrawingState, TurtleState};
 use display_list::{DisplayList, DrawPrim, Line, Polygon};
 
 /// Converts a color from the representation in this crate to the one used in the renderer
+#[cfg_attr(any(feature = "test", test), allow(dead_code))]
 fn convert_color(color: Color) -> ColorU {
     let Color {red, green, blue, alpha} = color;
     ColorU {
@@ -68,6 +67,7 @@ fn to_screen_coords(point: Point, dpi_scale: f64, center: Point, fb_center: Vect
 }
 
 /// A renderer that draws on the current OpenGL context
+#[cfg_attr(any(feature = "test", test), allow(dead_code))]
 pub struct Renderer {
     renderer: PathfinderRenderer<GLDevice>,
     font_context: CanvasFontContext,
@@ -76,6 +76,7 @@ pub struct Renderer {
     dpi_scale: f64,
 }
 
+#[cfg_attr(any(feature = "test", test), allow(dead_code))]
 impl Renderer {
     /// Creates a new renderer with the given physical size in pixels
     pub fn new(draw_size: PhysicalSize<u32>, dpi_scale: f64) -> Self {
