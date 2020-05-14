@@ -17,6 +17,10 @@ immediately get started by performing the following steps:
     ```toml
     [dependencies]
     turtle = "{{ site.data.lib.latest.version }}"
+
+    # Compile turtle and other dependencies with optimizations
+    [profile.dev.package."*"]
+    opt-level = 3
     ```
 3. Replace the contents of `src/main.rs` with the following:
     ```rust
