@@ -334,21 +334,6 @@ impl Drawing {
     /// turtle.drawing_mut().maximize();
     /// assert_eq!(turtle.drawing().is_maximized(), true);
     /// ```
-    ///
-    /// # Unstable
-    ///
-    /// **This method is currently unstable and unreliable.**
-    /// ([GitHub Issue](https://github.com/sunjay/turtle/issues/49))
-    ///
-    /// Unfortunately, we cannot currently detect when the window is maximized using the maximize
-    /// button on the window. This method is reliable until that button is pressed. Since there is
-    /// no way to tell when that is, treat the value returned from this method as unreliable and
-    /// potentially inaccurate.
-    ///
-    /// It is usually okay to use this method right when the turtle is created, but don't rely on
-    /// it after that because by then the user may have pressed the maximize button on the window.
-    #[cfg(feature = "unstable")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
     pub fn maximize(&mut self) {
         block_on(self.drawing.maximize())
     }
@@ -356,7 +341,6 @@ impl Drawing {
     /// Returns the size of the drawing to its value before it was maximized
     ///
     /// If the drawing is already unmaximized, this method does nothing.
-    ///
     ///
     /// ```rust
     /// # use turtle::*;
@@ -369,18 +353,6 @@ impl Drawing {
     /// turtle.drawing_mut().unmaximize();
     /// assert_eq!(turtle.drawing().is_maximized(), false);
     /// ```
-    ///
-    /// # Unstable
-    ///
-    /// **This method is currently unstable and unreliable.**
-    /// ([GitHub Issue](https://github.com/sunjay/turtle/issues/49))
-    ///
-    /// Unfortunately, we cannot currently detect when the window is maximized using the maximize
-    /// button on the window. This method is reliable until that button is pressed. Since there is
-    /// no way to tell when that is, treat the value returned from this method as unreliable and
-    /// potentially inaccurate.
-    #[cfg(feature = "unstable")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
     pub fn unmaximize(&mut self) {
         block_on(self.drawing.unmaximize())
     }
