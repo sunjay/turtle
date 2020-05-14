@@ -5,11 +5,40 @@ use crate::{Turtle, Color, Point, Size, ExportError};
 use crate::async_drawing::AsyncDrawing;
 use crate::sync_runtime::block_on;
 
-/// Represents the drawing that the turtle is creating
+/// Provides access to properties of the drawing that the turtle is creating
 ///
-/// This struct is usually accessed using the [`drawing()`](struct.Turtle.html#method.drawing)
-/// and [`drawing_mut()`](struct.Turtle.html#method.drawing_mut) methods on the
-/// [`Turtle` struct](struct.Turtle.html).
+/// # Accessing The Drawing
+///
+/// The most common way to create a new drawing is implicitly through the [`Turtle::new()`] method.
+///
+/// ```rust,no_run
+/// # use turtle::*;
+/// let mut turtle = Turtle::new();
+/// ```
+///
+/// That method returns a new [`Turtle`] and allows you to begin drawing right away, but doesn't
+/// provide the ability to manipulate the properties of the drawing you are creating.
+///
+/// To get access to those properties, you need to change the way you create your turtle to match
+/// the following:
+///
+/// ```rust,no_run
+/// # use turtle::*;
+/// let mut drawing = Drawing::new();
+/// let mut turtle = drawing.add_turtle();
+///
+/// // Now you can set properties on the drawing
+/// drawing.set_title("Really cool picture!");
+/// // You can also draw things using the turtle you created
+/// turtle.forward(100.0);
+/// ```
+///
+/// This creates a new [`Drawing`], and then adds a turtle using the [`add_turtle()`] method.
+///
+/// [`Turtle`]: struct.Turtle.html
+/// [`Turtle::new()`]: struct.Turtle.html#method.new
+/// [`Drawing`]: struct.Drawing.html
+/// [`add_turtle()`]: struct.Drawing.html#method.add_turtle
 pub struct Drawing {
     drawing: AsyncDrawing,
     //TODO: Remove this field when multiple turtles are supported
@@ -27,10 +56,11 @@ impl From<AsyncDrawing> for Drawing {
 impl Drawing {
     /// Creates a new drawing
     ///
-    /// This will immediately open a new window with a completely blank image. To create a new
-    /// turtle in the image, use the [`add_turtle()`] method.
+    /// This will immediately open a new window with a completely blank image.
     ///
-    /// [`add_turtle()`](struct.Drawing.html#method.add_turtle)
+    /// To create a new turtle in the image, use the [`add_turtle()`] method.
+    ///
+    /// [`add_turtle()`]: struct.Drawing.html#method.add_turtle
     pub fn new() -> Drawing {
         // This needs to be called as close to the start of the program as possible. We call it
         // here since Drawing::new() or AsyncDrawing::new() are commonly called at the beginning
@@ -49,7 +79,25 @@ impl Drawing {
     /// The newly created turtle will appear at center of the drawing.
     ///
     /// Note that until the multiple turtles feature becomes stable, this method can only be called
-    /// once.
+    /// once. Calling it more than once will result in a panic.
+    ///
+    /// # Example
+    ///
+    /// The following creates a new `Drawing`, adds a turtle to it, and then draws a circle over
+    /// a pink background.
+    ///
+    /// ```rust,no_run
+    /// # use turtle::*;
+    /// let mut drawing = Drawing::new();
+    /// let mut turtle = drawing.add_turtle();
+    ///
+    /// drawing.set_background_color("pink");
+    ///
+    /// for _ in 0..360 {
+    ///     turtle.forward(3.0);
+    ///     turtle.right(1.0);
+    /// }
+    /// ```
     pub fn add_turtle(&mut self) -> Turtle {
         assert!(self.turtles == 0, "Multiple turtles are unstable! Only call `add_turtle` once.");
         self.turtles += 1;
