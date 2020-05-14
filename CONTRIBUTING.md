@@ -167,6 +167,12 @@ requires an extra flag which is documented below.
     then run `cargo watch -x doc`
   * To only build the documentation for turtle and skip building all of its
     dependencies, run `cargo doc --no-deps` or `cargo watch -x 'doc --no-deps'`
+  * When building documentation normally, the markers that list the features
+    required for various parts of turtle are missing. To build the documentation
+    with those markers, use this command:
+    ```bash
+    RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --all-features --open
+    ```
 
 ## Adding Examples
 [adding-examples]: #adding-examples
