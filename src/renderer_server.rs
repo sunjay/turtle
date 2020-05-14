@@ -1,6 +1,7 @@
 mod state;
 mod app;
 mod access_control;
+mod coords;
 mod renderer;
 mod handlers;
 #[cfg(not(any(feature = "test", test)))]

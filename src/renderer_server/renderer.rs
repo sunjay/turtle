@@ -4,7 +4,7 @@ pub mod export;
 use glutin::dpi::PhysicalSize;
 use pathfinder_canvas::{Canvas, CanvasFontContext, Path2D, LineCap, LineJoin, FillRule};
 use pathfinder_color::ColorU;
-use pathfinder_geometry::vector::{vec2f, vec2i, Vector2F};
+use pathfinder_geometry::vector::{vec2f, vec2i};
 use pathfinder_gl::{GLDevice, GLVersion};
 use pathfinder_resources::embedded::EmbeddedResourceLoader;
 use pathfinder_renderer::{
@@ -19,6 +19,7 @@ use pathfinder_renderer::{
 
 use crate::{Point, Color};
 
+use super::coords::ScreenPoint;
 use super::state::{DrawingState, TurtleState};
 
 use display_list::{DisplayList, DrawPrim, Line, Polygon};
@@ -33,37 +34,6 @@ fn convert_color(color: Color) -> ColorU {
         b: blue.round() as u8,
         a: (alpha * 255.0).round() as u8,
     }
-}
-
-/// Converts a `Point` in logical or "world" coordinates to a `Vector2F` in screen coordinates
-///
-/// # Parameters
-///
-/// * `point` is the `Point` to convert to screen coordinates
-/// * `dpi_scale` is the high DPI scale factor (>= 0.0)
-/// * `center` is the `Point` configured in the drawing that all other `Point`s are relative to.
-/// * `fb_center` is the center of the framebuffer in screen coordinates.
-///
-/// # Coordinate Systems
-///
-/// * logical or "world" coordinates (cartesian coordinates)
-///   * origin is in the center of the framebuffer and can be offset by `center`
-///   * x is left to right
-///   * y is bottom to top
-/// * screen coordinates
-///   * origin is the top-left corner of the framebuffer
-///   * x is left to right
-///   * y is top to bottom
-fn to_screen_coords(point: Point, dpi_scale: f64, center: Point, fb_center: Vector2F) -> Vector2F {
-    let Point {x, y} = point;
-    let Point {x: center_x, y: center_y} = center;
-    let fb_center_x = fb_center.x();
-    let fb_center_y = fb_center.y();
-
-    vec2f(
-        ((x - center_x) * dpi_scale) as f32 + fb_center_x,
-        -((y - center_y) * dpi_scale) as f32 + fb_center_y,
-    )
 }
 
 /// A renderer that draws on the current OpenGL context
@@ -153,8 +123,8 @@ impl Renderer {
                 &DrawPrim::Line(Line {start, end, thickness, color}) => {
                     let mut path = Path2D::new();
 
-                    path.move_to(to_screen_coords(start, dpi_scale, center, fb_center));
-                    path.line_to(to_screen_coords(end, dpi_scale, center, fb_center));
+                    path.move_to(ScreenPoint::from_logical(start, dpi_scale, center, fb_center.into()).into());
+                    path.line_to(ScreenPoint::from_logical(end, dpi_scale, center, fb_center.into()).into());
 
                     canvas.set_line_width((thickness * dpi_scale) as f32);
                     canvas.set_stroke_style(convert_color(color));
@@ -169,9 +139,9 @@ impl Renderer {
 
                     let mut path = Path2D::new();
 
-                    path.move_to(to_screen_coords(points[0], dpi_scale, center, fb_center));
+                    path.move_to(ScreenPoint::from_logical(points[0], dpi_scale, center, fb_center.into()).into());
                     for &point in &points[1..] {
-                        path.line_to(to_screen_coords(point, dpi_scale, center, fb_center));
+                        path.line_to(ScreenPoint::from_logical(point, dpi_scale, center, fb_center.into()).into());
                     }
 
                     path.close_path();
@@ -199,7 +169,7 @@ impl Renderer {
                     x: cos * x - sin * y + turtle_x,
                     y: sin * x + cos * y + turtle_y,
                 };
-                to_screen_coords(point, dpi_scale, center, fb_center)
+                ScreenPoint::from_logical(point, dpi_scale, center, fb_center.into()).into()
             };
 
             let mut path = Path2D::new();
@@ -218,39 +188,5 @@ impl Renderer {
         // Build and render scene
         self.scene.replace_scene(canvas.into_canvas().into_scene());
         self.scene.build_and_render(&mut self.renderer, BuildOptions::default());
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn screen_coords() {
-        // The origin is always at fb_center as long as center is also the origin
-        let screen_coord = to_screen_coords(Point::origin(), 1.0, Point::origin(), vec2f(200.0, 300.0));
-        assert_eq!(screen_coord, vec2f(200.0, 300.0));
-        // The origin is always at fb_center regardless of DPI scale
-        let screen_coord = to_screen_coords(Point::origin(), 2.0, Point::origin(), vec2f(200.0, 300.0));
-        assert_eq!(screen_coord, vec2f(200.0, 300.0));
-
-        // The x-axis and y-axis treated distinctly and interpreted as cartesian
-        let screen_coord = to_screen_coords(Point {x: 10.0, y: 20.0}, 1.0, Point::origin(), vec2f(200.0, 300.0));
-        assert_eq!(screen_coord, vec2f(210.0, 280.0));
-        // A different fb_center gives a different final coordinate
-        let screen_coord = to_screen_coords(Point {x: 10.0, y: 20.0}, 1.0, Point::origin(), vec2f(300.0, 400.0));
-        assert_eq!(screen_coord, vec2f(310.0, 380.0));
-
-        // The center is interpreted as cartesian and points are relative to it
-        let screen_coord = to_screen_coords(Point {x: 10.0, y: 20.0}, 1.0, Point {x: 30.0, y: 5.0}, vec2f(200.0, 300.0));
-        assert_eq!(screen_coord, vec2f(180.0, 285.0));
-
-        // Negative points work too
-        let screen_coord = to_screen_coords(Point {x: -10.0, y: -20.0}, 1.0, Point {x: 30.0, y: -5.0}, vec2f(200.0, 300.0));
-        assert_eq!(screen_coord, vec2f(160.0, 315.0));
-
-        // DPI scale > 1.0 causes logical coordinates to scale, but NOT screen coordinates
-        let screen_coord = to_screen_coords(Point {x: 10.0, y: 20.0}, 2.0, Point {x: 30.0, y: 5.0}, vec2f(200.0, 300.0));
-        assert_eq!(screen_coord, vec2f(160.0, 270.0));
     }
 }
