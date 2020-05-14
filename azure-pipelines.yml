@@ -61,7 +61,8 @@ steps:
 - script: |
     rustc --version --verbose
     cargo build --verbose --all
-    cargo test --verbose --all --features "test" --no-run
+    cargo build --verbose --all --features "unstable"
+    cargo test --verbose --all --features "test unstable" --no-run
   env: { RUSTFLAGS: "-D warnings" }
   displayName: build
 
@@ -72,9 +73,10 @@ steps:
   enabled: false
 
 - script: |
-    cargo test --verbose --features "test" --all
+    cargo test --verbose --all --features "test unstable"
   displayName: test
 
 - script: |
     cargo doc --no-deps --verbose --all
+    cargo doc --no-deps --verbose --all --features "unstable"
   displayName: docs
