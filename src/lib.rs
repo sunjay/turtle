@@ -1,7 +1,7 @@
 //! Use the API Documentation below to learn about the various things you can do with this crate.
 //!
-//! **If this is your first time using Rust or using this crate, read the Guide on
-//! [turtle.rs](http://turtle.rs) to learn how to start.**
+//! **If this is your first time using this crate, read the Guide on [turtle.rs](http://turtle.rs)
+//! to learn how to start.**
 //!
 //! * The [`Turtle` struct](struct.Turtle.html) - lists of all the various drawing commands that the
 //!   turtle supports
@@ -36,6 +36,26 @@ broken unless you do so. See [Unstable features](#unstable-features) below for m
 //! things without creating the entire event loop. For example, use
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
+//!
+//! # Adding turtle to your project
+//!
+//! To add the turtle crate to your project, add the following to your `Cargo.toml` file with `...`
+//! replaced by the version of the turtle crate you want to use:
+//!
+//! ```toml
+//! [dependencies]
+//! turtle = "..."
+//!
+//! # Compile turtle and other dependencies with optimizations
+//! [profile.dev.package."*"]
+//! opt-level = 3
+//! ```
+//!
+//! This is the recommended way to use the turtle crate because it provides maximum performance
+//! with minimum impact on build time. The initial build will take a bit longer since dependencies
+//! are being optimized, but each build of your program after that should run relatively quickly.
+//!
+//! For maximum overall performance, run your build with the `--release` flag.
 //!
 //! # Unstable features
 //!
