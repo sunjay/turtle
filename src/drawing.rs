@@ -423,6 +423,12 @@ impl Drawing {
     /// See the [`Event` enum](event/enum.Event.html) for the complete list of events that you can
     /// handle in your applications.
     ///
+    /// # Unstable
+    ///
+    /// There are still many unanswered questions about the design of the events API in the turtle
+    /// crate. This method may change or be completely removed in the future. There will definitely
+    /// be *some* events API in the future, but it may end up looking different than it does today.
+    ///
     /// # Example
     ///
     /// To use this advanced method, you need to create what is known as an "event loop". An "event
@@ -485,6 +491,8 @@ impl Drawing {
     ///     }
     /// }
     /// ```
+    #[cfg(feature = "unstable")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
     pub fn poll_event(&mut self) -> Option<Event> {
         block_on(self.drawing.poll_event())
     }
