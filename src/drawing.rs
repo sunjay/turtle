@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use crate::{Turtle, Color, Event, Point, Size, ExportError};
+use crate::{Turtle, Color, Point, Size, ExportError};
 use crate::async_drawing::AsyncDrawing;
 use crate::sync_runtime::block_on;
 
@@ -493,7 +493,7 @@ impl Drawing {
     /// ```
     #[cfg(feature = "unstable")]
     #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
-    pub fn poll_event(&mut self) -> Option<Event> {
+    pub fn poll_event(&mut self) -> Option<crate::Event> {
         block_on(self.drawing.poll_event())
     }
 
