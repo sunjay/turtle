@@ -137,14 +137,17 @@ impl ProtocolClient {
     }
 
     pub async fn drawing_set_background(&self, value: Color) {
+        debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Background(value))).await
     }
 
     pub async fn drawing_set_center(&self, value: Point) {
+        debug_assert!(value.is_finite(), "bug: center should be validated before sending to renderer server");
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Center(value))).await
     }
 
     pub async fn drawing_set_size(&self, value: Size) {
+        debug_assert!(value.width > 0 && value.height > 0, "bug: size should be validated before sending to renderer server");
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Size(value))).await
     }
 
@@ -286,14 +289,17 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_pen_set_thickness(&self, id: TurtleId, value: f64) {
+        debug_assert!(value >= 0.0 && value.is_finite(), "bug: pen size should be validated before sending to renderer server");
         self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Thickness(value)))).await
     }
 
     pub async fn turtle_pen_set_color(&self, id: TurtleId, value: Color) {
+        debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
         self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Color(value)))).await
     }
 
     pub async fn turtle_set_fill_color(&self, id: TurtleId, value: Color) {
+        debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
         self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::FillColor(value))).await
     }
 
@@ -314,6 +320,10 @@ impl ProtocolClient {
     }
 
     pub async fn move_forward(&self, id: TurtleId, distance: Distance) {
+        if !distance.is_normal() {
+            return;
+        }
+
         self.client.send(ClientRequest::MoveForward(id, distance)).await;
 
         let response = self.client.recv().await;
@@ -326,6 +336,10 @@ impl ProtocolClient {
     }
 
     pub async fn move_to(&self, id: TurtleId, target: Point) {
+        if !target.is_normal() {
+            return;
+        }
+
         self.client.send(ClientRequest::MoveTo(id, target)).await;
 
         let response = self.client.recv().await;
@@ -338,6 +352,10 @@ impl ProtocolClient {
     }
 
     pub async fn rotate_in_place(&self, id: TurtleId, angle: Radians, direction: RotationDirection) {
+        if !angle.is_normal() {
+            return;
+        }
+
         self.client.send(ClientRequest::RotateInPlace(id, angle, direction)).await;
 
         let response = self.client.recv().await;
