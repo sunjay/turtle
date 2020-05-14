@@ -23,6 +23,11 @@
 //!
 //! # Event Handling
 //!
+#![cfg_attr(not(feature = "unstable"), doc = "
+**The turtle events API is unstable.** Rebuild the documentation with `--features \"unstable\"` to
+show the documentation for the types and modules that are part of that. Some links may appear
+broken unless you do so. See [Unstable features](#unstable-features) below for more information.
+")]
 //! The [`Event` enum](event/enum.Event.html) documentation provides information about how you can
 //! create an event loop. This allows you to draw things in response to certain events like the
 //! mouse moving, keys being pressed, and more.
@@ -31,6 +36,7 @@
 //! things without creating the entire event loop. For example, use
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
+//!
 //! # Unstable features
 //!
 //! Some parts of this crate are unstable and may be subject to change in the future. If you would
