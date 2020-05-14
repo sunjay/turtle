@@ -22,6 +22,21 @@ use crate::renderer_client::ClientId;
 
 use async_ipc_receiver::AsyncIpcReceiver;
 
+/// The IpcOneShotServer::new() function is not thread-safe. That means that initializing multiple
+/// IPC connections at the same time (as we do in tests) can result in data races. This function
+/// solves that.
+async fn thread_safe_ipc_one_shot_server<T>() -> io::Result<(IpcOneShotServer<T>, String)>
+    where T: for<'de> Deserialize<'de> + Serialize
+{
+    use once_cell::sync::OnceCell;
+
+    // A mutex that protects no value, but is used to synchronize calls to IpcOneShotServer::new()
+    static ONE_SHOT_NEW: OnceCell<Mutex<()>> = OnceCell::new();
+    let _g = ONE_SHOT_NEW.get_or_init(|| Mutex::new(())).lock().await;
+
+    IpcOneShotServer::new()
+}
+
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum ConnectionError {
@@ -54,7 +69,7 @@ pub struct ClientConnection {
 impl ClientConnection {
     pub async fn new(process: &mut RendererServerProcess) -> Result<Self, ConnectionError> {
         // Send the oneshot token to the server which will then respond with its own oneshot token
-        let (server, server_name) = IpcOneShotServer::new()?;
+        let (server, server_name) = thread_safe_ipc_one_shot_server().await?;
         process.writeln(server_name).await?;
 
         let (receiver, response): (_, HandshakeResponse) = tokio::task::spawn_blocking(|| {
