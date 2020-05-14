@@ -5,22 +5,13 @@ use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use svg::node::element::{Line, Polygon, Rectangle};
 
-use crate::{Point, Color};
+use crate::Color;
 
 use super::display_list::{DisplayList, DrawPrim, Line as DrawLine, Polygon as DrawPolygon};
-use super::super::state::DrawingState;
-
-/// See documentation in `renderer::to_screen_coords`
-fn to_screen_coords(point: Point, center: Point, image_center: (f64, f64)) -> (f64, f64) {
-    let Point {x, y} = point;
-    let Point {x: center_x, y: center_y} = center;
-    let (image_center_x, image_center_y) = image_center;
-
-    (
-        (x - center_x) + image_center_x,
-        -(y - center_y) + image_center_y,
-    )
-}
+use super::super::{
+    coords::ScreenPoint,
+    state::DrawingState,
+};
 
 /// Converts a color to its RGBA color string (suitable for SVG)
 fn rgba(color: Color) -> String {
@@ -36,12 +27,12 @@ fn px(value: f64) -> String {
 /// Converts a list of pairs into a space-separated list of comma-separated pairs
 ///
 /// The list must be non-empty
-fn pairs(mut items: impl Iterator<Item=(f64, f64)>) -> String {
-    let (a, b) = items.next().expect("list must be non-empty");
-    let mut out = format!("{},{}", a, b);
+fn pairs(mut items: impl Iterator<Item=ScreenPoint>) -> String {
+    let first = items.next().expect("list must be non-empty");
+    let mut out = format!("{},{}", first.x, first.y);
 
-    for (a, b) in items {
-        write!(out, " {},{}", a, b).expect("write to string cannot fail");
+    for pt in items {
+        write!(out, " {},{}", pt.x, pt.y).expect("write to string cannot fail");
     }
 
     out
@@ -68,18 +59,21 @@ pub fn save_svg(
     document = document.add(background);
 
     let center = drawing.center;
-    let image_center = (drawing.width as f64 / 2.0, drawing.height as f64 / 2.0);
+    let image_center = ScreenPoint {
+        x: drawing.width as f64 / 2.0,
+        y: drawing.height as f64 / 2.0,
+    };
     for prim in display_list.iter() {
         match prim {
             &DrawPrim::Line(DrawLine {start, end, thickness, color}) => {
-                let (start_x, start_y) = to_screen_coords(start, center, image_center);
-                let (end_x, end_y) = to_screen_coords(end, center, image_center);
+                let start = ScreenPoint::from_logical(start, 1.0, center, image_center);
+                let end = ScreenPoint::from_logical(end, 1.0, center, image_center);
 
                 let line = Line::new()
-                    .set("x1", start_x)
-                    .set("y1", start_y)
-                    .set("x2", end_x)
-                    .set("y2", end_y)
+                    .set("x1", start.x)
+                    .set("y1", start.y)
+                    .set("x2", end.x)
+                    .set("y2", end.y)
                     .set("stroke-linecap", "round")
                     .set("stroke-linejoin", "round")
                     .set("stroke", rgba(color))
@@ -94,7 +88,8 @@ pub fn save_svg(
                     continue;
                 }
 
-                let points = points.iter().map(|&p| to_screen_coords(p, center, image_center));
+                let points = points.iter()
+                    .map(|&p| ScreenPoint::from_logical(p, 1.0, center, image_center));
                 let polygon = Polygon::new()
                     .set("points", pairs(points))
                     .set("fill-rule", "nonzero")
