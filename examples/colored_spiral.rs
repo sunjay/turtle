@@ -10,8 +10,7 @@ fn main() {
         turtle.set_pen_color(Color::hsl(i % 360.0, 0.5, 0.5).with_alpha(1.0 - i / (360.0 * 2.5)));
         turtle.set_pen_size((i + 1.0) / 3.0);
         // Move forward three steps
-        turtle.forward(6.0);
-        turtle.backward(4.0);
+        turtle.forward(2.0);
         // Rotate to the right (clockwise) by 1 degree
         turtle.right(1.5);
     }
