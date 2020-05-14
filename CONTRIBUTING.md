@@ -149,13 +149,15 @@ requires an extra flag which is documented below.
 * To run an example, run `cargo run --example filename`
   * Example: run `cargo run --example rust` to run `examples/rust.rs`
   * This will automatically build the project for you
-* To test the project, run `cargo test --features test`
-  * If you do not include the `--features test` part, the tests will open
-    several windows during testing and the tests will not end until those
-    windows are closed (see `Cargo.toml` for more explanation)
-  * We currently prevent you from running tests without this feature enabled.
-    Trying to do so should give you a helpful error message that tells you
-    the right thing to do.
+* To test the project, run `cargo test --features "test unstable"`
+  * Without the `--features "test"` part, the tests would open several windows
+    during testing and the tests will not end until those windows are closed
+    (see `Cargo.toml` for more explanation)
+  * Without the `--features "unstable"` part, the tests would not all compile
+    because many tests depend on unstable features
+  * We currently prevent you from running tests without the `test` feature
+    enabled. Trying to do so should give you a helpful error message that tells
+    you the right thing to do.
   * Animations are **disabled** during tests, so setting the speed will have no
     impact on anything. You should not write unit tests or doctests that depend
     on animations.

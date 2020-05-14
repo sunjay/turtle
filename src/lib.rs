@@ -61,7 +61,7 @@ broken unless you do so. See [Unstable features](#unstable-features) below for m
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(all(test, not(feature = "test")))]
-compile_error!("Make sure you run tests with `cargo test --features test`");
+compile_error!("Make sure you run tests with `cargo test --features \"test unstable\"`");
 
 mod radians;
 mod point;
