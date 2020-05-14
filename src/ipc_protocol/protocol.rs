@@ -336,7 +336,7 @@ impl ProtocolClient {
     }
 
     pub async fn move_to(&self, id: TurtleId, target: Point) {
-        if !target.is_normal() {
+        if !target.is_finite() {
             return;
         }
 
