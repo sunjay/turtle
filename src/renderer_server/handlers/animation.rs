@@ -164,7 +164,7 @@ impl MoveAnimation {
 
         let TurtleState {position, speed, ref pen, ..} = turtle.state;
 
-        if speed.is_instant() {
+        if cfg!(any(feature = "test", test)) || speed.is_instant() {
             // Set to the final position and draw a line with no animation
             turtle.state.position = target_pos;
             let prim = display_list.push_line(position, target_pos, pen);
@@ -344,7 +344,7 @@ impl RotateAnimation {
         let timer = time::interval_at(time::Instant::now() + frame_duration, frame_duration);
 
         let TurtleState {heading, speed, ..} = turtle.state;
-        if speed.is_instant() {
+        if cfg!(any(feature = "test", test)) || speed.is_instant() {
             // Set to the final heading with no animation
             turtle.state.heading = rotate(heading, delta_angle, direction);
 
