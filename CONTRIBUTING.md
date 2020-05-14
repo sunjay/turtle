@@ -171,7 +171,7 @@ requires an extra flag which is documented below.
     required for various parts of turtle are missing. To build the documentation
     with those markers, use this command:
     ```bash
-    RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --all-features --open
+    RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --features "unstable" --open
     ```
 
 ## Adding Examples
