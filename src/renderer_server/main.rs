@@ -181,8 +181,12 @@ pub fn main() {
             // to receive it. After all, if the window closes and this process exits, there will be
             // no way to handle subsequent `NextEvent` requests.
             if let Some(event) = Event::from_window_event(event, scale_factor) {
-                events_sender.send(event)
-                    .expect("bug: server IPC thread should stay alive as long as server main thread");
+                match events_sender.send(event) {
+                    Ok(()) => {},
+                    // Sending may fail if the IPC thread has ended due to a disconnection when the
+                    // main process ends.
+                    Err(_) => {},
+                }
             }
         },
 
