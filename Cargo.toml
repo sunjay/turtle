@@ -21,6 +21,9 @@ features = [ "unstable" ]
 # Note: project = `organization/project`, pipeline = `name_of_pipeline`, build = `definitionId`
 azure-devops = { project = "sunjayv/turtle", pipeline = "sunjay.turtle" }
 
+# [[example]]
+# name = "arrowkeys"
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -101,5 +104,5 @@ test = []
 
 # Feature flag to disable unstable features by default.
 #
-# Users of the crate must explicitly opt-in to active them.
+# Users of the crate must explicitly opt-in to activate them.
 unstable = []
