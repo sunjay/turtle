@@ -1,3 +1,7 @@
+// To run this example, use the command: cargo run --features unstable --example arrowkeys
+#[cfg(all(not(feature = "unstable")))]
+compile_error!("This example relies on unstable features. Run with `--features unstable`");
+
 use turtle::{Drawing, Event, event::{Key, PressedState}};
 
 fn main() {
