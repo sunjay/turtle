@@ -72,36 +72,20 @@ impl AsyncTurtle {
     }
 
     pub async fn forward(&mut self, distance: Distance) {
-        if !distance.is_normal() {
-            return;
-        }
-
         self.client.move_forward(self.id, distance).await
     }
 
     pub async fn backward(&mut self, distance: Distance) {
-        if !distance.is_normal() {
-            return;
-        }
-
         // Moving backwards is essentially moving forwards with a negative distance
         self.client.move_forward(self.id, -distance).await
     }
 
     pub async fn right(&mut self, angle: Angle) {
-        if !angle.is_normal() {
-            return;
-        }
-
         let angle = self.angle_unit.to_radians(angle);
         self.client.rotate_in_place(self.id, angle, RotationDirection::Clockwise).await
     }
 
     pub async fn left(&mut self, angle: Angle) {
-        if !angle.is_normal() {
-            return;
-        }
-
         let angle = self.angle_unit.to_radians(angle);
         self.client.rotate_in_place(self.id, angle, RotationDirection::Counterclockwise).await
     }
@@ -158,6 +142,10 @@ impl AsyncTurtle {
     }
 
     pub async fn set_heading(&mut self, angle: Angle) {
+        if !angle.is_finite() {
+            return;
+        }
+
         let angle = self.angle_unit.to_radians(angle);
 
         let heading = self.client.turtle_heading(self.id).await;
@@ -275,6 +263,10 @@ impl AsyncTurtle {
 
     pub async fn turn_towards<P: Into<Point>>(&mut self, target: P) {
         let target: Point = target.into();
+        if !target.is_finite() {
+            return;
+        }
+
         let position = self.position().await;
 
         // If the target is (approximately) on the turtle don't turn
