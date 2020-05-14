@@ -352,7 +352,14 @@ impl AccessControl {
     }
 
     /// Requests the opportunity to potentially read or modify all turtles
-    pub async fn get(&self, req_data: RequiredData) -> DataGuard<'_> {
+    ///
+    /// A message will be sent through `data_req_queued` when the data requests have been queued and
+    /// the next call to get() may proceed.
+    pub async fn get(
+        &self,
+        req_data: RequiredData,
+        data_req_queued: oneshot::Sender<()>,
+    ) -> DataGuard<'_> {
         let RequiredData {drawing, turtles} = req_data;
 
         //TODO: Explore if there is a different formulation of this struct that is simpler but
@@ -417,6 +424,17 @@ impl AccessControl {
             },
 
             None => {},
+        }
+
+        // Signal that all data requests have been queued and the next call to get() can proceed.
+        // This is very important to get the ordering guarantees we are going for. Without this,
+        // we would have a race condition between all callers of get() where the order would be
+        // randomly determined based on the order the tasks calling get() are scheduled.
+        match data_req_queued.send(()) {
+            Ok(()) => {},
+            // Ignore errors since this just means that whoever was waiting to find out when the
+            // requests have been queued no longer needs to know.
+            Err(_) => {},
         }
 
         // Now wait for data ready channel to signal that data is ready
