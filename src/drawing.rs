@@ -563,7 +563,7 @@ impl Drawing {
 
     /// Saves the current drawings in SVG format at the location specified by `path`.
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// use turtle::{Drawing, Turtle, Color};
     ///
     /// fn main() {
