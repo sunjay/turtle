@@ -307,6 +307,18 @@ impl AsyncTurtle {
     }
 
     pub async fn wait_for_click(&mut self) {
-        todo!()
+        use crate::{
+            Event::MouseButton,
+            event::{PressedState::Pressed, MouseButton::LeftButton},
+        };
+
+        loop {
+            if let Some(MouseButton(LeftButton, Pressed)) = self.client.poll_event().await {
+                break;
+            }
+
+            // Sleep for ~1 frame (at 120fps) to avoid pegging the CPU.
+            self.wait(1.0 / 120.0).await;
+        }
     }
 }
