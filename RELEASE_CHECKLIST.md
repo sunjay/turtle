@@ -8,7 +8,7 @@ Make sure each of these things are done in sequence before a release.
 - [ ] 3. `git push origin master` -  make sure everything is pushed
 - [ ] 4. `git status` - nothing to commit, working directory clean
 - [ ] 5. `cargo package` - check which files are being included in the build
-- [ ] 6. `cargo test --features test` - all tests should pass
+- [ ] 6. `cargo test --features "test unstable"` - all tests should pass
 - [ ] 7. `cargo run --example runtest` - runtest should exit successfully
 - [ ] 8. `cargo build --examples` - all examples should build
 - [ ] 9. `cargo doc --open` - spot check the documentation for any issues
