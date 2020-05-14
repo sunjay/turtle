@@ -1,3 +1,5 @@
+use tokio::sync::oneshot;
+
 use crate::ipc_protocol::{
     ServerConnection,
     ServerResponse,
@@ -14,6 +16,7 @@ use super::super::{
 };
 
 pub(crate) async fn drawing_prop(
+    data_req_queued: oneshot::Sender<()>,
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -22,7 +25,7 @@ pub(crate) async fn drawing_prop(
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: None,
-    }).await;
+    }, data_req_queued).await;
 
     let drawing = data.drawing_mut();
 
@@ -44,6 +47,7 @@ pub(crate) async fn drawing_prop(
 }
 
 pub(crate) async fn set_drawing_prop(
+    data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     event_loop: &EventLoopNotifier,
     prop_value: DrawingPropValue,
@@ -51,7 +55,7 @@ pub(crate) async fn set_drawing_prop(
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: None,
-    }).await;
+    }, data_req_queued).await;
 
     let drawing = data.drawing_mut();
 
@@ -59,6 +63,7 @@ pub(crate) async fn set_drawing_prop(
 }
 
 pub(crate) async fn reset_drawing_prop(
+    data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     event_loop: &EventLoopNotifier,
     prop: DrawingProp,
@@ -66,7 +71,7 @@ pub(crate) async fn reset_drawing_prop(
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: None,
-    }).await;
+    }, data_req_queued).await;
 
     let drawing = data.drawing_mut();
 

@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use tokio::sync::{oneshot, Mutex};
 
 use crate::ipc_protocol::{
     ServerConnection,
@@ -20,6 +20,7 @@ use super::super::{
 };
 
 pub(crate) async fn turtle_prop(
+    data_req_queued: oneshot::Sender<()>,
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -29,7 +30,7 @@ pub(crate) async fn turtle_prop(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
     let mut turtles = data.turtles_mut().await;
 
     let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
@@ -56,6 +57,7 @@ pub(crate) async fn turtle_prop(
 }
 
 pub(crate) async fn set_turtle_prop(
+    data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     event_loop: &EventLoopNotifier,
@@ -65,7 +67,7 @@ pub(crate) async fn set_turtle_prop(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
     let mut turtles = data.turtles_mut().await;
 
     let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
@@ -110,6 +112,7 @@ pub(crate) async fn set_turtle_prop(
 }
 
 pub(crate) async fn reset_turtle_prop(
+    data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     event_loop: &EventLoopNotifier,
@@ -119,7 +122,7 @@ pub(crate) async fn reset_turtle_prop(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
     let mut turtles = data.turtles_mut().await;
 
     let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
@@ -182,6 +185,7 @@ pub(crate) async fn reset_turtle_prop(
 }
 
 pub(crate) async fn reset_turtle(
+    data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     event_loop: &EventLoopNotifier,
@@ -190,7 +194,7 @@ pub(crate) async fn reset_turtle(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
     let mut turtles = data.turtles_mut().await;
 
     let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();

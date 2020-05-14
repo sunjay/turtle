@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use tokio::sync::Mutex;
+use tokio::sync::{oneshot, Mutex};
 
 use crate::ipc_protocol::{
     ServerConnection,
@@ -16,6 +16,7 @@ use super::super::{
 };
 
 pub(crate) async fn export_drawings(
+    data_req_queued: oneshot::Sender<()>,
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -28,7 +29,7 @@ pub(crate) async fn export_drawings(
     let mut data = app_control.get(RequiredData {
         drawing: true,
         turtles: Some(RequiredTurtles::All),
-    }).await;
+    }, data_req_queued).await;
 
     // Wait to lock the display list until we actually have the data from the access controller
     let display_list = display_list.lock().await;

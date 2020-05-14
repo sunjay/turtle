@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use tokio::sync::{oneshot, Mutex};
 
 use super::HandlerError;
 use super::super::{
@@ -9,6 +9,7 @@ use super::super::{
 };
 
 pub(crate) async fn begin_fill(
+    data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     event_loop: &EventLoopNotifier,
@@ -17,7 +18,7 @@ pub(crate) async fn begin_fill(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
     let mut turtles = data.turtles_mut().await;
 
     let TurtleDrawings {state: turtle, drawings, current_fill_polygon} = turtles.one_mut();
@@ -38,13 +39,14 @@ pub(crate) async fn begin_fill(
 }
 
 pub(crate) async fn end_fill(
+    data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
     let mut turtles = data.turtles_mut().await;
 
     let TurtleDrawings {current_fill_polygon, ..} = turtles.one_mut();

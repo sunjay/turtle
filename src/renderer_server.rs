@@ -27,7 +27,7 @@ pub use start::start;
 use std::sync::Arc;
 
 use ipc_channel::ipc::IpcError;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::{mpsc, oneshot, Mutex};
 
 use crate::ipc_protocol::{ServerConnection, ClientRequest};
 use crate::renderer_client::ClientId;
@@ -58,9 +58,14 @@ async fn serve(
             Err(err) => panic!("unable to receive request from IPC client: {:?}", err),
         };
 
+        // To preserve the ordering of requests in cases where they can't run concurrently, we use
+        // a channel to synchronize that each request
+        let (data_req_queued, data_req_queued_receiver) = oneshot::channel();
+
         // Each incoming request is given its own task configured specifically for each kind of
         // request. Having separate tasks allows requests that can run in parallel to do so.
         tokio::spawn(run_request(
+            data_req_queued,
             conn.clone(),
             client_id,
             app_control.clone(),
@@ -69,10 +74,19 @@ async fn serve(
             events_receiver.clone(),
             request,
         ));
+
+        match data_req_queued_receiver.await {
+            // Ready for next request to be processed
+            Ok(()) => {},
+            // If data_req_queued was dropped, it probably means that the request didn't need to
+            // call AccessControl::get()
+            Err(_) => {},
+        }
     }
 }
 
 async fn run_request(
+    data_req_queued: oneshot::Sender<()>,
     conn: Arc<ServerConnection>,
     client_id: ClientId,
     app_control: Arc<AccessControl>,
@@ -88,7 +102,7 @@ async fn run_request(
         },
 
         Export(path, format) => {
-            handlers::export_drawings(&conn, client_id, &app_control, &display_list, &path, format).await
+            handlers::export_drawings(data_req_queued, &conn, client_id, &app_control, &display_list, &path, format).await
         },
 
         PollEvent => {
@@ -96,48 +110,48 @@ async fn run_request(
         },
 
         DrawingProp(prop) => {
-            handlers::drawing_prop(&conn, client_id, &app_control, prop).await
+            handlers::drawing_prop(data_req_queued, &conn, client_id, &app_control, prop).await
         },
         SetDrawingProp(prop_value) => {
-            handlers::set_drawing_prop(&app_control, &event_loop, prop_value).await
+            handlers::set_drawing_prop(data_req_queued, &app_control, &event_loop, prop_value).await
         },
         ResetDrawingProp(prop) => {
-            handlers::reset_drawing_prop(&app_control, &event_loop, prop).await
+            handlers::reset_drawing_prop(data_req_queued, &app_control, &event_loop, prop).await
         },
 
         TurtleProp(id, prop) => {
-            handlers::turtle_prop(&conn, client_id, &app_control, id, prop).await
+            handlers::turtle_prop(data_req_queued, &conn, client_id, &app_control, id, prop).await
         },
         SetTurtleProp(id, prop_value) => {
-            handlers::set_turtle_prop(&app_control, &display_list, &event_loop, id, prop_value).await
+            handlers::set_turtle_prop(data_req_queued, &app_control, &display_list, &event_loop, id, prop_value).await
         },
         ResetTurtleProp(id, prop) => {
-            handlers::reset_turtle_prop(&app_control, &display_list, &event_loop, id, prop).await
+            handlers::reset_turtle_prop(data_req_queued, &app_control, &display_list, &event_loop, id, prop).await
         },
         ResetTurtle(id) => {
-            handlers::reset_turtle(&app_control, &display_list, &event_loop, id).await
+            handlers::reset_turtle(data_req_queued, &app_control, &display_list, &event_loop, id).await
         },
 
         MoveForward(id, distance) => {
-            handlers::move_forward(&conn, client_id, &app_control, &display_list, &event_loop, id, distance).await
+            handlers::move_forward(data_req_queued, &conn, client_id, &app_control, &display_list, &event_loop, id, distance).await
         },
         MoveTo(id, target_pos) => {
-            handlers::move_to(&conn, client_id, &app_control, &display_list, &event_loop, id, target_pos).await
+            handlers::move_to(data_req_queued, &conn, client_id, &app_control, &display_list, &event_loop, id, target_pos).await
         },
         RotateInPlace(id, angle, direction) => {
-            handlers::rotate_in_place(&conn, client_id, &app_control, &event_loop, id, angle, direction).await
+            handlers::rotate_in_place(data_req_queued, &conn, client_id, &app_control, &event_loop, id, angle, direction).await
         },
 
         BeginFill(id) => {
-            handlers::begin_fill(&app_control, &display_list, &event_loop, id).await
+            handlers::begin_fill(data_req_queued, &app_control, &display_list, &event_loop, id).await
         },
         EndFill(id) => {
-            handlers::end_fill(&app_control, id).await
+            handlers::end_fill(data_req_queued, &app_control, id).await
         },
 
         Clear(id) => match id {
-            Some(id) => handlers::clear_turtle(&app_control, &display_list, &event_loop, id).await,
-            None => handlers::clear(&app_control, &display_list, &event_loop).await,
+            Some(id) => handlers::clear_turtle(data_req_queued, &app_control, &display_list, &event_loop, id).await,
+            None => handlers::clear(data_req_queued, &app_control, &display_list, &event_loop).await,
         },
     };
 

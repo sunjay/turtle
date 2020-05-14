@@ -1,4 +1,4 @@
-use tokio::{time, sync::Mutex};
+use tokio::{time, sync::{oneshot, Mutex}};
 use interpolation::lerp;
 
 use crate::ipc_protocol::{
@@ -26,6 +26,7 @@ const FPS: u64 = 60;
 const MICROS_PER_SEC: u64 = 1_000_000;
 
 pub(crate) async fn move_forward(
+    data_req_queued: oneshot::Sender<()>,
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -37,7 +38,7 @@ pub(crate) async fn move_forward(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
 
     // Borrow the data initially to setup the animation but then drop it so the locks on the turtle
     // and display list are released (allows for rendering to occur)
@@ -84,6 +85,7 @@ pub(crate) async fn move_forward(
 }
 
 pub(crate) async fn move_to(
+    data_req_queued: oneshot::Sender<()>,
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -95,7 +97,7 @@ pub(crate) async fn move_to(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
 
     // Borrow the data initially to setup the animation but then drop it so the locks on the turtle
     // and display list are released (allows for rendering to occur)
@@ -269,6 +271,7 @@ impl MoveAnimation {
 }
 
 pub(crate) async fn rotate_in_place(
+    data_req_queued: oneshot::Sender<()>,
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
@@ -280,7 +283,7 @@ pub(crate) async fn rotate_in_place(
     let mut data = app_control.get(RequiredData {
         drawing: false,
         turtles: Some(RequiredTurtles::One(id)),
-    }).await;
+    }, data_req_queued).await;
 
     // Borrow the data initially to setup the animation but then drop it so the lock on the turtle
     // is released (allows for rendering to occur)

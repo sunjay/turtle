@@ -381,6 +381,15 @@ mod tests {
     }
 
     #[test]
+    fn speed_values_f64() {
+        let mut turtle = Turtle::new();
+        for speed in 1..MAX_SPEED {
+            turtle.set_speed(speed as f64 + 0.4);
+            assert_eq!(turtle.speed(), speed);
+        }
+    }
+
+    #[test]
     #[should_panic(expected = "Invalid speed: 26. Must be a value between 1 and 25")]
     fn speed_value_out_of_range() {
         let mut turtle = Turtle::new();
@@ -406,14 +415,5 @@ mod tests {
     fn disallow_zero() {
         let mut turtle = Turtle::new();
         turtle.set_speed(0);
-    }
-
-    #[test]
-    fn speed_values_f64() {
-        let mut turtle = Turtle::new();
-        for speed in 1..MAX_SPEED {
-            turtle.set_speed(speed as f64 + 0.4);
-            assert_eq!(turtle.speed(), speed);
-        }
     }
 }
