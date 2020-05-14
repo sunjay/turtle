@@ -1047,4 +1047,101 @@ mod tests {
             alpha: 0.0,
         });
     }
+
+    #[test]
+    fn ignores_nan_inf_zero() {
+        let mut turtle = Turtle::new();
+
+        let default_position = turtle.position();
+        let default_heading = turtle.heading();
+
+        turtle.forward(10.0);
+        turtle.right(90.0);
+        turtle.forward(20.0);
+
+        let position = turtle.position();
+        assert_ne!(position, default_position);
+        let heading = turtle.heading();
+        assert_ne!(heading, default_heading);
+
+        turtle.forward(0.0);
+        turtle.forward(::std::f64::NAN);
+        turtle.forward(::std::f64::INFINITY);
+        turtle.forward(-::std::f64::INFINITY);
+
+        turtle.backward(0.0);
+        turtle.backward(::std::f64::NAN);
+        turtle.backward(::std::f64::INFINITY);
+        turtle.backward(-::std::f64::INFINITY);
+
+        turtle.left(0.0);
+        turtle.left(::std::f64::NAN);
+        turtle.left(::std::f64::INFINITY);
+        turtle.left(-::std::f64::INFINITY);
+
+        turtle.right(0.0);
+        turtle.right(::std::f64::NAN);
+        turtle.right(::std::f64::INFINITY);
+        turtle.right(-::std::f64::INFINITY);
+
+        turtle.wait(0.0);
+        turtle.wait(::std::f64::NAN);
+        turtle.wait(::std::f64::INFINITY);
+        turtle.wait(-::std::f64::INFINITY);
+
+        assert_eq!(turtle.position(), position);
+        assert_eq!(turtle.heading(), heading);
+    }
+
+    #[test]
+    fn ignores_nan_inf() {
+        let mut turtle = Turtle::new();
+
+        let default_position = turtle.position();
+        let default_heading = turtle.heading();
+
+        turtle.forward(10.0);
+        turtle.right(90.0);
+        turtle.forward(20.0);
+
+        let position = turtle.position();
+        assert_ne!(position, default_position);
+        let heading = turtle.heading();
+        assert_ne!(heading, default_heading);
+
+        turtle.turn_towards([::std::f64::NAN, 0.0]);
+        turtle.turn_towards([0.0, ::std::f64::NAN]);
+        turtle.turn_towards([::std::f64::NAN, ::std::f64::NAN]);
+        turtle.turn_towards([::std::f64::INFINITY, 0.0]);
+        turtle.turn_towards([0.0, ::std::f64::INFINITY]);
+        turtle.turn_towards([::std::f64::INFINITY, ::std::f64::INFINITY]);
+        turtle.turn_towards([-::std::f64::INFINITY, 0.0]);
+        turtle.turn_towards([0.0, -::std::f64::INFINITY]);
+        turtle.turn_towards([-::std::f64::INFINITY, -::std::f64::INFINITY]);
+
+        turtle.go_to([::std::f64::NAN, 0.0]);
+        turtle.go_to([0.0, ::std::f64::NAN]);
+        turtle.go_to([::std::f64::NAN, ::std::f64::NAN]);
+        turtle.go_to([::std::f64::INFINITY, 0.0]);
+        turtle.go_to([0.0, ::std::f64::INFINITY]);
+        turtle.go_to([::std::f64::INFINITY, ::std::f64::INFINITY]);
+        turtle.go_to([-::std::f64::INFINITY, 0.0]);
+        turtle.go_to([0.0, -::std::f64::INFINITY]);
+        turtle.go_to([-::std::f64::INFINITY, -::std::f64::INFINITY]);
+
+        turtle.set_x(::std::f64::NAN);
+        turtle.set_x(::std::f64::INFINITY);
+        turtle.set_x(-::std::f64::INFINITY);
+
+        turtle.set_y(::std::f64::NAN);
+        turtle.set_y(::std::f64::INFINITY);
+        turtle.set_y(-::std::f64::INFINITY);
+
+        turtle.set_heading(::std::f64::NAN);
+        turtle.set_heading(::std::f64::INFINITY);
+        turtle.set_heading(-::std::f64::INFINITY);
+
+        assert_eq!(turtle.position(), position);
+        assert_eq!(turtle.heading(), heading);
+    }
 }

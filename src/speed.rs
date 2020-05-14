@@ -365,9 +365,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
-    )]
+    #[should_panic(expected = "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\"")]
     fn invalid_speed() {
         let mut turtle = Turtle::new();
         turtle.set_speed("wrong");
@@ -404,9 +402,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()"
-    )]
+    #[should_panic(expected = "Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()")]
     fn disallow_zero() {
         let mut turtle = Turtle::new();
         turtle.set_speed(0);

@@ -618,4 +618,32 @@ mod tests {
             alpha: 0.0,
         });
     }
+
+    #[test]
+    #[should_panic(expected = "The size of the drawing must be non-zero")]
+    fn rejects_size_zero() {
+        let mut drawing = Drawing::new();
+
+        drawing.set_size([0, 0]);
+    }
+
+    #[test]
+    fn ignores_center_nan_inf() {
+        let center = Point {x: 5.0, y: 10.0};
+
+        let mut drawing = Drawing::new();
+        drawing.set_center(center);
+
+        drawing.set_center([::std::f64::NAN, 0.0]);
+        drawing.set_center([0.0, ::std::f64::NAN]);
+        drawing.set_center([::std::f64::NAN, ::std::f64::NAN]);
+        drawing.set_center([::std::f64::INFINITY, 0.0]);
+        drawing.set_center([0.0, ::std::f64::INFINITY]);
+        drawing.set_center([::std::f64::INFINITY, ::std::f64::INFINITY]);
+        drawing.set_center([-::std::f64::INFINITY, 0.0]);
+        drawing.set_center([0.0, -::std::f64::INFINITY]);
+        drawing.set_center([-::std::f64::INFINITY, -::std::f64::INFINITY]);
+
+        assert_eq!(drawing.center(), center);
+    }
 }
