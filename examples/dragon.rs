@@ -35,12 +35,13 @@
 //! (+90 for a right turn, -90 for a left turn).
 
 use turtle::Color;
-use turtle::Turtle;
+use turtle::{Drawing, Turtle};
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
-    turtle.drawing_mut().set_background_color("#112244");
+    drawing.set_background_color("#112244");
 
     turtle.pen_up();
     turtle.backward(160.0);

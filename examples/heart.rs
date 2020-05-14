@@ -1,7 +1,8 @@
-use turtle::Turtle;
+use turtle::{Drawing, Turtle};
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
     turtle.set_speed(5);
     turtle.set_pen_size(3.0);
@@ -25,7 +26,7 @@ fn main() {
 
     end_loop(&mut turtle);
 
-    turtle.drawing_mut().set_background_color("pink");
+    drawing.set_background_color("pink");
 }
 
 fn curve(turtle: &mut Turtle) {

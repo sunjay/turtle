@@ -1,9 +1,10 @@
 use std::f64::consts::E;
 
-use turtle::{rand::random, Color, Turtle};
+use turtle::{rand::random, Color, Drawing};
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
     let amplitude = 100.0;
     let width = 800.0;
@@ -16,7 +17,7 @@ fn main() {
     turtle.backward(width / 2.0);
     turtle.pen_down();
 
-    turtle.drawing_mut().set_background_color("grey");
+    drawing.set_background_color("grey");
 
     turtle.set_speed("normal");
     for i in 0..(width / step) as i32 {

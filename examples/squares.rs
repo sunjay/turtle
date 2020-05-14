@@ -1,8 +1,9 @@
-use turtle::{Turtle, Color};
+use turtle::{Drawing, Turtle, Color};
 
 fn main() {
-    let mut turtle = Turtle::new();
-    turtle.drawing_mut().set_background_color("pink");
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
+    drawing.set_background_color("pink");
 
     for i in 0..36 {
         let base_color: Color = if i % 2 == 0 {

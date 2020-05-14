@@ -1,12 +1,13 @@
-use turtle::Turtle;
+use turtle::Drawing;
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
     let points = 5.0;
     let angle = 180.0 / points;
 
-    turtle.drawing_mut().set_background_color("#424242");
+    drawing.set_background_color("#424242");
     turtle.set_pen_size(2.0);
     turtle.set_pen_color("yellow");
 

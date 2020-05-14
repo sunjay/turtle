@@ -5,7 +5,7 @@ use tokio::time;
 use crate::radians::{self, Radians};
 use crate::ipc_protocol::{ProtocolClient, RotationDirection};
 use crate::renderer_server::TurtleId;
-use crate::{Turtle, Color, Drawing, Point, Speed};
+use crate::{Turtle, Color, Point, Speed};
 
 /// Any distance value (positive or negative)
 pub type Distance = f64;
@@ -119,10 +119,6 @@ impl AsyncTurtle {
 
     pub fn into_sync(self) -> Turtle {
         self.into()
-    }
-
-    pub async fn drawing(&self) -> Drawing {
-        todo!()
     }
 
     pub async fn speed(&self) -> Speed {
