@@ -1,7 +1,8 @@
-use turtle::{Turtle, Event, event::{Key, PressedState}};
+use turtle::{Drawing, Event, event::{Key, PressedState}};
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
     println!("Turn using the left and right arrow keys");
 
@@ -11,7 +12,7 @@ fn main() {
     loop {
         turtle.forward(1.0);
 
-        while let Some(event) = turtle.drawing_mut().poll_event() {
+        while let Some(event) = drawing.poll_event() {
             use Key::{LeftArrow, RightArrow};
             match event {
                 Event::Key(key, PressedState::Pressed) => match key {

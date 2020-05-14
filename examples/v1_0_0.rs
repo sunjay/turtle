@@ -1,10 +1,11 @@
-use turtle::{Color, Turtle};
+use turtle::{Color, Drawing, Turtle};
 
 fn main() {
-    let mut turtle = Turtle::new();
-    turtle.drawing_mut().set_title("Version 1.0.0!!!");
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
+    drawing.set_title("Version 1.0.0!!!");
 
-    turtle.drawing_mut().set_background_color("#FFEB3B");
+    drawing.set_background_color("#FFEB3B");
     turtle.set_pen_size(5.0);
 
     turtle.set_speed("instant");

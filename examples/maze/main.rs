@@ -4,7 +4,7 @@ mod maze;
 mod solver;
 mod wall;
 
-use turtle::{Color, Turtle};
+use turtle::{Color, Drawing, Turtle};
 
 use crate::grid::GridCellIter;
 use crate::maze::Maze;
@@ -19,9 +19,10 @@ fn main() {
 
     let maze = Maze::generate();
 
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
     turtle.set_speed(20);
-    turtle.drawing_mut().set_background_color("#BDBDBD");
+    drawing.set_background_color("#BDBDBD");
     turtle.set_pen_color("#03A9F4");
     turtle.set_pen_size(2.0);
 

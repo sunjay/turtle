@@ -1,8 +1,9 @@
 use turtle::Event::MouseMove;
-use turtle::Turtle;
+use turtle::Drawing;
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
     println!("Move your mouse around the window");
 
@@ -18,7 +19,7 @@ fn main() {
         turtle.turn_towards(target);
         turtle.set_speed(8);
 
-        while let Some(MouseMove { x, y }) = turtle.drawing_mut().poll_event() {
+        while let Some(MouseMove { x, y }) = drawing.poll_event() {
             target = [x, y];
         }
     }

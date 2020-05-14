@@ -1,12 +1,13 @@
 // Source: http://www.algorithm.co.il/blogs/computer-science/fractals-in-10-minutes-no-6-turtle-snowflake/
 // Modified to create a full snowflake with the fractals
 
-use turtle::Turtle;
+use turtle::{Drawing, Turtle};
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
-    turtle.drawing_mut().set_background_color("#29B6F6");
+    drawing.set_background_color("#29B6F6");
     turtle.set_pen_color("#B2EBF2");
 
     turtle.pen_up();

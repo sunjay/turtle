@@ -1,6 +1,6 @@
 use std::iter::from_fn;
 
-use turtle::{rand::{choose, random}, Color, Turtle};
+use turtle::{rand::{choose, random}, Color, Drawing, Turtle};
 
 fn main() {
     // Parameters to play around with for changing the character of the created drawing.
@@ -33,13 +33,14 @@ impl ArtisticTurtle {
     /// `color_count`: number of different colors to use
     fn new(width: u32, height: u32, row_count: u32, col_count: u32, color_count: usize) -> Self {
         // Create and prepare the turtle.
-        let mut turtle = Turtle::new();
+        let mut drawing = Drawing::new();
+        let mut turtle = drawing.add_turtle();
         turtle.set_speed("instant");
         turtle.pen_up();
-        turtle.drawing_mut().set_size([width, height]);
+        drawing.set_size([width, height]);
 
         // Move turtle to the upper left corner of the drawing.
-        let size = turtle.drawing().size();
+        let size = drawing.size();
         let x_start = size.width / 2;
         let y_start = size.height / 2;
         turtle.go_to([f64::from(x_start) * -1.0, f64::from(y_start)]);

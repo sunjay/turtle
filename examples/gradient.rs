@@ -1,10 +1,11 @@
 //! This example shows how you can use color mixing and pen size to produce a smooth gradient
 
-use turtle::{Color, Turtle};
+use turtle::{Color, Drawing};
 
 fn main() {
-    let mut turtle = Turtle::new();
-    turtle.drawing_mut().set_title("Gradients!");
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
+    drawing.set_title("Gradients!");
     turtle.set_pen_size(200.0);
 
     turtle.pen_up();

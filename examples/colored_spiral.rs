@@ -1,8 +1,9 @@
-use turtle::{Turtle, Color};
+use turtle::{Drawing, Color};
 
 fn main() {
-    let mut turtle = Turtle::new();
-    turtle.drawing_mut().set_background_color("light grey");
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
+    drawing.set_background_color("light grey");
 
     for i in 0..720 {
         let i = i as f64;

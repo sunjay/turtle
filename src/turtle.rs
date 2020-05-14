@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::{Color, Drawing, Point, Speed, Distance, Angle};
+use crate::{Color, Point, Speed, Distance, Angle};
 use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
 
@@ -201,22 +201,6 @@ impl Turtle {
 
     pub(crate) fn into_async(self) -> AsyncTurtle {
         self.turtle
-    }
-
-    /// Retrieve a read-only reference to the drawing.
-    ///
-    /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
-    /// listing of the information that you can retrieve from the drawing.
-    pub fn drawing(&self) -> &Drawing {
-        todo!()
-    }
-
-    /// Retrieve a mutable reference to the drawing
-    ///
-    /// See the documentation for the [`Drawing` struct](struct.Drawing.html) for a complete
-    /// listing of the ways that you can manipulate the drawing.
-    pub fn drawing_mut(&mut self) -> &mut Drawing {
-        todo!()
     }
 
     /// Returns the current speed of the turtle.
