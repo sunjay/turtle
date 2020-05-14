@@ -1,6 +1,12 @@
 //! Event handling (mouse, keyboard, controller, touch screen, etc.)
 //!
 //! See [`Event`](enum.Event.html) for more information.
+//!
+//! # Unstable
+//!
+//! There are still many unanswered questions about the design of the events API in the turtle
+//! crate. This module may change or be completely removed in the future. There will definitely
+//! be *some* events API in the future, but it may end up looking different than it does today.
 
 use serde::{Serialize, Deserialize};
 use glutin::{

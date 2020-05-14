@@ -61,7 +61,6 @@ mod radians;
 mod point;
 mod speed;
 pub mod color;
-pub mod event;
 pub mod rand;
 
 mod ipc_protocol;
@@ -77,12 +76,22 @@ mod turtle;
 pub use crate::color::Color;
 pub use crate::async_drawing::Size;
 pub use crate::drawing::Drawing;
-pub use crate::event::Event;
 pub use crate::point::Point;
 pub use crate::speed::Speed;
 pub use crate::async_turtle::{Angle, Distance};
 pub use crate::turtle::Turtle;
 pub use crate::renderer_server::ExportError;
+
+#[cfg(feature = "unstable")]
+#[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
+pub mod event;
+#[cfg(feature = "unstable")]
+#[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
+pub use crate::event::Event;
+#[cfg(not(feature = "unstable"))]
+mod event;
+#[cfg(not(feature = "unstable"))]
+use crate::event::Event;
 
 #[cfg(not(any(feature = "test", test)))]
 pub use crate::renderer_server::start;
