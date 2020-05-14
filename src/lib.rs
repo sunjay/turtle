@@ -32,18 +32,21 @@
 //! [`wait_for_click()`](struct.Turtle.html#method.wait_for_click) to wait for the user to click
 //! anywhere on the screen before proceeding.
 //! # Unstable features
-//! Some parts of this library are unstable, such as maximizing and unmaximizing the window.
-//! You can explicitly opt-in to using those features with the `unstable` feature like so:
 //!
-//! ```bash
-//! $ cargo build --features "unstable"
-//! ```
+//! Some parts of this crate are unstable and may be subject to change in the future. If you would
+//! like to use unstable functionality, enable the "unstable" feature in your `Cargo.toml` file as
+//! shown below:
 //!
-//! If you want to use this from inside your own crate, you will need to add this to your Cargo.toml
 //! ```toml
 //! [dependencies]
+//! # Explicitly opt-in to unstable features that may change in the future
 //! turtle = { version = "...", features = ["unstable"] }
 //! ```
+//!
+//! If you are developing this crate with a local version of the turtle repository, see the
+//! [CONTRIBUTING.md] file for the specific commands you should run to generate the documentation.
+//!
+//! [CONTRIBUTING.md]: https://github.com/sunjay/turtle/blob/master/CONTRIBUTING.md
 
 // This warning usually signals an error and so it should be treated as such.
 #![deny(unused_must_use)]
