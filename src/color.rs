@@ -79,22 +79,24 @@
 //!
 //! ```rust
 //! # use turtle::*;
-//! # let mut turtle = Turtle::new();
+//! let mut drawing = Drawing::new();
+//! let mut turtle = drawing.add_turtle();
+//!
 //! // A solid color with alpha = 1.0
 //! // Syntax is [red, green, blue] and doesn't require explicitly writing the field names
 //! turtle.set_pen_color([133.0, 23.0, 96.0]);
 //! turtle.set_fill_color([133.0, 23.0, 96.0]);
-//! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0]);
+//! drawing.set_background_color([133.0, 23.0, 96.0]);
 //! // This is a little easier to type than the equivalent:
-//! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 1.0});
+//! drawing.set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 1.0});
 //!
 //! // Add an additional element to the array to specify the alpha
 //! // Syntax is [red, green, blue, alpha]
 //! turtle.set_pen_color([133.0, 23.0, 96.0, 0.5]);
 //! turtle.set_fill_color([133.0, 23.0, 96.0, 0.5]);
-//! turtle.drawing_mut().set_background_color([133.0, 23.0, 96.0, 0.5]);
+//! drawing.set_background_color([133.0, 23.0, 96.0, 0.5]);
 //! // This is a little easier to type than the equivalent:
-//! turtle.drawing_mut().set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
+//! drawing.set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
 //! ```
 //!
 //! When creating a color this way, we **will** check whether or not the color is valid and provide
@@ -138,7 +140,9 @@
 //!
 //! ```rust
 //! # use turtle::*;
-//! # let mut turtle = Turtle::new();
+//! let mut drawing = Drawing::new();
+//! let mut turtle = drawing.add_turtle();
+//!
 //! // Set the pen color to blue
 //! turtle.set_pen_color(Color::rgb(0.0, 130.0, 200.0));
 //!
@@ -146,7 +150,7 @@
 //! turtle.set_fill_color([0.0, 130.0, 200.0]);
 //!
 //! // Then, we can set the background to black
-//! turtle.drawing_mut().set_background_color("black");
+//! drawing.set_background_color("black");
 //! ```
 //! [`rgb(red, green, blue)`]: ./struct.Color.html#method.rgb
 //! [`rgba(red, green, blue, alpha)`]: ./struct.Color.html#method.rgba
@@ -493,11 +497,13 @@ impl Color {
     /// Let's look at a more complete example to really show what happens when we're mixing colors together.
     ///
     /// ```no_run
-    /// use turtle::{Color, Turtle};
+    /// use turtle::{Color, Drawing};
     ///
     /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.drawing_mut().set_title("Mixing colors!");
+    ///     let mut drawing = Drawing::new();
+    ///     let mut turtle = drawing.add_turtle();
+    ///
+    ///     drawing.set_title("Mixing colors!");
     ///     turtle.set_pen_size(5.0);
     ///
     ///     let red: Color = "red".into();

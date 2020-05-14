@@ -124,9 +124,9 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// # let mut turtle = Turtle::new();
-    /// turtle.drawing_mut().set_title("Hello, world!");
-    /// assert_eq!(&*turtle.drawing().title(), "Hello, world!");
+    /// let mut drawing = Drawing::new();
+    /// drawing.set_title("Hello, world!");
+    /// assert_eq!(&*drawing.title(), "Hello, world!");
     /// ```
     pub fn title(&self) -> String {
         block_on(self.drawing.title())
@@ -137,11 +137,12 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use turtle::Turtle;
+    /// use turtle::Drawing;
     ///
     /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.drawing_mut().set_title("My Fancy Title! - Yay!");
+    ///     let mut drawing = Drawing::new();
+    ///     let mut turtle = drawing.add_turtle();
+    ///     drawing.set_title("My Fancy Title! - Yay!");
     /// }
     /// ```
     ///
@@ -156,9 +157,9 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// # let mut turtle = Turtle::new();
-    /// turtle.drawing_mut().set_background_color("purple");
-    /// assert_eq!(turtle.drawing().background_color(), "purple".into());
+    /// # let mut drawing = Drawing::new();
+    /// drawing.set_background_color("purple");
+    /// assert_eq!(drawing.background_color(), "purple".into());
     /// ```
     ///
     /// See the [`color` module](color/index.html) for more information about colors.
@@ -174,11 +175,12 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use turtle::Turtle;
+    /// use turtle::Drawing;
     ///
     /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.drawing_mut().set_background_color("orange");
+    ///     let mut drawing = Drawing::new();
+    ///     let mut turtle = drawing.add_turtle();
+    ///     drawing.set_background_color("orange");
     /// }
     /// ```
     ///
@@ -193,10 +195,11 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// let mut turtle = Turtle::new();
-    /// assert_eq!(turtle.drawing().center(), Point {x: 0.0, y: 0.0});
-    /// turtle.drawing_mut().set_center([4.0, 3.0]);
-    /// assert_eq!(turtle.drawing().center(), Point {x: 4.0, y: 3.0});
+    /// let mut drawing = Drawing::new();
+    /// let mut turtle = drawing.add_turtle();
+    /// assert_eq!(drawing.center(), Point {x: 0.0, y: 0.0});
+    /// drawing.set_center([4.0, 3.0]);
+    /// assert_eq!(drawing.center(), Point {x: 4.0, y: 3.0});
     /// ```
     pub fn center(&self) -> Point {
         block_on(self.drawing.center())
@@ -214,10 +217,11 @@ impl Drawing {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use turtle::Turtle;
+    /// use turtle::Drawing;
     ///
     /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    ///     let mut drawing = Drawing::new();
+    ///     let mut turtle = drawing.add_turtle();
     ///
     ///     for _ in 0..360 {
     ///         // Move forward three steps
@@ -227,7 +231,7 @@ impl Drawing {
     ///     }
     ///
     ///     turtle.wait_for_click();
-    ///     turtle.drawing_mut().set_center([50.0, 100.0]);
+    ///     drawing.set_center([50.0, 100.0]);
     /// }
     /// ```
     ///
@@ -246,12 +250,12 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// let mut turtle = Turtle::new();
-    /// let default_center = turtle.drawing().center();
-    /// turtle.drawing_mut().set_center([400.0, -30.0]);
-    /// assert_ne!(turtle.drawing().center(), default_center);
-    /// turtle.drawing_mut().reset_center();
-    /// assert_eq!(turtle.drawing().center(), default_center);
+    /// let mut drawing = Drawing::new();
+    /// let default_center = drawing.center();
+    /// drawing.set_center([400.0, -30.0]);
+    /// assert_ne!(drawing.center(), default_center);
+    /// drawing.reset_center();
+    /// assert_eq!(drawing.center(), default_center);
     /// ```
     pub fn reset_center(&mut self) {
         block_on(self.drawing.reset_center())
@@ -261,11 +265,11 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// # let mut turtle = Turtle::new();
-    /// # assert_eq!(turtle.drawing().size(), Size {width: 800, height: 600});
+    /// # let mut drawing = Drawing::new();
+    /// # assert_eq!(drawing.size(), Size {width: 800, height: 600});
     /// // 1080p is 1920x1080
-    /// turtle.drawing_mut().set_size((1920, 1080));
-    /// let size = turtle.drawing().size();
+    /// drawing.set_size((1920, 1080));
+    /// let size = drawing.size();
     /// assert_eq!(size.width, 1920);
     /// assert_eq!(size.height, 1080);
     /// ```
@@ -279,27 +283,28 @@ impl Drawing {
     /// [`Size` struct](struct.Size.html). That means that any of the following would work:
     ///
     /// ```rust
-    /// # use turtle::Turtle;
-    /// # let mut turtle = Turtle::new();
+    /// # use turtle::Drawing;
+    /// # let mut drawing = Drawing::new();
     /// // These are all equivalent to each other
-    /// turtle.drawing_mut().set_size((640, 480));
-    /// # assert_eq!(turtle.drawing().size(), Size {width: 640, height: 480});
-    /// turtle.drawing_mut().set_size([640, 480]);
-    /// # assert_eq!(turtle.drawing().size(), Size {width: 640, height: 480});
+    /// drawing.set_size((640, 480));
+    /// # assert_eq!(drawing.size(), Size {width: 640, height: 480});
+    /// drawing.set_size([640, 480]);
+    /// # assert_eq!(drawing.size(), Size {width: 640, height: 480});
     ///
     /// // It recommended that you use the options above instead of the following
     /// use turtle::Size; // Size must be imported
-    /// turtle.drawing_mut().set_size(Size {width: 640, height: 480});
-    /// # assert_eq!(turtle.drawing().size(), Size {width: 640, height: 480});
+    /// drawing.set_size(Size {width: 640, height: 480});
+    /// # assert_eq!(drawing.size(), Size {width: 640, height: 480});
     /// ```
     ///
     /// # Example
     ///
     /// ```rust,no_run
-    /// use turtle::Turtle;
+    /// use turtle::Drawing;
     ///
     /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    ///     let mut drawing = Drawing::new();
+    ///     let mut turtle = drawing.add_turtle();
     ///
     ///     for _ in 0..360 {
     ///         // Move forward three steps
@@ -309,7 +314,7 @@ impl Drawing {
     ///     }
     ///
     ///     turtle.wait_for_click();
-    ///     turtle.drawing_mut().set_size((300, 300));
+    ///     drawing.set_size((300, 300));
     /// }
     /// ```
     ///
@@ -331,14 +336,14 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// let mut turtle = Turtle::new();
-    /// let default_size = turtle.drawing().size();
+    /// let mut drawing = Drawing::new();
+    /// let default_size = drawing.size();
     ///
-    /// turtle.drawing_mut().set_size([920, 680]);
-    /// assert_ne!(turtle.drawing().size(), default_size);
+    /// drawing.set_size([920, 680]);
+    /// assert_ne!(drawing.size(), default_size);
     ///
-    /// turtle.drawing_mut().reset_size();
-    /// assert_eq!(turtle.drawing().size(), default_size);
+    /// drawing.reset_size();
+    /// assert_eq!(drawing.size(), default_size);
     /// ```
     pub fn reset_size(&mut self) {
         block_on(self.drawing.reset_size())
@@ -351,18 +356,18 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// let mut turtle = Turtle::new();
-    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// let mut drawing = Drawing::new();
+    /// assert_eq!(drawing.is_maximized(), false);
     ///
-    /// turtle.drawing_mut().maximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), true);
+    /// drawing.maximize();
+    /// assert_eq!(drawing.is_maximized(), true);
     ///
-    /// turtle.drawing_mut().unmaximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// drawing.unmaximize();
+    /// assert_eq!(drawing.is_maximized(), false);
     ///
     /// // Calling the same method again doesn't change the result
-    /// turtle.drawing_mut().unmaximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// drawing.unmaximize();
+    /// assert_eq!(drawing.is_maximized(), false);
     /// ```
     ///
     /// # Unstable
@@ -386,12 +391,12 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// # let mut turtle = Turtle::new();
-    /// turtle.drawing_mut().maximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), true);
+    /// # let mut drawing = Drawing::new();
+    /// drawing.maximize();
+    /// assert_eq!(drawing.is_maximized(), true);
     /// // Calling this method again does nothing
-    /// turtle.drawing_mut().maximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), true);
+    /// drawing.maximize();
+    /// assert_eq!(drawing.is_maximized(), true);
     /// ```
     pub fn maximize(&mut self) {
         block_on(self.drawing.maximize())
@@ -403,14 +408,14 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// # let mut turtle = Turtle::new();
-    /// turtle.drawing_mut().maximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), true);
-    /// turtle.drawing_mut().unmaximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// # let mut drawing = Drawing::new();
+    /// drawing.maximize();
+    /// assert_eq!(drawing.is_maximized(), true);
+    /// drawing.unmaximize();
+    /// assert_eq!(drawing.is_maximized(), false);
     /// // Calling this again does nothing because the drawing is already unmaximized
-    /// turtle.drawing_mut().unmaximize();
-    /// assert_eq!(turtle.drawing().is_maximized(), false);
+    /// drawing.unmaximize();
+    /// assert_eq!(drawing.is_maximized(), false);
     /// ```
     pub fn unmaximize(&mut self) {
         block_on(self.drawing.unmaximize())
@@ -420,18 +425,18 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// let mut turtle = Turtle::new();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// let mut drawing = Drawing::new();
+    /// assert_eq!(drawing.is_fullscreen(), false);
     ///
-    /// turtle.drawing_mut().enter_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
+    /// drawing.enter_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), true);
     ///
-    /// turtle.drawing_mut().exit_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// drawing.exit_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), false);
     ///
     /// // Calling the same method again doesn't change the result
-    /// turtle.drawing_mut().exit_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// drawing.exit_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), false);
     /// ```
     pub fn is_fullscreen(&self) -> bool {
         block_on(self.drawing.is_fullscreen())
@@ -444,12 +449,12 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// # let mut turtle = Turtle::new();
-    /// turtle.drawing_mut().enter_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
+    /// # let mut drawing = Drawing::new();
+    /// drawing.enter_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), true);
     /// // Calling this method again does nothing
-    /// turtle.drawing_mut().enter_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
+    /// drawing.enter_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), true);
     /// ```
     pub fn enter_fullscreen(&mut self) {
         block_on(self.drawing.enter_fullscreen())
@@ -462,14 +467,14 @@ impl Drawing {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// # let mut turtle = Turtle::new();
-    /// turtle.drawing_mut().enter_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), true);
-    /// turtle.drawing_mut().exit_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// # let mut drawing = Drawing::new();
+    /// drawing.enter_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), true);
+    /// drawing.exit_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), false);
     /// // Calling this again does nothing because the drawing is already not fullscreen
-    /// turtle.drawing_mut().exit_fullscreen();
-    /// assert_eq!(turtle.drawing().is_fullscreen(), false);
+    /// drawing.exit_fullscreen();
+    /// assert_eq!(drawing.is_fullscreen(), false);
     /// ```
     pub fn exit_fullscreen(&mut self) {
         block_on(self.drawing.exit_fullscreen())
@@ -513,20 +518,20 @@ impl Drawing {
     /// further movements take place.
     ///
     /// ```rust,no_run
-    /// use turtle::Turtle;
-    /// use turtle::event::Key::{Left, Right};
-    /// use turtle::Event::KeyPressed;
+    /// use turtle::{Drawing, Event, event::{Key, PressedState}};
     ///
     /// fn main() {
-    ///     let mut turtle = Turtle::new();
+    ///     let mut drawing = Drawing::new();
+    ///     let mut turtle = drawing.add_turtle();
     ///
     ///     loop {
     ///         turtle.forward(1.0);
     ///
-    ///         while let Some(event) = turtle.drawing_mut().poll_event() {
+    ///         while let Some(event) = drawing.poll_event() {
+    ///             use Key::{LeftArrow, RightArrow};
     ///             match event {
-    ///                 KeyPressed(key) => match key {
-    ///                     Left => {
+    ///                 Event::Key(key, PressedState::Pressed) => match key {
+    ///                     LeftArrow => {
     ///                         turtle.set_speed(8);
     ///                         for _ in 0..20 {
     ///                             turtle.forward(1.0);
@@ -534,7 +539,7 @@ impl Drawing {
     ///                         }
     ///                         turtle.set_speed(4);
     ///                     },
-    ///                     Right => {
+    ///                     RightArrow => {
     ///                         turtle.set_speed(8);
     ///                         for _ in 0..20 {
     ///                             turtle.forward(1.0);
@@ -559,11 +564,12 @@ impl Drawing {
     /// Saves the current drawings in SVG format at the location specified by `path`.
     ///
     /// ```rust
-    /// use turtle::{Turtle, Color};
+    /// use turtle::{Drawing, Turtle, Color};
     ///
     /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///     turtle.drawing_mut().set_background_color("pink");
+    ///     let mut drawing = Drawing::new();
+    ///     let mut turtle = drawing.add_turtle();
+    ///     drawing.set_background_color("pink");
     ///
     ///     for i in 0..36 {
     ///         let base_color: Color = if i % 2 == 0 {
@@ -578,7 +584,7 @@ impl Drawing {
     ///         turtle.right(10.0);
     ///     }
     ///    turtle.hide();
-    ///    turtle.drawing().save_svg("squares.svg");
+    ///    drawing.save_svg("squares.svg");
     /// }
     ///
     /// fn square(turtle: &mut Turtle) {
