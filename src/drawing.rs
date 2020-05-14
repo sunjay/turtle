@@ -35,9 +35,20 @@ use crate::sync_runtime::block_on;
 ///
 /// This creates a new [`Drawing`], and then adds a turtle using the [`add_turtle()`] method.
 ///
+/// It is usually **incorrect** to call both [`Drawing::new()`] and [`Turtle::new()`]. Each of
+/// those methods creates a new window. You can only draw on a drawing with turtles created using
+/// the [`add_turtle()`] method on that drawing.
+///
+/// ```rust,no_run
+/// # use turtle::*;
+/// let mut drawing = Drawing::new();
+/// let mut turtle = Turtle::new(); // <-- This is probably **incorrect**
+/// ```
+///
 /// [`Turtle`]: struct.Turtle.html
 /// [`Turtle::new()`]: struct.Turtle.html#method.new
 /// [`Drawing`]: struct.Drawing.html
+/// [`Drawing::new()`]: struct.Drawing.html#method.new
 /// [`add_turtle()`]: struct.Drawing.html#method.add_turtle
 pub struct Drawing {
     drawing: AsyncDrawing,
