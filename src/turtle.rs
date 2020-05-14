@@ -827,13 +827,11 @@ impl Turtle {
     ///
     /// ```rust
     /// # use turtle::*;
-    /// let mut drawing = Drawing::new();
-    /// let mut turtle = drawing.add_turtle();
+    /// let mut turtle = Turtle::new();
     ///
     /// turtle.left(43.0);
     /// turtle.forward(289.0);
     /// turtle.set_pen_color("red");
-    /// drawing.set_background_color("green");
     ///
     /// let position = turtle.position();
     /// let heading = turtle.heading();
@@ -843,7 +841,6 @@ impl Turtle {
     /// assert_eq!(turtle.heading(), 90.0);
     /// assert_eq!(turtle.position(), Point {x: 0.0, y: 0.0});
     /// assert_ne!(turtle.pen_color(), "red".into());
-    /// assert_ne!(drawing.background_color(), "green".into());
     /// ```
     pub fn reset(&mut self) {
         block_on(self.turtle.reset())
