@@ -6,7 +6,7 @@ fn main() {
     drawing.set_title("Version 1.0.0!!!");
 
     drawing.set_background_color("#FFEB3B");
-    turtle.set_pen_size(5.0);
+    turtle.set_pen_size(10.0);
 
     turtle.set_speed("instant");
     turtle.pen_up();

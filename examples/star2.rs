@@ -36,7 +36,7 @@ fn main() {
     let mut turtle = Turtle::new();
 
     turtle.right(90.0);
-    turtle.set_pen_size(2.0);
+    turtle.set_pen_size(4.0);
     turtle.set_pen_color("yellow");
 
     for _ in 0.. POINTS as usize {

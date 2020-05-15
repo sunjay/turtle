@@ -11,7 +11,7 @@ fn main() {
     println!("Turn using the left and right arrow keys");
 
     turtle.set_pen_color("red");
-    turtle.set_pen_size(1.0);
+    turtle.set_pen_size(2.0);
     turtle.set_speed(4);
     loop {
         turtle.forward(1.0);

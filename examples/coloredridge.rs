@@ -9,7 +9,7 @@ fn main() {
     let amplitude = 100.0;
     let width = 800.0;
     let step = 2.0;
-    let height_factor = 2.0;
+    let height_factor = 4.0;
 
     turtle.set_speed("instant");
     turtle.pen_up();
