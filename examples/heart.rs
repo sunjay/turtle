@@ -5,7 +5,7 @@ fn main() {
     let mut turtle = drawing.add_turtle();
 
     turtle.set_speed(5);
-    turtle.set_pen_size(3.0);
+    turtle.set_pen_size(6.0);
     turtle.set_pen_color("red");
 
     turtle.pen_up();
@@ -46,8 +46,7 @@ fn end_loop(turtle: &mut Turtle) {
     let speed = turtle.speed();
     turtle.set_speed(8);
     for _ in 0..60 {
-        turtle.forward(1.5);
-        turtle.backward(0.5);
+        turtle.forward(1.0);
         turtle.right(5.0);
     }
     turtle.set_speed(speed);
