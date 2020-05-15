@@ -369,7 +369,8 @@ impl RotateAnimation {
             let rad_per_sec = speed.to_rad_per_sec();
             // Use microseconds instead of ms for greater precision
             let total_micros = (delta_angle * MICROS_PER_SEC as f64 / rad_per_sec).to_radians();
-            let total_duration = time::Duration::from_micros(total_micros as u64);
+            // abs() because time is always positive, even if angle is negative
+            let total_duration = time::Duration::from_micros(total_micros.abs() as u64);
 
             // If the duration of the animation is less than a frame, don't wait the entire frame
             // to complete it
