@@ -14,7 +14,6 @@ use glutin::{
         Event as GlutinEvent,
         StartCause,
         WindowEvent,
-        DeviceEvent,
         KeyboardInput,
         VirtualKeyCode,
         ElementState,
@@ -139,12 +138,15 @@ pub fn main() {
         } | GlutinEvent::WindowEvent {
             event: WindowEvent::Destroyed,
             ..
-        } | GlutinEvent::DeviceEvent {
-            event: DeviceEvent::Key(KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::Escape),
+        } | GlutinEvent::WindowEvent {
+            event: WindowEvent::KeyboardInput {
+                input: KeyboardInput {
+                    state: ElementState::Released,
+                    virtual_keycode: Some(VirtualKeyCode::Escape),
+                    ..
+                },
                 ..
-            }),
+            },
             ..
         } => {
             *control_flow = ControlFlow::Exit;
