@@ -10,9 +10,11 @@
 
 use serde::{Serialize, Deserialize};
 use glutin::{
-    dpi::{LogicalSize, LogicalPosition},
+    dpi::{LogicalSize, PhysicalPosition},
     event::{self as glutin_event, WindowEvent, KeyboardInput},
 };
+
+use crate::Point;
 
 /// Possible events returned from [`Drawing::poll_event()`](../struct.Drawing.html#method.poll_event).
 ///
@@ -31,7 +33,7 @@ pub enum Event {
     /// `x` and `y` represent the new coordinates of where the mouse is currently.
     ///
     /// Coordinates are relative to the center of the window.
-    MouseMove { x: f64, y: f64 },
+    MouseMove(Point),
 
     /// Sent when the mouse is scrolled. Only sent when the mouse is over the window.
     /// `x` and `y` are in scroll ticks.
@@ -48,6 +50,7 @@ pub enum Event {
     ///
     /// The boolean value is true if the cursor entered the window, and false if it left.
     WindowCursor(bool),
+
     /// Sent when the window is closed
     WindowClosed,
 }
@@ -55,7 +58,11 @@ pub enum Event {
 impl Event {
     /// Returns `None` if the input event is not a supported variant of `Event`
     #[cfg_attr(any(feature = "test", test), allow(dead_code))]
-    pub(crate) fn from_window_event(event: WindowEvent, scale_factor: f64) -> Option<Self> {
+    pub(crate) fn from_window_event(
+        event: WindowEvent,
+        scale_factor: f64,
+        to_logical: impl FnOnce(PhysicalPosition<f64>) -> Point,
+    ) -> Option<Self> {
         match event {
             WindowEvent::Resized(size) => {
                 let LogicalSize {width, height} = size.to_logical(scale_factor);
@@ -71,8 +78,7 @@ impl Event {
             WindowEvent::CursorEntered {..} => Some(Event::WindowCursor(true)),
             WindowEvent::CursorLeft {..} => Some(Event::WindowCursor(false)),
             WindowEvent::CursorMoved {position, ..} => {
-                let LogicalPosition {x, y} = position.to_logical(scale_factor);
-                Some(Event::MouseMove {x, y})
+                Some(Event::MouseMove(to_logical(position)))
             },
             WindowEvent::MouseInput {state, button, ..} => Some(Event::MouseButton(
                 MouseButton::from_button(button)?,

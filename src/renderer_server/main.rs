@@ -8,7 +8,7 @@ use glutin::{
     ContextBuilder,
     WindowedContext,
     PossiblyCurrent,
-    dpi::LogicalSize,
+    dpi::{LogicalSize, PhysicalPosition},
     window::{WindowBuilder, Fullscreen},
     event::{
         Event as GlutinEvent,
@@ -31,6 +31,7 @@ use crate::ipc_protocol::ServerConnection;
 
 use super::{
     app::App,
+    coords::ScreenPoint,
     renderer::{
         Renderer,
         display_list::DisplayList,
@@ -177,10 +178,25 @@ pub fn main() {
                 _ => {},
             }
 
+            // Converts to logical coordinates, only locking the drawing if this is actually called
+            let to_logical = |pos: PhysicalPosition<f64>| {
+                let handle = runtime.handle();
+                let drawing = handle.block_on(app.drawing_mut());
+                let center = drawing.center;
+                let draw_size = gl_context.window().inner_size();
+                let fb_center = ScreenPoint {
+                    x: draw_size.width as f64 / 2.0,
+                    y: draw_size.height as f64 / 2.0,
+                };
+
+                let pos: ScreenPoint = pos.into();
+                pos.to_logical(scale_factor, center, fb_center)
+            };
+
             //TODO: There is no guarantee that sending this event here will actually allow a client
             // to receive it. After all, if the window closes and this process exits, there will be
             // no way to handle subsequent `NextEvent` requests.
-            if let Some(event) = Event::from_window_event(event, scale_factor) {
+            if let Some(event) = Event::from_window_event(event, scale_factor, to_logical) {
                 match events_sender.send(event) {
                     Ok(()) => {},
                     // Sending may fail if the IPC thread has ended due to a disconnection when the
