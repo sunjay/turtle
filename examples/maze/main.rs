@@ -24,7 +24,7 @@ fn main() {
     turtle.set_speed(20);
     drawing.set_background_color("#BDBDBD");
     turtle.set_pen_color("#03A9F4");
-    turtle.set_pen_size(2.0);
+    turtle.set_pen_size(4.0);
 
     // Get to the top left corner
     turtle.pen_up();
@@ -71,7 +71,7 @@ fn main() {
     turtle.pen_down();
 
     turtle.set_speed(8);
-    turtle.set_pen_size(2.0);
+    turtle.set_pen_size(4.0);
     solve(&mut turtle, maze, cell_width, cell_height);
 }
 

@@ -12,7 +12,7 @@ fn main() {
     println!("Move your mouse around the window");
 
     turtle.set_pen_color("red");
-    turtle.set_pen_size(1.0);
+    turtle.set_pen_size(2.0);
     turtle.set_speed(8);
 
     let mut target = [0.0, 0.0].into();

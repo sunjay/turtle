@@ -8,7 +8,7 @@ fn main() {
     let angle = 180.0 / points;
 
     drawing.set_background_color("#424242");
-    turtle.set_pen_size(2.0);
+    turtle.set_pen_size(4.0);
     turtle.set_pen_color("yellow");
 
     turtle.pen_up();

@@ -129,7 +129,7 @@ fn letter(turtle: &mut Turtle) {
     let heading = turtle.heading();
     turtle.right(heading);
 
-    turtle.set_pen_size(12.0);
+    turtle.set_pen_size(24.0);
     turtle.forward(110.0);
     for _ in 0..120 {
         // By going forward and then backward, we avoid any "gaps" between the very small movements
