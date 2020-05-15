@@ -6,7 +6,7 @@
 [![Crates.io](https://img.shields.io/crates/d/turtle.svg)](https://crates.io/crates/turtle)
 [![Build Status](https://dev.azure.com/sunjayv/turtle/_apis/build/status/sunjay.turtle?branchName=master)](https://dev.azure.com/sunjayv/turtle/_build/latest?definitionId=1&branchName=master)
 [![Zulip](https://img.shields.io/badge/chat-on%20zulip-success)](https://turtle.zulipchat.com)
-[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/sunjay)
+[![Tokei Line Count](https://tokei.rs/b1/github/sunjay/turtle?category=code)](https://github.com/sunjay/turtle)
 
 *Tweet your drawings to us on Twitter at [@RustTurtle](https://twitter.com/RustTurtle) and follow us to see what is being created!*
 
