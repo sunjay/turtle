@@ -62,6 +62,7 @@ steps:
     rustc --version --verbose
     cargo build --verbose --all
     cargo build --verbose --all --features "unstable"
+    cargo build --verbose --all --examples --features "unstable"
     cargo test --verbose --all --features "test unstable" --no-run
   env: { RUSTFLAGS: "-D warnings" }
   displayName: build
