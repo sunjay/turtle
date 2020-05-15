@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use tokio::{time, sync::{oneshot, Mutex}};
 use interpolation::lerp;
 
@@ -22,8 +24,11 @@ use super::super::{
 /// Frames per second - The number of times the animation will update per second
 const FPS: u64 = 60;
 
-// 1,000,000 us in 1 s
+/// 1,000,000 us in 1 s
 const MICROS_PER_SEC: u64 = 1_000_000;
+
+/// The maximum length of an animation frame
+const FRAME_DURATION: time::Duration = time::Duration::from_micros(MICROS_PER_SEC / FPS);
 
 pub(crate) async fn move_forward(
     data_req_queued: oneshot::Sender<()>,
@@ -64,7 +69,7 @@ pub(crate) async fn move_forward(
         event_loop.request_redraw().await?;
 
         // Sleep until it is time to update the animation again
-        anim.timer.tick().await;
+        time::delay_for(anim.next_delay).await;
 
         // These locks are dropped at the end of this loop iteration to allow rendering to occur
         // while we wait
@@ -114,7 +119,7 @@ pub(crate) async fn move_to(
         event_loop.request_redraw().await?;
 
         // Sleep until it is time to update the animation again
-        anim.timer.tick().await;
+        time::delay_for(anim.next_delay).await;
 
         // These locks are dropped at the end of this loop iteration to allow rendering to occur
         // while we wait
@@ -137,8 +142,10 @@ pub(crate) async fn move_to(
 struct MoveAnimation {
     /// true if the animation should continue, false if it should stop
     running: bool,
-    /// A timer used to delay the execution of the animation to a reasonable FPS
-    timer: time::Interval,
+    /// The next amount of time the animation loop should be delayed, up to `FRAME_DURATION`
+    ///
+    /// Updated with every call to `step`
+    next_delay: time::Duration,
     /// The instant that the animation started, used to precisely determine how long the animation
     /// has been running
     start: time::Instant,
@@ -146,8 +153,8 @@ struct MoveAnimation {
     start_pos: Point,
     /// The target position to move to (i.e. the final value of the animation)
     target_pos: Point,
-    /// The total duration of the animation in microseconds
-    total_micros: f64,
+    /// The total duration of the animation
+    total_duration: time::Duration,
     /// A handle to the line that is manipulated by this animation (if any)
     prim: Option<PrimHandle>,
     /// The index of this point in the fill polygon (if any)
@@ -160,10 +167,6 @@ impl MoveAnimation {
         display_list: &mut DisplayList,
         target_pos: Point,
     ) -> Self {
-        let frame_duration = time::Duration::from_micros(MICROS_PER_SEC / FPS);
-        // Need to start at now() + frame_duration or else timer will initially tick for 0 seconds
-        let timer = time::interval_at(time::Instant::now() + frame_duration, frame_duration);
-
         let TurtleState {position, speed, ref pen, ..} = turtle.state;
 
         if cfg!(any(feature = "test", test)) || speed.is_instant() {
@@ -180,11 +183,11 @@ impl MoveAnimation {
             Self {
                 // stop the animation right away since it has already completed
                 running: false,
-                timer,
+                next_delay: time::Duration::from_micros(0),
                 start: time::Instant::now(),
                 start_pos: position,
                 target_pos,
-                total_micros: 0.0,
+                total_duration: time::Duration::from_micros(0),
                 prim,
                 fill_poly_index,
             }
@@ -194,6 +197,11 @@ impl MoveAnimation {
             let abs_distance = (target_pos - position).len();
             // Use microseconds instead of ms for greater precision
             let total_micros = abs_distance * MICROS_PER_SEC as f64 / px_per_sec;
+            let total_duration = time::Duration::from_micros(total_micros as u64);
+
+            // If the duration of the animation is less than a frame, don't wait the entire frame
+            // to complete it
+            let next_delay = min(total_duration, FRAME_DURATION);
 
             // No need to update position since the turtle hasn't move anywhere yet
 
@@ -208,64 +216,61 @@ impl MoveAnimation {
 
             Self {
                 running: true,
-                timer,
+                next_delay,
                 start: time::Instant::now(),
                 start_pos: position,
                 target_pos,
-                total_micros,
+                total_duration,
                 prim,
                 fill_poly_index,
             }
         }
-
     }
 
     /// Advances the animation based on the amount of time that has elapsed so far
     fn step(&mut self, turtle: &mut TurtleDrawings, display_list: &mut DisplayList) {
         let &mut Self {
             ref mut running,
-            timer: _,
+            ref mut next_delay,
             ref start,
             start_pos,
             target_pos,
-            total_micros,
+            total_duration,
             prim,
             fill_poly_index,
         } = self;
 
-        let elapsed = start.elapsed().as_micros() as f64;
-        if elapsed >= total_micros {
+        let elapsed = start.elapsed();
+        let pos = if elapsed >= total_duration {
             *running = false;
-            turtle.state.position = target_pos;
+            *next_delay = time::Duration::from_micros(0);
 
-            // Update the end of the line we have been drawing, if any
-            if let Some(prim) = prim {
-                display_list.line_update_end(prim, target_pos);
-            }
-
-            // Replace the point in the current fill polygon, if any
-            if let Some(poly_handle) = turtle.current_fill_polygon {
-                // This unwrap is safe because `current_fill_polygon` is `Some`
-                display_list.polygon_update(poly_handle, fill_poly_index.unwrap(), target_pos);
-            }
+            target_pos
 
         } else {
             // t is the total progress made in the animation so far
-            let t = elapsed / total_micros;
+            let t = elapsed.as_micros() as f64 / total_duration.as_micros() as f64;
             let current_pos = lerp(&start_pos, &target_pos, &t);
 
-            turtle.state.position = current_pos;
+            // If the time remaining is less than a frame, don't wait the entire frame
+            let remaining = total_duration - elapsed;
+            *next_delay = min(remaining, FRAME_DURATION);
 
-            // Update the end of the line we have been drawing, if any
-            if let Some(prim) = prim {
-                display_list.line_update_end(prim, current_pos);
-            }
+            current_pos
+        };
 
-            // Replace the point in the current fill polygon, if any
-            if let Some(poly_handle) = turtle.current_fill_polygon {
-                // This unwrap is safe because `current_fill_polygon` is `Some`
-                display_list.polygon_update(poly_handle, fill_poly_index.unwrap(), current_pos);
-            }
+        // Update state with the current position
+        turtle.state.position = pos;
+
+        // Update the end of the line we have been drawing, if any
+        if let Some(prim) = prim {
+            display_list.line_update_end(prim, pos);
+        }
+
+        // Replace the point in the current fill polygon, if any
+        if let Some(poly_handle) = turtle.current_fill_polygon {
+            // This unwrap is safe because `current_fill_polygon` is `Some`
+            display_list.polygon_update(poly_handle, fill_poly_index.unwrap(), pos);
         }
     }
 }
@@ -299,7 +304,7 @@ pub(crate) async fn rotate_in_place(
         event_loop.request_redraw().await?;
 
         // Sleep until it is time to update the animation again
-        anim.timer.tick().await;
+        time::delay_for(anim.next_delay).await;
 
         // This lock is dropped at the end of this loop iteration to allow rendering to occur
         // while we wait
@@ -321,8 +326,10 @@ pub(crate) async fn rotate_in_place(
 struct RotateAnimation {
     /// true if the animation should continue, false if it should stop
     running: bool,
-    /// A timer used to delay the execution of the animation to a reasonable FPS
-    timer: time::Interval,
+    /// The next amount of time the animation loop should be delayed, up to `FRAME_DURATION`
+    ///
+    /// Updated with every call to `step`
+    next_delay: time::Duration,
     /// The instant that the animation started, used to precisely determine how long the animation
     /// has been running
     start: time::Instant,
@@ -332,8 +339,8 @@ struct RotateAnimation {
     delta_angle: Radians,
     /// The direction of rotation
     direction: RotationDirection,
-    /// The total duration of the animation in microseconds
-    total_micros: f64,
+    /// The total duration of the animation
+    total_duration: time::Duration,
 }
 
 impl RotateAnimation {
@@ -342,10 +349,6 @@ impl RotateAnimation {
         delta_angle: Radians,
         direction: RotationDirection,
     ) -> Self {
-        let frame_duration = time::Duration::from_micros(MICROS_PER_SEC / FPS);
-        // Need to start at now() + frame_duration or else timer will initially tick for 0 seconds
-        let timer = time::interval_at(time::Instant::now() + frame_duration, frame_duration);
-
         let TurtleState {heading, speed, ..} = turtle.state;
         if cfg!(any(feature = "test", test)) || speed.is_instant() {
             // Set to the final heading with no animation
@@ -354,61 +357,72 @@ impl RotateAnimation {
             Self {
                 // stop the animation right away since it has already completed
                 running: false,
-                timer,
+                next_delay: time::Duration::from_micros(0),
                 start: time::Instant::now(),
                 start_heading: heading,
                 delta_angle,
                 direction,
-                total_micros: 0.0,
+                total_duration: time::Duration::from_micros(0),
             }
 
         } else {
             let rad_per_sec = speed.to_rad_per_sec();
             // Use microseconds instead of ms for greater precision
             let total_micros = (delta_angle * MICROS_PER_SEC as f64 / rad_per_sec).to_radians();
+            let total_duration = time::Duration::from_micros(total_micros as u64);
+
+            // If the duration of the animation is less than a frame, don't wait the entire frame
+            // to complete it
+            let next_delay = min(total_duration, FRAME_DURATION);
 
             // No need to update heading since the turtle hasn't rotated yet
 
             Self {
                 running: true,
-                timer,
+                next_delay,
                 start: time::Instant::now(),
                 start_heading: heading,
                 delta_angle,
                 direction,
-                total_micros,
+                total_duration,
             }
         }
-
     }
 
     /// Advances the animation based on the amount of time that has elapsed so far
     fn step(&mut self, turtle: &mut TurtleDrawings) {
         let &mut Self {
             ref mut running,
-            timer: _,
+            ref mut next_delay,
             ref start,
             start_heading,
             delta_angle,
             direction,
-            total_micros,
+            total_duration,
         } = self;
 
-        let elapsed = start.elapsed().as_micros() as f64;
-        if elapsed >= total_micros {
+        let elapsed = start.elapsed();
+        let heading = if elapsed >= total_duration {
             *running = false;
+            *next_delay = time::Duration::from_micros(0);
 
             // Set to the final heading
-            turtle.state.heading = rotate(start_heading, delta_angle, direction);
+            rotate(start_heading, delta_angle, direction)
 
         } else {
             // t is the total progress made in the animation so far
-            let t = elapsed / total_micros;
+            let t = elapsed.as_micros() as f64 / total_duration.as_micros() as f64;
             let current_delta = lerp(&radians::ZERO, &delta_angle, &t);
 
-            turtle.state.heading = rotate(start_heading, current_delta, direction);
-            debug_assert!(!turtle.state.heading.is_nan(), "bug: heading became NaN");
-        }
+            // If the time remaining is less than a frame, don't wait the entire frame
+            let remaining = total_duration - elapsed;
+            *next_delay = min(remaining, FRAME_DURATION);
+
+            rotate(start_heading, current_delta, direction)
+        };
+
+        turtle.state.heading = heading;
+        debug_assert!(!heading.is_nan(), "bug: heading became NaN");
     }
 }
 
