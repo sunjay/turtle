@@ -179,12 +179,14 @@ pub fn main() {
 
             //TODO: There is no guarantee that sending this event here will actually allow a client
             // to receive it. After all, if the window closes and this process exits, there will be
-            // no way to handle subsequent `PollEvent` requests.
-            match events_sender.send(event) {
-                Ok(()) => {},
-                // Sending may fail if the IPC thread has ended due to a disconnection when the
-                // main process ends.
-                Err(_) => {},
+            // no way to handle subsequent `NextEvent` requests.
+            if let Some(event) = Event::from_window_event(event, scale_factor) {
+                match events_sender.send(event) {
+                    Ok(()) => {},
+                    // Sending may fail if the IPC thread has ended due to a disconnection when the
+                    // main process ends.
+                    Err(_) => {},
+                }
             }
         },
 
