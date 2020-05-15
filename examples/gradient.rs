@@ -9,7 +9,7 @@ fn main() {
     turtle.set_pen_size(400.0);
 
     turtle.pen_up();
-    turtle.backward(250.0);
+    turtle.backward(200.0);
     turtle.pen_down();
 
     let red: Color = "red".into();
@@ -17,6 +17,6 @@ fn main() {
 
     for i in 0..100 + 1 {
         turtle.set_pen_color(red.mix(white, i as f64 / 100.0));
-        turtle.forward(5.0);
+        turtle.forward(4.0);
     }
 }
