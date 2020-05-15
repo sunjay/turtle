@@ -132,11 +132,7 @@ fn letter(turtle: &mut Turtle) {
     turtle.set_pen_size(24.0);
     turtle.forward(110.0);
     for _ in 0..120 {
-        // By going forward and then backward, we avoid any "gaps" between the very small movements
-        // To see why this is needed, try replacing this with a single movement of the difference
-        // between the two movements.
-        turtle.forward(1.0);
-        turtle.backward(0.5);
+        turtle.forward(0.5);
         turtle.right(1.5);
     }
 
@@ -155,14 +151,12 @@ fn letter(turtle: &mut Turtle) {
 
     turtle.forward(40.0);
     for _ in 0..80 {
-        turtle.forward(1.0);
-        turtle.backward(0.5);
+        turtle.forward(0.5);
         turtle.right(1.0);
     }
 
     for _ in 0..40 {
-        turtle.forward(1.0);
-        turtle.backward(0.5);
+        turtle.forward(0.5);
         turtle.left(0.5);
     }
 }

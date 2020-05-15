@@ -81,8 +81,7 @@ fn bg_lines(turtle: &mut Turtle) {
 fn small_circle(turtle: &mut Turtle) {
     turtle.begin_fill();
     for _ in 0..90 {
-        turtle.forward(2.0);
-        turtle.backward(1.0);
+        turtle.forward(1.0);
         turtle.right(4.0);
     }
     turtle.end_fill();
