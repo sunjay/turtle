@@ -61,11 +61,18 @@ impl RendererServerProcess {
         Ok(Self {runtime_handle, task_handle, child_stdin})
     }
 
+    /// Sends the IPC one shot server name to the server process
+    ///
+    /// This method should only be called once
+    pub async fn send_ipc_oneshot_name(&mut self, name: String) -> io::Result<()> {
+        self.writeln(&name).await
+    }
+
     /// Writes the given bytes followed by a newline b'\n' to the stdin of the process
     ///
     /// Unlike `std::io::Write::write`, this returns an error in the case all of the bytes could
     /// not be written for some reason.
-    pub async fn writeln<S: AsRef<[u8]>>(&mut self, data: S) -> io::Result<()> {
+    async fn writeln<S: AsRef<[u8]>>(&mut self, data: S) -> io::Result<()> {
         let data = data.as_ref();
         self.child_stdin.write_all(data).await?;
         self.child_stdin.write_all(&[b'\n']).await?;

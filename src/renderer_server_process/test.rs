@@ -34,8 +34,10 @@ impl RendererServerProcess {
     }
 
     /// Provides the server name to the server
-    pub async fn writeln(&mut self, data: String) -> io::Result<()> {
-        self.server_name_sender.send(data).await
+    ///
+    /// This method should only be called once
+    pub async fn send_ipc_oneshot_name(&mut self, name: String) -> io::Result<()> {
+        self.server_name_sender.send(name).await
             .expect("bug: unable to send server name to test renderer server");
 
         Ok(())

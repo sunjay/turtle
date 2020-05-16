@@ -55,7 +55,7 @@ impl ClientConnection {
     pub async fn new(process: &mut RendererServerProcess) -> Result<Self, ConnectionError> {
         // Send the oneshot token to the server which will then respond with its own oneshot token
         let (server, server_name) = IpcOneShotServer::new()?;
-        process.writeln(server_name).await?;
+        process.send_ipc_oneshot_name(server_name).await?;
 
         let (receiver, response): (_, HandshakeResponse) = tokio::task::spawn_blocking(|| {
             server.accept()
