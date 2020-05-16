@@ -3,6 +3,10 @@ flame.svg
 *.wat
 *.svg
 
+# For rotation/speed tests
+*test*.data
+*test*.png
+
 # Created by https://www.gitignore.io/api/rust
 
 ### Rust ###
