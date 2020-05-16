@@ -89,6 +89,8 @@ impl Drawing {
     ///
     /// The newly created turtle will appear at center of the drawing.
     ///
+    /// # Unstable
+    ///
     /// Note that until the multiple turtles feature becomes stable, this method can only be called
     /// once. Calling it more than once will result in a panic.
     ///
@@ -110,6 +112,7 @@ impl Drawing {
     /// }
     /// ```
     pub fn add_turtle(&mut self) -> Turtle {
+        #[cfg(not(feature = "unstable"))]
         assert!(self.turtles == 0, "Multiple turtles are unstable! Only call `add_turtle` once.");
         self.turtles += 1;
 
