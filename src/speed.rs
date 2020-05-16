@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
-use std::f64::consts::PI;
 use std::fmt;
 
 use serde::{Serialize, Deserialize};
+use interpolation::lerp;
 
-use crate::radians::Radians;
+use crate::radians::{self, Radians};
 use crate::rand::{Random, RandomRange};
 use crate::Distance;
 
@@ -221,20 +221,57 @@ impl Speed {
 
     /// Converts a speed to its value as a movement speed in pixels per second
     pub(crate) fn to_px_per_sec(self) -> Distance {
+        // Goal: increasing speed causes a linear decrease in the time it takes to draw a line
+        //
+        // speed = distance / time
+        //
+        // So we can pick a fixed distance, say 200.0 px, and define a linear set of times that
+        // each speed should take.
+
+        let distance = 200.0; // px
+        // The time it should take at the minimum speed level (MIN_SPEED) to cross this distance
+        let speed_min_time = 2.0 * 1000.0; // ms
+        // The time it should take at the maximum speed level (MAX_SPEED) to cross this distance
+        let speed_max_time = 5.0; // ms
+
         use SpeedLevel::*;
-        match self.0 {
-            Value(speed) => f64::from(speed) * 50.0,
-            Instant => f64::INFINITY,
-        }
+        let level = match self.0 {
+            Value(speed) => speed,
+            // Instant should just be considered as "infinite" speed
+            Instant => return f64::INFINITY,
+        };
+
+        // Linearly interpolate the time to get the time it should take at this speed level
+        // Note:
+        //   if level = MIN_SPEED then t = 0.0
+        //   if level = MAX_SPEED then t = 1.0
+        let t = (level - MIN_SPEED) as f64 / (MAX_SPEED - MIN_SPEED) as f64;
+        let time = lerp(&speed_min_time, &speed_max_time, &t); // ms
+
+        // Compute the final speed using the formula above (note: 1000.0 ms == 1.0 s)
+        distance * 1000.0 / time
     }
 
     /// Converts a speed to its value as radians per second
     pub(crate) fn to_rad_per_sec(self) -> Radians {
+        // See comment in `to_px_per_sec` for details
+        // This is the exact same except we use a value in radians instead of in px for distance
+
+        let distance = radians::TWO_PI; // rad
+        let speed_min_time = 2.0 * 1000.0; // ms
+        let speed_max_time = 5.0; // ms
+
         use SpeedLevel::*;
-        Radians::from_radians_value(match self.0 {
-            Value(speed) => f64::from(speed) * (3.0 * PI),
-            Instant => f64::INFINITY,
-        })
+        let level = match self.0 {
+            Value(speed) => speed,
+            // Instant should just be considered as "infinite" speed
+            Instant => return Radians::from_radians_value(f64::INFINITY),
+        };
+
+        let t = (level - MIN_SPEED) as f64 / (MAX_SPEED - MIN_SPEED) as f64;
+        let time = lerp(&speed_min_time, &speed_max_time, &t); // ms
+
+        distance * 1000.0 / time
     }
 }
 
