@@ -1,8 +1,4 @@
-use std::env;
-
-use super::main::main;
-
-use crate::renderer_server_process::RENDERER_PROCESS_ENV_VAR;
+use super::backend::RendererServer;
 
 /// Start the turtle window in advance
 ///
@@ -42,19 +38,28 @@ use crate::renderer_server_process::RENDERER_PROCESS_ENV_VAR;
 ///
 /// [`Turtle::new()`]: struct.Turtle.html#method.new
 pub fn start() {
-    // If this environment variable is present, this process is taken over so that no other
-    // code runs after main(). This allows us to ship one executable that appears to
-    // have two separate processes.
-    //
-    // This implementation detail is why we request that users run start() at the beginning of
-    // their programs. When we spawn the same executable, we don't pass along any environment,
-    // input or command line arguments. That means that the user *needs* to run start() first or
-    // else their program won't be able to run at all. This is a tradeoff of this design decision.
-    if env::var(RENDERER_PROCESS_ENV_VAR).ok().as_deref() == Some("true") {
-        // This code MUST be run on the main thread.
+    // This check is performed on all platforms to help avoid compatibility hazards that may
+    // accidentally make it harder to run a turtle program on a different platform. The check is
+    // not foolproof and there is no way to verify that start() is called at the beginning of
+    // main() in all cases. This is just to help in the cases where we can detect something.
+    #[cfg(not(any(feature = "test", test)))]
+    assert_main_thread();
 
-        // Run the renderer process
-        main();
-        unreachable!("bug: renderer loop did not exit after finishing");
+    RendererServer::start();
+}
+
+#[cfg(not(any(feature = "test", test)))]
+fn assert_main_thread() {
+    // This check isn't foolproof. Someone can always create a thread named "main".
+    if std::thread::current().name().unwrap_or("") != "main" {
+        // In order to maintain compatibility with MacOS, we need to make sure that windows are
+        // only created on the main thread. We do this check on all platforms so that no one
+        // can accidentally make a change that creates the window off of the main thread.
+        //
+        // It's easy for a user to accidentally cause this panic if they call `Turtle::new()` in a
+        // new thread. This message is meant to point them to the solution: `turtle::start()`
+        panic!("Windows can only be created on the main thread. Make sure you have called \
+                `turtle::start()` at the beginning of your program's main() function. \
+                See: <https://docs.rs/turtle/*/turtle/fn.start.html>");
     }
 }

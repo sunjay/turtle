@@ -11,13 +11,13 @@ pub use messages::*;
 pub use protocol::*;
 
 use std::io;
+use std::future::Future;
 
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use tokio::sync::Mutex;
 use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender, IpcError};
 
-use crate::renderer_server_process::RendererServerProcess;
 use crate::renderer_client::ClientId;
 
 use async_ipc_receiver::AsyncIpcReceiver;
@@ -52,10 +52,13 @@ pub struct ClientConnection {
 }
 
 impl ClientConnection {
-    pub async fn new(process: &mut RendererServerProcess) -> Result<Self, ConnectionError> {
+    pub async fn new<S, F>(send_ipc_oneshot_name: S) -> Result<Self, ConnectionError>
+        where S: FnOnce(String) -> F,
+              F: Future<Output=io::Result<()>>,
+    {
         // Send the oneshot token to the server which will then respond with its own oneshot token
         let (server, server_name) = IpcOneShotServer::new()?;
-        process.send_ipc_oneshot_name(server_name).await?;
+        send_ipc_oneshot_name(server_name).await?;
 
         let (receiver, response): (_, HandshakeResponse) = tokio::task::spawn_blocking(|| {
             server.accept()
