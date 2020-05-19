@@ -5,8 +5,8 @@ use serde::{Serialize, Deserialize};
 use tokio::sync::{mpsc, RwLock, Mutex};
 use thiserror::Error;
 
-use crate::ipc_protocol::{ClientConnection, ConnectionError, ClientRequest, ServerResponse};
-use crate::renderer_server_process::RendererServerProcess;
+use crate::ipc_protocol::{ConnectionError, ClientRequest, ServerResponse};
+use crate::renderer_server::RendererServer;
 
 /// Signals that the IPC connection has been disconnected and therefore the window was probably
 /// closed
@@ -27,13 +27,10 @@ pub struct ClientId(usize);
 /// the received client ID.
 #[derive(Debug)]
 struct ClientDispatcher {
-    /// The spawned server process
+    /// The connection to the server process
     ///
     /// When dropped, this will block until the server process has quit
-    proc: RendererServerProcess,
-
-    /// The IPC connection to the server process
-    conn: Arc<ClientConnection>,
+    conn: Arc<RendererServer>,
 
     /// Each `ClientId` indexes into this field
     ///
@@ -44,9 +41,7 @@ struct ClientDispatcher {
 
 impl ClientDispatcher {
     async fn new() -> Result<Self, ConnectionError> {
-        let mut proc = RendererServerProcess::spawn()?;
-
-        let conn = Arc::new(ClientConnection::new(&mut proc).await?);
+        let conn = Arc::new(RendererServer::spawn().await?);
         let clients = Arc::new(RwLock::new(Vec::<mpsc::UnboundedSender<_>>::new()));
 
         let task_conn = conn.clone();
@@ -83,7 +78,7 @@ impl ClientDispatcher {
             }
         });
 
-        Ok(Self {proc, conn, clients})
+        Ok(Self {conn, clients})
     }
 
     async fn add_client(&self) -> (ClientId, mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>) {

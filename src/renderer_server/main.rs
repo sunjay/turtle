@@ -1,5 +1,5 @@
-use std::thread;
 use std::time::{Instant, Duration};
+use std::future::Future;
 use std::sync::Arc;
 
 use glutin::{
@@ -19,14 +19,15 @@ use glutin::{
         ElementState,
     },
     event_loop::{ControlFlow, EventLoop},
+    platform::desktop::EventLoopExtDesktop,
 };
 use tokio::{
     sync::{mpsc, Mutex},
-    runtime::{Runtime, Handle},
+    runtime::Handle,
 };
 
 use crate::Event;
-use crate::ipc_protocol::ServerConnection;
+use crate::ipc_protocol::{ServerConnection, ConnectionError};
 
 use super::{
     app::App,
@@ -48,16 +49,40 @@ const MAX_RENDERING_FPS: u64 = 60;
 // 1,000,000 us in 1 s
 const MICROS_PER_SEC: u64 = 1_000_000;
 
-/// Run the renderer process in the current thread
+fn new_event_loop<T>() -> EventLoop<T> {
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "macos")] {
+            EventLoop::with_user_event()
+
+        } else if #[cfg(target_os = "windows")] {
+            use glutin::platform::unix::EventLoopExtWindows;
+            EventLoop::new_any_thread()
+
+        } else {
+            use glutin::platform::unix::EventLoopExtUnix;
+            EventLoop::new_any_thread()
+        }
+    }
+}
+
+/// Run the window event loop in the current thread/task
 ///
-/// This function must run in the main thread ONLY
-pub fn main() {
-    assert_main_thread();
+/// When the window is opened, this will spawn a task that establishes the server connection using
+/// the given future and begin to serve client requests.
+///
+/// On some platforms this function may only run on the main thread
+pub fn run_main(
+    // A handle used to block on asynchronous code and spawn new tasks
+    //
+    // Necessary because this function is not run on a runtime thread in all backends
+    handle: Handle,
 
-    // The runtime for driving async code
-    let runtime = Runtime::new()
-        .expect("unable to spawn tokio runtime to run turtle server process");
+    // Polled to establish the server connection
+    establish_connection: impl Future<Output=Result<ServerConnection, ConnectionError>> + Send + 'static,
 
+    // Polled when the window is closed and the application is about to quit
+    event_loop_quit: impl Future<Output=()> + 'static,
+) {
     // The state of the drawing and the state/drawings associated with each turtle
     let app = Arc::new(App::default());
     // All of the drawing primitives in the order in which they wil be drawn
@@ -67,7 +92,7 @@ pub fn main() {
     // as short as possible.
     let display_list = Arc::new(Mutex::new(DisplayList::default()));
 
-    let event_loop = EventLoop::with_user_event();
+    let mut event_loop = new_event_loop();
     // Create the proxy that will be given to the thread managing IPC
     let event_loop_proxy = event_loop.create_proxy();
     let event_loop_notifier = Arc::new(EventLoopNotifier::new(event_loop_proxy));
@@ -77,9 +102,11 @@ pub fn main() {
     // Put the events_receiver in an Option so we can call `take()` in the event loop. Required
     // because borrow checker cannot verify that `Init` event is only fired once.
     let mut events_receiver = Some(events_receiver);
+    let mut establish_connection = Some(establish_connection);
+    let mut event_loop_quit = Some(event_loop_quit);
 
     let window_builder = {
-        let drawing = runtime.handle().block_on(app.drawing_mut());
+        let drawing = handle.block_on(app.drawing_mut());
         WindowBuilder::new()
             .with_title(&drawing.title)
             .with_inner_size(LogicalSize {width: drawing.width, height: drawing.height})
@@ -106,7 +133,10 @@ pub fn main() {
     let min_render_delay = Duration::from_micros(MICROS_PER_SEC / MAX_RENDERING_FPS);
     // Subtracting the delay so we do an initial render right away
     let mut last_render = Instant::now() - min_render_delay;
-    event_loop.run(move |event, _, control_flow| match event {
+    // Very important to use `run_return` here instead of `run` because `run` calls process::exit()
+    // and that is not appropriate for the multithreaded backend as that would cause the entire
+    // process to end when the window is closed.
+    event_loop.run_return(move |event, _, control_flow| match event {
         GlutinEvent::NewEvents(StartCause::Init) => {
             // Spawn the actual server thread(s) that will handle incoming IPC messages and
             // asynchronous update the shared state
@@ -115,13 +145,13 @@ pub fn main() {
             // `Turtle::new()`, etc. methods not to return before the window opens. Those methods
             // can't return because the connection handshake cannot complete before the thread used
             // for IPC is spawned.
-            let handle = runtime.handle().clone();
             spawn_async_server(
-                handle,
+                &handle,
                 app.clone(),
                 display_list.clone(),
                 event_loop_notifier.clone(),
                 events_receiver.take().expect("bug: init event should only occur once"),
+                establish_connection.take().expect("bug: init event should only occur once"),
             );
         },
 
@@ -166,7 +196,6 @@ pub fn main() {
             match event {
                 WindowEvent::Resized(size) => {
                     let size = size.to_logical(scale_factor);
-                    let handle = runtime.handle();
                     let mut drawing = handle.block_on(app.drawing_mut());
                     drawing.width = size.width;
                     drawing.height = size.height;
@@ -182,7 +211,6 @@ pub fn main() {
 
             // Converts to logical coordinates, only locking the drawing if this is actually called
             let to_logical = |pos: PhysicalPosition<f64>| {
-                let handle = runtime.handle();
                 let drawing = handle.block_on(app.drawing_mut());
                 let center = drawing.center;
                 let draw_size = gl_context.window().inner_size();
@@ -249,10 +277,15 @@ pub fn main() {
                 return;
             }
 
-            let handle = runtime.handle();
             handle.block_on(redraw(&app, &display_list, &gl_context, &mut renderer));
             *control_flow = ControlFlow::Wait;
             last_render = Instant::now();
+        },
+
+        GlutinEvent::LoopDestroyed => {
+            let event_loop_quit = event_loop_quit.take()
+                .expect("bug: loop destroyed event should only occur once");
+            handle.block_on(event_loop_quit);
         },
 
         _ => {},
@@ -295,31 +328,17 @@ async fn redraw(
     gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
 }
 
-fn assert_main_thread() {
-    // This check isn't foolproof. Someone can always create a thread named "main".
-    if thread::current().name().unwrap_or("") != "main" {
-        // In order to maintain compatibility with MacOS, we need to make sure that windows are
-        // only created on the main thread. We do this check on all platforms so that no one
-        // can accidentally make a change that creates the window off of the main thread.
-        //
-        // It's easy for a user to accidentally cause this panic if they call `Turtle::new()` in a
-        // new thread. This message is meant to point them to the solution: `turtle::start()`
-        panic!("Windows can only be created on the main thread. \
-                Make sure you have called `turtle::start()` at the beginning of your program. \
-                See: <https://docs.rs/turtle/*/turtle/fn.start.html>");
-    }
-}
-
 fn spawn_async_server(
-    handle: Handle,
+    handle: &Handle,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: Arc<EventLoopNotifier>,
     events_receiver: mpsc::UnboundedReceiver<Event>,
+    establish_connection: impl Future<Output=Result<ServerConnection, ConnectionError>> + Send + 'static,
 ) {
     // Spawn root task
     handle.spawn(async {
-        let conn = ServerConnection::connect_stdin().await
+        let conn = establish_connection.await
             .expect("unable to establish turtle server connection");
         super::serve(conn, app, display_list, event_loop, events_receiver).await;
     });

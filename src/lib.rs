@@ -90,7 +90,6 @@ pub mod color;
 pub mod rand;
 
 mod ipc_protocol;
-mod renderer_server_process;
 mod renderer_server;
 mod renderer_client;
 mod async_drawing;
@@ -119,7 +118,4 @@ mod event;
 #[cfg(not(feature = "unstable"))]
 use crate::event::Event;
 
-#[cfg(not(any(feature = "test", test)))]
 pub use crate::renderer_server::start;
-#[cfg(any(feature = "test", test))]
-pub fn start() {}
