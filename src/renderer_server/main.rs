@@ -55,7 +55,7 @@ fn new_event_loop<T>() -> EventLoop<T> {
             EventLoop::with_user_event()
 
         } else if #[cfg(target_os = "windows")] {
-            use glutin::platform::unix::EventLoopExtWindows;
+            use glutin::platform::windows::EventLoopExtWindows;
             EventLoop::new_any_thread()
 
         } else {
