@@ -51,7 +51,8 @@ impl RendererServer {
             // Using `async {}` because the multiprocessed backend doesn't care when the event loop
             // quits. Quit can be detected by waiting on the spawned process.
             run_main(runtime.handle().clone(), ServerConnection::connect_stdin(), async {});
-            unreachable!("bug: renderer loop did not exit after finishing");
+            // Must exit after finishing or the program may execute twice
+            process::exit(0);
         }
     }
 
