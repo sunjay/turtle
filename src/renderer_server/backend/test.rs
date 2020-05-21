@@ -2,10 +2,8 @@ use std::sync::Arc;
 
 use tokio::sync::{mpsc, oneshot, Mutex};
 use futures_util::future::{FutureExt, RemoteHandle};
-use ipc_channel::ipc::IpcError;
 
-use crate::renderer_client::ClientId;
-use crate::ipc_protocol::{ClientConnection, ServerConnection, ConnectionError, ClientRequest, ServerResponse};
+use crate::ipc_protocol::{ClientConnection, ServerConnection, ConnectionError};
 
 use super::super::{
     serve,
@@ -22,10 +20,6 @@ pub struct RendererServer {
     /// A remote handle is like a `JoinHandle` that drops its running task when it is dropped. A
     /// normal `JoinHandle` would detach the task, and that is not desirable for tests.
     task_handle: RemoteHandle<()>,
-    /// The connection to the spawned sever process
-    ///
-    /// This will no longer send messages after the server process has terminated.
-    conn: ClientConnection,
 }
 
 impl RendererServer {
@@ -34,7 +28,7 @@ impl RendererServer {
 
     /// Spawns the backend in a new task and returns the struct that will be used to
     /// interface with it.
-    pub async fn spawn() -> Result<Self, ConnectionError> {
+    pub async fn spawn() -> Result<(Self, ClientConnection), ConnectionError> {
         let (server_name_sender, server_name_receiver) = oneshot::channel();
         // Spawn a separate task for the server so this task can continue to make progress
         // while that runs. The remote handle will drop that future when it is dropped.
@@ -52,17 +46,7 @@ impl RendererServer {
             Ok(())
         }).await?;
 
-        Ok(Self {task_handle, conn})
-    }
-
-    /// Sends a request to the server
-    pub async fn send(&self, id: ClientId, req: ClientRequest) -> Result<(), ipc_channel::Error> {
-        self.conn.send(id, req).await
-    }
-
-    /// Receives a response from the server
-    pub async fn recv(&self) -> Result<(ClientId, ServerResponse), IpcError> {
-        self.conn.recv().await
+        Ok((Self {task_handle}, conn))
     }
 }
 

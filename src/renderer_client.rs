@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 use tokio::sync::{mpsc, RwLock, Mutex};
 use thiserror::Error;
 
-use crate::ipc_protocol::{ConnectionError, ClientRequest, ServerResponse};
+use crate::ipc_protocol::{ClientConnection, ConnectionError, ClientRequest, ServerResponse};
 use crate::renderer_server::RendererServer;
 
 /// Signals that the IPC connection has been disconnected and therefore the window was probably
@@ -27,10 +27,16 @@ pub struct ClientId(usize);
 /// the received client ID.
 #[derive(Debug)]
 struct ClientDispatcher {
-    /// The connection to the server process
+    /// The server task/process
     ///
-    /// When dropped, this will block until the server process has quit
-    conn: Arc<RendererServer>,
+    /// When dropped, this will block until the server process has quit. This field is explicitly
+    /// owned by this struct and not reference counted in order to guarantee that this happens.
+    server: RendererServer,
+
+    /// The connection to the server task/process
+    ///
+    /// This will no longer send messages after the server process has terminated.
+    conn: Arc<ClientConnection>,
 
     /// Each `ClientId` indexes into this field
     ///
@@ -41,7 +47,8 @@ struct ClientDispatcher {
 
 impl ClientDispatcher {
     async fn new() -> Result<Self, ConnectionError> {
-        let conn = Arc::new(RendererServer::spawn().await?);
+        let (server, conn) = RendererServer::spawn().await?;
+        let conn = Arc::new(conn);
         let clients = Arc::new(RwLock::new(Vec::<mpsc::UnboundedSender<_>>::new()));
 
         let task_conn = conn.clone();
@@ -78,7 +85,7 @@ impl ClientDispatcher {
             }
         });
 
-        Ok(Self {conn, clients})
+        Ok(Self {server, conn, clients})
     }
 
     async fn add_client(&self) -> (ClientId, mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>) {
