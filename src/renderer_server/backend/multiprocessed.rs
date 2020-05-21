@@ -21,8 +21,20 @@ const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
 /// Also manages the client connection used for communicating with the server
 #[derive(Debug)]
 pub struct RendererServer {
-    /// The spawned server process
-    proc: RendererServerProcess,
+    /// A handle to the runtime that the process was spawned in. This is needed because a handle
+    /// to the runtime can only be created when a "runtime context". Since Drop may not always run
+    /// from async code, we need this to ensure we can wait on the subprocess in `task_handle`.
+    /// NOTE: This creates an implicit invariant that this struct must be dropped before the
+    /// runtime that it was created in is dropped. This is not an issue in normal code and will at
+    /// worst cause a panic!().
+    runtime_handle: Handle,
+    /// A handle to the running task. This can be waited on to find out if the process exited
+    /// successfully. A remote handle will also drop the future it is associated with when it is
+    /// dropped. (unlike a `JoinHandle` which will detach instead.) This is important to make sure
+    /// the window closes when the thread holding this struct panics.
+    task_handle: Option<RemoteHandle<io::Result<ExitStatus>>>,
+    /// A handle to the stdin of the child process
+    child_stdin: ChildStdin,
 }
 
 impl RendererServer {
@@ -53,34 +65,6 @@ impl RendererServer {
     /// Spawns the backend in a new task and returns the struct that will be used to
     /// interface with it.
     pub async fn spawn() -> Result<(Self, ClientConnection), ConnectionError> {
-        let mut proc = RendererServerProcess::spawn()?;
-        let conn = ClientConnection::new(|name| proc.send_ipc_oneshot_name(name)).await?;
-
-        Ok((Self {proc}, conn))
-    }
-}
-
-#[derive(Debug)]
-pub struct RendererServerProcess {
-    /// A handle to the runtime that the process was spawned in. This is needed because a handle
-    /// to the runtime can only be created when a "runtime context". Since Drop may not always run
-    /// from async code, we need this to ensure we can wait on the subprocess in `task_handle`.
-    /// NOTE: This creates an implicit invariant that this struct must be dropped before the
-    /// runtime that it was created in is dropped. This is not an issue in normal code and will at
-    /// worst cause a panic!().
-    runtime_handle: Handle,
-    /// A handle to the running task. This can be waited on to find out if the process exited
-    /// successfully. A remote handle will also drop the future it is associated with when it is
-    /// dropped. (unlike a `JoinHandle` which will detach instead.) This is important to make sure
-    /// the window closes when the thread holding this struct panics.
-    task_handle: Option<RemoteHandle<io::Result<ExitStatus>>>,
-    /// A handle to the stdin of the child process
-    child_stdin: ChildStdin,
-}
-
-impl RendererServerProcess {
-    /// Spawn a new process for the renderer
-    pub fn spawn() -> io::Result<Self> {
         let current_exe = env::current_exe()?;
 
         // The new process is the same executable as this process but with a special environment
@@ -106,13 +90,18 @@ impl RendererServerProcess {
         // Keep a handle to the current runtime
         let runtime_handle = Handle::current();
 
-        Ok(Self {runtime_handle, task_handle, child_stdin})
+        //TODO: There is no need to have a `child_stdin` feature and refactoring to remove it could
+        // simplify this code
+        let mut proc = Self {runtime_handle, task_handle, child_stdin};
+        let conn = ClientConnection::new(|name| proc.send_ipc_oneshot_name(name)).await?;
+
+        Ok((proc, conn))
     }
 
     /// Sends the IPC one shot server name to the server process
     ///
     /// This method should only be called once
-    pub async fn send_ipc_oneshot_name(&mut self, name: String) -> io::Result<()> {
+    async fn send_ipc_oneshot_name(&mut self, name: String) -> io::Result<()> {
         self.writeln(&name).await
     }
 
@@ -129,7 +118,7 @@ impl RendererServerProcess {
     }
 }
 
-impl Drop for RendererServerProcess {
+impl Drop for RendererServer {
     fn drop(&mut self) {
         use std::thread;
 
