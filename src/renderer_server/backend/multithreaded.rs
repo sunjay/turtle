@@ -8,10 +8,8 @@ use tokio::{
     process::{Command, ChildStdin},
 };
 use futures_util::future::{FutureExt, RemoteHandle};
-use ipc_channel::ipc::IpcError;
 
-use crate::renderer_client::ClientId;
-use crate::ipc_protocol::{ClientConnection, ServerConnection, ConnectionError, ClientRequest, ServerResponse};
+use crate::ipc_protocol::{ClientConnection, ServerConnection, ConnectionError};
 
 use super::super::main::run_main;
 
@@ -25,10 +23,6 @@ const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
 pub struct RendererServer {
     /// The spawned server process
     proc: RendererServerProcess,
-    /// The connection to the spawned sever process
-    ///
-    /// This will no longer send messages after the server process has terminated.
-    conn: ClientConnection,
 }
 
 impl RendererServer {
@@ -57,21 +51,11 @@ impl RendererServer {
 
     /// Spawns the backend in a new task and returns the struct that will be used to
     /// interface with it.
-    pub async fn spawn() -> Result<Self, ConnectionError> {
+    pub async fn spawn() -> Result<(Self, ClientConnection), ConnectionError> {
         let mut proc = RendererServerProcess::spawn()?;
         let conn = ClientConnection::new(|name| proc.send_ipc_oneshot_name(name)).await?;
 
-        Ok(Self {proc, conn})
-    }
-
-    /// Sends a request to the server
-    pub async fn send(&self, id: ClientId, req: ClientRequest) -> Result<(), ipc_channel::Error> {
-        self.conn.send(id, req).await
-    }
-
-    /// Receives a response from the server
-    pub async fn recv(&self) -> Result<(ClientId, ServerResponse), IpcError> {
-        self.conn.recv().await
+        Ok((Self {proc}, conn))
     }
 }
 
