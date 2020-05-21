@@ -33,8 +33,6 @@ pub struct RendererServer {
     /// dropped. (unlike a `JoinHandle` which will detach instead.) This is important to make sure
     /// the window closes when the thread holding this struct panics.
     task_handle: Option<RemoteHandle<io::Result<ExitStatus>>>,
-    /// A handle to the stdin of the child process
-    child_stdin: ChildStdin,
 }
 
 impl RendererServer {
@@ -90,32 +88,17 @@ impl RendererServer {
         // Keep a handle to the current runtime
         let runtime_handle = Handle::current();
 
-        //TODO: There is no need to have a `child_stdin` feature and refactoring to remove it could
-        // simplify this code
-        let mut proc = Self {runtime_handle, task_handle, child_stdin};
-        let conn = ClientConnection::new(|name| proc.send_ipc_oneshot_name(name)).await?;
+        // Send IPC oneshot server name by writing to stdin
+        let conn = ClientConnection::new(|name| send_ipc_oneshot_name(child_stdin, name)).await?;
 
-        Ok((proc, conn))
+        Ok((Self {runtime_handle, task_handle}, conn))
     }
+}
 
-    /// Sends the IPC one shot server name to the server process
-    ///
-    /// This method should only be called once
-    async fn send_ipc_oneshot_name(&mut self, name: String) -> io::Result<()> {
-        self.writeln(&name).await
-    }
-
-    /// Writes the given bytes followed by a newline b'\n' to the stdin of the process
-    ///
-    /// Unlike `std::io::Write::write`, this returns an error in the case all of the bytes could
-    /// not be written for some reason.
-    async fn writeln<S: AsRef<[u8]>>(&mut self, data: S) -> io::Result<()> {
-        let data = data.as_ref();
-        self.child_stdin.write_all(data).await?;
-        self.child_stdin.write_all(&[b'\n']).await?;
-
-        Ok(())
-    }
+async fn send_ipc_oneshot_name(mut child_stdin: ChildStdin, server_name: String) -> io::Result<()> {
+    child_stdin.write_all(server_name.as_ref()).await?;
+    child_stdin.write_all(&[b'\n']).await?;
+    Ok(())
 }
 
 impl Drop for RendererServer {
