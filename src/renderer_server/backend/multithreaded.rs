@@ -45,7 +45,7 @@ impl RendererServer {
             // spawn_blocking() takes care of catching any panics that might occur, so we don't
             // need to do that explicitly here even though Drop will need that information.
             task::spawn_blocking(|| {
-                run_main(handle, async { ServerConnection::connect(server_name) }, async {})
+                run_main(handle, async { ServerConnection::connect(server_name) })
             }).await
         }.remote_handle();
 
