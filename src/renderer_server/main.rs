@@ -226,12 +226,9 @@ pub fn run_main(
             // to receive it. After all, if the window closes and this process exits, there will be
             // no way to handle subsequent `NextEvent` requests.
             if let Some(event) = Event::from_window_event(event, scale_factor, to_logical) {
-                match events_sender.send(event) {
-                    Ok(()) => {},
-                    // Sending may fail if the IPC thread has ended due to a disconnection when the
-                    // main process ends.
-                    Err(_) => {},
-                }
+                // Sending may fail if the IPC thread has ended due to a disconnection when the
+                // main process ends. This is not a fatal error though so we just ignore it.
+                events_sender.send(event).unwrap_or(());
             }
         },
 

@@ -81,13 +81,10 @@ async fn serve(
             request,
         ));
 
-        match data_req_queued_receiver.await {
-            // Ready for next request to be processed
-            Ok(()) => {},
-            // If data_req_queued was dropped, it probably means that the request didn't need to
-            // call AccessControl::get()
-            Err(_) => {},
-        }
+        // Check if we are ready for the next request to be processed
+        // Ignoring error because if data_req_queued was dropped, it probably just means that the
+        // request didn't need to call AccessControl::get()
+        data_req_queued_receiver.await.unwrap_or(());
     }
 }
 
