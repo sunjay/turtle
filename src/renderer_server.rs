@@ -42,17 +42,26 @@ async fn serve(
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: Arc<EventLoopNotifier>,
     events_receiver: mpsc::UnboundedReceiver<Event>,
+    mut server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
     let conn = Arc::new(conn);
     let app_control = Arc::new(AccessControl::new(app).await);
     let events_receiver = Arc::new(Mutex::new(events_receiver));
 
     loop {
-        let (client_id, request) = match conn.recv().await {
-            Ok(req) => req,
-            // Client has disconnected completely, no purpose in continuing this loop
-            Err(IpcError::Disconnected) => break,
-            Err(err) => panic!("unable to receive request from IPC client: {:?}", err),
+        // This will either receive the next request or end this task
+        let (client_id, request) = tokio::select! {
+            // If the main thread shuts down successfully, this will receive Some(()).
+            // If the main thread panics, this will return None. In either case, this task needs to
+            // end immediately.
+            _ = server_shutdown_receiver.recv() => break,
+
+            req = conn.recv() => match req {
+                Ok(req) => req,
+                // Client has disconnected completely, no purpose in continuing this loop
+                Err(IpcError::Disconnected) => break,
+                Err(err) => panic!("unable to receive request from IPC client: {:?}", err),
+            },
         };
 
         // To preserve the ordering of requests in cases where they can't run concurrently, we use
@@ -156,7 +165,7 @@ async fn run_request(
     match res {
         Ok(()) => {},
         Err(IpcChannelError(err)) => panic!("Error while serializing response: {}", err),
-        // Main thread has ended, all tasks running requests will end very soon
+        // Task managing window has ended, this task will end soon too.
         //TODO: This potentially leaves the turtle/drawing state in an inconsistent state. Should
         // we deal with that somehow? Panicking doesn't seem appropriate since this probably isn't
         // an error, but we should definitely stop processing commands and make sure the process
