@@ -109,6 +109,11 @@ async fn run_request(
         },
 
         PollEvent => {
+            // NOTE: Technically, because this does not send to `data_req_queued`, it is possible
+            // to have several callers of `poll_event` race to get the next event. This appears to
+            // be fine though because we don't guarantee the ordering of events if they are polled
+            // from multiple threads/tasks. Having events follow the order of requests doesn't
+            // really matter if strict ordering isn't necessary.
             handlers::poll_event(&conn, client_id, &events_receiver).await
         },
 
