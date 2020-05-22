@@ -62,8 +62,10 @@ pub async fn run_main(server_name: String) {
     let event_loop_notifier = Arc::new(EventLoopNotifier::new());
     // A channel for transferring events
     let (_events_sender, events_receiver) = mpsc::unbounded_channel();
+    // A channel for notifying on shutdown
+    let (_server_shutdown, server_shutdown_receiver) = mpsc::channel(1);
 
     let conn = ServerConnection::connect(server_name)
         .expect("unable to establish turtle server connection");
-    serve(conn, app, display_list, event_loop_notifier, events_receiver).await;
+    serve(conn, app, display_list, event_loop_notifier, events_receiver, server_shutdown_receiver).await;
 }

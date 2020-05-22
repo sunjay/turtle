@@ -100,6 +100,8 @@ pub fn run_main(
     // because borrow checker cannot verify that `Init` event is only fired once.
     let mut events_receiver = Some(events_receiver);
     let mut establish_connection = Some(establish_connection);
+    let (mut server_shutdown, server_shutdown_receiver) = mpsc::channel(1);
+    let mut server_shutdown_receiver = Some(server_shutdown_receiver);
 
     let window_builder = {
         let drawing = handle.block_on(app.drawing_mut());
@@ -148,6 +150,7 @@ pub fn run_main(
                 event_loop_notifier.clone(),
                 events_receiver.take().expect("bug: init event should only occur once"),
                 establish_connection.take().expect("bug: init event should only occur once"),
+                server_shutdown_receiver.take().expect("bug: init event should only occur once"),
             );
         },
 
@@ -278,6 +281,12 @@ pub fn run_main(
             last_render = Instant::now();
         },
 
+        GlutinEvent::LoopDestroyed => {
+            // Notify the server that it should shutdown, ignoring the error if the channel has
+            // been dropped since that just means that the server task has ended already
+            handle.block_on(server_shutdown.send(())).unwrap_or(());
+        },
+
         _ => {},
     });
 }
@@ -325,11 +334,12 @@ fn spawn_async_server(
     event_loop: Arc<EventLoopNotifier>,
     events_receiver: mpsc::UnboundedReceiver<Event>,
     establish_connection: impl Future<Output=Result<ServerConnection, ConnectionError>> + Send + 'static,
+    server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
     // Spawn root task
     handle.spawn(async {
         let conn = establish_connection.await
             .expect("unable to establish turtle server connection");
-        super::serve(conn, app, display_list, event_loop, events_receiver).await;
+        super::serve(conn, app, display_list, event_loop, events_receiver, server_shutdown_receiver).await;
     });
 }
