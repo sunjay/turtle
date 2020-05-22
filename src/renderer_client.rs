@@ -62,11 +62,9 @@ impl ClientDispatcher {
                         // Alert all the clients of the disconnection
                         let clients = task_clients.read().await;
                         for client in &*clients {
-                            match client.send(Err(Disconnected)) {
-                                Ok(()) => {},
-                                // This particular client connection must have gotten dropped
-                                Err(_) => {},
-                            }
+                            // Ignoring the error since it just means that this particular client
+                            // connection must have gotten dropped
+                            client.send(Err(Disconnected)).unwrap_or(());
                         }
                         break;
                     },
@@ -77,11 +75,9 @@ impl ClientDispatcher {
                 let clients = task_clients.read().await;
 
                 let ClientId(index) = id;
-                match clients[index].send(response) {
-                    Ok(()) => {},
-                    // This particular client connection must have gotten dropped
-                    Err(_) => {},
-                }
+                // Ignoring the error since it just means that this particular client
+                // connection must have gotten dropped
+                clients[index].send(response).unwrap_or(());
             }
         });
 

@@ -37,10 +37,8 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
                     // so it's pretty safe to stop here
                     None => break,
                 };
-                match value_sender.send(next_value) {
-                    Ok(()) => {}, // Sent successfully
-                    Err(_) => {}, // Future was dropped, so this value will not be sent
-                }
+                // The send may fail if the future was dropped, but that is not a fatal error
+                value_sender.send(next_value).unwrap_or(());
             }
         });
 

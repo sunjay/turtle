@@ -200,14 +200,10 @@ impl<'a> Drop for DataGuard<'a> {
     fn drop(&mut self) {
         // unwrap() is safe because a struct cannot be dropped twice
         let sender = self.operation_complete_sender.take().unwrap();
-        match sender.send(()) {
-            Ok(()) => {},
-            // There are some cases (e.g. a panic) where AccessControl can get dropped before
-            // DataGuard. In that case, we the send might fail and we can just ignore that.
-            // This should never fail otherwise because the tasks managing access to data should
-            // run forever.
-            Err(_) => {}
-        }
+        // There are some cases (e.g. a panic) where AccessControl can get dropped before
+        // DataGuard. In that case, the send might fail and we can just ignore that. This should
+        // never fail otherwise because the tasks managing access to data should run forever.
+        sender.send(()).unwrap_or(())
     }
 }
 
@@ -286,17 +282,15 @@ impl DataChannel {
                     let data_ready = data_ready.lock().await.take()
                         .expect("only the leader should use the data ready channel");
                     let (operation_complete, complete_receiver) = oneshot::channel();
-                    match data_ready.send(operation_complete) {
-                        Ok(()) => {},
-                        Err(_) => {}, // Could just be that a future was dropped
-                    }
+                    // Ignoring error because if this fails it could just be that the future
+                    // waiting for the channel we're sending was dropped
+                    data_ready.send(operation_complete).unwrap_or(());
 
                     // Even though only a single task is waiting on this channel, all of the tasks
                     // will wait on the barrier below until the data is no longer being used
-                    match complete_receiver.await {
-                        Ok(()) => {},
-                        Err(_) => {}, // Could just be that a future was dropped
-                    }
+                    // Ignoring error because if this fails it could just be that the future
+                    // waiting for the `operation_complete` channel was dropped.
+                    complete_receiver.await.unwrap_or(());
                 }
 
                 // This barrier will eventually be reached no matter what
@@ -430,12 +424,9 @@ impl AccessControl {
         // This is very important to get the ordering guarantees we are going for. Without this,
         // we would have a race condition between all callers of get() where the order would be
         // randomly determined based on the order the tasks calling get() are scheduled.
-        match data_req_queued.send(()) {
-            Ok(()) => {},
-            // Ignore errors since this just means that whoever was waiting to find out when the
-            // requests have been queued no longer needs to know.
-            Err(_) => {},
-        }
+        // Ignoring errors since this just means that whoever was waiting to find out when the
+        // requests have been queued no longer needs to know.
+        data_req_queued.send(()).unwrap_or(());
 
         // Now wait for data ready channel to signal that data is ready
 
