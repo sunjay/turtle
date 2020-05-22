@@ -1,4 +1,12 @@
+#[cfg(not(any(feature = "test", test)))]
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use super::backend::RendererServer;
+
+/// `start()` must be called once from the main thread, but it can be called after that any number
+/// of times. This flag helps ensure that the main thread check only executes the first time.
+#[cfg(not(any(feature = "test", test)))]
+static START_RAN_ONCE: AtomicBool = AtomicBool::new(false);
 
 /// Start the turtle window in advance
 ///
@@ -43,7 +51,9 @@ pub fn start() {
     // not foolproof and there is no way to verify that start() is called at the beginning of
     // main() in all cases. This is just to help in the cases where we can detect something.
     #[cfg(not(any(feature = "test", test)))]
-    assert_main_thread();
+    if !START_RAN_ONCE.swap(true, Ordering::SeqCst) {
+        assert_main_thread();
+    }
 
     RendererServer::start();
 }
