@@ -265,16 +265,9 @@ impl DataChannel {
         let (sender, mut req_receiver) = mpsc::unbounded_channel();
 
         tokio::spawn(async move {
-            loop {
-                let DataRequest {
-                    all_data_ready_barrier,
-                    all_complete_barrier,
-                    data_ready,
-                } = match req_receiver.recv().await {
-                    Some(req) => req,
-                    // Main thread has quit, this task can quit too
-                    None => break,
-                };
+            // Run until recv() fails since that means that the main access control task has quit
+            while let Some(req) = req_receiver.recv().await {
+                let DataRequest {all_data_ready_barrier, all_complete_barrier, data_ready} = req;
 
                 let res = all_data_ready_barrier.wait().await;
 
