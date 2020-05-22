@@ -12,9 +12,7 @@ use super::super::{
     test_event_loop_notifier::EventLoopNotifier
 };
 
-/// Spawns the task/process responsible for handling and responding to client requests
-///
-/// Also manages the client connection used for communicating with the server
+/// Spawns the task responsible for handling and responding to client requests
 #[derive(Debug)]
 pub struct RendererServer {
     /// A remote handle is like a `JoinHandle` that drops its running task when it is dropped. A
