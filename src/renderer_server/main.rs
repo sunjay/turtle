@@ -79,9 +79,6 @@ pub fn run_main(
 
     // Polled to establish the server connection
     establish_connection: impl Future<Output=Result<ServerConnection, ConnectionError>> + Send + 'static,
-
-    // Polled when the window is closed and the application is about to quit
-    event_loop_quit: impl Future<Output=()> + 'static,
 ) {
     // The state of the drawing and the state/drawings associated with each turtle
     let app = Arc::new(App::default());
@@ -103,7 +100,6 @@ pub fn run_main(
     // because borrow checker cannot verify that `Init` event is only fired once.
     let mut events_receiver = Some(events_receiver);
     let mut establish_connection = Some(establish_connection);
-    let mut event_loop_quit = Some(event_loop_quit);
 
     let window_builder = {
         let drawing = handle.block_on(app.drawing_mut());
@@ -280,12 +276,6 @@ pub fn run_main(
             handle.block_on(redraw(&app, &display_list, &gl_context, &mut renderer));
             *control_flow = ControlFlow::Wait;
             last_render = Instant::now();
-        },
-
-        GlutinEvent::LoopDestroyed => {
-            let event_loop_quit = event_loop_quit.take()
-                .expect("bug: loop destroyed event should only occur once");
-            handle.block_on(event_loop_quit);
         },
 
         _ => {},
