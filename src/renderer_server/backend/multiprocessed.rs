@@ -20,8 +20,8 @@ const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
 #[derive(Debug)]
 pub struct RendererServer {
     /// A handle to the runtime that the process was spawned in. This is needed because a handle
-    /// to the runtime can only be created when a "runtime context". Since Drop may not always run
-    /// from async code, we need this to ensure we can wait on the subprocess in `task_handle`.
+    /// to the runtime can only be created within a "runtime context". Since Drop may not always
+    /// run from async code, we need this to ensure we can wait on the subprocess in `task_handle`.
     /// NOTE: This creates an implicit invariant that this struct must be dropped before the
     /// runtime that it was created in is dropped. This is not an issue in normal code and will at
     /// worst cause a panic!().
