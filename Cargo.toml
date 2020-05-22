@@ -60,7 +60,6 @@ features = [
   "process",
   "io-std",
   "io-util",
-  "rt-core",
   "rt-threaded",
   "blocking",
   "sync",
