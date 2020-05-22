@@ -17,8 +17,6 @@ use super::super::main::run_main;
 const RENDERER_PROCESS_ENV_VAR: &str = "RUN_TURTLE_CANVAS";
 
 /// Spawns the task/process responsible for handling and responding to client requests
-///
-/// Also manages the client connection used for communicating with the server
 #[derive(Debug)]
 pub struct RendererServer {
     /// A handle to the runtime that the process was spawned in. This is needed because a handle
