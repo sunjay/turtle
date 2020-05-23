@@ -29,11 +29,13 @@ pub struct App {
     drawing: Mutex<DrawingState>,
     /// Each `TurtleId` indexes into this field
     ///
-    /// Note that we have to be very careful deleting from this field since we don't want to
-    /// invalidate any `TurtleId` or cloned `Arc<Mutex<TurtleDrawings>>`.
+    /// Need to be very careful deleting from this field because the `TurtleId` returned from
+    /// `add_turtle()` must remain unique and thus can never be repeated. Also, we wouldn't want to
+    /// invalidate any clones of the `Arc<Mutex<TurtleDrawings>>` returned from the `turtle()`
+    /// method.
     ///
-    /// The outer `RwLock` makes it possible to push into the `Vec` using `write` and also `clone`
-    /// multiple items in the `Vec` at the same time using `read`.
+    /// The outer `RwLock` in this type makes it possible to 1) push into the `Vec` using `write()`
+    /// and 2) `clone` multiple items in the `Vec` concurrently using `read()`.
     turtles: RwLock<Vec<Arc<Mutex<TurtleDrawings>>>>,
 }
 
@@ -51,16 +53,21 @@ impl App {
         self.drawing.lock().await
     }
 
+    /// Returns the total number of turtles currently stored in the application state
     pub async fn turtles_len(&self) -> usize {
         self.turtles.read().await.len()
     }
 
+    /// Returns the IDs of all turtles currently stored in the application state
     pub async fn turtle_ids(&self) -> impl Iterator<Item=TurtleId> + Clone {
         let len = self.turtles_len().await;
         (0..len).map(TurtleId)
     }
 
     /// Returns a handle to a the state and drawings of the given turtle
+    ///
+    /// The data is not locked, so multiple callers of this method may race to lock the data after
+    /// the mutex is returned.
     pub async fn turtle(&self, id: TurtleId) -> Arc<Mutex<TurtleDrawings>> {
         let TurtleId(index) = id;
         let turtles = self.turtles.read().await;
