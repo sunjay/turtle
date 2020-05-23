@@ -5,16 +5,18 @@ mod coords;
 mod renderer;
 mod backend;
 mod handlers;
-#[cfg(not(any(feature = "test", test)))]
-mod event_loop_notifier;
-#[cfg(not(any(feature = "test", test)))]
-mod main;
 mod start;
 
-#[cfg(any(feature = "test", test))]
-mod test_event_loop_notifier;
-#[cfg(any(feature = "test", test))]
-use test_event_loop_notifier as event_loop_notifier;
+cfg_if::cfg_if! {
+    if #[cfg(any(feature = "test", test))] {
+        mod test_event_loop_notifier;
+        use test_event_loop_notifier as event_loop_notifier;
+
+    } else {
+        mod event_loop_notifier;
+        mod main;
+    }
+}
 
 pub(crate) use app::TurtleId;
 pub(crate) use backend::RendererServer;
