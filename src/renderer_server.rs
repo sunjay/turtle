@@ -53,9 +53,8 @@ async fn serve(
     loop {
         // This will either receive the next request or end this task
         let (client_id, request) = tokio::select! {
-            // If the main thread shuts down successfully, this will receive Some(()).
-            // If the main thread panics, this will return None. In either case, this task needs to
-            // end immediately.
+            // If the main thread shuts down successfully, this will receive Some(()). If the main
+            // thread panics, this will return None. In either case, this loop needs to stop.
             _ = server_shutdown_receiver.recv() => break,
 
             req = conn.recv() => match req {
@@ -67,11 +66,13 @@ async fn serve(
         };
 
         // To preserve the ordering of requests in cases where they can't run concurrently, we use
-        // a channel to synchronize that each request
+        // a channel to synchronize that each request has finished requesting the data it needs
+        // before the next request can be processed at all.
         let (data_req_queued, data_req_queued_receiver) = oneshot::channel();
 
-        // Each incoming request is given its own task configured specifically for each kind of
-        // request. Having separate tasks allows requests that can run in parallel to do so.
+        // Each incoming request is executed immediately in its own task. This allows requests that
+        // can run concurrently to do so. Requests that use an overlapping set of data will run
+        // in the order in which they arrived. The ordering is enforced with `data_req_queued`.
         tokio::spawn(run_request(
             data_req_queued,
             conn.clone(),
@@ -84,6 +85,7 @@ async fn serve(
         ));
 
         // Check if we are ready for the next request to be processed
+        //
         // Ignoring error because if data_req_queued was dropped, it probably just means that the
         // request didn't need to call AccessControl::get()
         data_req_queued_receiver.await.unwrap_or(());
@@ -112,10 +114,10 @@ async fn run_request(
 
         PollEvent => {
             // NOTE: Technically, because this does not send to `data_req_queued`, it is possible
-            // to have several callers of `poll_event` race to get the next event. This appears to
-            // be fine though because we don't guarantee the ordering of events if they are polled
-            // from multiple threads/tasks. Having events follow the order of requests doesn't
-            // really matter if strict ordering isn't necessary.
+            // to have several callers of `poll_event` race to get the next event. This is probably
+            // fine though because we don't guarantee the ordering of events if they are polled
+            // from multiple threads/tasks. Thus, following the order of requests does not matter
+            // in this specific case.
             handlers::poll_event(&conn, client_id, &events_receiver).await
         },
 
