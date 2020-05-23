@@ -122,7 +122,7 @@ pub enum RequiredTurtles {
 }
 
 impl RequiredTurtles {
-    /// Returns the number of turtles required, up to the total number of turtles provided
+    /// Returns the number of turtles required, up to the provided total number of turtles
     pub fn len(&self, turtles_len: usize) -> usize {
         use RequiredTurtles::*;
         match self {
@@ -247,7 +247,10 @@ impl<'a> DataGuard<'a> {
         use Turtles::*;
         match turtles {
             One(turtle) => TurtlesGuard::One(turtle.lock().await),
-            Two(turtle1, turtle2) => TurtlesGuard::Two(turtle1.lock().await, turtle2.lock().await),
+            Two(turtle1, turtle2) => {
+                let (turtle1, turtle2) = tokio::join!(turtle1.lock(), turtle2.lock());
+                TurtlesGuard::Two(turtle1, turtle2)
+            },
             All(turtles) => TurtlesGuard::All(join_all(turtles.iter().map(|t| t.lock())).await),
         }
     }
@@ -474,17 +477,13 @@ impl AccessControl {
             },
 
             Some(Two(id1, id2)) => {
-                let turtle1 = self.app.turtle(id1).await;
-                let turtle2 = self.app.turtle(id2).await;
+                let (turtle1, turtle2) = tokio::join!(self.app.turtle(id1), self.app.turtle(id2));
                 Some(Turtles::Two(turtle1, turtle2))
             },
 
             Some(All) => {
-                let mut turtles = Vec::new();
-                for id in self.app.turtle_ids().await {
-                    let turtle = self.app.turtle(id).await;
-                    turtles.push(turtle);
-                }
+                let ids = self.app.turtle_ids().await;
+                let turtles = join_all(ids.map(|id| self.app.turtle(id))).await;
                 Some(Turtles::All(turtles))
             },
 
