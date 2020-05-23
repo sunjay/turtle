@@ -1,7 +1,7 @@
 //! Handles the IPC (Inter-process Communication) protocol used by the renderer client and server.
 //!
-//! This is the common "language" between client/server. It defines both the protocol for
-//! connection and for send messages back and forth.
+//! This is the common "language" between client/server. It defines the protocol for connection and
+//! for sending messages back and forth.
 
 mod async_ipc_receiver;
 mod messages;
