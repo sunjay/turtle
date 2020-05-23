@@ -120,7 +120,10 @@ pub enum ClientRequest {
     /// Response: N/A
     EndFill(TurtleId),
 
-    /// Clears all drawings for all turtles
+    /// Clears all drawings for all turtles that exist at the time when the request is sent
+    ///
+    /// Waits for the turtles to finish drawing any lines that are currently being animated. Any
+    /// additional turtles created in the meantime after this request is sent will not be cleared.
     ///
     /// The cleared turtles will not move. None of their positions, headings, pens, or other
     /// properties will change. If a turtle was currently filling, it will stop filling and its
