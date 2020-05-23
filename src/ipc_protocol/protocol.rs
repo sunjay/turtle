@@ -376,11 +376,11 @@ impl ProtocolClient {
     }
 
     #[allow(dead_code)] //TODO(#16): This is part of the multiple turtles feature (for Drawing::clear())
-    pub async fn clear(&self) {
-        self.client.send(ClientRequest::Clear(None)).await
+    pub async fn clear_all(&self) {
+        self.client.send(ClientRequest::ClearAll).await
     }
 
     pub async fn clear_turtle(&self, id: TurtleId) {
-        self.client.send(ClientRequest::Clear(Some(id))).await
+        self.client.send(ClientRequest::ClearTurtle(id)).await
     }
 }

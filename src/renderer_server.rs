@@ -157,9 +157,11 @@ async fn run_request(
             handlers::end_fill(data_req_queued, &app_control, id).await
         },
 
-        Clear(id) => match id {
-            Some(id) => handlers::clear_turtle(data_req_queued, &app_control, &display_list, &event_loop, id).await,
-            None => handlers::clear(data_req_queued, &app_control, &display_list, &event_loop).await,
+        ClearAll => {
+            handlers::clear_all(data_req_queued, &app_control, &display_list, &event_loop).await
+        },
+        ClearTurtle(id) => {
+            handlers::clear_turtle(data_req_queued, &app_control, &display_list, &event_loop, id).await
         },
     };
 

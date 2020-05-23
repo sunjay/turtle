@@ -8,7 +8,7 @@ use super::super::{
     renderer::display_list::DisplayList,
 };
 
-pub(crate) async fn clear(
+pub(crate) async fn clear_all(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,

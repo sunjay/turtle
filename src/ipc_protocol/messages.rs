@@ -120,17 +120,24 @@ pub enum ClientRequest {
     /// Response: N/A
     EndFill(TurtleId),
 
-    /// Clears all drawings created by a turtle
-    ///
-    /// If no ID is provided, all drawings from all turtles will be cleared.
+    /// Clears all drawings for all turtles
     ///
     /// The cleared turtles will not move. None of their positions, headings, pens, or other
-    /// properties will change. If a turtle was current filling, it will stop filling and its
+    /// properties will change. If a turtle was currently filling, it will stop filling and its
     /// fill polygon will also be cleared. No properties on the drawing will change, including the
     /// background image, title, etc.
     ///
     /// Response: N/A
-    Clear(Option<TurtleId>),
+    ClearAll,
+    /// Clears all drawings created by a single turtle
+    ///
+    /// The cleared turtle will not move. None of its position, heading, pen, or other properties
+    /// will change. If the turtle was current filling, it will stop filling and its fill polygon
+    /// will also be cleared. No properties on the drawing will change, including the background
+    /// image, title, etc.
+    ///
+    /// Response: N/A
+    ClearTurtle(TurtleId),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
