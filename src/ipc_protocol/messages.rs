@@ -19,7 +19,7 @@ use crate::radians::Radians;
 /// run concurrently.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ClientRequest {
-    /// Sent initially and on creating any turtle in order to get a `TurtleId`
+    /// Creates a new turtle and provides the `TurtleId` that can be used to control it
     ///
     /// Response: `ServerResponse::NewTurtle`
     CreateTurtle,
