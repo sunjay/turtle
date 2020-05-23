@@ -14,7 +14,7 @@ use crate::renderer_server::RendererServer;
 #[error("Cannot continue to run turtle commands after window is closed. This panic stops the thread, but is not necessarily an error.")]
 struct Disconnected;
 
-/// A unique ID used to multiplex responses on the client side
+/// A unique ID used to dispatch responses on the client side
 ///
 /// Treated as an opaque value on the server that is returned back to the client with the response
 /// to a request.
