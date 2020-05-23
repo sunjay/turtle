@@ -108,9 +108,7 @@ impl ServerConnection {
 
         let mut oneshot_name = String::new();
         reader.read_line(&mut oneshot_name).await?;
-        if oneshot_name.is_empty() {
-            panic!("bug: unexpected EOF when reading oneshot server name");
-        }
+        assert!(!oneshot_name.is_empty(), "bug: unexpected EOF when reading oneshot server name");
 
         // Remove the trailing newline
         assert_eq!(oneshot_name.pop(), Some('\n'));
