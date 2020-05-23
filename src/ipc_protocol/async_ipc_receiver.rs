@@ -9,8 +9,7 @@ use ipc_channel::ipc::{IpcReceiver, IpcError};
 ///
 /// The `ipc_channel::ipc::IpcReceiver` type can't be shared between threads, so it can't be used
 /// from `tokio::task::spawn_blocking`. This type uses a separate thread to manage receiving
-/// values asynchronously. It implements the `Stream` trait, which allows it to be polled over
-/// and over again for each received value.
+/// values asynchronously.
 #[derive(Debug)]
 pub struct AsyncIpcReceiver<T: Serialize + DeserializeOwned + Send + 'static> {
     /// Each AsyncIpcReceiver::recv() call sends a oneshot channel that collects the result when
