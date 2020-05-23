@@ -4,13 +4,13 @@
 //!
 //! logical or "world" coordinates (cartesian coordinates)
 //!   * origin is in the center of the framebuffer and can be offset by drawing `center`
-//!   * x is left to right
-//!   * y is bottom to top
+//!   * x is left (-) to right (+)
+//!   * y is bottom (-) to top (+)
 //!
 //! screen coordinates
 //!   * origin is the top-left corner of the framebuffer
-//!   * x is left to right
-//!   * y is top to bottom
+//!   * x is left (-) to right (+)
+//!   * y is top (-) to bottom (+)
 
 use glutin::dpi::PhysicalPosition;
 use pathfinder_geometry::vector::{Vector2F, vec2f};
