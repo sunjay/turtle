@@ -260,29 +260,29 @@ impl<'a> DataGuard<'a> {
 ///
 /// Note that due to lifetime limitations, this does not manage sending the resource back to the
 /// task waiting for access to it. It only acts to signal that the resource is ready to be
-/// accessed. This proceeds in 4 stages:
+/// accessed.
 #[derive(Debug)]
 struct DataRequest {
     /// A barrier that all tasks will wait at before signaling that data is ready
     ///
-    /// This ensures that all tasks send that signal simultaneously
+    /// This ensures that all the requested data must be ready before proceeding to lock any of it
     all_data_ready_barrier: Arc<Barrier>,
 
     /// This barrier must have the same size as the `data_ready` barrier and is used to ensure that
-    /// access to all of the data ends at the same time. That way, even if one part of the data is
-    /// freed up before the others, it will still appear as if all of them became available to the
-    /// next task at the same time.
+    /// access to all of the data ends at the same time. This is necessary since only a single data
+    /// channel (the leader) is ever aware that the data is no longer being accessed. That channel
+    /// will be the last one to wait at this barrier and thus all of the data will become available
+    /// again at the same time.
     all_complete_barrier: Arc<Barrier>,
 
     /// Used to signal the task waiting for data that the data is ready
     ///
-    /// Only a single task will use this field, based on the result of `is_leader()`. The leader
-    /// task will then send a channel that the waiting task can use to indicate when the data is
-    /// no longer going to be used.
+    /// Only a single data channel (the leader) will use this field. That channel will then send a
+    /// oneshot channel that will be used to indicate when the data is no longer going to be used.
     data_ready: Arc<Mutex<Option<oneshot::Sender<oneshot::Sender<()>>>>>,
 }
 
-/// Provides access to a task that manages access to a particular resource
+/// Provides the ability to communicate with a task that manages access to a particular resource
 #[derive(Debug)]
 struct DataChannel {
     sender: mpsc::UnboundedSender<DataRequest>,
@@ -297,24 +297,37 @@ impl DataChannel {
             while let Some(req) = req_receiver.recv().await {
                 let DataRequest {all_data_ready_barrier, all_complete_barrier, data_ready} = req;
 
+                // Wait until all of the data is ready at the same time
                 let res = all_data_ready_barrier.wait().await;
 
                 if res.is_leader() {
+                    // Notify that the data is ready
                     let data_ready = data_ready.lock().await.take()
                         .expect("only the leader should use the data ready channel");
+
                     let (operation_complete, complete_receiver) = oneshot::channel();
-                    // Ignoring error because if this fails it could just be that the future
-                    // waiting for the channel we're sending was dropped
+
+                    // Wait until the data has been dropped and will no longer be used
+                    //
+                    // Ignoring error because even if this fails, it just means that the future
+                    // holding the data was dropped. In that case, the data is still now available
+                    // again for the next task waiting for it.
                     data_ready.send(operation_complete).unwrap_or(());
 
                     // Even though only a single task is waiting on this channel, all of the tasks
-                    // will wait on the barrier below until the data is no longer being used
+                    // will wait on the barrier below until the data is no longer being used.
+                    //
                     // Ignoring error because if this fails it could just be that the future
-                    // waiting for the `operation_complete` channel was dropped.
+                    // waiting for the `operation_complete` channel was dropped. In that case, the
+                    // data is still available again for the next task waiting for it.
                     complete_receiver.await.unwrap_or(());
                 }
 
-                // This barrier will eventually be reached no matter what
+                // Wait for all of the data to stop being used before processing the next request
+                //
+                // This barrier must eventually be reached no matter what happens above. If all
+                // data channels do not get to this point we can get into a situation where nothing
+                // can make progress.
                 all_complete_barrier.wait().await;
             }
         });
