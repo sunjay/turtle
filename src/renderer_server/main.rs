@@ -92,7 +92,7 @@ pub fn run_main(
     let mut event_loop = new_event_loop();
     // Create the proxy that will be given to the thread managing IPC
     let event_loop_proxy = event_loop.create_proxy();
-    let event_loop_notifier = Arc::new(EventLoopNotifier::new(event_loop_proxy));
+    let event_loop_notifier = EventLoopNotifier::new(event_loop_proxy);
 
     // A channel for transferring events
     let (events_sender, events_receiver) = mpsc::unbounded_channel();
@@ -328,7 +328,7 @@ fn spawn_async_server(
     handle: &Handle,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: Arc<EventLoopNotifier>,
+    event_loop: EventLoopNotifier,
     events_receiver: mpsc::UnboundedReceiver<Event>,
     establish_connection: impl Future<Output=Result<ServerConnection, ConnectionError>> + Send + 'static,
     server_shutdown_receiver: mpsc::Receiver<()>,

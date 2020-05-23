@@ -1,4 +1,3 @@
-use tokio::sync::Mutex;
 use glutin::{
     dpi::LogicalSize,
     event_loop::{self, EventLoopProxy},
@@ -31,39 +30,37 @@ pub enum MainThreadAction {
 }
 
 /// Notifies the main loop when actions need to take place
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EventLoopNotifier {
-    event_loop: Mutex<EventLoopProxy<MainThreadAction>>,
+    event_loop: EventLoopProxy<MainThreadAction>,
 }
 
 impl EventLoopNotifier {
     pub fn new(event_loop: EventLoopProxy<MainThreadAction>) -> Self {
-        Self {
-            event_loop: Mutex::new(event_loop),
-        }
+        Self {event_loop}
     }
 
-    pub async fn request_redraw(&self) -> Result<(), EventLoopClosed> {
-        self.send_action(MainThreadAction::Redraw).await
+    pub fn request_redraw(&self) -> Result<(), EventLoopClosed> {
+        self.send_action(MainThreadAction::Redraw)
     }
 
-    pub async fn set_title(&self, title: String) -> Result<(), EventLoopClosed> {
-        self.send_action(MainThreadAction::SetTitle(title)).await
+    pub fn set_title(&self, title: String) -> Result<(), EventLoopClosed> {
+        self.send_action(MainThreadAction::SetTitle(title))
     }
 
-    pub async fn set_size<S: Into<LogicalSize<u32>>>(&self, size: S) -> Result<(), EventLoopClosed> {
-        self.send_action(MainThreadAction::SetSize(size.into())).await
+    pub fn set_size<S: Into<LogicalSize<u32>>>(&self, size: S) -> Result<(), EventLoopClosed> {
+        self.send_action(MainThreadAction::SetSize(size.into()))
     }
 
-    pub async fn set_is_maximized(&self, is_maximized: bool) -> Result<(), EventLoopClosed> {
-        self.send_action(MainThreadAction::SetIsMaximized(is_maximized)).await
+    pub fn set_is_maximized(&self, is_maximized: bool) -> Result<(), EventLoopClosed> {
+        self.send_action(MainThreadAction::SetIsMaximized(is_maximized))
     }
 
-    pub async fn set_is_fullscreen(&self, is_fullscreen: bool) -> Result<(), EventLoopClosed> {
-        self.send_action(MainThreadAction::SetIsFullscreen(is_fullscreen)).await
+    pub fn set_is_fullscreen(&self, is_fullscreen: bool) -> Result<(), EventLoopClosed> {
+        self.send_action(MainThreadAction::SetIsFullscreen(is_fullscreen))
     }
 
-    async fn send_action(&self, action: MainThreadAction) -> Result<(), EventLoopClosed> {
-        Ok(self.event_loop.lock().await.send_event(action)?)
+    fn send_action(&self, action: MainThreadAction) -> Result<(), EventLoopClosed> {
+        Ok(self.event_loop.send_event(action)?)
     }
 }

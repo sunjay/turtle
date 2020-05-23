@@ -36,7 +36,7 @@ pub(crate) async fn move_forward(
     client_id: ClientId,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
     distance: Distance,
 ) -> Result<(), HandlerError> {
@@ -66,7 +66,7 @@ pub(crate) async fn move_forward(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.request_redraw().await?;
+        event_loop.request_redraw()?;
 
         // Sleep until it is time to update the animation again
         time::delay_for(anim.next_delay).await;
@@ -82,7 +82,7 @@ pub(crate) async fn move_forward(
 
     // Signal the main thread one last time that the image has changed
     // This also runs if anim.running starts as false (for speed == instant)
-    event_loop.request_redraw().await?;
+    event_loop.request_redraw()?;
 
     conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
 
@@ -95,7 +95,7 @@ pub(crate) async fn move_to(
     client_id: ClientId,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
     target_pos: Point,
 ) -> Result<(), HandlerError> {
@@ -116,7 +116,7 @@ pub(crate) async fn move_to(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.request_redraw().await?;
+        event_loop.request_redraw()?;
 
         // Sleep until it is time to update the animation again
         time::delay_for(anim.next_delay).await;
@@ -132,7 +132,7 @@ pub(crate) async fn move_to(
 
     // Signal the main thread one last time that the image has changed
     // This also runs if anim.running starts as false (for speed == instant)
-    event_loop.request_redraw().await?;
+    event_loop.request_redraw()?;
 
     conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
 
@@ -280,7 +280,7 @@ pub(crate) async fn rotate_in_place(
     conn: &ServerConnection,
     client_id: ClientId,
     app_control: &AccessControl,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
     angle: Radians,
     direction: RotationDirection,
@@ -301,7 +301,7 @@ pub(crate) async fn rotate_in_place(
 
     while anim.running {
         // Signal the main thread that the image has changed
-        event_loop.request_redraw().await?;
+        event_loop.request_redraw()?;
 
         // Sleep until it is time to update the animation again
         time::delay_for(anim.next_delay).await;
@@ -316,7 +316,7 @@ pub(crate) async fn rotate_in_place(
 
     // Signal the main thread one last time that the image has changed
     // This also runs if anim.running starts as false (for speed == instant)
-    event_loop.request_redraw().await?;
+    event_loop.request_redraw()?;
 
     conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
 

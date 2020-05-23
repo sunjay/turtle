@@ -12,7 +12,7 @@ pub(crate) async fn begin_fill(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -33,7 +33,7 @@ pub(crate) async fn begin_fill(
     drawings.push(poly_handle);
     *current_fill_polygon = Some(poly_handle);
 
-    event_loop.request_redraw().await?;
+    event_loop.request_redraw()?;
 
     Ok(())
 }

@@ -12,7 +12,7 @@ pub(crate) async fn clear_all(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
 ) -> Result<(), HandlerError> {
     // We need to lock everything to ensure that the clear takes place in a sequentially
     // consistent way. We wouldn't want this to run while any lines are still being drawn.
@@ -36,7 +36,7 @@ pub(crate) async fn clear_all(
     }
 
     // Signal the main thread that the image has changed
-    event_loop.request_redraw().await?;
+    event_loop.request_redraw()?;
 
     Ok(())
 }
@@ -45,7 +45,7 @@ pub(crate) async fn clear_turtle(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -63,7 +63,7 @@ pub(crate) async fn clear_turtle(
     *current_fill_polygon = None;
 
     // Signal the main thread that the image has changed
-    event_loop.request_redraw().await?;
+    event_loop.request_redraw()?;
 
     Ok(())
 }
