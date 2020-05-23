@@ -105,17 +105,17 @@ pub use crate::point::Point;
 pub use crate::speed::Speed;
 pub use crate::async_turtle::{Angle, Distance};
 pub use crate::turtle::Turtle;
-pub use crate::renderer_server::ExportError;
+pub use crate::renderer_server::{ExportError, start};
 
-#[cfg(feature = "unstable")]
-#[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
-pub mod event;
-#[cfg(feature = "unstable")]
-#[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
-pub use crate::event::Event;
-#[cfg(not(feature = "unstable"))]
-mod event;
-#[cfg(not(feature = "unstable"))]
-use crate::event::Event;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "unstable")] {
+        #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
+        pub mod event;
+        #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
+        pub use crate::event::Event;
 
-pub use crate::renderer_server::start;
+    } else {
+        mod event;
+        use crate::event::Event;
+    }
+}
