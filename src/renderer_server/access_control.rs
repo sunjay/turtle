@@ -10,9 +10,10 @@
 //! the same data should be able to run concurrently.
 //!
 //! For example, if two turtles are drawing separate lines, they should be able to draw those lines
-//! at the same time. On the other hand, if a turtle is drawing a line and then the clear request
+//! at the same time. On the other hand, if a turtle is drawing a line and then a clear request
 //! is sent from another thread, the turtle should be able to finish drawing that line before the
-//! clear request is executed.
+//! clear request is executed. If in the meantime another request pertaining to a different turtle
+//! comes in, that request should wait until the clear request has completed.
 //!
 //! More precisely, we are trying to enforce that:
 //! * requests that depend on an overlapping subset of app data execute in the order in which they
@@ -23,19 +24,43 @@
 //! It is tough to do this with just a `Vec<Mutex<T>>` because while tokio's Mutex does guarantee
 //! FIFO order, there is no way to put something back on the front of the mutex queue in the case
 //! where *all* of its data dependencies aren't ready. Also, if we were to use a Mutex, it would
-//! be impossible to lock the data in between request executions in order to do rendering. We would
-//! need some kind of prioritized locking system that allows a lock from the renderer to override
-//! any other lock requests.
+//! be impossible to lock the data in between request executions. That would mean that rendering
+//! would be blocked until all requests have been processed. To deal with that we would need some
+//! kind of prioritized locking system that allows a lock from the renderer to override any other
+//! locks from requests.
 //!
-//! The code below uses a separate data structure to track when it is appropriate for a request to
-//! begin attempting to lock the data. This ensures that only one request is ever actually in the
-//! mutex queue. That means that the renderer is free to lock the data when it needs to. The data
-//! will become available to the renderer when that request is done executing.
+//! # Access Control
 //!
-//! Note that requests can take a non-instant amount of time to execute. (That is, a request can
-//! `await` during its execution.) That means that any locks need to be held across await points so
-//! that a request completely finishes executing before the next request is notified that the lock
-//! is available.
+//! The `AccessControl` data structure below is responsible for enforcing the properties outlined
+//! above. Each piece of data shared by the renderer and the requests is stored behind a separate
+//! mutex. To ensure that the renderer has priority over requests when locking the data, it does
+//! not use the `AccessControl` type. Instead, it is given direct access to those mutexes and is
+//! able to lock them whenever it needs to. Requests on the other hand are required to use the
+//! `AccessControl` type to explicitly declare the data that they need. The `AccessControl` type
+//! decides when to give each request permission to begin locking the data.
+//!
+//! Only a single request is ever given permission to begin locking a given set of mutexes.
+//! Multiple requests with disjoint sets of data may be given permission at the same time to lock
+//! their respective pieces of data. In all cases, the `AccessControl` type guarantees that only up
+//! to one waiter will ever be in a mutex's queue or currently holding a mutex's lock. This is
+//! important because it means that the renderer is guaranteed to always get priority access to the
+//! data immediately after the current set of running requests. It can lock the data almost right
+//! away without waiting for all queued requests to complete.
+//!
+//! Some requests do not complete "instantly" and may even have long await points (e.g. for an
+//! animation delay). If not handled correctly, this can block rendering as a single request could
+//! hold on to a lock for too long. To avoid this, the `AccessControl` type does not actually lock
+//! all of the data as soon as a request is given permission to access it. Turtle data for example
+//! is provided as the mutexes holding the data, not as mutex guards which would hold the locks.
+//! This allows a request that needs long await points to unlock the data before those await points
+//! begin. This enables the renderer to continue while still allowing requests to maintain access
+//! over a longer period of time.
+//!
+//! The key here is that access to the data isn't bound by the amount of time the data is locked.
+//! Instead, the `AccessControl` type provides the *opportunity* to lock, and waits for the request
+//! to give up that opportunity before passing it on to the next request. Requests may unlock data
+//! and still re-lock it later without worrying about losing their place to another request that
+//! came afterwards.
 //!
 //! # Example
 //!
