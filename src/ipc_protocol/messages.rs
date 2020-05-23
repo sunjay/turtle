@@ -11,12 +11,12 @@ use crate::radians::Radians;
 /// Not all requests warrant a response. The response for each request is listed in its
 /// documentation.
 ///
-/// If a request initiates an animation on a resource, further requests for that resource will be
-/// held until the animation is completed. For example, if a request animates a turtle and then
-/// a property on that turtle is requested, this will cause the second request to wait for the
-/// animation to be completed. Other requests may still continue in the meantime. Only requests
-/// pertaining to that resource (the turtle) will be held. This is important to ensure consistency
-/// and avoid race conditions while an animation is running.
+/// Each request is processed in order and will be held until all of its required resources are
+/// available. For example, suppose a request needs access to a particular turtle in order to
+/// perform an animation. If another request comes along to clear the image, that request will be
+/// held until the animation is complete since it also requires access to that turtle. This
+/// behaviour is important to ensure sequential consistency and avoid race conditions as requests
+/// run concurrently.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ClientRequest {
     /// Sent initially and on creating any turtle in order to get a `TurtleId`
