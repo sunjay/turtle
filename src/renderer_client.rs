@@ -38,10 +38,10 @@ struct ClientDispatcher {
     /// This will no longer send messages after the server process has terminated.
     conn: Arc<ClientConnection>,
 
-    /// Each `ClientId` indexes into this field
+    /// A channel for sending responses from the server to each client, indexed by `ClientId`
     ///
-    /// Using `RwLock` allows sending multiple times concurrently using `read()` and also allows
-    /// more clients to be added using `write()`.
+    /// Using `RwLock` allows sending multiple times concurrently using `RwLock::read()` and also
+    /// allows more clients to be added using `RwLock::write()`.
     clients: Arc<RwLock<Vec<mpsc::UnboundedSender<Result<ServerResponse, Disconnected>>>>>,
 }
 
