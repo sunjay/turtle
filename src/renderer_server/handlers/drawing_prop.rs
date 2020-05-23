@@ -49,7 +49,7 @@ pub(crate) async fn drawing_prop(
 pub(crate) async fn set_drawing_prop(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     prop_value: DrawingPropValue,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -65,7 +65,7 @@ pub(crate) async fn set_drawing_prop(
 pub(crate) async fn reset_drawing_prop(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     prop: DrawingProp,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -93,7 +93,7 @@ pub(crate) async fn reset_drawing_prop(
 
 async fn modify_drawing(
     drawing: &mut DrawingState,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     prop_value: DrawingPropValue,
 ) -> Result<(), HandlerError> {
     use DrawingPropValue::*;
@@ -102,7 +102,7 @@ async fn modify_drawing(
             drawing.title = title.clone();
 
             // Signal the main thread to change this property on the window
-            event_loop.set_title(title).await?;
+            event_loop.set_title(title)?;
         },
 
         Background(background) => drawing.background = background,
@@ -114,35 +114,35 @@ async fn modify_drawing(
             drawing.height = height;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_size((width, height)).await?;
+            event_loop.set_size((width, height))?;
         },
 
         Width(width) => {
             drawing.width = width;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_size((width, drawing.height)).await?;
+            event_loop.set_size((width, drawing.height))?;
         },
 
         Height(height) => {
             drawing.height = height;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_size((drawing.width, height)).await?;
+            event_loop.set_size((drawing.width, height))?;
         },
 
         IsMaximized(is_maximized) => {
             drawing.is_maximized = is_maximized;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_is_maximized(is_maximized).await?;
+            event_loop.set_is_maximized(is_maximized)?;
         },
 
         IsFullscreen(is_fullscreen) => {
             drawing.is_fullscreen = is_fullscreen;
 
             // Signal the main thread to change this property on the window
-            event_loop.set_is_fullscreen(is_fullscreen).await?;
+            event_loop.set_is_fullscreen(is_fullscreen)?;
         },
     }
 

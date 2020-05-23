@@ -42,7 +42,7 @@ async fn serve(
     conn: ServerConnection,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: Arc<EventLoopNotifier>,
+    event_loop: EventLoopNotifier,
     events_receiver: mpsc::UnboundedReceiver<Event>,
     mut server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
@@ -98,14 +98,14 @@ async fn run_request(
     client_id: ClientId,
     app_control: Arc<AccessControl>,
     display_list: Arc<Mutex<DisplayList>>,
-    event_loop: Arc<EventLoopNotifier>,
+    event_loop: EventLoopNotifier,
     events_receiver: Arc<Mutex<mpsc::UnboundedReceiver<Event>>>,
     request: ClientRequest,
 ) {
     use ClientRequest::*;
     let res = match request {
         CreateTurtle => {
-            handlers::create_turtle(&conn, client_id, &app_control, &event_loop).await
+            handlers::create_turtle(&conn, client_id, &app_control, event_loop).await
         },
 
         Export(path, format) => {
@@ -125,47 +125,47 @@ async fn run_request(
             handlers::drawing_prop(data_req_queued, &conn, client_id, &app_control, prop).await
         },
         SetDrawingProp(prop_value) => {
-            handlers::set_drawing_prop(data_req_queued, &app_control, &event_loop, prop_value).await
+            handlers::set_drawing_prop(data_req_queued, &app_control, event_loop, prop_value).await
         },
         ResetDrawingProp(prop) => {
-            handlers::reset_drawing_prop(data_req_queued, &app_control, &event_loop, prop).await
+            handlers::reset_drawing_prop(data_req_queued, &app_control, event_loop, prop).await
         },
 
         TurtleProp(id, prop) => {
             handlers::turtle_prop(data_req_queued, &conn, client_id, &app_control, id, prop).await
         },
         SetTurtleProp(id, prop_value) => {
-            handlers::set_turtle_prop(data_req_queued, &app_control, &display_list, &event_loop, id, prop_value).await
+            handlers::set_turtle_prop(data_req_queued, &app_control, &display_list, event_loop, id, prop_value).await
         },
         ResetTurtleProp(id, prop) => {
-            handlers::reset_turtle_prop(data_req_queued, &app_control, &display_list, &event_loop, id, prop).await
+            handlers::reset_turtle_prop(data_req_queued, &app_control, &display_list, event_loop, id, prop).await
         },
         ResetTurtle(id) => {
-            handlers::reset_turtle(data_req_queued, &app_control, &display_list, &event_loop, id).await
+            handlers::reset_turtle(data_req_queued, &app_control, &display_list, event_loop, id).await
         },
 
         MoveForward(id, distance) => {
-            handlers::move_forward(data_req_queued, &conn, client_id, &app_control, &display_list, &event_loop, id, distance).await
+            handlers::move_forward(data_req_queued, &conn, client_id, &app_control, &display_list, event_loop, id, distance).await
         },
         MoveTo(id, target_pos) => {
-            handlers::move_to(data_req_queued, &conn, client_id, &app_control, &display_list, &event_loop, id, target_pos).await
+            handlers::move_to(data_req_queued, &conn, client_id, &app_control, &display_list, event_loop, id, target_pos).await
         },
         RotateInPlace(id, angle, direction) => {
-            handlers::rotate_in_place(data_req_queued, &conn, client_id, &app_control, &event_loop, id, angle, direction).await
+            handlers::rotate_in_place(data_req_queued, &conn, client_id, &app_control, event_loop, id, angle, direction).await
         },
 
         BeginFill(id) => {
-            handlers::begin_fill(data_req_queued, &app_control, &display_list, &event_loop, id).await
+            handlers::begin_fill(data_req_queued, &app_control, &display_list, event_loop, id).await
         },
         EndFill(id) => {
             handlers::end_fill(data_req_queued, &app_control, id).await
         },
 
         ClearAll => {
-            handlers::clear_all(data_req_queued, &app_control, &display_list, &event_loop).await
+            handlers::clear_all(data_req_queued, &app_control, &display_list, event_loop).await
         },
         ClearTurtle(id) => {
-            handlers::clear_turtle(data_req_queued, &app_control, &display_list, &event_loop, id).await
+            handlers::clear_turtle(data_req_queued, &app_control, &display_list, event_loop, id).await
         },
     };
 

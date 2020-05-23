@@ -59,7 +59,7 @@ pub async fn run_main(server_name: String) {
     let display_list = Arc::new(Mutex::new(DisplayList::default()));
 
     // Create the proxy that will be given to the thread managing IPC
-    let event_loop_notifier = Arc::new(EventLoopNotifier::new());
+    let event_loop_notifier = EventLoopNotifier::new();
     // A channel for transferring events
     let (_events_sender, events_receiver) = mpsc::unbounded_channel();
     // A channel for notifying on shutdown

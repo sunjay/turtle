@@ -60,7 +60,7 @@ pub(crate) async fn set_turtle_prop(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
     prop_value: TurtlePropValue,
 ) -> Result<(), HandlerError> {
@@ -88,7 +88,7 @@ pub(crate) async fn set_turtle_prop(
                 display_list.polygon_set_fill_color(poly_handle, fill_color);
 
                 // Signal the main thread that the image has changed
-                event_loop.request_redraw().await?;
+                event_loop.request_redraw()?;
             }
         },
 
@@ -104,7 +104,7 @@ pub(crate) async fn set_turtle_prop(
             turtle.is_visible = is_visible;
 
             // Signal the main thread that the image has changed
-            event_loop.request_redraw().await?;
+            event_loop.request_redraw()?;
         },
     }
 
@@ -115,7 +115,7 @@ pub(crate) async fn reset_turtle_prop(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
     prop: TurtleProp,
 ) -> Result<(), HandlerError> {
@@ -178,7 +178,7 @@ pub(crate) async fn reset_turtle_prop(
 
     if drawing_changed {
         // Signal the main thread that the image has changed
-        event_loop.request_redraw().await?;
+        event_loop.request_redraw()?;
     }
 
     Ok(())
@@ -188,7 +188,7 @@ pub(crate) async fn reset_turtle(
     data_req_queued: oneshot::Sender<()>,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
-    event_loop: &EventLoopNotifier,
+    event_loop: EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
     let mut data = app_control.get(RequiredData {
@@ -208,7 +208,7 @@ pub(crate) async fn reset_turtle(
     }
 
     // Signal the main thread that the image has changed
-    event_loop.request_redraw().await?;
+    event_loop.request_redraw()?;
 
     Ok(())
 }
