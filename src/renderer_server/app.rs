@@ -55,7 +55,7 @@ impl App {
         self.turtles.read().await.len()
     }
 
-    pub async fn turtle_ids(&self) -> impl Iterator<Item=TurtleId> {
+    pub async fn turtle_ids(&self) -> impl Iterator<Item=TurtleId> + Clone {
         let len = self.turtles_len().await;
         (0..len).map(TurtleId)
     }

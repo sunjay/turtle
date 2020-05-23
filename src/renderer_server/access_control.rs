@@ -117,7 +117,10 @@ pub enum RequiredTurtles {
     #[allow(dead_code)] //TODO(#16): This will be used for the multiple turtles feature (for Turtle::clone())
     Two(TurtleId, TurtleId),
 
-    /// Request access to all the turtles
+    /// Request access to all the turtles that exist at the current time
+    ///
+    /// Even if more turtles are added while the waiting for access, this will still only provide
+    /// the turtles that existed when the `get()` call was first processed.
     All,
 }
 
@@ -368,8 +371,8 @@ impl AccessControl {
 
     /// Adds a new turtle to the application state
     ///
-    /// This does not need any ordering protection because it is impossible for any command to
-    /// depend on the data for a turtle that hasn't been created yet.
+    /// This does not need any ordering protection because no call to `get()` is allowed to depend
+    /// on the data for a turtle that hasn't been created yet.
     pub async fn add_turtle(&self) -> TurtleId {
         let id = self.app.add_turtle().await;
 
@@ -414,6 +417,13 @@ impl AccessControl {
             });
         }
 
+        // Record the IDs that are currently available at the time that data is requested. This is
+        // necessary to guarantee the soundness of `RequiredTurtles::All`. No request is allowed to
+        // depend on turtles that haven't been created yet, so `All` must be treated as all turtles
+        // that currently exist when the request was sent. Only those turtles will be accessed,
+        // even if more are added while the request waits.
+        let ids = self.app.turtle_ids().await;
+
         use RequiredTurtles::*;
         match &turtles {
             &Some(One(id)) => {
@@ -442,7 +452,7 @@ impl AccessControl {
 
             Some(All) => {
                 let channels = self.turtle_channels.read().await;
-                for id in self.app.turtle_ids().await {
+                for id in ids.clone() {
                     channels[&id].send(DataRequest {
                         all_data_ready_barrier: all_data_ready_barrier.clone(),
                         all_complete_barrier: all_complete_barrier.clone(),
@@ -463,7 +473,6 @@ impl AccessControl {
         data_req_queued.send(()).unwrap_or(());
 
         // Now wait for data ready channel to signal that data is ready
-
         let operation_complete_sender = data_ready_receiver.await
             .expect("bug: tasks managing access to data should run forever");
 
@@ -495,7 +504,6 @@ impl AccessControl {
             },
 
             Some(All) => {
-                let ids = self.app.turtle_ids().await;
                 let turtles = join_all(ids.map(|id| self.app.turtle(id))).await;
                 Some(Turtles::All(turtles))
             },
