@@ -7,7 +7,13 @@ use tokio::{
 };
 use futures_util::future::{FutureExt, RemoteHandle};
 
-use crate::ipc_protocol::{ClientConnection, ServerConnection, ConnectionError};
+use crate::ipc_protocol::{
+    ClientSender,
+    ClientReceiver,
+    ConnectionError,
+    connect_server,
+    connect_client,
+};
 
 use super::super::main::run_main;
 
@@ -34,7 +40,7 @@ impl RendererServer {
 
     /// Spawns the backend in a new task and returns the struct that will be used to
     /// interface with it.
-    pub async fn spawn() -> Result<(Self, ClientConnection), ConnectionError> {
+    pub async fn spawn() -> Result<(Self, ClientSender, ClientReceiver), ConnectionError> {
         let (server_name_sender, server_name_receiver) = oneshot::channel();
         // Spawn a separate task for the server so this task can continue to make progress
         // while that runs. The remote handle will drop that future when it is dropped.
@@ -45,7 +51,7 @@ impl RendererServer {
             // spawn_blocking() takes care of catching any panics that might occur, so we don't
             // need to do that explicitly here even though Drop will need that information.
             task::spawn_blocking(|| {
-                run_main(handle, async { ServerConnection::connect(server_name) })
+                run_main(handle, async { connect_server(server_name) })
             }).await
         }.remote_handle();
 
@@ -54,13 +60,13 @@ impl RendererServer {
         let runtime_handle = Handle::current();
         let task_handle = Some(task_handle);
 
-        let conn = ClientConnection::new(move |name| async {
+        let (conn_sender, conn_receiver) = connect_client(move |name| async {
             server_name_sender.send(name)
                 .expect("bug: unable to send server name to renderer server");
             Ok(())
         }).await?;
 
-        Ok((Self {runtime_handle, task_handle}, conn))
+        Ok((Self {runtime_handle, task_handle}, conn_sender, conn_receiver))
     }
 }
 

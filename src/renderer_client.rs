@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 use tokio::sync::{mpsc, RwLock, Mutex};
 use thiserror::Error;
 
-use crate::ipc_protocol::{ClientConnection, ConnectionError, ClientRequest, ServerResponse};
+use crate::ipc_protocol::{ClientSender, ConnectionError, ClientRequest, ServerResponse};
 use crate::renderer_server::RendererServer;
 
 /// Signals that the IPC connection has been disconnected and therefore the window was probably
@@ -21,10 +21,9 @@ struct Disconnected;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ClientId(usize);
 
-/// Spawns the server, and manages the IPC connection
+/// Spawns the server, and dispatches the messages received from it
 ///
-/// Messages are sent though IPC and responses are dispatched back to the correct client based on
-/// the received client ID.
+/// Responses are dispatched back to the correct client based on the received client ID.
 #[derive(Debug)]
 struct ClientDispatcher {
     /// The server task/process
@@ -32,11 +31,6 @@ struct ClientDispatcher {
     /// When dropped, this will block until the server process has quit. This field is explicitly
     /// owned by this struct and not reference counted in order to guarantee that this happens.
     server: RendererServer,
-
-    /// The connection to the server task/process
-    ///
-    /// This will no longer send messages after the server process has terminated.
-    conn: Arc<ClientConnection>,
 
     /// A channel for sending responses from the server to each client, indexed by `ClientId`
     ///
@@ -46,16 +40,14 @@ struct ClientDispatcher {
 }
 
 impl ClientDispatcher {
-    async fn new() -> Result<Self, ConnectionError> {
-        let (server, conn) = RendererServer::spawn().await?;
-        let conn = Arc::new(conn);
+    async fn new() -> Result<(Self, ClientSender), ConnectionError> {
+        let (server, sender, server_responses) = RendererServer::spawn().await?;
         let clients = Arc::new(RwLock::new(Vec::<mpsc::UnboundedSender<_>>::new()));
 
-        let task_conn = conn.clone();
         let task_clients = clients.clone();
         tokio::spawn(async move {
             loop {
-                let (id, response) = match task_conn.recv().await {
+                let (id, response) = match server_responses.recv().await {
                     Ok((id, response)) => (id, Ok(response)),
 
                     Err(IpcError::Disconnected) => {
@@ -81,7 +73,7 @@ impl ClientDispatcher {
             }
         });
 
-        Ok(Self {server, conn, clients})
+        Ok((Self {server, clients}, sender))
     }
 
     async fn add_client(&self) -> (ClientId, mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>) {
@@ -93,10 +85,6 @@ impl ClientDispatcher {
 
         (id, receiver)
     }
-
-    async fn send(&self, id: ClientId, req: ClientRequest) -> Result<(), ipc_channel::Error> {
-        self.conn.send(id, req).await
-    }
 }
 
 /// Represents a single connection to the server
@@ -104,39 +92,46 @@ impl ClientDispatcher {
 pub struct RendererClient {
     dispatcher: Arc<ClientDispatcher>,
     id: ClientId,
+    sender: ClientSender,
     receiver: Mutex<mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>>,
 }
 
 impl RendererClient {
     /// Spawns a new server process and creates a connection to it
     pub async fn new() -> Result<Self, ConnectionError> {
-        let dispatcher = Arc::new(ClientDispatcher::new().await?);
+        let (dispatcher, sender) = ClientDispatcher::new().await?;
+        let dispatcher = Arc::new(dispatcher);
         let (id, receiver) = dispatcher.add_client().await;
         let receiver = Mutex::new(receiver);
 
-        Ok(Self {dispatcher, id, receiver})
+        Ok(Self {dispatcher, id, sender, receiver})
     }
 
     /// Creates a new renderer client that can also communicate to the same server
     pub async fn split(&self) -> Self {
         let dispatcher = self.dispatcher.clone();
         let (id, receiver) = dispatcher.add_client().await;
+        let sender = self.sender.clone();
         let receiver = Mutex::new(receiver);
 
-        Self {dispatcher, id, receiver}
+        Self {dispatcher, id, sender, receiver}
     }
 
     /// Sends a message to the server process
     ///
     /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
-    pub async fn send(&self, req: ClientRequest) {
+    pub fn send(&self, req: ClientRequest) {
         // The error produced by send is a serialization error, so it signals a bug in this code,
         // not something that should be propagated to be handled elsewhere.
-        self.dispatcher.send(self.id, req).await
+        self.sender.send(self.id, req)
             .expect("bug: error while sending message through IPC")
     }
 
     /// Receives a response from the server process
+    ///
+    /// Note that if the same client sends multiple requests, there is no guarantee that the
+    /// responses will be returned in the same order as the requests. It is up to the client to
+    /// ensure that ordering or otherwise prevent multiple requests from being sent simultaneously.
     ///
     /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
     pub async fn recv(&self) -> ServerResponse {

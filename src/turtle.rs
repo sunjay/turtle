@@ -318,7 +318,7 @@ impl Turtle {
     /// [`From`]: https://doc.rust-lang.org/std/convert/trait.From.html
     /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-        block_on(self.turtle.set_speed(speed))
+        self.turtle.set_speed(speed)
     }
 
     /// Returns the turtle's current location (x, y)
@@ -544,7 +544,7 @@ impl Turtle {
     /// turtle.forward(100.0);
     /// ```
     pub fn pen_down(&mut self) {
-        block_on(self.turtle.pen_down())
+        self.turtle.pen_down()
     }
 
     /// Pick the pen up so that the turtle does not draw while moving
@@ -561,7 +561,7 @@ impl Turtle {
     /// turtle.forward(100.0);
     /// ```
     pub fn pen_up(&mut self) {
-        block_on(self.turtle.pen_up())
+        self.turtle.pen_up()
     }
 
     /// Returns the size (thickness) of the pen. The thickness is measured in pixels.
@@ -618,7 +618,7 @@ impl Turtle {
     /// Notice that while the turtle travels in a straight line, it produces different thicknesses
     /// of lines which appear like large rectangles.
     pub fn set_pen_size(&mut self, thickness: f64) {
-        block_on(self.turtle.set_pen_size(thickness))
+        self.turtle.set_pen_size(thickness)
     }
 
     /// Returns the color of the pen.
@@ -665,7 +665,7 @@ impl Turtle {
     ///
     /// ![turtle pen color](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/colored_circle.png)
     pub fn set_pen_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
-        block_on(self.turtle.set_pen_color(color))
+        self.turtle.set_pen_color(color)
     }
 
     /// Returns the current fill color.
@@ -698,7 +698,7 @@ impl Turtle {
     ///
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for an example.
     pub fn set_fill_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
-        block_on(self.turtle.set_fill_color(color))
+        self.turtle.set_fill_color(color)
     }
 
     /// Return true if the turtle is currently filling the shape drawn
@@ -765,7 +765,7 @@ impl Turtle {
     ///
     /// ![turtle fill example](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/red_circle.png)
     pub fn begin_fill(&mut self) {
-        block_on(self.turtle.begin_fill())
+        self.turtle.begin_fill()
     }
 
     /// Stop filling the shape drawn by the turtle's movements.
@@ -775,7 +775,7 @@ impl Turtle {
     ///
     /// See [`begin_fill()`](struct.Turtle.html#method.begin_fill) for more information.
     pub fn end_fill(&mut self) {
-        block_on(self.turtle.end_fill())
+        self.turtle.end_fill()
     }
 
     /// Returns true if the turtle is visible.
@@ -805,7 +805,7 @@ impl Turtle {
     /// assert!(!turtle.is_visible());
     /// ```
     pub fn hide(&mut self) {
-        block_on(self.turtle.hide())
+        self.turtle.hide()
     }
 
     /// Makes the turtle visible.
@@ -819,7 +819,7 @@ impl Turtle {
     /// assert!(turtle.is_visible());
     /// ```
     pub fn show(&mut self) {
-        block_on(self.turtle.show())
+        self.turtle.show()
     }
 
     /// Delete the turtle's drawings from the screen, re-center the turtle and reset all of the
@@ -843,7 +843,7 @@ impl Turtle {
     /// assert_ne!(turtle.pen_color(), "red".into());
     /// ```
     pub fn reset(&mut self) {
-        block_on(self.turtle.reset())
+        self.turtle.reset()
     }
 
     /// Delete the turtle's drawings from the screen.
@@ -874,7 +874,7 @@ impl Turtle {
     ///
     /// ![turtle clear before click](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/clear_after_click.png)
     pub fn clear(&mut self) {
-        block_on(self.turtle.clear())
+        self.turtle.clear()
     }
 
     /// Rotates the turtle to face the given point. See the [`Point` struct](struct.Point.html)

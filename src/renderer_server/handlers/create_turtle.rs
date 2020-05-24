@@ -1,5 +1,4 @@
-use crate::ipc_protocol::{ServerConnection, ServerResponse};
-use crate::renderer_client::ClientId;
+use crate::ipc_protocol::{ServerOneshotSender, ServerResponse};
 
 use super::HandlerError;
 use super::super::{
@@ -8,8 +7,7 @@ use super::super::{
 };
 
 pub(crate) async fn create_turtle(
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: &AccessControl,
     event_loop: EventLoopNotifier,
 ) -> Result<(), HandlerError> {
@@ -20,7 +18,7 @@ pub(crate) async fn create_turtle(
     // Signal the main thread that the image has changed
     event_loop.request_redraw()?;
 
-    conn.send(client_id, ServerResponse::NewTurtle(id)).await?;
+    conn.send(ServerResponse::NewTurtle(id))?;
 
     Ok(())
 }

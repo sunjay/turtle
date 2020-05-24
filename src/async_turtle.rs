@@ -109,8 +109,8 @@ impl AsyncTurtle {
         self.client.turtle_speed(self.id).await
     }
 
-    pub async fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-        self.client.turtle_set_speed(self.id, speed.into()).await
+    pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
+        self.client.turtle_set_speed(self.id, speed.into())
     }
 
     pub async fn position(&self) -> Point {
@@ -133,7 +133,7 @@ impl AsyncTurtle {
 
     pub async fn home(&mut self) {
         self.client.move_to(self.id, Point::origin()).await;
-        self.client.turtle_reset_heading(self.id).await;
+        self.client.turtle_reset_heading(self.id);
     }
 
     pub async fn heading(&self) -> Angle {
@@ -178,87 +178,87 @@ impl AsyncTurtle {
         self.client.turtle_pen_is_enabled(self.id).await
     }
 
-    pub async fn pen_down(&mut self) {
-        self.client.turtle_pen_set_is_enabled(self.id, true).await
+    pub fn pen_down(&mut self) {
+        self.client.turtle_pen_set_is_enabled(self.id, true)
     }
 
-    pub async fn pen_up(&mut self) {
-        self.client.turtle_pen_set_is_enabled(self.id, false).await
+    pub fn pen_up(&mut self) {
+        self.client.turtle_pen_set_is_enabled(self.id, false)
     }
 
     pub async fn pen_size(&self) -> f64 {
         self.client.turtle_pen_thickness(self.id).await
     }
 
-    pub async fn set_pen_size(&mut self, thickness: f64) {
+    pub fn set_pen_size(&mut self, thickness: f64) {
         assert!(
             thickness >= 0.0 && thickness.is_finite(),
             "Invalid thickness: {}. The pen thickness must be greater than or equal to zero",
             thickness
         );
 
-        self.client.turtle_pen_set_thickness(self.id, thickness).await
+        self.client.turtle_pen_set_thickness(self.id, thickness)
     }
 
     pub async fn pen_color(&self) -> Color {
         self.client.turtle_pen_color(self.id).await
     }
 
-    pub async fn set_pen_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
+    pub fn set_pen_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
         let pen_color = color.into();
         assert!(
             pen_color.is_valid(),
             "Invalid color: {:?}. See the color module documentation for more information.",
             color
         );
-        self.client.turtle_pen_set_color(self.id, pen_color).await
+        self.client.turtle_pen_set_color(self.id, pen_color)
     }
 
     pub async fn fill_color(&self) -> Color {
         self.client.turtle_fill_color(self.id).await
     }
 
-    pub async fn set_fill_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
+    pub fn set_fill_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
         let fill_color = color.into();
         assert!(
             fill_color.is_valid(),
             "Invalid color: {:?}. See the color module documentation for more information.",
             color
         );
-        self.client.turtle_set_fill_color(self.id, fill_color).await
+        self.client.turtle_set_fill_color(self.id, fill_color)
     }
 
     pub async fn is_filling(&self) -> bool {
         self.client.turtle_is_filling(self.id).await
     }
 
-    pub async fn begin_fill(&mut self) {
-        self.client.begin_fill(self.id).await
+    pub fn begin_fill(&mut self) {
+        self.client.begin_fill(self.id)
     }
 
-    pub async fn end_fill(&mut self) {
-        self.client.end_fill(self.id).await
+    pub fn end_fill(&mut self) {
+        self.client.end_fill(self.id)
     }
 
     pub async fn is_visible(&self) -> bool {
         self.client.turtle_is_visible(self.id).await
     }
 
-    pub async fn hide(&mut self) {
-        self.client.turtle_set_is_visible(self.id, false).await
+    pub fn hide(&mut self) {
+        self.client.turtle_set_is_visible(self.id, false)
     }
 
-    pub async fn show(&mut self) {
-        self.client.turtle_set_is_visible(self.id, true).await
+    pub fn show(&mut self) {
+        self.client.turtle_set_is_visible(self.id, true)
     }
 
-    pub async fn reset(&mut self) {
-        self.clear().await;
-        self.client.reset_turtle(self.id).await
+    pub fn reset(&mut self) {
+        self.clear();
+        self.client.reset_turtle(self.id);
     }
 
-    pub async fn clear(&mut self) {
-        self.client.clear_turtle(self.id).await
+    pub fn clear(&mut self) {
+        self.client.clear_turtle(self.id)
     }
 
     pub async fn turn_towards<P: Into<Point>>(&mut self, target: P) {

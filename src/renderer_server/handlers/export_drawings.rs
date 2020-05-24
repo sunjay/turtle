@@ -2,12 +2,7 @@ use std::path::Path;
 
 use tokio::sync::{oneshot, Mutex};
 
-use crate::ipc_protocol::{
-    ServerConnection,
-    ServerResponse,
-    ExportFormat,
-};
-use crate::renderer_client::ClientId;
+use crate::ipc_protocol::{ServerOneshotSender, ServerResponse, ExportFormat};
 
 use super::HandlerError;
 use super::super::{
@@ -17,8 +12,7 @@ use super::super::{
 
 pub(crate) async fn export_drawings(
     data_req_queued: oneshot::Sender<()>,
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     path: &Path,
@@ -39,7 +33,7 @@ pub(crate) async fn export_drawings(
         Svg => export::save_svg(&display_list, data.drawing_mut(), path),
     };
 
-    conn.send(client_id, ServerResponse::ExportComplete(res)).await?;
+    conn.send(ServerResponse::ExportComplete(res))?;
 
     Ok(())
 }

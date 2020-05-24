@@ -3,7 +3,13 @@ use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, Mutex};
 use futures_util::future::{FutureExt, RemoteHandle};
 
-use crate::ipc_protocol::{ClientConnection, ServerConnection, ConnectionError};
+use crate::ipc_protocol::{
+    ClientSender,
+    ClientReceiver,
+    ConnectionError,
+    connect_server,
+    connect_client,
+};
 
 use super::super::{
     serve,
@@ -26,7 +32,7 @@ impl RendererServer {
 
     /// Spawns the backend in a new task and returns the struct that will be used to
     /// interface with it.
-    pub async fn spawn() -> Result<(Self, ClientConnection), ConnectionError> {
+    pub async fn spawn() -> Result<(Self, ClientSender, ClientReceiver), ConnectionError> {
         let (server_name_sender, server_name_receiver) = oneshot::channel();
         // Spawn a separate task for the server so this task can continue to make progress
         // while that runs. The remote handle will drop that future when it is dropped.
@@ -38,13 +44,13 @@ impl RendererServer {
 
         tokio::spawn(child);
 
-        let conn = ClientConnection::new(move |name| async {
+        let (conn_sender, conn_receiver) = connect_client(move |name| async {
             server_name_sender.send(name)
                 .expect("bug: unable to send server name to test renderer server");
             Ok(())
         }).await?;
 
-        Ok((Self {task_handle}, conn))
+        Ok((Self {task_handle}, conn_sender, conn_receiver))
     }
 }
 
@@ -65,7 +71,16 @@ pub async fn run_main(server_name: String) {
     // A channel for notifying on shutdown
     let (_server_shutdown, server_shutdown_receiver) = mpsc::channel(1);
 
-    let conn = ServerConnection::connect(server_name)
+    let (conn_sender, conn_receiver) = connect_server(server_name)
         .expect("unable to establish turtle server connection");
-    serve(conn, app, display_list, event_loop_notifier, events_receiver, server_shutdown_receiver).await;
+
+    serve(
+        conn_sender,
+        conn_receiver,
+        app,
+        display_list,
+        event_loop_notifier,
+        events_receiver,
+        server_shutdown_receiver,
+    ).await;
 }

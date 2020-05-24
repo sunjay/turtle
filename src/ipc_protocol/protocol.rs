@@ -43,7 +43,7 @@ impl ProtocolClient {
     }
 
     pub async fn create_turtle(&self) -> TurtleId {
-        self.client.send(ClientRequest::CreateTurtle).await;
+        self.client.send(ClientRequest::CreateTurtle);
 
         let response = self.client.recv().await;
         match response {
@@ -53,7 +53,7 @@ impl ProtocolClient {
     }
 
     pub async fn export_svg(&self, path: PathBuf) -> Result<(), ExportError> {
-        self.client.send(ClientRequest::Export(path, ExportFormat::Svg)).await;
+        self.client.send(ClientRequest::Export(path, ExportFormat::Svg));
 
         let response = self.client.recv().await;
         match response {
@@ -63,7 +63,7 @@ impl ProtocolClient {
     }
 
     pub async fn poll_event(&self) -> Option<Event> {
-        self.client.send(ClientRequest::PollEvent).await;
+        self.client.send(ClientRequest::PollEvent);
 
         let response = self.client.recv().await;
         match response {
@@ -73,7 +73,7 @@ impl ProtocolClient {
     }
 
     pub async fn drawing_title(&self) -> String {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::Title)).await;
+        self.client.send(ClientRequest::DrawingProp(DrawingProp::Title));
 
         let response = self.client.recv().await;
         match response {
@@ -83,7 +83,7 @@ impl ProtocolClient {
     }
 
     pub async fn drawing_background(&self) -> Color {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::Background)).await;
+        self.client.send(ClientRequest::DrawingProp(DrawingProp::Background));
 
         let response = self.client.recv().await;
         match response {
@@ -93,7 +93,7 @@ impl ProtocolClient {
     }
 
     pub async fn drawing_center(&self) -> Point {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::Center)).await;
+        self.client.send(ClientRequest::DrawingProp(DrawingProp::Center));
 
         let response = self.client.recv().await;
         match response {
@@ -103,7 +103,7 @@ impl ProtocolClient {
     }
 
     pub async fn drawing_size(&self) -> Size {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::Size)).await;
+        self.client.send(ClientRequest::DrawingProp(DrawingProp::Size));
 
         let response = self.client.recv().await;
         match response {
@@ -113,7 +113,7 @@ impl ProtocolClient {
     }
 
     pub async fn drawing_is_maximized(&self) -> bool {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::IsMaximized)).await;
+        self.client.send(ClientRequest::DrawingProp(DrawingProp::IsMaximized));
 
         let response = self.client.recv().await;
         match response {
@@ -123,7 +123,7 @@ impl ProtocolClient {
     }
 
     pub async fn drawing_is_fullscreen(&self) -> bool {
-        self.client.send(ClientRequest::DrawingProp(DrawingProp::IsFullscreen)).await;
+        self.client.send(ClientRequest::DrawingProp(DrawingProp::IsFullscreen));
 
         let response = self.client.recv().await;
         match response {
@@ -132,43 +132,43 @@ impl ProtocolClient {
         }
     }
 
-    pub async fn drawing_set_title(&self, value: String) {
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Title(value))).await
+    pub fn drawing_set_title(&self, value: String) {
+        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Title(value)))
     }
 
-    pub async fn drawing_set_background(&self, value: Color) {
+    pub fn drawing_set_background(&self, value: Color) {
         debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Background(value))).await
+        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Background(value)))
     }
 
-    pub async fn drawing_set_center(&self, value: Point) {
+    pub fn drawing_set_center(&self, value: Point) {
         debug_assert!(value.is_finite(), "bug: center should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Center(value))).await
+        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Center(value)))
     }
 
-    pub async fn drawing_set_size(&self, value: Size) {
+    pub fn drawing_set_size(&self, value: Size) {
         debug_assert!(value.width > 0 && value.height > 0, "bug: size should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Size(value))).await
+        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Size(value)))
     }
 
-    pub async fn drawing_set_is_maximized(&self, value: bool) {
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::IsMaximized(value))).await
+    pub fn drawing_set_is_maximized(&self, value: bool) {
+        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::IsMaximized(value)))
     }
 
-    pub async fn drawing_set_is_fullscreen(&self, value: bool) {
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::IsFullscreen(value))).await
+    pub fn drawing_set_is_fullscreen(&self, value: bool) {
+        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::IsFullscreen(value)))
     }
 
-    pub async fn drawing_reset_center(&self) {
-        self.client.send(ClientRequest::ResetDrawingProp(DrawingProp::Center)).await
+    pub fn drawing_reset_center(&self) {
+        self.client.send(ClientRequest::ResetDrawingProp(DrawingProp::Center))
     }
 
-    pub async fn drawing_reset_size(&self) {
-        self.client.send(ClientRequest::ResetDrawingProp(DrawingProp::Size)).await
+    pub fn drawing_reset_size(&self) {
+        self.client.send(ClientRequest::ResetDrawingProp(DrawingProp::Size))
     }
 
     pub async fn turtle_pen_is_enabled(&self, id: TurtleId) -> bool {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Pen(PenProp::IsEnabled))).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Pen(PenProp::IsEnabled)));
 
         let response = self.client.recv().await;
         match response {
@@ -181,7 +181,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_pen_thickness(&self, id: TurtleId) -> f64 {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Pen(PenProp::Thickness))).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Pen(PenProp::Thickness)));
 
         let response = self.client.recv().await;
         match response {
@@ -194,7 +194,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_pen_color(&self, id: TurtleId) -> Color {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Pen(PenProp::Color))).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Pen(PenProp::Color)));
 
         let response = self.client.recv().await;
         match response {
@@ -207,7 +207,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_fill_color(&self, id: TurtleId) -> Color {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::FillColor)).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::FillColor));
 
         let response = self.client.recv().await;
         match response {
@@ -220,7 +220,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_is_filling(&self, id: TurtleId) -> bool {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::IsFilling)).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::IsFilling));
 
         let response = self.client.recv().await;
         match response {
@@ -233,7 +233,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_position(&self, id: TurtleId) -> Point {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Position)).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Position));
 
         let response = self.client.recv().await;
         match response {
@@ -246,7 +246,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_heading(&self, id: TurtleId) -> Radians {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Heading)).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Heading));
 
         let response = self.client.recv().await;
         match response {
@@ -259,7 +259,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_speed(&self, id: TurtleId) -> Speed {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Speed)).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::Speed));
 
         let response = self.client.recv().await;
         match response {
@@ -272,7 +272,7 @@ impl ProtocolClient {
     }
 
     pub async fn turtle_is_visible(&self, id: TurtleId) -> bool {
-        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::IsVisible)).await;
+        self.client.send(ClientRequest::TurtleProp(id, TurtleProp::IsVisible));
 
         let response = self.client.recv().await;
         match response {
@@ -284,39 +284,39 @@ impl ProtocolClient {
         }
     }
 
-    pub async fn turtle_pen_set_is_enabled(&self, id: TurtleId, value: bool) {
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::IsEnabled(value)))).await
+    pub fn turtle_pen_set_is_enabled(&self, id: TurtleId, value: bool) {
+        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::IsEnabled(value))))
     }
 
-    pub async fn turtle_pen_set_thickness(&self, id: TurtleId, value: f64) {
+    pub fn turtle_pen_set_thickness(&self, id: TurtleId, value: f64) {
         debug_assert!(value >= 0.0 && value.is_finite(), "bug: pen size should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Thickness(value)))).await
+        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Thickness(value))))
     }
 
-    pub async fn turtle_pen_set_color(&self, id: TurtleId, value: Color) {
+    pub fn turtle_pen_set_color(&self, id: TurtleId, value: Color) {
         debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Color(value)))).await
+        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Color(value))))
     }
 
-    pub async fn turtle_set_fill_color(&self, id: TurtleId, value: Color) {
+    pub fn turtle_set_fill_color(&self, id: TurtleId, value: Color) {
         debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::FillColor(value))).await
+        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::FillColor(value)))
     }
 
-    pub async fn turtle_set_speed(&self, id: TurtleId, value: Speed) {
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Speed(value))).await
+    pub fn turtle_set_speed(&self, id: TurtleId, value: Speed) {
+        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Speed(value)))
     }
 
-    pub async fn turtle_set_is_visible(&self, id: TurtleId, value: bool) {
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::IsVisible(value))).await
+    pub fn turtle_set_is_visible(&self, id: TurtleId, value: bool) {
+        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::IsVisible(value)))
     }
 
-    pub async fn turtle_reset_heading(&self, id: TurtleId) {
-        self.client.send(ClientRequest::ResetTurtleProp(id, TurtleProp::Heading)).await
+    pub fn turtle_reset_heading(&self, id: TurtleId) {
+        self.client.send(ClientRequest::ResetTurtleProp(id, TurtleProp::Heading))
     }
 
-    pub async fn reset_turtle(&self, id: TurtleId) {
-        self.client.send(ClientRequest::ResetTurtle(id)).await
+    pub fn reset_turtle(&self, id: TurtleId) {
+        self.client.send(ClientRequest::ResetTurtle(id))
     }
 
     pub async fn move_forward(&self, id: TurtleId, distance: Distance) {
@@ -324,7 +324,7 @@ impl ProtocolClient {
             return;
         }
 
-        self.client.send(ClientRequest::MoveForward(id, distance)).await;
+        self.client.send(ClientRequest::MoveForward(id, distance));
 
         let response = self.client.recv().await;
         match response {
@@ -340,7 +340,7 @@ impl ProtocolClient {
             return;
         }
 
-        self.client.send(ClientRequest::MoveTo(id, target)).await;
+        self.client.send(ClientRequest::MoveTo(id, target));
 
         let response = self.client.recv().await;
         match response {
@@ -356,7 +356,7 @@ impl ProtocolClient {
             return;
         }
 
-        self.client.send(ClientRequest::RotateInPlace(id, angle, direction)).await;
+        self.client.send(ClientRequest::RotateInPlace(id, angle, direction));
 
         let response = self.client.recv().await;
         match response {
@@ -367,20 +367,20 @@ impl ProtocolClient {
         }
     }
 
-    pub async fn begin_fill(&self, id: TurtleId) {
-        self.client.send(ClientRequest::BeginFill(id)).await
+    pub fn begin_fill(&self, id: TurtleId) {
+        self.client.send(ClientRequest::BeginFill(id))
     }
 
-    pub async fn end_fill(&self, id: TurtleId) {
-        self.client.send(ClientRequest::EndFill(id)).await
+    pub fn end_fill(&self, id: TurtleId) {
+        self.client.send(ClientRequest::EndFill(id))
     }
 
     #[allow(dead_code)] //TODO(#16): This is part of the multiple turtles feature (for Drawing::clear())
-    pub async fn clear_all(&self) {
-        self.client.send(ClientRequest::ClearAll).await
+    pub fn clear_all(&self) {
+        self.client.send(ClientRequest::ClearAll)
     }
 
-    pub async fn clear_turtle(&self, id: TurtleId) {
-        self.client.send(ClientRequest::ClearTurtle(id)).await
+    pub fn clear_turtle(&self, id: TurtleId) {
+        self.client.send(ClientRequest::ClearTurtle(id))
     }
 }
