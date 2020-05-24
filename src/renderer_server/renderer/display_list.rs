@@ -93,7 +93,7 @@ impl DisplayList {
     pub fn line_update_end(&mut self, handle: PrimHandle, end: Point) {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
         let line = prim.as_line_mut()
-            .expect("bug: attempt to update a non-line draw primitive with a line");
+            .expect("bug: attempt to update the end of a draw primitive that was not a line");
         line.end = end;
     }
 
@@ -111,7 +111,7 @@ impl DisplayList {
     pub fn polygon_push(&mut self, handle: PrimHandle, point: Point) -> usize {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
         let polygon = prim.as_polygon_mut()
-            .expect("bug: attempt to update a non-polygon draw primitive with a polygon");
+            .expect("bug: attempt to push into a draw primitive that was not a polygon");
 
         let index = polygon.points.len();
         polygon.points.push(point);
@@ -128,7 +128,7 @@ impl DisplayList {
     pub fn polygon_update(&mut self, handle: PrimHandle, index: usize, point: Point) {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
         let polygon = prim.as_polygon_mut()
-            .expect("bug: attempt to update a non-polygon draw primitive with a polygon");
+            .expect("bug: attempt to update a point in a draw primitive that was not a polygon");
 
         // This will panic if the index is out of bounds
         polygon.points[index] = point;
@@ -140,7 +140,7 @@ impl DisplayList {
     pub fn polygon_set_fill_color(&mut self, handle: PrimHandle, fill_color: Color) {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
         let polygon = prim.as_polygon_mut()
-            .expect("bug: attempt to update a non-polygon draw primitive with a polygon");
+            .expect("bug: attempt to set the fill color of a draw primitive that was not a polygon");
         polygon.fill_color = fill_color;
     }
 
