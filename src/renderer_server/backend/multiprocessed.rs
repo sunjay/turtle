@@ -9,7 +9,13 @@ use tokio::{
 };
 use futures_util::future::{FutureExt, RemoteHandle};
 
-use crate::ipc_protocol::{ClientConnection, ServerConnection, ConnectionError};
+use crate::ipc_protocol::{
+    ClientSender,
+    ClientReceiver,
+    ConnectionError,
+    connect_server_stdin,
+    connect_client,
+};
 
 use super::super::main::run_main;
 
@@ -50,7 +56,7 @@ impl RendererServer {
                 .expect("unable to spawn tokio runtime to run turtle server process");
 
             // Run the renderer process
-            run_main(runtime.handle().clone(), ServerConnection::connect_stdin());
+            run_main(runtime.handle().clone(), connect_server_stdin());
             // Must exit after finishing or the program may execute twice
             process::exit(0);
         }
@@ -58,7 +64,7 @@ impl RendererServer {
 
     /// Spawns the backend in a new task and returns the struct that will be used to
     /// interface with it.
-    pub async fn spawn() -> Result<(Self, ClientConnection), ConnectionError> {
+    pub async fn spawn() -> Result<(Self, ClientSender, ClientReceiver), ConnectionError> {
         let current_exe = env::current_exe()?;
 
         // The new process is the same executable as this process but with a special environment
@@ -85,9 +91,9 @@ impl RendererServer {
         let runtime_handle = Handle::current();
 
         // Send IPC oneshot server name by writing to stdin
-        let conn = ClientConnection::new(|name| send_ipc_oneshot_name(child_stdin, name)).await?;
+        let (conn_sender, conn_receiver) = connect_client(|name| send_ipc_oneshot_name(child_stdin, name)).await?;
 
-        Ok((Self {runtime_handle, task_handle}, conn))
+        Ok((Self {runtime_handle, task_handle}, conn_sender, conn_receiver))
     }
 }
 

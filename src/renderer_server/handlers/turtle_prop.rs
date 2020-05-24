@@ -1,14 +1,13 @@
 use tokio::sync::{oneshot, Mutex};
 
 use crate::ipc_protocol::{
-    ServerConnection,
+    ServerOneshotSender,
     ServerResponse,
     TurtleProp,
     TurtlePropValue,
     PenProp,
     PenPropValue,
 };
-use crate::renderer_client::ClientId;
 
 use super::HandlerError;
 use super::super::{
@@ -21,8 +20,7 @@ use super::super::{
 
 pub(crate) async fn turtle_prop(
     data_req_queued: oneshot::Sender<()>,
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: &AccessControl,
     id: TurtleId,
     prop: TurtleProp,
@@ -51,7 +49,7 @@ pub(crate) async fn turtle_prop(
         IsVisible => TurtlePropValue::IsVisible(turtle.is_visible),
     };
 
-    conn.send(client_id, ServerResponse::TurtleProp(id, value)).await?;
+    conn.send(ServerResponse::TurtleProp(id, value))?;
 
     Ok(())
 }

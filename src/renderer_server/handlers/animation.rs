@@ -3,12 +3,7 @@ use std::cmp::min;
 use tokio::{time, sync::{oneshot, Mutex}};
 use interpolation::lerp;
 
-use crate::ipc_protocol::{
-    ServerConnection,
-    ServerResponse,
-    RotationDirection,
-};
-use crate::renderer_client::ClientId;
+use crate::ipc_protocol::{ServerOneshotSender, ServerResponse, RotationDirection};
 use crate::radians::{self, Radians};
 use crate::{Distance, Point};
 
@@ -32,8 +27,7 @@ const FRAME_DURATION: time::Duration = time::Duration::from_micros(MICROS_PER_SE
 
 pub(crate) async fn move_forward(
     data_req_queued: oneshot::Sender<()>,
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     event_loop: EventLoopNotifier,
@@ -84,15 +78,14 @@ pub(crate) async fn move_forward(
     // This also runs if anim.running starts as false (for speed == instant)
     event_loop.request_redraw()?;
 
-    conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
+    conn.send(ServerResponse::AnimationComplete(id))?;
 
     Ok(())
 }
 
 pub(crate) async fn move_to(
     data_req_queued: oneshot::Sender<()>,
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: &AccessControl,
     display_list: &Mutex<DisplayList>,
     event_loop: EventLoopNotifier,
@@ -134,7 +127,7 @@ pub(crate) async fn move_to(
     // This also runs if anim.running starts as false (for speed == instant)
     event_loop.request_redraw()?;
 
-    conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
+    conn.send(ServerResponse::AnimationComplete(id))?;
 
     Ok(())
 }
@@ -277,8 +270,7 @@ impl MoveAnimation {
 
 pub(crate) async fn rotate_in_place(
     data_req_queued: oneshot::Sender<()>,
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: &AccessControl,
     event_loop: EventLoopNotifier,
     id: TurtleId,
@@ -318,7 +310,7 @@ pub(crate) async fn rotate_in_place(
     // This also runs if anim.running starts as false (for speed == instant)
     event_loop.request_redraw()?;
 
-    conn.send(client_id, ServerResponse::AnimationComplete(id)).await?;
+    conn.send(ServerResponse::AnimationComplete(id))?;
 
     Ok(())
 }

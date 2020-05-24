@@ -4,17 +4,15 @@ use tokio::sync::{
 };
 
 use crate::ipc_protocol::{
-    ServerConnection,
+    ServerOneshotSender,
     ServerResponse,
 };
-use crate::renderer_client::ClientId;
 use crate::Event;
 
 use super::HandlerError;
 
 pub(crate) async fn poll_event(
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     events_receiver: &Mutex<mpsc::UnboundedReceiver<Event>>,
 ) -> Result<(), HandlerError> {
     let mut events_receiver = events_receiver.lock().await;
@@ -26,7 +24,7 @@ pub(crate) async fn poll_event(
         Err(TryRecvError::Closed) => return Ok(()),
     };
 
-    conn.send(client_id, ServerResponse::Event(event)).await?;
+    conn.send(ServerResponse::Event(event))?;
 
     Ok(())
 }

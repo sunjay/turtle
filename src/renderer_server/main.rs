@@ -27,7 +27,7 @@ use tokio::{
 };
 
 use crate::Event;
-use crate::ipc_protocol::{ServerConnection, ConnectionError};
+use crate::ipc_protocol::{ServerSender, ServerReceiver, ConnectionError};
 
 use super::{
     app::App,
@@ -78,7 +78,7 @@ pub fn run_main(
     handle: Handle,
 
     // Polled to establish the server connection
-    establish_connection: impl Future<Output=Result<ServerConnection, ConnectionError>> + Send + 'static,
+    establish_connection: impl Future<Output=Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
 ) {
     // The state of the drawing and the state/drawings associated with each turtle
     let app = Arc::new(App::default());
@@ -330,13 +330,22 @@ fn spawn_async_server(
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopNotifier,
     events_receiver: mpsc::UnboundedReceiver<Event>,
-    establish_connection: impl Future<Output=Result<ServerConnection, ConnectionError>> + Send + 'static,
+    establish_connection: impl Future<Output=Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
     server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
     // Spawn root task
     handle.spawn(async {
-        let conn = establish_connection.await
+        let (conn_sender, conn_receiver) = establish_connection.await
             .expect("unable to establish turtle server connection");
-        super::serve(conn, app, display_list, event_loop, events_receiver, server_shutdown_receiver).await;
+
+        super::serve(
+            conn_sender,
+            conn_receiver,
+            app,
+            display_list,
+            event_loop,
+            events_receiver,
+            server_shutdown_receiver,
+        ).await;
     });
 }

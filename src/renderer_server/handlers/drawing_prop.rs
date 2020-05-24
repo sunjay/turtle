@@ -1,12 +1,6 @@
 use tokio::sync::oneshot;
 
-use crate::ipc_protocol::{
-    ServerConnection,
-    ServerResponse,
-    DrawingProp,
-    DrawingPropValue,
-};
-use crate::renderer_client::ClientId;
+use crate::ipc_protocol::{ServerOneshotSender, ServerResponse, DrawingProp, DrawingPropValue};
 
 use super::HandlerError;
 use super::super::{
@@ -17,8 +11,7 @@ use super::super::{
 
 pub(crate) async fn drawing_prop(
     data_req_queued: oneshot::Sender<()>,
-    conn: &ServerConnection,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: &AccessControl,
     prop: DrawingProp,
 ) -> Result<(), HandlerError> {
@@ -41,7 +34,7 @@ pub(crate) async fn drawing_prop(
         IsFullscreen => DrawingPropValue::IsFullscreen(drawing.is_fullscreen),
     };
 
-    conn.send(client_id, ServerResponse::DrawingProp(value)).await?;
+    conn.send(ServerResponse::DrawingProp(value))?;
 
     Ok(())
 }

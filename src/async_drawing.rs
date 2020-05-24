@@ -89,77 +89,77 @@ impl AsyncDrawing {
         self.client.drawing_title().await
     }
 
-    pub async fn set_title<S: Into<String>>(&mut self, title: S) {
-        self.client.drawing_set_title(title.into()).await
+    pub fn set_title<S: Into<String>>(&mut self, title: S) {
+        self.client.drawing_set_title(title.into())
     }
 
     pub async fn background_color(&self) -> Color {
         self.client.drawing_background().await
     }
 
-    pub async fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
+    pub fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
         let bg_color = color.into();
         assert!(
             bg_color.is_valid(),
             "Invalid color: {:?}. See the color module documentation for more information.",
             color
         );
-        self.client.drawing_set_background(bg_color).await
+        self.client.drawing_set_background(bg_color)
     }
 
     pub async fn center(&self) -> Point {
         self.client.drawing_center().await
     }
 
-    pub async fn set_center<P: Into<Point>>(&mut self, center: P) {
+    pub fn set_center<P: Into<Point>>(&mut self, center: P) {
         let center = center.into();
         if !center.is_finite() {
             return;
         }
-        self.client.drawing_set_center(center).await
+        self.client.drawing_set_center(center)
     }
 
-    pub async fn reset_center(&mut self) {
-        self.client.drawing_reset_center().await
+    pub fn reset_center(&mut self) {
+        self.client.drawing_reset_center()
     }
 
     pub async fn size(&self) -> Size {
         self.client.drawing_size().await
     }
 
-    pub async fn set_size<S: Into<Size>>(&mut self, size: S) {
+    pub fn set_size<S: Into<Size>>(&mut self, size: S) {
         let size = size.into();
         assert!(size.width > 0 && size.height > 0, "The size of the drawing must be non-zero");
 
-        self.client.drawing_set_size(size).await
+        self.client.drawing_set_size(size)
     }
 
-    pub async fn reset_size(&mut self) {
-        self.client.drawing_reset_size().await
+    pub fn reset_size(&mut self) {
+        self.client.drawing_reset_size()
     }
 
     pub async fn is_maximized(&self) -> bool {
         self.client.drawing_is_maximized().await
     }
 
-    pub async fn maximize(&mut self) {
-        self.client.drawing_set_is_maximized(true).await
+    pub fn maximize(&mut self) {
+        self.client.drawing_set_is_maximized(true)
     }
 
-    pub async fn unmaximize(&mut self) {
-        self.client.drawing_set_is_maximized(false).await
+    pub fn unmaximize(&mut self) {
+        self.client.drawing_set_is_maximized(false)
     }
 
     pub async fn is_fullscreen(&self) -> bool {
         self.client.drawing_is_fullscreen().await
     }
 
-    pub async fn enter_fullscreen(&mut self) {
-        self.client.drawing_set_is_fullscreen(true).await
+    pub fn enter_fullscreen(&mut self) {
+        self.client.drawing_set_is_fullscreen(true)
     }
 
-    pub async fn exit_fullscreen(&mut self) {
-        self.client.drawing_set_is_fullscreen(false).await
+    pub fn exit_fullscreen(&mut self) {
+        self.client.drawing_set_is_fullscreen(false)
     }
 
     pub async fn poll_event(&mut self) -> Option<Event> {

@@ -153,7 +153,7 @@ impl Drawing {
     ///
     /// ![turtle set title](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/changed_title.png)
     pub fn set_title<S: Into<String>>(&mut self, title: S) {
-        block_on(self.drawing.set_title(title))
+        self.drawing.set_title(title)
     }
 
     /// Returns the color of the background.
@@ -191,7 +191,7 @@ impl Drawing {
     ///
     /// ![turtle background](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/orange_background.png)
     pub fn set_background_color<C: Into<Color> + Copy + Debug>(&mut self, color: C) {
-        block_on(self.drawing.set_background_color(color))
+        self.drawing.set_background_color(color)
     }
 
     /// Returns the center of the drawing
@@ -246,7 +246,7 @@ impl Drawing {
     ///
     /// ![turtle center offset](https://github.com/sunjay/turtle/raw/9240f8890d1032a0033ec5c5338a10ffa942dc21/docs/assets/images/docs/circle_offset_center.png)
     pub fn set_center<P: Into<Point>>(&mut self, center: P) {
-        block_on(self.drawing.set_center(center))
+        self.drawing.set_center(center)
     }
 
     /// Resets the center of the drawing back to its initial value
@@ -261,7 +261,7 @@ impl Drawing {
     /// assert_eq!(drawing.center(), default_center);
     /// ```
     pub fn reset_center(&mut self) {
-        block_on(self.drawing.reset_center())
+        self.drawing.reset_center()
     }
 
     /// Returns the size of the drawing
@@ -332,7 +332,7 @@ impl Drawing {
     /// Notice that the center of the drawing stays the same. To control that, see
     /// [`set_center()`](struct.Drawing.html#method.set_center).
     pub fn set_size<S: Into<Size>>(&mut self, size: S) {
-        block_on(self.drawing.set_size(size))
+        self.drawing.set_size(size)
     }
 
     /// Resets the size of the drawing back to its initial value
@@ -349,7 +349,7 @@ impl Drawing {
     /// assert_eq!(drawing.size(), default_size);
     /// ```
     pub fn reset_size(&mut self) {
-        block_on(self.drawing.reset_size())
+        self.drawing.reset_size()
     }
 
     /// Returns true if the drawing is currently maximized.
@@ -402,7 +402,7 @@ impl Drawing {
     /// assert_eq!(drawing.is_maximized(), true);
     /// ```
     pub fn maximize(&mut self) {
-        block_on(self.drawing.maximize())
+        self.drawing.maximize()
     }
 
     /// Returns the size of the drawing to its value before it was maximized
@@ -421,7 +421,7 @@ impl Drawing {
     /// assert_eq!(drawing.is_maximized(), false);
     /// ```
     pub fn unmaximize(&mut self) {
-        block_on(self.drawing.unmaximize())
+        self.drawing.unmaximize()
     }
 
     /// Returns true if the drawing is currently full screen.
@@ -460,7 +460,7 @@ impl Drawing {
     /// assert_eq!(drawing.is_fullscreen(), true);
     /// ```
     pub fn enter_fullscreen(&mut self) {
-        block_on(self.drawing.enter_fullscreen())
+        self.drawing.enter_fullscreen()
     }
 
     /// Returns the size of the drawing to its value before it became fullscreen.
@@ -480,7 +480,7 @@ impl Drawing {
     /// assert_eq!(drawing.is_fullscreen(), false);
     /// ```
     pub fn exit_fullscreen(&mut self) {
-        block_on(self.drawing.exit_fullscreen())
+        self.drawing.exit_fullscreen()
     }
 
     /// Returns the next event (if any). Returns `None` if there are no events to be processed at

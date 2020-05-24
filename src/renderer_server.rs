@@ -28,8 +28,7 @@ use std::sync::Arc;
 use ipc_channel::ipc::IpcError;
 use tokio::sync::{mpsc, oneshot, Mutex};
 
-use crate::ipc_protocol::{ServerConnection, ClientRequest};
-use crate::renderer_client::ClientId;
+use crate::ipc_protocol::{ServerSender, ServerOneshotSender, ServerReceiver, ClientRequest};
 use crate::Event;
 
 use app::App;
@@ -39,14 +38,14 @@ use event_loop_notifier::EventLoopNotifier;
 
 /// Serves requests from the client forever
 async fn serve(
-    conn: ServerConnection,
+    conn: ServerSender,
+    client_requests: ServerReceiver,
     app: Arc<App>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopNotifier,
     events_receiver: mpsc::UnboundedReceiver<Event>,
     mut server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
-    let conn = Arc::new(conn);
     let app_control = Arc::new(AccessControl::new(app).await);
     let events_receiver = Arc::new(Mutex::new(events_receiver));
 
@@ -57,7 +56,7 @@ async fn serve(
             // thread panics, this will return None. In either case, this loop needs to stop.
             _ = server_shutdown_receiver.recv() => break,
 
-            req = conn.recv() => match req {
+            req = client_requests.recv() => match req {
                 Ok(req) => req,
                 // Client has disconnected completely, no purpose in continuing this loop
                 Err(IpcError::Disconnected) => break,
@@ -75,8 +74,7 @@ async fn serve(
         // in the order in which they arrived. The ordering is enforced with `data_req_queued`.
         tokio::spawn(run_request(
             data_req_queued,
-            conn.clone(),
-            client_id,
+            ServerOneshotSender::new(client_id, conn.clone()),
             app_control.clone(),
             display_list.clone(),
             event_loop.clone(),
@@ -94,8 +92,7 @@ async fn serve(
 
 async fn run_request(
     data_req_queued: oneshot::Sender<()>,
-    conn: Arc<ServerConnection>,
-    client_id: ClientId,
+    conn: ServerOneshotSender,
     app_control: Arc<AccessControl>,
     display_list: Arc<Mutex<DisplayList>>,
     event_loop: EventLoopNotifier,
@@ -105,11 +102,11 @@ async fn run_request(
     use ClientRequest::*;
     let res = match request {
         CreateTurtle => {
-            handlers::create_turtle(&conn, client_id, &app_control, event_loop).await
+            handlers::create_turtle(conn, &app_control, event_loop).await
         },
 
         Export(path, format) => {
-            handlers::export_drawings(data_req_queued, &conn, client_id, &app_control, &display_list, &path, format).await
+            handlers::export_drawings(data_req_queued, conn, &app_control, &display_list, &path, format).await
         },
 
         PollEvent => {
@@ -118,11 +115,11 @@ async fn run_request(
             // fine though because we don't guarantee the ordering of events if they are polled
             // from multiple threads/tasks. Thus, following the order of requests does not matter
             // in this specific case.
-            handlers::poll_event(&conn, client_id, &events_receiver).await
+            handlers::poll_event(conn, &events_receiver).await
         },
 
         DrawingProp(prop) => {
-            handlers::drawing_prop(data_req_queued, &conn, client_id, &app_control, prop).await
+            handlers::drawing_prop(data_req_queued, conn, &app_control, prop).await
         },
         SetDrawingProp(prop_value) => {
             handlers::set_drawing_prop(data_req_queued, &app_control, event_loop, prop_value).await
@@ -132,7 +129,7 @@ async fn run_request(
         },
 
         TurtleProp(id, prop) => {
-            handlers::turtle_prop(data_req_queued, &conn, client_id, &app_control, id, prop).await
+            handlers::turtle_prop(data_req_queued, conn, &app_control, id, prop).await
         },
         SetTurtleProp(id, prop_value) => {
             handlers::set_turtle_prop(data_req_queued, &app_control, &display_list, event_loop, id, prop_value).await
@@ -145,13 +142,13 @@ async fn run_request(
         },
 
         MoveForward(id, distance) => {
-            handlers::move_forward(data_req_queued, &conn, client_id, &app_control, &display_list, event_loop, id, distance).await
+            handlers::move_forward(data_req_queued, conn, &app_control, &display_list, event_loop, id, distance).await
         },
         MoveTo(id, target_pos) => {
-            handlers::move_to(data_req_queued, &conn, client_id, &app_control, &display_list, event_loop, id, target_pos).await
+            handlers::move_to(data_req_queued, conn, &app_control, &display_list, event_loop, id, target_pos).await
         },
         RotateInPlace(id, angle, direction) => {
-            handlers::rotate_in_place(data_req_queued, &conn, client_id, &app_control, event_loop, id, angle, direction).await
+            handlers::rotate_in_place(data_req_queued, conn, &app_control, event_loop, id, angle, direction).await
         },
 
         BeginFill(id) => {
