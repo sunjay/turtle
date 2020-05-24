@@ -10,10 +10,12 @@ use tokio::{
 use futures_util::future::{FutureExt, RemoteHandle};
 
 use crate::ipc_protocol::{
+    ServerSender,
+    ServerReceiver,
     ClientSender,
     ClientReceiver,
     ConnectionError,
-    connect_server_stdin,
+    connect_server,
     connect_client,
 };
 
@@ -30,7 +32,7 @@ pub struct RendererServer {
     /// run from async code, we need this to ensure we can wait on the subprocess in `task_handle`.
     /// NOTE: This creates an implicit invariant that this struct must be dropped before the
     /// runtime that it was created in is dropped. This is not an issue in normal code and will at
-    /// worst cause a panic!().
+    /// worst cause a panic.
     runtime_handle: Handle,
     /// A handle to the running task. This can be waited on to find out if the process exited
     /// successfully. A remote handle will also drop the future it is associated with when it is
@@ -91,7 +93,9 @@ impl RendererServer {
         let runtime_handle = Handle::current();
 
         // Send IPC oneshot server name by writing to stdin
-        let (conn_sender, conn_receiver) = connect_client(|name| send_ipc_oneshot_name(child_stdin, name)).await?;
+        let (conn_sender, conn_receiver) = connect_client(|name| {
+            send_ipc_oneshot_name(child_stdin, name)
+        }).await?;
 
         Ok((Self {runtime_handle, task_handle}, conn_sender, conn_receiver))
     }
@@ -101,6 +105,24 @@ async fn send_ipc_oneshot_name(mut child_stdin: ChildStdin, server_name: String)
     child_stdin.write_all(server_name.as_ref()).await?;
     child_stdin.write_all(&[b'\n']).await?;
     Ok(())
+}
+
+/// Establishes a connection to the client by reading from stdin
+pub async fn connect_server_stdin() -> Result<(ServerSender, ServerReceiver), ConnectionError> {
+    use tokio::io::{self, AsyncBufReadExt};
+
+    let stdin = io::stdin();
+    let mut reader = io::BufReader::new(stdin);
+
+    let mut oneshot_name = String::new();
+    reader.read_line(&mut oneshot_name).await?;
+    assert!(!oneshot_name.is_empty(), "bug: unexpected EOF when reading oneshot server name");
+
+    // Remove the trailing newline
+    assert_eq!(oneshot_name.pop(), Some('\n'));
+    let conn = connect_server(oneshot_name)?;
+
+    Ok(conn)
 }
 
 impl Drop for RendererServer {

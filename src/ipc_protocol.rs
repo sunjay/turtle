@@ -149,25 +149,6 @@ impl ServerReceiver {
     }
 }
 
-/// Establishes a connection to the client by reading from stdin
-#[cfg(all(not(any(feature = "test", test)), target_os = "macos"))]
-pub async fn connect_server_stdin() -> Result<(ServerSender, ServerReceiver), ConnectionError> {
-    use tokio::io::{self, AsyncBufReadExt};
-
-    let stdin = io::stdin();
-    let mut reader = io::BufReader::new(stdin);
-
-    let mut oneshot_name = String::new();
-    reader.read_line(&mut oneshot_name).await?;
-    assert!(!oneshot_name.is_empty(), "bug: unexpected EOF when reading oneshot server name");
-
-    // Remove the trailing newline
-    assert_eq!(oneshot_name.pop(), Some('\n'));
-    let conn = connect_server(oneshot_name)?;
-
-    Ok(conn)
-}
-
 /// Establishes a connection with the IPC channel oneshot server with the given name
 pub fn connect_server(
     oneshot_name: String,
