@@ -117,14 +117,14 @@ impl Renderer {
         // Draw each primitive
         let dpi_scale = self.dpi_scale;
         let center = drawing.center;
-        let fb_center = fb_size / 2.0;
+        let fb_center = (fb_size / 2.0).into();
         for prim in display_list.iter() {
             match prim {
                 &DrawPrim::Line(Line {start, end, thickness, color}) => {
                     let mut path = Path2D::new();
 
-                    path.move_to(ScreenPoint::from_logical(start, dpi_scale, center, fb_center.into()).into());
-                    path.line_to(ScreenPoint::from_logical(end, dpi_scale, center, fb_center.into()).into());
+                    path.move_to(ScreenPoint::from_logical(start, dpi_scale, center, fb_center).into());
+                    path.line_to(ScreenPoint::from_logical(end, dpi_scale, center, fb_center).into());
 
                     canvas.set_line_width((thickness * dpi_scale) as f32);
                     canvas.set_stroke_style(convert_color(color));
@@ -139,9 +139,9 @@ impl Renderer {
 
                     let mut path = Path2D::new();
 
-                    path.move_to(ScreenPoint::from_logical(points[0], dpi_scale, center, fb_center.into()).into());
+                    path.move_to(ScreenPoint::from_logical(points[0], dpi_scale, center, fb_center).into());
                     for &point in &points[1..] {
-                        path.line_to(ScreenPoint::from_logical(point, dpi_scale, center, fb_center.into()).into());
+                        path.line_to(ScreenPoint::from_logical(point, dpi_scale, center, fb_center).into());
                     }
 
                     path.close_path();
@@ -169,7 +169,7 @@ impl Renderer {
                     x: cos * x - sin * y + turtle_x,
                     y: sin * x + cos * y + turtle_y,
                 };
-                ScreenPoint::from_logical(point, dpi_scale, center, fb_center.into()).into()
+                ScreenPoint::from_logical(point, dpi_scale, center, fb_center).into()
             };
 
             let mut path = Path2D::new();
