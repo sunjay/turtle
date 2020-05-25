@@ -85,19 +85,20 @@ pub fn run_main(
     // All of the drawing primitives in the order in which they wil be drawn
     //
     // This is managed separately from the rest of the app state because the display list is shared
-    // among pretty much everything and so critical sections containing the display list need to be
-    // as short as possible.
+    // by pretty much everything. Trying to control it via `AccessControl` would remove all
+    // opportunities for parallelism and essentially make all turtle programs sequential.
+    //
+    // Critical sections containing the display list should be as short as possible.
     let display_list = Arc::new(Mutex::new(DisplayList::default()));
 
     let mut event_loop = new_event_loop();
     // Create the proxy that will be given to the thread managing IPC
-    let event_loop_proxy = event_loop.create_proxy();
-    let event_loop_notifier = EventLoopNotifier::new(event_loop_proxy);
+    let event_loop_notifier = EventLoopNotifier::new(event_loop.create_proxy());
 
     // A channel for transferring events
     let (events_sender, events_receiver) = mpsc::unbounded_channel();
-    // Put the events_receiver in an Option so we can call `take()` in the event loop. Required
-    // because borrow checker cannot verify that `Init` event is only fired once.
+    // Put these variables in an Option so we can call `take()` in the event loop. Required
+    // because borrow checker cannot verify which events only fire once.
     let mut events_receiver = Some(events_receiver);
     let mut establish_connection = Some(establish_connection);
     let (mut server_shutdown, server_shutdown_receiver) = mpsc::channel(1);
