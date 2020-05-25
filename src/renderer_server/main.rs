@@ -187,8 +187,6 @@ pub fn run_main(
             ..
         } => {
             renderer.set_scale_factor(scale_factor);
-            //TODO: No idea if this next line is necessary or not
-            gl_context.window().request_redraw();
         },
 
         GlutinEvent::WindowEvent {event, ..} => {
@@ -199,8 +197,6 @@ pub fn run_main(
                     let mut drawing = handle.block_on(app.drawing_mut());
                     drawing.width = size.width;
                     drawing.height = size.height;
-                    //TODO: No idea if this next line is necessary or not
-                    gl_context.window().request_redraw();
                 },
 
                 //TODO: There are currently no events for updating is_maximized, so that property
@@ -246,23 +242,16 @@ pub fn run_main(
 
         GlutinEvent::UserEvent(MainThreadAction::SetSize(size)) => {
             gl_context.window().set_inner_size(size);
-            //TODO: No idea if this next line is necessary or not
-            gl_context.window().request_redraw();
         },
 
         GlutinEvent::UserEvent(MainThreadAction::SetIsMaximized(is_maximized)) => {
             gl_context.window().set_maximized(is_maximized);
-            //TODO: No idea if this next line is necessary or not
-            gl_context.window().request_redraw();
         },
 
         GlutinEvent::UserEvent(MainThreadAction::SetIsFullscreen(is_fullscreen)) => {
             gl_context.window().set_fullscreen(if is_fullscreen {
                 Some(Fullscreen::Borderless(gl_context.window().current_monitor()))
             } else { None });
-
-            //TODO: No idea if this next line is necessary or not
-            gl_context.window().request_redraw();
         },
 
         GlutinEvent::RedrawRequested(_) => {
