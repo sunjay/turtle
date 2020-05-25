@@ -264,8 +264,12 @@ pub fn run_main(
             }
 
             handle.block_on(redraw(&app, &display_list, &gl_context, &mut renderer));
-            *control_flow = ControlFlow::Wait;
             last_render = Instant::now();
+
+            // Do not re-render unless there is a reason to
+            //
+            // This is why the window has 0 CPU usage when nothing is happening
+            *control_flow = ControlFlow::Wait;
         },
 
         GlutinEvent::LoopDestroyed => {
@@ -323,7 +327,6 @@ fn spawn_async_server(
     establish_connection: impl Future<Output=Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
     server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
-    // Spawn root task
     handle.spawn(async {
         let (conn_sender, conn_receiver) = establish_connection.await
             .expect("unable to establish turtle server connection");
