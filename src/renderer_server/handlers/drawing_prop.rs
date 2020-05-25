@@ -98,9 +98,19 @@ async fn modify_drawing(
             event_loop.set_title(title)?;
         },
 
-        Background(background) => drawing.background = background,
+        Background(background) => {
+            drawing.background = background;
 
-        Center(center) => drawing.center = center,
+            // Signal the main thread that the image has changed
+            event_loop.request_redraw()?;
+        },
+
+        Center(center) => {
+            drawing.center = center;
+
+            // Signal the main thread that the image has changed
+            event_loop.request_redraw()?;
+        },
 
         Size(crate::Size {width, height}) => {
             drawing.width = width;
