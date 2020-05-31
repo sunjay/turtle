@@ -2,14 +2,18 @@
 //!
 //! https://en.wikipedia.org/wiki/Reversi
 
+// To run this example, use the command: cargo run --features unstable --example reversi
+#[cfg(all(not(feature = "unstable")))]
+compile_error!("This example relies on unstable features. Run with `--features unstable`");
+
 extern crate turtle;
 
 mod board;
 
 use std::f64::consts::PI;
 
-use turtle::{Turtle, Event, Color};
-use turtle::event::{MouseButton};
+use turtle::{Drawing, Turtle, Point, Color, Event};
+use turtle::event::{MouseButton, PressedState};
 
 use board::{Board, Piece};
 
@@ -24,11 +28,12 @@ struct Dimensions {
 }
 
 fn main() {
-    let mut turtle = Turtle::new();
-    turtle.drawing_mut().set_background_color("#B3E5FC");
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
+    drawing.set_background_color("#B3E5FC");
     turtle.set_pen_color("#757575");
     turtle.set_pen_size(2.0);
-    turtle.set_speed(8);
+    turtle.set_speed(23);
 
     let width = 580.0;
     let height = 580.0;
@@ -59,9 +64,9 @@ fn main() {
     draw_valid_moves(&mut turtle, &board, &dim);
 
     // Get rid of any events that may have accumulated while drawing
-    drain_events(&mut turtle);
+    drain_events(&mut drawing);
 
-    play_game(&mut turtle, board, &dim);
+    play_game(&mut drawing, &mut turtle, board, &dim);
 }
 
 fn draw_board(turtle: &mut Turtle, dim: &Dimensions) {
@@ -99,21 +104,20 @@ fn draw_board_pieces(turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
     }
 }
 
-fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
+fn play_game(drawing: &mut Drawing, turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
     println!("Click on a tile to make a move.");
     println!("Current Player: {}", board.current().name());
-    turtle.set_speed(9);
 
-    let mut mouse = [0.0, 0.0];
+    let mut mouse = Point::origin();
     loop {
-        let event = turtle.drawing_mut().poll_event();
+        let event = drawing.poll_event();
         // Sometimes it is more convenient to use `if let` instead of `match`. In this case, it's
         // really up to your personal preference. We chose to demonstrate what `if let` would look
         // like if used for this code.
-        if let Some(Event::MouseMove {x, y}) = event {
-            mouse = [x, y];
+        if let Some(Event::MouseMove(mouse_pos)) = event {
+            mouse = mouse_pos;
         }
-        else if let Some(Event::MouseButtonReleased(MouseButton::Left)) = event {
+        else if let Some(Event::MouseButton(MouseButton::LeftButton, PressedState::Released)) = event {
             // Figure out which row and column was clicked
             // If these formulas seem unclear, try some example values to see what you get
             let row = ((1.0 - (mouse[1] + dim.height/2.0) / dim.height) * dim.rows as f64).floor() as isize;
@@ -124,7 +128,7 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
                 && board.is_valid_move(&(row as usize, col as usize)) {
                 let row = row as usize;
                 let col = col as usize;
-                erase_valid_moves(turtle, &board, dim);
+                erase_valid_moves(drawing, turtle, &board, dim);
 
                 let current = board.current();
                 let flipped = board.play_piece((row, col));
@@ -132,7 +136,7 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
                 move_to_tile(turtle, (row, col), &dim);
                 draw_piece(turtle, current, &dim);
 
-                let background = turtle.drawing().background_color();
+                let background = drawing.background_color();
                 draw_tile_circles(turtle, 0.9, background, dim, flipped.iter());
                 draw_tile_circles(turtle, 0.8, current.color(), dim, flipped.iter());
 
@@ -141,7 +145,7 @@ fn play_game(turtle: &mut Turtle, mut board: Board, dim: &Dimensions) {
                 println!("Current Player: {}", board.current().name());
 
                 // Get rid of any events that may have accumulated while drawing
-                drain_events(turtle);
+                drain_events(drawing);
             }
         }
     }
@@ -161,8 +165,8 @@ fn move_to_tile(turtle: &mut Turtle, (row, col): (usize, usize), dim: &Dimension
     turtle.pen_down();
 }
 
-fn erase_valid_moves(turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
-    let background = turtle.drawing().background_color();
+fn erase_valid_moves(drawing: &Drawing, turtle: &mut Turtle, board: &Board, dim: &Dimensions) {
+    let background = drawing.background_color();
     draw_tile_circles(
         turtle,
         0.5,
@@ -214,13 +218,14 @@ fn tile_circle(turtle: &mut Turtle, relative_size: f64, fill: Color, dim: &Dimen
 fn filled_circle(turtle: &mut Turtle, radius: f64, fill: Color) {
     turtle.set_fill_color(fill);
     turtle.pen_up();
-    turtle.begin_fill();
 
     turtle.forward(radius);
     turtle.right(90.0);
-    circle(turtle, radius);
 
+    turtle.begin_fill();
+    circle(turtle, radius);
     turtle.end_fill();
+
     turtle.pen_down();
 }
 
@@ -238,6 +243,6 @@ fn circle(turtle: &mut Turtle, radius: f64) {
 }
 
 /// Clear out all events that may have accumulated
-fn drain_events(turtle: &mut Turtle) {
-    while let Some(_) = turtle.drawing_mut().poll_event() {}
+fn drain_events(drawing: &mut Drawing) {
+    while let Some(_) = drawing.poll_event() {}
 }

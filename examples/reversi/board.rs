@@ -209,7 +209,7 @@ impl Board {
     fn adjacent_positions(&self, (row, col): Position) -> Vec<Position> {
         let rows = self.tiles.len();
         let cols = self.tiles[0].len();
-        [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)].into_iter()
+        [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)].iter()
             .map(|&(r, c)| (row as isize + r, col as isize + c))
             .filter(|&(r, c)| r >= 0 && c >= 0 && r < rows as isize && c < cols as isize)
             .map(|(r, c)| (r as usize, c as usize))
