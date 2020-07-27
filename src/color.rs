@@ -1189,15 +1189,15 @@ impl<'a> From<&'a str> for Color {
 
 macro_rules! color_consts {
     ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
-        $(
-            #[doc = $name]
-            pub const $id: Color = Color {red: $r, green: $g, blue: $b, alpha: $a};
-        )*
-
         impl Color {
+            $(
+                #[doc = $name]
+                pub const $id: Color = Color {red: $r, green: $g, blue: $b, alpha: $a};
+            )*
+
             /// Return a list of all of the colors.
             pub fn all_colors() -> &'static [Color] {
-                &[$($id, )*]
+                &[$(Color::$id, )*]
             }
 
             /// Return a list of all of the color names.
@@ -1209,7 +1209,7 @@ macro_rules! color_consts {
         pub(crate) fn from_color_name(s: &str) -> Option<Color> {
             match s {
                 $(
-                    $name => Some($id),
+                    $name => Some(Color::$id),
                 )*
                 _ => None,
             }
