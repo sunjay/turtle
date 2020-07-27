@@ -2371,21 +2371,9 @@ pub mod extended {
     use super::Color;
 
     color_consts! {
-        "grey", GREY, (146.0, 149.0, 145.0, 1.0);
         "sky blue", SKY_BLUE, (117.0, 187.0, 253.0, 1.0);
-        "yellow", YELLOW, (255.0, 255.0, 20.0, 1.0);
-        "magenta", MAGENTA, (194.0, 0.0, 120.0, 1.0);
         "light green", LIGHT_GREEN, (150.0, 249.0, 123.0, 1.0);
-        "orange", ORANGE, (249.0, 115.0, 6.0, 1.0);
-        "teal", TEAL, (2.0, 147.0, 134.0, 1.0);
         "light blue", LIGHT_BLUE, (149.0, 208.0, 252.0, 1.0);
-        "red", RED, (229.0, 0.0, 0.0, 1.0);
-        "brown", BROWN, (101.0, 55.0, 0.0, 1.0);
-        "pink", PINK, (255.0, 129.0, 192.0, 1.0);
-        "blue", BLUE, (3.0, 67.0, 223.0, 1.0);
-        "green", GREEN, (21.0, 176.0, 26.0, 1.0);
-        "purple", PURPLE, (126.0, 30.0, 156.0, 1.0);
-
         "cloudy blue", CLOUDY_BLUE, (172.0, 194.0, 217.0, 1.0);
         "dark pastel green", DARK_PASTEL_GREEN, (86.0, 174.0, 87.0, 1.0);
         "dust", DUST, (178.0, 153.0, 110.0, 1.0);
@@ -3199,7 +3187,6 @@ pub mod extended {
         "dark magenta", DARK_MAGENTA, (150.0, 0.0, 86.0, 1.0);
         "greenish", GREENISH, (64.0, 163.0, 104.0, 1.0);
         "ocean blue", OCEAN_BLUE, (3.0, 113.0, 156.0, 1.0);
-        "coral", CORAL, (252.0, 90.0, 80.0, 1.0);
         "cream", CREAM, (255.0, 255.0, 194.0, 1.0);
         "reddish brown", REDDISH_BROWN, (127.0, 43.0, 10.0, 1.0);
         "burnt sienna", BURNT_SIENNA, (176.0, 78.0, 15.0, 1.0);
@@ -3243,7 +3230,6 @@ pub mod extended {
         "dark orange", DARK_ORANGE, (198.0, 81.0, 2.0, 1.0);
         "sand", SAND, (226.0, 202.0, 118.0, 1.0);
         "pastel green", PASTEL_GREEN, (176.0, 255.0, 157.0, 1.0);
-        "mint", MINT, (159.0, 254.0, 176.0, 1.0);
         "light orange", LIGHT_ORANGE, (253.0, 170.0, 72.0, 1.0);
         "bright pink", BRIGHT_PINK, (254.0, 1.0, 177.0, 1.0);
         "chartreuse", CHARTREUSE, (193.0, 248.0, 10.0, 1.0);
@@ -3269,7 +3255,6 @@ pub mod extended {
         "dark red", DARK_RED, (132.0, 0.0, 0.0, 1.0);
         "pale blue", PALE_BLUE, (208.0, 254.0, 254.0, 1.0);
         "grass green", GRASS_GREEN, (63.0, 155.0, 11.0, 1.0);
-        "navy", NAVY, (1.0, 21.0, 62.0, 1.0);
         "aquamarine", AQUAMARINE, (4.0, 216.0, 178.0, 1.0);
         "burnt orange", BURNT_ORANGE, (192.0, 78.0, 1.0, 1.0);
         "neon green", NEON_GREEN, (12.0, 255.0, 12.0, 1.0);
@@ -3278,7 +3263,6 @@ pub mod extended {
         "light pink", LIGHT_PINK, (255.0, 209.0, 223.0, 1.0);
         "mustard", MUSTARD, (206.0, 179.0, 1.0, 1.0);
         "indigo", INDIGO, (56.0, 2.0, 130.0, 1.0);
-        "lime", LIME, (170.0, 255.0, 50.0, 1.0);
         "sea green", SEA_GREEN, (83.0, 252.0, 161.0, 1.0);
         "periwinkle", PERIWINKLE, (142.0, 130.0, 254.0, 1.0);
         "dark pink", DARK_PINK, (203.0, 65.0, 107.0, 1.0);
@@ -3290,19 +3274,14 @@ pub mod extended {
         "lilac", LILAC, (206.0, 162.0, 253.0, 1.0);
         "navy blue", NAVY_BLUE, (0.0, 17.0, 70.0, 1.0);
         "royal blue", ROYAL_BLUE, (5.0, 4.0, 170.0, 1.0);
-        "beige", BEIGE, (230.0, 218.0, 166.0, 1.0);
         "salmon", SALMON, (255.0, 121.0, 108.0, 1.0);
-        "olive", OLIVE, (110.0, 117.0, 14.0, 1.0);
-        "maroon", MAROON, (101.0, 0.0, 33.0, 1.0);
         "bright green", BRIGHT_GREEN, (1.0, 255.0, 7.0, 1.0);
         "dark purple", DARK_PURPLE, (53.0, 6.0, 62.0, 1.0);
         "mauve", MAUVE, (174.0, 113.0, 129.0, 1.0);
         "forest green", FOREST_GREEN, (6.0, 71.0, 12.0, 1.0);
         "aqua", AQUA, (19.0, 234.0, 201.0, 1.0);
-        "cyan", CYAN, (0.0, 255.0, 255.0, 1.0);
         "tan", TAN, (209.0, 178.0, 111.0, 1.0);
         "dark blue", DARK_BLUE, (0.0, 3.0, 91.0, 1.0);
-        "lavender", LAVENDER, (199.0, 159.0, 239.0, 1.0);
         "turquoise", TURQUOISE, (6.0, 194.0, 172.0, 1.0);
         "dark green", DARK_GREEN, (3.0, 53.0, 0.0, 1.0);
         "violet", VIOLET, (154.0, 14.0, 234.0, 1.0);
