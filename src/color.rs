@@ -50,13 +50,13 @@ fn f64_eq(left: f64, right: f64) -> bool {
 
 /// Type for representing a color.
 ///
-/// Color types and constants
+/// # Color types and constants
 ///
 /// When setting a color, you can use a variety of different color names.
 /// This module contains many of the most common colors that you might want to use. There is an
-/// even more comprehensive list in the [`extended`](extended/index.html) module. Any of the color names
-/// listed in this module or in the `extended` module can be used as a color. You only need to
-/// reference the `color::extended` module if you want to use a specific color constant from that
+/// even more comprehensive list in the [`extra_colors`](extra_colors/index.html) module. Any of the color names
+/// listed in this module or in the `extra_colors` module can be used as a color. You only need to
+/// reference the `extra_colors` module if you want to use a specific color constant from that
 /// module.
 ///
 /// You can refer to a color by using its color name as a string literal. For example:
@@ -87,7 +87,7 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
 /// [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
 /// and each of their names as strings. These static variables only contain the colors from this
-/// module. The [`extended`](extended/index.html) module has its own static `COLOR` and
+/// module. The [`extra_colors`](extra_colors/index.html) module has its own static `COLOR` and
 /// `COLOR_NAMES` variables.
 ///
 /// # Random Colors

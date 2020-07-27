@@ -630,7 +630,7 @@ impl Turtle {
     /// assert_eq!(turtle.pen_color(), "blue".into());
     /// ```
     ///
-    /// See the [`color` module](color/index.html) for more information about colors.
+    /// See the [`Color` struct](struct.Color.html) for more information about colors.
     pub fn pen_color(&self) -> Color {
         block_on(self.turtle.pen_color())
     }
@@ -638,7 +638,7 @@ impl Turtle {
     /// Sets the color of the pen to the given color.
     ///
     /// Any type that can be converted into a color can be passed into this function.
-    /// See the [`color` module](color/index.html) for more information.
+    /// See the [`Color` struct](struct.Color.html) for more information.
     ///
     /// # Example
     ///
@@ -681,7 +681,7 @@ impl Turtle {
     /// assert_eq!(turtle.fill_color(), "coral".into());
     /// ```
     ///
-    /// See the [`color` module](color/index.html) for more information about colors.
+    /// See the [`Color` struct](struct.Color.html) for more information about colors.
     pub fn fill_color(&self) -> Color {
         block_on(self.turtle.fill_color())
     }
@@ -689,7 +689,7 @@ impl Turtle {
     /// Sets the fill color to the given color.
     ///
     /// Any type that can be converted into a color can be passed into this function.
-    /// See the [`color` module](color/index.html) for more information.
+    /// See the [`Color` struct](struct.Color.html) for more information.
     ///
     /// **Note:** Changing the fill color after calling `begin_fill` will cause the filled shape to
     /// update to the new color.
