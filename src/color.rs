@@ -1,162 +1,3 @@
-//! Color types and constants
-//!
-//! When setting a color, you can use a variety of different color names.
-//! This module contains many of the most common colors that you might want to use. There is an
-//! even more comprehensive list in the [`extended`](extended/index.html) module. Any of the color names
-//! listed in this module or in the `extended` module can be used as a color. You only need to
-//! reference the `color::extended` module if you want to use a specific color constant from that
-//! module.
-//!
-//! You can refer to a color by using its color name as a string literal. For example:
-//!
-//! ```rust
-//! # use turtle::Color;
-//! # let mut turtle = turtle::Turtle::new();
-//! // This will set the turtle's pen color to BLACK
-//! turtle.set_pen_color("black");
-//! // This is the same as the previous line
-//! turtle.set_pen_color(Color::BLACK);
-//! // You can use any of the supported color names (including the ones from extended)
-//! turtle.set_pen_color("deep lilac");
-//! ```
-//!
-//! You can also use hexadecimal color strings to get any color you want
-//! (even ones that aren't listed here).
-//!
-//! ```rust
-//! # let mut turtle = turtle::Turtle::new();
-//! turtle.set_pen_color("#3366ff");
-//! turtle.set_pen_color("#36f");
-//! ```
-//!
-//! Each color's constant name is in uppercase in the list below. The color name you should use to
-//! refer to it is in lower case next to the constant.
-//!
-//! For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
-//! [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
-//! and each of their names as strings. These static variables only contain the colors from this
-//! module. The [`extended`](extended/index.html) module has its own static `COLOR` and
-//! `COLOR_NAMES` variables.
-//!
-//! # Random Colors
-//!
-//! You can also generate random colors. Here's an example:
-//!
-//! ```rust
-//! # let mut turtle = turtle::Turtle::new();
-//! use turtle::{rand::random, Color};
-//! turtle.set_pen_color(random::<Color>().opaque());
-//! ```
-//!
-//! The syntax used in `random::<Color>()` is referred to as
-//! ["turbofish" syntax](https://doc.rust-lang.org/book/first-edition/generics.html#resolving-ambiguities).
-//! See that documentation for more information.
-//!
-//! Notice that you need to explicitly call the [`opaque()`](struct.Color.html#method.opaque)
-//! method on the color in order to make sure that the color has an alpha value of 1.0. By default,
-//! when you generate a random color, it's alpha value will be random as well.
-//!
-//! See the [examples directory on GitHub](https://github.com/sunjay/turtle/tree/master/examples)
-//! for more information.
-//!
-//! # Creating a Color from Values
-//!
-//! Usually, you won't need to initialize a color this way since the above methods are quite
-//! convenient. However, in some situations it may be necessary to create a color with specific
-//! red, green, and blue values. The following example illustrates how to do that.
-//!
-//! ```rust
-//! use turtle::Color;
-//! let my_color = Color {red: 255.0, green: 55.0, blue: 11.0, alpha: 1.0};
-//! ```
-//!
-//! Note that when creating a color this way, we **do not** check if the values of each property are
-//! within their valid ranges.
-//!
-//!
-//! Another ergonomic syntax can also be used when passing a color to a method that supports any
-//! type that implements `Into<Color>`.
-//!
-//! ```rust
-//! # use turtle::*;
-//! let mut drawing = Drawing::new();
-//! let mut turtle = drawing.add_turtle();
-//!
-//! // A solid color with alpha = 1.0
-//! // Syntax is [red, green, blue] and doesn't require explicitly writing the field names
-//! turtle.set_pen_color([133.0, 23.0, 96.0]);
-//! turtle.set_fill_color([133.0, 23.0, 96.0]);
-//! drawing.set_background_color([133.0, 23.0, 96.0]);
-//! // This is a little easier to type than the equivalent:
-//! drawing.set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 1.0});
-//!
-//! // Add an additional element to the array to specify the alpha
-//! // Syntax is [red, green, blue, alpha]
-//! turtle.set_pen_color([133.0, 23.0, 96.0, 0.5]);
-//! turtle.set_fill_color([133.0, 23.0, 96.0, 0.5]);
-//! drawing.set_background_color([133.0, 23.0, 96.0, 0.5]);
-//! // This is a little easier to type than the equivalent:
-//! drawing.set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
-//! ```
-//!
-//! When creating a color this way, we **will** check whether or not the color is valid and provide
-//! an error message to let you know what happened.
-//!
-//! ```rust,should_panic
-//! # let mut turtle = turtle::Turtle::new();
-//! // Color values must only go up to 255.0
-//! turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
-//! ```
-//! There are also constructor methods available for `Color` that allow you to create a new
-//! color using provided values. These are:
-//!
-//! * [`rgb(red, green, blue)`]: Create from the given red, green, and blue values with an alpha value of 1.0
-//! * [`rgba(red, green, blue, alpha)`]: Similar to `rgb` but also accepts an alpha value
-//! * [`hsl(hue, saturation, lightness)`]: Create from the given hue, saturation, and lightness values with an alpha of 1.0
-//! * [`hsla(hue, saturation, lightness, alpha)`]: Similar to `hsl` but also accepts an alpha value
-//!
-//! These methods provide a concise syntax for creating a new `Color`. If the values passed in are invalid,
-//! the program will exit with an error that lets you know what happened. See the documentation for each
-//! method (linked above) to see which values are correct for each parameter.
-//!
-//! ```rust
-//! use turtle::Color;
-//!
-//! // These are equivalent
-//! let white_manual = Color { red: 255.0, green: 255.0, blue: 255.0, alpha: 1.0 };
-//! let white_rgb = Color::rgb(255.0, 255.0, 255.0);
-//! let white_rgba = Color::rgba(255.0, 255.0, 255.0, 1.0);
-//! let white_hsl = Color::hsl(0.0, 0.0, 1.0);
-//! let white_hsla = Color::hsla(0.0, 0.0, 1.0, 1.0);
-//!
-//! assert_eq!(white_manual, white_rgb);
-//! assert_eq!(white_rgb, white_rgba);
-//! assert_eq!(white_rgba, white_hsl);
-//! assert_eq!(white_hsl, white_hsla);
-//! ```
-//!
-//! So, you can incorporate these constructors into your turtle code along with
-//! other methods of color creation if you like:
-//!
-//! ```rust
-//! # use turtle::*;
-//! let mut drawing = Drawing::new();
-//! let mut turtle = drawing.add_turtle();
-//!
-//! // Set the pen color to blue
-//! turtle.set_pen_color(Color::rgb(0.0, 130.0, 200.0));
-//!
-//! // And the same color can be set for the fill color via the array syntax.
-//! turtle.set_fill_color([0.0, 130.0, 200.0]);
-//!
-//! // Then, we can set the background to black
-//! drawing.set_background_color("black");
-//! ```
-//! [`rgb(red, green, blue)`]: ./struct.Color.html#method.rgb
-//! [`rgba(red, green, blue, alpha)`]: ./struct.Color.html#method.rgba
-//! [`hsl(hue, saturation, lightness)`]: ./struct.Color.html#method.hsl
-//! [`hsla(hue, saturation, lightness, alpha)`]: ./struct.Color.html#method.hsla
-
 use std::fmt::Debug;
 use std::iter::repeat;
 use std::f64::EPSILON;
@@ -209,7 +50,164 @@ fn f64_eq(left: f64, right: f64) -> bool {
 
 /// Type for representing a color.
 ///
-/// See [the module level documentation](index.html) for more.
+/// Color types and constants
+///
+/// When setting a color, you can use a variety of different color names.
+/// This module contains many of the most common colors that you might want to use. There is an
+/// even more comprehensive list in the [`extended`](extended/index.html) module. Any of the color names
+/// listed in this module or in the `extended` module can be used as a color. You only need to
+/// reference the `color::extended` module if you want to use a specific color constant from that
+/// module.
+///
+/// You can refer to a color by using its color name as a string literal. For example:
+///
+/// ```rust
+/// # use turtle::Color;
+/// # let mut turtle = turtle::Turtle::new();
+/// // This will set the turtle's pen color to BLACK
+/// turtle.set_pen_color("black");
+/// // This is the same as the previous line
+/// turtle.set_pen_color(Color::BLACK);
+/// // You can use any of the supported color names (including the ones from extended)
+/// turtle.set_pen_color("deep lilac");
+/// ```
+///
+/// You can also use hexadecimal color strings to get any color you want
+/// (even ones that aren't listed here).
+///
+/// ```rust
+/// # let mut turtle = turtle::Turtle::new();
+/// turtle.set_pen_color("#3366ff");
+/// turtle.set_pen_color("#36f");
+/// ```
+///
+/// Each color's constant name is in uppercase in the list below. The color name you should use to
+/// refer to it is in lower case next to the constant.
+///
+/// For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
+/// [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
+/// and each of their names as strings. These static variables only contain the colors from this
+/// module. The [`extended`](extended/index.html) module has its own static `COLOR` and
+/// `COLOR_NAMES` variables.
+///
+/// # Random Colors
+///
+/// You can also generate random colors. Here's an example:
+///
+/// ```rust
+/// # let mut turtle = turtle::Turtle::new();
+/// use turtle::{rand::random, Color};
+/// turtle.set_pen_color(random::<Color>().opaque());
+/// ```
+///
+/// The syntax used in `random::<Color>()` is referred to as
+/// ["turbofish" syntax](https://doc.rust-lang.org/book/first-edition/generics.html#resolving-ambiguities).
+/// See that documentation for more information.
+///
+/// Notice that you need to explicitly call the [`opaque()`](struct.Color.html#method.opaque)
+/// method on the color in order to make sure that the color has an alpha value of 1.0. By default,
+/// when you generate a random color, it's alpha value will be random as well.
+///
+/// See the [examples directory on GitHub](https://github.com/sunjay/turtle/tree/master/examples)
+/// for more information.
+///
+/// # Creating a Color from Values
+///
+/// Usually, you won't need to initialize a color this way since the above methods are quite
+/// convenient. However, in some situations it may be necessary to create a color with specific
+/// red, green, and blue values. The following example illustrates how to do that.
+///
+/// ```rust
+/// use turtle::Color;
+/// let my_color = Color {red: 255.0, green: 55.0, blue: 11.0, alpha: 1.0};
+/// ```
+///
+/// Note that when creating a color this way, we **do not** check if the values of each property are
+/// within their valid ranges.
+///
+///
+/// Another ergonomic syntax can also be used when passing a color to a method that supports any
+/// type that implements `Into<Color>`.
+///
+/// ```rust
+/// # use turtle::*;
+/// let mut drawing = Drawing::new();
+/// let mut turtle = drawing.add_turtle();
+///
+/// // A solid color with alpha = 1.0
+/// // Syntax is [red, green, blue] and doesn't require explicitly writing the field names
+/// turtle.set_pen_color([133.0, 23.0, 96.0]);
+/// turtle.set_fill_color([133.0, 23.0, 96.0]);
+/// drawing.set_background_color([133.0, 23.0, 96.0]);
+/// // This is a little easier to type than the equivalent:
+/// drawing.set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 1.0});
+///
+/// // Add an additional element to the array to specify the alpha
+/// // Syntax is [red, green, blue, alpha]
+/// turtle.set_pen_color([133.0, 23.0, 96.0, 0.5]);
+/// turtle.set_fill_color([133.0, 23.0, 96.0, 0.5]);
+/// drawing.set_background_color([133.0, 23.0, 96.0, 0.5]);
+/// // This is a little easier to type than the equivalent:
+/// drawing.set_background_color(Color {red: 133.0, green: 23.0, blue: 96.0, alpha: 0.5});
+/// ```
+///
+/// When creating a color this way, we **will** check whether or not the color is valid and provide
+/// an error message to let you know what happened.
+///
+/// ```rust,should_panic
+/// # let mut turtle = turtle::Turtle::new();
+/// // Color values must only go up to 255.0
+/// turtle.set_pen_color([133.0, 256.0, 96.0]); // This will panic with an error message
+/// ```
+/// There are also constructor methods available for `Color` that allow you to create a new
+/// color using provided values. These are:
+///
+/// * [`rgb(red, green, blue)`]: Create from the given red, green, and blue values with an alpha value of 1.0
+/// * [`rgba(red, green, blue, alpha)`]: Similar to `rgb` but also accepts an alpha value
+/// * [`hsl(hue, saturation, lightness)`]: Create from the given hue, saturation, and lightness values with an alpha of 1.0
+/// * [`hsla(hue, saturation, lightness, alpha)`]: Similar to `hsl` but also accepts an alpha value
+///
+/// These methods provide a concise syntax for creating a new `Color`. If the values passed in are invalid,
+/// the program will exit with an error that lets you know what happened. See the documentation for each
+/// method (linked above) to see which values are correct for each parameter.
+///
+/// ```rust
+/// use turtle::Color;
+///
+/// // These are equivalent
+/// let white_manual = Color { red: 255.0, green: 255.0, blue: 255.0, alpha: 1.0 };
+/// let white_rgb = Color::rgb(255.0, 255.0, 255.0);
+/// let white_rgba = Color::rgba(255.0, 255.0, 255.0, 1.0);
+/// let white_hsl = Color::hsl(0.0, 0.0, 1.0);
+/// let white_hsla = Color::hsla(0.0, 0.0, 1.0, 1.0);
+///
+/// assert_eq!(white_manual, white_rgb);
+/// assert_eq!(white_rgb, white_rgba);
+/// assert_eq!(white_rgba, white_hsl);
+/// assert_eq!(white_hsl, white_hsla);
+/// ```
+///
+/// So, you can incorporate these constructors into your turtle code along with
+/// other methods of color creation if you like:
+///
+/// ```rust
+/// # use turtle::*;
+/// let mut drawing = Drawing::new();
+/// let mut turtle = drawing.add_turtle();
+///
+/// // Set the pen color to blue
+/// turtle.set_pen_color(Color::rgb(0.0, 130.0, 200.0));
+///
+/// // And the same color can be set for the fill color via the array syntax.
+/// turtle.set_fill_color([0.0, 130.0, 200.0]);
+///
+/// // Then, we can set the background to black
+/// drawing.set_background_color("black");
+/// ```
+/// [`rgb(red, green, blue)`]: ./struct.Color.html#method.rgb
+/// [`rgba(red, green, blue, alpha)`]: ./struct.Color.html#method.rgba
+/// [`hsl(hue, saturation, lightness)`]: ./struct.Color.html#method.hsl
+/// [`hsla(hue, saturation, lightness, alpha)`]: ./struct.Color.html#method.hsla
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Color {
     /// Value between 0.0 and 255.0
