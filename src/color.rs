@@ -1194,10 +1194,17 @@ macro_rules! color_consts {
             pub const $id: Color = Color {red: $r, green: $g, blue: $b, alpha: $a};
         )*
 
-        /// A list of all of the colors
-        pub static COLORS: &[Color] = &[$($id, )*];
-        /// A list of all of the color names
-        pub static COLOR_NAMES: &[&str] = &[$($name, )*];
+        impl Color {
+            /// Return a list of all of the colors.
+            pub fn all_colors() -> &'static [Color] {
+                &[$($id, )*]
+            }
+
+            /// Return a list of all of the color names.
+            pub fn all_color_names() -> &'static [&'static str] {
+                &[$($name, )*]
+            }
+        }
 
         pub(crate) fn from_color_name(s: &str) -> Option<Color> {
             match s {
