@@ -48,7 +48,7 @@ fn f64_eq(left: f64, right: f64) -> bool {
     (left - right).abs() < EPSILON
 }
 
-/// Type for representing a color.
+/// A type for representing a color.
 ///
 /// # Color types and constants
 ///
@@ -68,7 +68,7 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// turtle.set_pen_color("black");
 /// // This is the same as the previous line
 /// turtle.set_pen_color(Color::BLACK);
-/// // You can use any of the supported color names (including the ones from extended)
+/// // You can use any of the supported color names (including the ones from `extra_colors`)
 /// turtle.set_pen_color("deep lilac");
 /// ```
 ///
@@ -81,14 +81,13 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// turtle.set_pen_color("#36f");
 /// ```
 ///
-/// Each color's constant name is in uppercase in the list below. The color name you should use to
-/// refer to it is in lower case next to the constant.
-///
-/// For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
-/// [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
-/// and each of their names as strings. These static variables only contain the colors from this
-/// module. The [`extra_colors`](extra_colors/index.html) module has its own static `COLOR` and
-/// `COLOR_NAMES` variables.
+//TODO: Hiding this for now because the constants don't actually contain all
+// the available colors
+///// For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
+///// [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
+///// and each of their names as strings. These static variables only contain the colors from this
+///// module. The [`extra_colors`](extra_colors/index.html) module has its own static `COLOR` and
+///// `COLOR_NAMES` variables.
 ///
 /// # Random Colors
 ///
@@ -1179,7 +1178,7 @@ impl<'a> From<&'a str> for Color {
             Self::rgb(red, green, blue)
         } else {
             from_color_name(s)
-                .or_else(|| extended::from_color_name(s))
+                .or_else(|| extra_colors::from_color_name(s))
                 .unwrap_or_else(|| panic!("Unknown color name: {}", s))
         }
     }
@@ -1187,19 +1186,29 @@ impl<'a> From<&'a str> for Color {
 
 macro_rules! color_consts {
     ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
+        /// See [`extra_colors`](extra_colors/index.html) for more color names
+        /// that you can use.
         impl Color {
             $(
+                /// Use the name `
                 #[doc = $name]
+                /// ` to specify this color
                 pub const $id: Color = Color {red: $r, green: $g, blue: $b, alpha: $a};
             )*
 
             /// Return a list of all of the colors.
-            pub fn all_colors() -> &'static [Color] {
+            //TODO: Hiding this for now because it doesn't actually contain all
+            // the available colors from the entire crate
+            #[allow(dead_code)]
+            fn all_colors() -> &'static [Color] {
                 &[$(Color::$id, )*]
             }
 
             /// Return a list of all of the color names.
-            pub fn all_color_names() -> &'static [&'static str] {
+            //TODO: Hiding this for now because it doesn't actually contain all
+            // the available colors from the entire crate
+            #[allow(dead_code)]
+            fn all_color_names() -> &'static [&'static str] {
                 &[$($name, )*]
             }
         }
@@ -1215,7 +1224,7 @@ macro_rules! color_consts {
     }
 }
 
-// Most important colors are put in the main module, the remaining are in extended.
+// Most important colors are put in the main module, the remaining are in `extra_colors`.
 // We do this so that documentation doesn't get overloaded with constants.
 color_consts! {
     "transparent", TRANSPARENT, (0.0, 0.0, 0.0, 0.0);
@@ -2361,31 +2370,54 @@ mod tests {
     }
 }
 
-pub mod extended {
-    //! Even more colors!!
-    //!
-    //! This extended list of colors is from: <https://xkcd.com/color/rgb/>
-    //!
-    //! Each color's constant name is in uppercase in the list below. The color name you should use to
-    //! refer to it is in lower case next to the constant.
-    //!
-    //! For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
-    //! [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
-    //! and each of their names as strings. These static variables only contain the colors from this
-    //! module.
+/// An extended list of color names and color constants in addition the ones
+/// from the [`Color`] struct
+///
+/// Each color's constant name is in uppercase in the list below. The color
+/// name you should use to refer to it is in lower case next to the
+/// constant. See the [`Color`] struct for more details.
+///
+/// ```rust
+/// use turtle::{Turtle, extra_colors::CHERRY_RED};
+///
+/// let mut turtle = Turtle::new();
+/// // These two lines are equivalent
+/// turtle.set_pen_color(CHERRY_RED);
+/// turtle.set_pen_color("cherry red");
+/// ```
+///
+/// This list of colors is from: <https://xkcd.com/color/rgb>
+//TODO: Hiding this for now because the constants don't actually contain all
+// the available colors
+/////
+///// For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
+///// [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
+///// and each of their names as strings. These static variables only contain the colors from this
+///// module.
+///
+/// [`Color`]: ../struct.Color.html
+pub mod extra_colors {
     use super::Color;
 
     macro_rules! color_consts {
         ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
+            /// A list of all of the colors
+            //TODO: Hiding this for now because it doesn't actually contain all
+            // the available colors from the entire crate
+            #[allow(dead_code)]
+            static COLORS: &[Color] = &[$($id, )*];
+            /// A list of all of the color names
+            //TODO: Hiding this for now because it doesn't actually contain all
+            // the available colors from the entire crate
+            #[allow(dead_code)]
+            static COLOR_NAMES: &[&str] = &[$($name, )*];
+
             $(
+                #[doc = "Use the name `"]
                 #[doc = $name]
+                #[doc = "` to specify this color"]
                 pub const $id: Color = Color {red: $r, green: $g, blue: $b, alpha: $a};
             )*
-
-            /// A list of all of the colors
-            pub static COLORS: &[Color] = &[$($id, )*];
-            /// A list of all of the color names
-            pub static COLOR_NAMES: &[&str] = &[$($name, )*];
 
             pub(crate) fn from_color_name(s: &str) -> Option<Color> {
                 match s {
