@@ -86,7 +86,7 @@ compile_error!("Make sure you run tests with `cargo test --features \"test unsta
 mod radians;
 mod point;
 mod speed;
-pub mod color;
+mod color;
 pub mod rand;
 
 mod ipc_protocol;
@@ -99,6 +99,7 @@ mod drawing;
 mod turtle;
 
 pub use crate::color::Color;
+pub use crate::color::extended as extra_colors;
 pub use crate::async_drawing::Size;
 pub use crate::drawing::Drawing;
 pub use crate::point::Point;
