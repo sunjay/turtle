@@ -5,7 +5,7 @@
 //! To draw arcs, we use multiple Rust for-loops to create different tilt angles and
 //! lengths. The more sophisticated the figure is, the more loops we need to make it.
 
-use turtle::{color, Color, Drawing, Turtle};
+use turtle::{Color, Drawing, Turtle};
 
 const SIZE: f64 = 1.0;
 const SHELL_COLOR: Color = Color {
@@ -20,7 +20,7 @@ const BODY_COLOR: Color = Color {
     blue: 85.0,
     alpha: 1.0,
 };
-const EYE_COLOR: Color = color::BLACK;
+const EYE_COLOR: Color = Color::BLACK;
 
 fn main() {
     let mut drawing = Drawing::new();
