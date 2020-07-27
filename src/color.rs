@@ -2370,6 +2370,29 @@ pub mod extended {
     //! module.
     use super::Color;
 
+    macro_rules! color_consts {
+        ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
+            $(
+                #[doc = $name]
+                pub const $id: Color = Color {red: $r, green: $g, blue: $b, alpha: $a};
+            )*
+
+            /// A list of all of the colors
+            pub static COLORS: &[Color] = &[$($id, )*];
+            /// A list of all of the color names
+            pub static COLOR_NAMES: &[&str] = &[$($name, )*];
+
+            pub(crate) fn from_color_name(s: &str) -> Option<Color> {
+                match s {
+                    $(
+                        $name => Some($id),
+                    )*
+                    _ => None,
+                }
+            }
+        }
+    }
+
     color_consts! {
         "sky blue", SKY_BLUE, (117.0, 187.0, 253.0, 1.0);
         "light green", LIGHT_GREEN, (150.0, 249.0, 123.0, 1.0);
