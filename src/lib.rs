@@ -7,7 +7,7 @@
 //!   turtle supports
 //! * The [`Drawing` struct](struct.Drawing.html) - allows you to manipulate the title, size,
 //!   background and more of the drawing that you are creating
-//! * The [`color` module](color/index.html) - describes the different ways to create colors and
+//! * The [`Color` struct](struct.Color.html) - describes the different ways to create colors and
 //!   includes a list of the hundreds of predefined color names that you can use to easily set the
 //!   pen, fill, and background color of your drawings
 //!

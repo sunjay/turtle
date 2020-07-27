@@ -165,7 +165,7 @@ impl Drawing {
     /// assert_eq!(drawing.background_color(), "purple".into());
     /// ```
     ///
-    /// See the [`color` module](color/index.html) for more information about colors.
+    /// See the [`Color` struct](struct.Color.html) for more information about colors.
     pub fn background_color(&self) -> Color {
         block_on(self.drawing.background_color())
     }
@@ -173,7 +173,7 @@ impl Drawing {
     /// Sets the color of the background to the given color.
     ///
     /// Any type that can be converted into a color can be passed into this function.
-    /// See the [`color` module](color/index.html) for more information.
+    /// See the [`Color` struct](struct.Color.html) for more information.
     ///
     /// # Example
     ///
