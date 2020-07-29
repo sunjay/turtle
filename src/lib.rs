@@ -99,7 +99,7 @@ mod drawing;
 mod turtle;
 
 pub use crate::color::Color;
-pub use crate::color::extra_colors;
+pub use crate::color::color_consts;
 pub use crate::async_drawing::Size;
 pub use crate::drawing::Drawing;
 pub use crate::point::Point;
