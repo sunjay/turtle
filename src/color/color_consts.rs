@@ -29,16 +29,17 @@ use crate::Color;
 
 macro_rules! color_consts {
     ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
-        /// A list of all of the colors
-        //TODO: Hiding this for now because it doesn't actually contain all
-        // the available colors from the entire crate
-        #[allow(dead_code)]
-        static COLORS: &[Color] = &[$($id, )*];
-        /// A list of all of the color names
-        //TODO: Hiding this for now because it doesn't actually contain all
-        // the available colors from the entire crate
-        #[allow(dead_code)]
-        static COLOR_NAMES: &[&str] = &[$($name, )*];
+        impl Color {
+            /// Return a list of all of the colors.
+            pub fn all_colors() -> &'static [Color] {
+                &[$($id, )*]
+            }
+
+            /// Return a list of all of the color names.
+            pub fn all_color_names() -> &'static [&'static str] {
+                &[$($name, )*]
+            }
+        }
 
         $(
             #[doc = "Use the name `"]
