@@ -5,7 +5,7 @@
 //! constant. See the [`Color`] struct for more details.
 //!
 //! ```rust
-//! use turtle::{Turtle, color_consts::CHERRY_RED};
+//! use turtle::{Turtle, colors::CHERRY_RED};
 //!
 //! let mut turtle = Turtle::new();
 //! // These two lines are equivalent
@@ -19,7 +19,7 @@
 
 use crate::Color;
 
-macro_rules! color_consts {
+macro_rules! colors {
     ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
         // A list of all of the colors to be returned by Color::all_colors().
         pub(crate) static COLORS: &[Color] = &[$($id, )*];
@@ -45,7 +45,7 @@ macro_rules! color_consts {
     }
 }
 
-color_consts! {
+colors! {
     "transparent", TRANSPARENT, (0.0, 0.0, 0.0, 0.0);
     "red", RED, (230.0, 25.0, 75.0, 1.0);
     "green", GREEN, (60.0, 180.0, 75.0, 1.0);

@@ -3,7 +3,7 @@ use std::f64::consts::PI;
 use serde::{Serialize, Deserialize};
 
 use crate::radians::Radians;
-use crate::{Color, Point, Speed, color_consts::{WHITE, BLACK}};
+use crate::{Color, Point, Speed, colors::{WHITE, BLACK}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DrawingState {

@@ -1,4 +1,4 @@
-pub mod color_consts;
+pub mod colors;
 
 use std::fmt::Debug;
 use std::iter::repeat;
@@ -55,13 +55,13 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// # Color types and constants
 ///
 /// When setting a color, you can use a variety of different color names.
-/// The whole list of available colors can be found in the [`color_consts`](color_consts/index.html) module.
+/// The whole list of available colors can be found in the [`colors`](colors/index.html) module.
 ///
-/// You only need to reference the `color_consts` module if you want to use a color constant directly.
+/// You only need to reference the `colors` module if you want to use a color constant directly.
 /// Instead, you can refer to a color by using its color name as a string literal. For example:
 ///
 /// ```rust
-/// # use turtle::{Color, color_consts::BLACK};
+/// # use turtle::{Color, colors::BLACK};
 /// # let mut turtle = turtle::Turtle::new();
 /// // This will set the turtle's pen color to BLACK
 /// turtle.set_pen_color("black");
@@ -218,17 +218,17 @@ impl Color {
     /// Return a list of all of the colors.
     ///
     /// The full list of supported colors can be found in the
-    /// [`color_consts`](color_consts/index.html) module.
+    /// [`colors`](colors/index.html) module.
     pub fn all_colors() -> &'static [Color] {
-        color_consts::COLORS
+        colors::COLORS
     }
 
     /// Return a list of all of the color names.
     ///
     /// The full list of supported colors can be found in the
-    /// [`color_consts`](color_consts/index.html) module.
+    /// [`colors`](colors/index.html) module.
     pub fn all_color_names() -> &'static [&'static str] {
-        color_consts::COLOR_NAMES
+        colors::COLOR_NAMES
     }
 
     /// Create a new `Color` from the given [`RGB`] values and alpha set to 1.0.
@@ -334,7 +334,7 @@ impl Color {
     /// * 0.0 &le; `alpha` &le; 1.0
     ///
     /// ```rust
-    /// use turtle::{Color, color_consts::{WHITE, BLUE}};
+    /// use turtle::{Color, colors::{WHITE, BLUE}};
     ///
     /// // You can chain using Color::from()
     /// let black = Color::from("black").with_alpha(0.5);
@@ -492,7 +492,7 @@ impl Color {
     /// Passing a value for `weight` that is not between 0.0 and 1.0 will result in a `panic`
     ///
     /// ```should_panic
-    /// use turtle::{Color, color_consts::BROWN};
+    /// use turtle::{Color, colors::BROWN};
     ///
     /// let orange: Color = "orange".into();
     ///
@@ -1188,7 +1188,7 @@ impl<'a> From<&'a str> for Color {
 
             Self::rgb(red, green, blue)
         } else {
-            color_consts::from_color_name(s)
+            colors::from_color_name(s)
                 .unwrap_or_else(|| panic!("Unknown color name: {}", s))
         }
     }

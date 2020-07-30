@@ -557,7 +557,7 @@ impl_random_slice!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 /// # Example
 ///
 /// ```rust,no_run
-/// use turtle::{rand::shuffle, color_consts::{RED, BLUE, GREEN, YELLOW}};
+/// use turtle::{rand::shuffle, colors::{RED, BLUE, GREEN, YELLOW}};
 ///
 /// let mut pen_colors = [RED, BLUE, GREEN, YELLOW];
 /// // A different order of colors every time!
@@ -578,7 +578,7 @@ pub fn shuffle<S: RandomSlice>(slice: &mut S) {
 /// # Example
 ///
 /// ```rust,no_run
-/// use turtle::{Turtle, rand::choose, color_consts::{RED, BLUE, GREEN, YELLOW}};
+/// use turtle::{Turtle, rand::choose, colors::{RED, BLUE, GREEN, YELLOW}};
 ///
 /// let mut turtle = Turtle::new();
 ///
