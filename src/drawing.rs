@@ -13,6 +13,7 @@ use crate::sync_runtime::block_on;
 ///
 /// ```rust,no_run
 /// # use turtle::*;
+/// # #[allow(unused_mut)] // Most people need `mut` when they make a `Turtle`
 /// let mut turtle = Turtle::new();
 /// ```
 ///
@@ -41,7 +42,9 @@ use crate::sync_runtime::block_on;
 ///
 /// ```rust,no_run
 /// # use turtle::*;
+/// # #[allow(unused_mut)] // Most people need `mut` when they make a `Drawing`
 /// let mut drawing = Drawing::new();
+/// # #[allow(unused_mut)] // Most people need `mut` when they make a `Turtle`
 /// let mut turtle = Turtle::new(); // <-- This is probably **incorrect**
 /// ```
 ///
@@ -144,6 +147,7 @@ impl Drawing {
     ///
     /// fn main() {
     ///     let mut drawing = Drawing::new();
+    ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_title("My Fancy Title! - Yay!");
     /// }
@@ -182,6 +186,7 @@ impl Drawing {
     ///
     /// fn main() {
     ///     let mut drawing = Drawing::new();
+    ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_background_color("orange");
     /// }
@@ -199,7 +204,6 @@ impl Drawing {
     /// ```rust
     /// # use turtle::*;
     /// let mut drawing = Drawing::new();
-    /// let mut turtle = drawing.add_turtle();
     /// assert_eq!(drawing.center(), Point {x: 0.0, y: 0.0});
     /// drawing.set_center([4.0, 3.0]);
     /// assert_eq!(drawing.center(), Point {x: 4.0, y: 3.0});
@@ -567,9 +571,9 @@ impl Drawing {
     /// Saves the current drawings in SVG format at the location specified by `path`.
     ///
     /// ```rust,no_run
-    /// use turtle::{Drawing, Turtle, Color};
+    /// use turtle::{Drawing, Turtle, Color, ExportError};
     ///
-    /// fn main() {
+    /// fn main() -> Result<(), ExportError> {
     ///     let mut drawing = Drawing::new();
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_background_color("pink");
@@ -580,14 +584,18 @@ impl Drawing {
     ///         } else {
     ///             "white".into()
     ///         };
+    ///
     ///         turtle.set_fill_color(base_color.with_alpha(1.0 - i as f64 / 54.0));
     ///         turtle.begin_fill();
     ///         square(&mut turtle);
     ///         turtle.end_fill();
     ///         turtle.right(10.0);
-    ///     }
+    ///    }
+    ///
     ///    turtle.hide();
-    ///    drawing.save_svg("squares.svg");
+    ///    drawing.save_svg("squares.svg")?;
+    ///
+    ///    Ok(())
     /// }
     ///
     /// fn square(turtle: &mut Turtle) {

@@ -106,7 +106,6 @@ use std::num::Wrapping;
 /// ```rust,no_run
 /// use turtle::rand::{
 ///     random,
-///     random_range,
 ///     Random,
 ///     RandomRange,
 /// };
