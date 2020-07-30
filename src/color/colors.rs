@@ -30,6 +30,17 @@ macro_rules! color_consts {
         /// A list of the values of all colors in the [`colors`](index.html)
         /// module
         ///
+        /// ```rust
+        /// use turtle::{Color, rand, colors::COLORS};
+        ///
+        /// // Choose a random color from the supported color names in `colors`
+        /// // Note: `choose()` returns `Option<&Color>`
+        /// let c1 = rand::choose(COLORS).expect("should have at least one color").clone();
+        /// // Choose a random color from ALL colors that can possibly be
+        /// // created using the `Color` type
+        /// let c2: Color = rand::random();
+        /// ```
+        ///
         /// This is not a list of all colors supported by [`Color`], just the
         /// ones listed in the [`colors`](index.html) module. This list may grow
         /// or change order as more colors are added.
@@ -39,6 +50,24 @@ macro_rules! color_consts {
 
         /// A list of the names of all colors in the [`colors`](index.html)
         /// module
+        ///
+        /// ```rust
+        /// use turtle::{Turtle, Color, rand, colors::COLOR_NAMES};
+        ///
+        /// let mut turtle = Turtle::new();
+        ///
+        /// // Choose a random color name from the supported color names in `colors`
+        /// // Note: `choose()` returns `Option<&&str>`
+        /// let c1 = *rand::choose(COLOR_NAMES).expect("should have at least one color");
+        /// // Draw using this random color
+        /// turtle.set_pen_color(c1);
+        ///
+        /// // Choose a random color from ALL colors that can possibly be
+        /// // created using the `Color` type
+        /// let c2: Color = rand::random();
+        /// // Draw using this random color
+        /// turtle.set_pen_color(c2);
+        /// ```
         ///
         /// This is not a list of all colors supported by [`Color`], just the
         /// ones listed in the [`colors`](index.html) module. This list may grow
