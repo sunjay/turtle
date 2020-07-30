@@ -566,7 +566,7 @@ impl_random_slice!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 /// let mut pen_colors = vec![RED, BLUE, GREEN, YELLOW];
 /// shuffle(&mut pen_colors);
 /// ```
-pub fn shuffle<S: RandomSlice>(slice: &mut S) {
+pub fn shuffle<S: RandomSlice + ?Sized>(slice: &mut S) {
     slice.shuffle();
 }
 
@@ -591,6 +591,6 @@ pub fn shuffle<S: RandomSlice>(slice: &mut S) {
 /// let chosen_color = choose(&mut pen_colors).cloned().unwrap();
 /// turtle.set_pen_color(chosen_color);
 /// ```
-pub fn choose<S: RandomSlice>(slice: &S) -> Option<&<S as RandomSlice>::Item> {
+pub fn choose<S: RandomSlice + ?Sized>(slice: &S) -> Option<&<S as RandomSlice>::Item> {
     slice.choose()
 }
