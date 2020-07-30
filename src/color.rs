@@ -215,6 +215,22 @@ pub struct Color {
 }
 
 impl Color {
+    /// Return a list of all of the colors.
+    ///
+    /// The full list of supported colors can be found in the
+    /// [`color_consts`](color_consts/index.html) module.
+    pub fn all_colors() -> &'static [Color] {
+        color_consts::COLORS
+    }
+
+    /// Return a list of all of the color names.
+    ///
+    /// The full list of supported colors can be found in the
+    /// [`color_consts`](color_consts/index.html) module.
+    pub fn all_color_names() -> &'static [&'static str] {
+        color_consts::COLOR_NAMES
+    }
+
     /// Create a new `Color` from the given [`RGB`] values and alpha set to 1.0.
     /// This provides a more concise way to create `Color` values, instead
     /// of using the manual `Color {...}` style.

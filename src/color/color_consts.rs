@@ -21,21 +21,11 @@ use crate::Color;
 
 macro_rules! color_consts {
     ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
-        impl Color {
-            /// Return a list of all of the colors.
-            ///
-            /// The full list of supported colors can be found in the [`color_consts`](color_consts/index.html) module.
-            pub fn all_colors() -> &'static [Color] {
-                &[$($id, )*]
-            }
+        // A list of all of the colors to be returned by Color::all_colors().
+        pub(crate) static COLORS: &[Color] = &[$($id, )*];
 
-            /// Return a list of all of the color names.
-            ///
-            /// The full list of supported colors can be found in the [`color_consts`](color_consts/index.html) module.
-            pub fn all_color_names() -> &'static [&'static str] {
-                &[$($name, )*]
-            }
-        }
+        // A list of all of the color names to be returned by Color::all_color_names().
+        pub(crate) static COLOR_NAMES: &[&str] = &[$($name, )*];
 
         $(
             #[doc = "Use the name `"]
