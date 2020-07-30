@@ -52,10 +52,10 @@ fn f64_eq(left: f64, right: f64) -> bool {
 
 /// A type for representing a color
 ///
-/// # Color types and constants
+/// # Color names and constants
 ///
 /// When setting a color, you can use a variety of different color names.
-/// The whole list of available colors can be found in the [`colors`](colors/index.html) module.
+/// The list of available colors can be found in the [`colors`](colors/index.html) module.
 ///
 /// You only need to reference the [`colors`](colors/index.html) module if you
 /// want to use a color constant directly. A more common method is to refer to a
