@@ -1,6 +1,6 @@
 //! A list of color names and color constants
 //!
-//! Each color's constant name is in uppercase in the list below. The color
+//! Each color constant name is in uppercase in the list below. The color
 //! name you should use to refer to it is in lower case next to the
 //! constant. See the [`Color`] struct for more details.
 //!
@@ -13,19 +13,39 @@
 //! turtle.set_pen_color("cherry red");
 //! ```
 //!
-//! This list of colors is from: <https://xkcd.com/color/rgb>
+//! For your convenience, there is a static variable [`COLORS`] that contains
+//! the values of all the color constants listed in this module and another
+//! static variable [`COLOR_NAMES`] with the name of each color as a string.
+//!
+//! This list of colors is based on: <https://xkcd.com/color/rgb>
 //!
 //! [`Color`]: ../struct.Color.html
+//! [`COLORS`]: static.COLORS.html
+//! [`COLOR_NAMES`]: static.COLOR_NAMES.html
 
 use crate::Color;
 
-macro_rules! colors {
+macro_rules! color_consts {
     ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
-        // A list of all of the colors to be returned by Color::all_colors().
-        pub(crate) static COLORS: &[Color] = &[$($id, )*];
+        /// A list of the values of all colors in the [`colors`](index.html)
+        /// module
+        ///
+        /// This is not a list of all colors supported by [`Color`], just the
+        /// ones listed in the [`colors`](index.html) module. This list may grow
+        /// or change order as more colors are added.
+        ///
+        /// [`Color`]: ../struct.Color.html
+        pub static COLORS: &[Color] = &[$($id, )*];
 
-        // A list of all of the color names to be returned by Color::all_color_names().
-        pub(crate) static COLOR_NAMES: &[&str] = &[$($name, )*];
+        /// A list of the names of all colors in the [`colors`](index.html)
+        /// module
+        ///
+        /// This is not a list of all colors supported by [`Color`], just the
+        /// ones listed in the [`colors`](index.html) module. This list may grow
+        /// or change order as more colors are added.
+        ///
+        /// [`Color`]: ../struct.Color.html
+        pub static COLOR_NAMES: &[&str] = &[$($name, )*];
 
         $(
             #[doc = "Use the name `"]
@@ -45,7 +65,17 @@ macro_rules! colors {
     }
 }
 
-colors! {
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn colors_lists_size() {
+        assert_eq!(COLORS.len(), COLOR_NAMES.len());
+    }
+}
+
+color_consts! {
     "transparent", TRANSPARENT, (0.0, 0.0, 0.0, 0.0);
     "red", RED, (230.0, 25.0, 75.0, 1.0);
     "green", GREEN, (60.0, 180.0, 75.0, 1.0);

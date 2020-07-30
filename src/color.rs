@@ -57,11 +57,13 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// When setting a color, you can use a variety of different color names.
 /// The whole list of available colors can be found in the [`colors`](colors/index.html) module.
 ///
-/// You only need to reference the `colors` module if you want to use a color constant directly.
-/// Instead, you can refer to a color by using its color name as a string literal. For example:
+/// You only need to reference the [`colors`](colors/index.html) module if you
+/// want to use a color constant directly. A more common method is to refer to a
+/// color using its color name as a string literal. For example:
 ///
 /// ```rust
-/// # use turtle::{Color, colors::BLACK};
+/// use turtle::colors::BLACK;
+///
 /// # let mut turtle = turtle::Turtle::new();
 /// // This will set the turtle's pen color to BLACK
 /// turtle.set_pen_color("black");
@@ -72,7 +74,7 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// ```
 ///
 /// You can also use hexadecimal color strings to get any color you want
-/// (even ones that aren't listed here).
+/// (even ones that aren't listed in [`colors`](colors/index.html)).
 ///
 /// ```rust
 /// # let mut turtle = turtle::Turtle::new();
@@ -80,9 +82,13 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// turtle.set_pen_color("#36f");
 /// ```
 ///
-/// For your convenience, there are two associated functions [`all_colors`](#method.all_colors) and
-/// [`all_color_names`](#method.all_color_names) which return the values of all the color constants
-/// and each of their names as strings, respectively.
+/// For your convenience, there is a static variable [`COLORS`] that contains
+/// the values of all the color constants listed in [`colors`](colors/index.html)
+/// and another static variable [`COLOR_NAMES`] with each of the color names as
+/// a string.
+///
+/// [`COLORS`]: colors/static.COLORS.html
+/// [`COLOR_NAMES`]: colors/static.COLOR_NAMES.html
 ///
 /// # Random Colors
 ///
@@ -215,22 +221,6 @@ pub struct Color {
 }
 
 impl Color {
-    /// Return a list of all of the colors.
-    ///
-    /// The full list of supported colors can be found in the
-    /// [`colors`](colors/index.html) module.
-    pub fn all_colors() -> &'static [Color] {
-        colors::COLORS
-    }
-
-    /// Return a list of all of the color names.
-    ///
-    /// The full list of supported colors can be found in the
-    /// [`colors`](colors/index.html) module.
-    pub fn all_color_names() -> &'static [&'static str] {
-        colors::COLOR_NAMES
-    }
-
     /// Create a new `Color` from the given [`RGB`] values and alpha set to 1.0.
     /// This provides a more concise way to create `Color` values, instead
     /// of using the manual `Color {...}` style.
@@ -2309,10 +2299,5 @@ mod tests {
             alpha: 1.0,
         };
         let _ = c.rotate_hue(20.);
-    }
-
-    #[test]
-    fn check_all_color_lists() {
-        assert_eq!(Color::all_colors().len(), Color::all_color_names().len());
     }
 }
