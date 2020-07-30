@@ -3,7 +3,7 @@ use std::f64::consts::PI;
 use serde::{Serialize, Deserialize};
 
 use crate::radians::Radians;
-use crate::{Color, color_consts, Point, Speed};
+use crate::{Color, Point, Speed, color_consts::{WHITE, BLACK}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DrawingState {
@@ -18,7 +18,7 @@ pub struct DrawingState {
 
 impl DrawingState {
     pub const DEFAULT_TITLE: &'static str = "Turtle";
-    pub const DEFAULT_BACKGROUND: Color = color_consts::WHITE;
+    pub const DEFAULT_BACKGROUND: Color = WHITE;
     pub const DEFAULT_CENTER: Point = Point::origin();
     pub const DEFAULT_WIDTH: u32 = 800;
     pub const DEFAULT_HEIGHT: u32 = 600;
@@ -51,7 +51,7 @@ pub struct TurtleState {
 }
 
 impl TurtleState {
-    pub const DEFAULT_FILL_COLOR: Color = color_consts::BLACK;
+    pub const DEFAULT_FILL_COLOR: Color = BLACK;
     pub const DEFAULT_POSITION: Point = Point::origin();
     pub const DEFAULT_HEADING: Radians = Radians::from_radians_value(PI / 2.0);
     pub const DEFAULT_IS_VISIBLE: bool = true;
@@ -80,7 +80,7 @@ pub struct Pen {
 impl Pen {
     pub const DEFAULT_IS_ENABLED: bool = true;
     pub const DEFAULT_THICKNESS: f64 = 1.0;
-    pub const DEFAULT_COLOR: Color = color_consts::BLACK;
+    pub const DEFAULT_COLOR: Color = BLACK;
 }
 
 impl Default for Pen {

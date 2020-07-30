@@ -557,14 +557,14 @@ impl_random_slice!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 /// # Example
 ///
 /// ```rust,no_run
-/// use turtle::{color_consts, rand::shuffle};
+/// use turtle::{rand::shuffle, color_consts::{RED, BLUE, GREEN, YELLOW}};
 ///
-/// let mut pen_colors = [color_consts::RED, color_consts::BLUE, color_consts::GREEN, color_consts::YELLOW];
+/// let mut pen_colors = [RED, BLUE, GREEN, YELLOW];
 /// // A different order of colors every time!
 /// shuffle(&mut pen_colors);
 ///
 /// // Even works with Vec
-/// let mut pen_colors = vec![color_consts::RED, color_consts::BLUE, color_consts::GREEN, color_consts::YELLOW];
+/// let mut pen_colors = vec![RED, BLUE, GREEN, YELLOW];
 /// shuffle(&mut pen_colors);
 /// ```
 pub fn shuffle<S: RandomSlice>(slice: &mut S) {
@@ -578,17 +578,17 @@ pub fn shuffle<S: RandomSlice>(slice: &mut S) {
 /// # Example
 ///
 /// ```rust,no_run
-/// use turtle::{Turtle, color_consts, rand::choose};
+/// use turtle::{Turtle, rand::choose, color_consts::{RED, BLUE, GREEN, YELLOW}};
 ///
 /// let mut turtle = Turtle::new();
 ///
-/// let mut pen_colors = [color_consts::RED, color_consts::BLUE, color_consts::GREEN, color_consts::YELLOW];
+/// let mut pen_colors = [RED, BLUE, GREEN, YELLOW];
 /// // Choose a random pen color
 /// let chosen_color = choose(&mut pen_colors).cloned().unwrap();
 /// turtle.set_pen_color(chosen_color);
 ///
 /// // Even works with Vec
-/// let mut pen_colors = vec![color_consts::RED, color_consts::BLUE, color_consts::GREEN, color_consts::YELLOW];
+/// let mut pen_colors = vec![RED, BLUE, GREEN, YELLOW];
 /// let chosen_color = choose(&mut pen_colors).cloned().unwrap();
 /// turtle.set_pen_color(chosen_color);
 /// ```

@@ -61,12 +61,12 @@ fn f64_eq(left: f64, right: f64) -> bool {
 /// Instead, you can refer to a color by using its color name as a string literal. For example:
 ///
 /// ```rust
-/// # use turtle::{Color, color_consts};
+/// # use turtle::{Color, color_consts::BLACK};
 /// # let mut turtle = turtle::Turtle::new();
 /// // This will set the turtle's pen color to BLACK
 /// turtle.set_pen_color("black");
 /// // This is the same as the previous line
-/// turtle.set_pen_color(color_consts::BLACK);
+/// turtle.set_pen_color(BLACK);
 /// // You can use any of the supported color names
 /// turtle.set_pen_color("deep lilac");
 /// ```
@@ -334,7 +334,7 @@ impl Color {
     /// * 0.0 &le; `alpha` &le; 1.0
     ///
     /// ```rust
-    /// use turtle::{Color, color_consts};
+    /// use turtle::{Color, color_consts::{WHITE, BLUE}};
     ///
     /// // You can chain using Color::from()
     /// let black = Color::from("black").with_alpha(0.5);
@@ -343,11 +343,11 @@ impl Color {
     ///
     /// // But even better, you can use the color enum value and chain the
     /// // calls.
-    /// let white = color_consts::WHITE.with_alpha(0.75);
+    /// let white = WHITE.with_alpha(0.75);
     /// let white_hsla = Color::hsla(0.0, 1.0, 1.0, 0.75);
     /// assert_eq!(white, white_hsla);
     ///
-    /// let blue: Color = color_consts::BLUE.with_alpha(0.8);
+    /// let blue: Color = BLUE.with_alpha(0.8);
     /// let blue_hsla = Color::hsla(201.0, 1.0, 0.392, 0.8);
     /// assert_eq!(blue, blue_hsla);
     /// ```
@@ -492,12 +492,12 @@ impl Color {
     /// Passing a value for `weight` that is not between 0.0 and 1.0 will result in a `panic`
     ///
     /// ```should_panic
-    /// use turtle::{Color, color_consts};
+    /// use turtle::{Color, color_consts::BROWN};
     ///
     /// let orange: Color = "orange".into();
     ///
     /// // This will panic as 1.01 is not a valid value for weight, which must be between 0.0 and 1.0.
-    /// let mixed = orange.mix(color_consts::BROWN.with_alpha(0.8), 1.01);
+    /// let mixed = orange.mix(BROWN.with_alpha(0.8), 1.01);
     /// ```
     ///
     /// # Example
