@@ -1,4 +1,4 @@
-//! A list of color names and color constants
+//! Supported color names and color constants
 //!
 //! Each color constant name is in uppercase in the list below. The color
 //! name you should use to refer to it is in lower case next to the
