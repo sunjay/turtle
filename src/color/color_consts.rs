@@ -1,5 +1,4 @@
-//! An extended list of color names and color constants in addition the ones
-//! from the [`Color`] struct
+//! A list of color names and color constants
 //!
 //! Each color's constant name is in uppercase in the list below. The color
 //! name you should use to refer to it is in lower case next to the
@@ -15,13 +14,6 @@
 //! ```
 //!
 //! This list of colors is from: <https://xkcd.com/color/rgb>
-//TODO: Hiding this for now because the constants don't actually contain all
-// the available colors
-/////
-///// For your convenience, there are two static variables [`COLORS`](static.COLORS.html) and
-///// [`COLOR_NAMES`](static.COLOR_NAMES.html) which contain the values of all the color constants
-///// and each of their names as strings. These static variables only contain the colors from this
-///// module.
 //!
 //! [`Color`]: ../struct.Color.html
 
@@ -31,11 +23,15 @@ macro_rules! color_consts {
     ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
         impl Color {
             /// Return a list of all of the colors.
+            ///
+            /// The full list of supported colors can be found in the [`color_consts`](color_consts/index.html) module.
             pub fn all_colors() -> &'static [Color] {
                 &[$($id, )*]
             }
 
             /// Return a list of all of the color names.
+            ///
+            /// The full list of supported colors can be found in the [`color_consts`](color_consts/index.html) module.
             pub fn all_color_names() -> &'static [&'static str] {
                 &[$($name, )*]
             }
