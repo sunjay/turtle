@@ -59,6 +59,29 @@ macro_rules! color_consts {
 }
 
 color_consts! {
+    "transparent", TRANSPARENT, (0.0, 0.0, 0.0, 0.0);
+    "red", RED, (230.0, 25.0, 75.0, 1.0);
+    "green", GREEN, (60.0, 180.0, 75.0, 1.0);
+    "yellow", YELLOW,   (255.0, 225.0, 25.0, 1.0);
+    "blue", BLUE,   (0.0, 130.0, 200.0, 1.0);
+    "orange", ORANGE,   (245.0, 130.0, 48.0, 1.0);
+    "purple", PURPLE,   (145.0, 30.0, 180.0, 1.0);
+    "cyan", CYAN,   (70.0, 240.0, 240.0, 1.0);
+    "magenta", MAGENTA, (240.0, 50.0, 230.0, 1.0);
+    "lime", LIME,   (210.0, 245.0, 60.0, 1.0);
+    "pink", PINK,   (250.0, 190.0, 190.0, 1.0);
+    "teal", TEAL,   (0.0, 128.0, 128.0, 1.0);
+    "lavender", LAVENDER,   (230.0, 190.0, 255.0, 1.0);
+    "brown", BROWN, (170.0, 110.0, 40.0, 1.0);
+    "beige", BEIGE, (255.0, 250.0, 200.0, 1.0);
+    "maroon", MAROON,   (128.0, 0.0, 0.0, 1.0);
+    "mint", MINT,   (170.0, 255.0, 195.0, 1.0);
+    "olive", OLIVE, (128.0, 128.0, 0.0, 1.0);
+    "coral", CORAL, (255.0, 215.0, 180.0, 1.0);
+    "navy", NAVY,   (0.0, 0.0, 128.0, 1.0);
+    "grey", GREY,   (128.0, 128.0, 128.0, 1.0);
+    "white", WHITE, (255.0, 255.0, 255.0, 1.0);
+    "black", BLACK, (0.0, 0.0, 0.0, 1.0);
     "sky blue", SKY_BLUE, (117.0, 187.0, 253.0, 1.0);
     "light green", LIGHT_GREEN, (150.0, 249.0, 123.0, 1.0);
     "light blue", LIGHT_BLUE, (149.0, 208.0, 252.0, 1.0);

@@ -1179,79 +1179,10 @@ impl<'a> From<&'a str> for Color {
 
             Self::rgb(red, green, blue)
         } else {
-            from_color_name(s)
-                .or_else(|| color_consts::from_color_name(s))
+            color_consts::from_color_name(s)
                 .unwrap_or_else(|| panic!("Unknown color name: {}", s))
         }
     }
-}
-
-macro_rules! color_consts {
-    ($($name:expr, $id:ident, ($r:expr, $g:expr, $b:expr, $a:expr);)*) => {
-        /// See [`extra_colors`](extra_colors/index.html) for more color names
-        /// that you can use.
-        impl Color {
-            $(
-                /// Use the name `
-                #[doc = $name]
-                /// ` to specify this color
-                pub const $id: Color = Color {red: $r, green: $g, blue: $b, alpha: $a};
-            )*
-
-            /// Return a list of all of the colors.
-            //TODO: Hiding this for now because it doesn't actually contain all
-            // the available colors from the entire crate
-            #[allow(dead_code)]
-            fn all_colors() -> &'static [Color] {
-                &[$(Color::$id, )*]
-            }
-
-            /// Return a list of all of the color names.
-            //TODO: Hiding this for now because it doesn't actually contain all
-            // the available colors from the entire crate
-            #[allow(dead_code)]
-            fn all_color_names() -> &'static [&'static str] {
-                &[$($name, )*]
-            }
-        }
-
-        pub(crate) fn from_color_name(s: &str) -> Option<Color> {
-            match s {
-                $(
-                    $name => Some(Color::$id),
-                )*
-                _ => None,
-            }
-        }
-    }
-}
-
-// Most important colors are put in the main module, the remaining are in `extra_colors`.
-// We do this so that documentation doesn't get overloaded with constants.
-color_consts! {
-    "transparent", TRANSPARENT, (0.0, 0.0, 0.0, 0.0);
-    "red", RED,	(230.0, 25.0, 75.0, 1.0);
-    "green", GREEN,	(60.0, 180.0, 75.0, 1.0);
-    "yellow", YELLOW,	(255.0, 225.0, 25.0, 1.0);
-    "blue", BLUE,	(0.0, 130.0, 200.0, 1.0);
-    "orange", ORANGE,	(245.0, 130.0, 48.0, 1.0);
-    "purple", PURPLE,	(145.0, 30.0, 180.0, 1.0);
-    "cyan", CYAN,	(70.0, 240.0, 240.0, 1.0);
-    "magenta", MAGENTA,	(240.0, 50.0, 230.0, 1.0);
-    "lime", LIME,	(210.0, 245.0, 60.0, 1.0);
-    "pink", PINK,	(250.0, 190.0, 190.0, 1.0);
-    "teal", TEAL,	(0.0, 128.0, 128.0, 1.0);
-    "lavender", LAVENDER,	(230.0, 190.0, 255.0, 1.0);
-    "brown", BROWN,	(170.0, 110.0, 40.0, 1.0);
-    "beige", BEIGE,	(255.0, 250.0, 200.0, 1.0);
-    "maroon", MAROON,	(128.0, 0.0, 0.0, 1.0);
-    "mint", MINT,	(170.0, 255.0, 195.0, 1.0);
-    "olive", OLIVE,	(128.0, 128.0, 0.0, 1.0);
-    "coral", CORAL,	(255.0, 215.0, 180.0, 1.0);
-    "navy", NAVY,	(0.0, 0.0, 128.0, 1.0);
-    "grey", GREY,	(128.0, 128.0, 128.0, 1.0);
-    "white", WHITE,	(255.0, 255.0, 255.0, 1.0);
-    "black", BLACK,	(0.0, 0.0, 0.0, 1.0);
 }
 
 #[cfg(test)]
