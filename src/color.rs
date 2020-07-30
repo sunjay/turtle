@@ -2310,4 +2310,9 @@ mod tests {
         };
         let _ = c.rotate_hue(20.);
     }
+
+    #[test]
+    fn check_all_color_lists() {
+        assert_eq!(Color::all_colors().len(), Color::all_color_names().len());
+    }
 }
