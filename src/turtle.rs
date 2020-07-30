@@ -259,64 +259,6 @@ impl Turtle {
     /// turtle.set_speed("normal");
     /// // Start drawing from here...
     /// ```
-    ///
-    /// # Conversion Traits
-    ///
-    /// So how does this method work? Why can it accept completely different types as input to the
-    /// same function?
-    ///
-    /// Using this method is an excellent way to learn about the conversion traits [`From`] and
-    /// [`Into`]. This method takes a *generic type* as its speed parameter. By specifying the type
-    /// as `S: Into<Speed>`, we are telling the Rust compiler that we want to accept any type
-    /// that can be converted into a [`Speed`].
-    ///
-    /// ```rust,no_run
-    /// # use turtle::*;
-    /// # struct T {speed: Speed} impl T {
-    /// // This is (essentially) how Turtle::set_speed is implemented
-    /// fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
-    ///     // Calling `.into()` converts the value of `speed` into type `Speed`.
-    ///     // The `.into()` method is defined in the `Into` trait and is implemented by `Speed`
-    ///     // for `i32` and `&str`
-    ///     // `S: Into<Speed>` makes the compiler guarantee that this method exists and returns
-    ///     // exactly the type that we expect
-    ///     let speed: Speed = speed.into();
-    ///     self.speed = speed;
-    /// }
-    /// # }
-    ///
-    /// // This makes it possible to pass in any type that can be converted into a `Speed`
-    /// fn main() {
-    ///     let mut turtle = Turtle::new();
-    ///
-    ///     // The following works because `Speed` defined a conversion from `i32`
-    ///     turtle.set_speed(1);
-    ///
-    ///     // The following works because `Speed` defined a conversion from `&str`
-    ///     turtle.set_speed("fast");
-    /// }
-    /// ```
-    ///
-    /// The [`Speed`] documentation describes the different types that it can be converted from in
-    /// detail. For other types and in other crates where this may not be explicitly documented,
-    /// you can always find this information by looking for implementations of the [`From`] trait.
-    ///
-    /// [`Speed`] implements [`From`] for several types:
-    ///
-    /// * [`impl From<&str> for Speed`](struct.Speed.html#impl-From%3C%26%27a%20str%3E)
-    /// * [`impl From<i32> for Speed`](struct.Speed.html#impl-From%3Ci32%3E)
-    /// * etc.
-    ///
-    /// Why look for [`From`] and not [`Into`]? It turns out that the Rust compiler knows a rule that says
-    /// "if some type A can be converted **from** type B, type B can be converted **into** type A."
-    /// That is why most types only implement [`From`] and leave [`Into`] to automatically be
-    /// derived based on the rule.
-    /// See the documentation of the [`Into`] trait for the "blanket implementation" which defines
-    /// that rule.
-    ///
-    /// [`Speed`]: struct.Speed.html
-    /// [`From`]: https://doc.rust-lang.org/std/convert/trait.From.html
-    /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
     pub fn set_speed<S: Into<Speed>>(&mut self, speed: S) {
         self.turtle.set_speed(speed)
     }
