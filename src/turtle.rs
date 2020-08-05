@@ -1,8 +1,8 @@
 use std::fmt::Debug;
 
-use crate::{Color, Point, Speed, Distance, Angle};
 use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
+use crate::{Angle, Color, Distance, Point, Speed};
 
 /// A turtle with a pen attached to its tail
 ///
@@ -26,7 +26,7 @@ impl Default for Turtle {
 
 impl From<AsyncTurtle> for Turtle {
     fn from(turtle: AsyncTurtle) -> Self {
-        Self {turtle}
+        Self { turtle }
     }
 }
 
@@ -197,6 +197,46 @@ impl Turtle {
     /// ```
     pub fn wait(&mut self, secs: f64) {
         block_on(self.turtle.wait(secs))
+    }
+
+    /// Instructs the turtle to draw an arc by the given angle for a given radius in the given step count from the current position of the turtle.
+    ///
+    /// The `radius` parameter is a floation point number that represents the radius of the arc
+    /// that you want to draw. If a negative `radius` is passed its absolute value is
+    /// considered for drawing the arc.
+    ///
+    /// The `extent` parameter is a floating point number that represents how much you want the
+    /// turtle to rotate. If the `extent` parameter is `None` then it is defaulted to 360. If
+    /// a negative `extent` is passed the arc is drawn in the opposite direction.
+    ///
+    /// the `steps` parameter is an integer that represent over how many steps you want the turtle to draw. If the `steps` parameter
+    /// is `None` then it is defaulted to the arc_length / 4.0.
+    ///
+    /// #Example
+    ///
+    /// ```rust
+    /// # use turtle::*;
+    /// # let mut turtle = Turtle::new();
+    /// // Turtle will draw an arc of 90 in a clockwise direction
+    /// turtle.arc(100.0, Some(90.0), None);
+    ///
+    /// // Turtle will draw an arc of 90 in a anti-clockwise direction
+    /// turtle.arc(-100.0, Some(90.0), None);
+    ///
+    /// // Turtle will draw an arc of 90 in a clockwise direction
+    /// turtle.arc(-100.0, Some(-90.0), None);
+    ///
+    /// //Turtle will draw an arc of 90 in a anti-clockwise direction
+    /// turtle.arc(-100.0, Some(90.0), None);
+    ///
+    /// // Turtle will draw an arc of 90 in a clockwise direction in 10 steps
+    /// turtle.arc(100.0, Some(90.0), Some(10));
+    ///
+    /// // Turtle will draw an arc of 90 in a clockwise direction in 100 steps
+    /// turtle.arc(100.0, Some(90.0), Some(100));
+    /// ```
+    pub fn arc(&mut self, radius: Distance, extent: Option<Angle>, steps: Option<i32>) {
+        block_on(self.turtle.arc(radius, extent, steps))
     }
 
     pub(crate) fn into_async(self) -> AsyncTurtle {
@@ -964,7 +1004,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_pen_color() {
         let mut turtle = Turtle::new();
         turtle.set_pen_color(Color {
@@ -976,7 +1018,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_fill_color() {
         let mut turtle = Turtle::new();
         turtle.set_fill_color(Color {
