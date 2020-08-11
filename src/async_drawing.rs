@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::ipc_protocol::ProtocolClient;
 use crate::async_turtle::AsyncTurtle;
-use crate::{Drawing, Point, Color, Event, ExportError};
+use crate::ipc_protocol::ProtocolClient;
+use crate::{Color, Drawing, Event, ExportError, Point};
 
 /// Represents a size
 ///
@@ -64,6 +64,16 @@ impl From<Drawing> for AsyncDrawing {
     }
 }
 
+use crate::sync_runtime::block_on;
+#[cfg(feature = "docs_image")]
+use turtle_docs_helper;
+#[cfg(feature = "docs_image")]
+impl turtle_docs_helper::SaveSvg for AsyncDrawing {
+    fn save_svg(&self, path: &Path) -> Result<(), String> {
+        self.client.save_svg(path)
+    }
+}
+
 impl AsyncDrawing {
     pub async fn new() -> Self {
         // This needs to be called as close to the start of the program as possible. We call it
@@ -71,9 +81,8 @@ impl AsyncDrawing {
         // of many programs that use the turtle crate.
         crate::start();
 
-        let client = ProtocolClient::new().await
-            .expect("unable to create renderer client");
-        Self {client}
+        let client = ProtocolClient::new().await.expect("unable to create renderer client");
+        Self { client }
     }
 
     pub async fn add_turtle(&mut self) -> AsyncTurtle {

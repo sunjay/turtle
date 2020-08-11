@@ -1,8 +1,13 @@
 use std::fmt::Debug;
 
-use crate::{Color, Point, Speed, Distance, Angle};
 use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
+use crate::{Angle, Color, Distance, Point, Speed};
+
+#[cfg(feature = "docs_image")]
+use std::path::Path;
+#[cfg(feature = "docs_image")]
+use turtle_docs_helper;
 
 /// A turtle with a pen attached to its tail
 ///
@@ -26,7 +31,17 @@ impl Default for Turtle {
 
 impl From<AsyncTurtle> for Turtle {
     fn from(turtle: AsyncTurtle) -> Self {
-        Self {turtle}
+        Self { turtle }
+    }
+}
+
+#[cfg(feature = "docs_image")]
+impl turtle_docs_helper::SaveSvg for Turtle {
+    fn save_svg(&self, path: &Path) -> Result<(), String> {
+        match self.turtle.save_svg(path) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }
 
@@ -528,7 +543,7 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -550,6 +565,8 @@ impl Turtle {
     ///     turtle.set_pen_color("#4CAF50"); // green
     ///     turtle.set_pen_size(100.0);
     ///     turtle.forward(200.0);
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&turtle, "pen_thickness");
     /// }
     /// ```
     ///
@@ -584,7 +601,7 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
     ///
     /// fn main() {
@@ -600,6 +617,8 @@ impl Turtle {
     ///         turtle.forward(25.0);
     ///         turtle.right(10.0);
     ///     }
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&drawing, "colored_circle");
     /// }
     /// ```
     ///
@@ -700,6 +719,8 @@ impl Turtle {
     ///     }
     ///     turtle.right(90.0);
     ///     turtle.forward(120.0);
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&turtle, "red_circle");
     /// }
     /// ```
     ///
@@ -795,16 +816,32 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Turtle;
     ///
     /// fn main() {
     ///     let mut turtle = Turtle::new();
     ///     turtle.right(32.0);
     ///     turtle.forward(150.0);
-    ///
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&turtle, "clear_before_click");
+    /// # }
+    /// ```
+    /// ```rust, no_run
+    /// # use turtle::Turtle;
+    ///     # let mut turtle = Turtle::new();
     ///     turtle.wait_for_click();
+    /// ```
+    /// ```rust
+    /// # use turtle::Turtle;
+    ///
+    /// # fn main() {
+    ///    # let mut turtle = Turtle::new();
+    ///    # turtle.right(32.0);
+    ///    # turtle.forward(150.0);
     ///     turtle.clear();
+    /// # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&turtle, "clear_after_click");
     /// }
     /// ```
     ///
@@ -964,7 +1001,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_pen_color() {
         let mut turtle = Turtle::new();
         turtle.set_pen_color(Color {
@@ -976,7 +1015,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_fill_color() {
         let mut turtle = Turtle::new();
         turtle.set_fill_color(Color {

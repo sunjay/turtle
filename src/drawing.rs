@@ -1,9 +1,12 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use crate::{Turtle, Color, Point, Size, ExportError};
 use crate::async_drawing::AsyncDrawing;
 use crate::sync_runtime::block_on;
+use crate::{Color, ExportError, Point, Size, Turtle};
+
+#[cfg(feature = "docs_image")]
+use turtle_docs_helper;
 
 /// Provides access to properties of the drawing that the turtle is creating
 ///
@@ -63,14 +66,17 @@ impl From<AsyncDrawing> for Drawing {
     fn from(drawing: AsyncDrawing) -> Self {
         //TODO: There is no way to set `turtles` properly here, but that's okay since it is going
         // to be removed soon.
-        Self {drawing, turtles: 1}
+        Self { drawing, turtles: 1 }
     }
 }
 
-#[cfg(docs_images)]
-impl turtle_docs_helpers::SaveSvg for Drawing {
-    fn save_svg(&self, path: &Path) {
-        self.drawing.save_svg(path).unwrap();
+#[cfg(feature = "docs_image")]
+impl turtle_docs_helper::SaveSvg for Drawing {
+    fn save_svg(&self, path: &Path) -> Result<(), String> {
+        match block_on(self.drawing.save_svg(path)) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }
 
@@ -157,13 +163,8 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_title("My Fancy Title! - Yay!");
-    ///     println!("hello");
-    ///     # #[cfg(docs_image)] 
-    ///     # println!("test");
-    ///     # #[cfg(docs_image)] 
-    ///     # turtle_docs_helpers::foo();
-    ///     # #[cfg(docs_image)] 
-    ///     # turtle_docs_helpers::save_docs_image(&drawing, "cats");
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&drawing, "changed_title");
     ///     
     /// }
     /// ```
@@ -196,7 +197,7 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
     ///
     /// fn main() {
@@ -204,6 +205,8 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_background_color("orange");
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&drawing, "orange_background");
     /// }
     /// ```
     ///
@@ -238,7 +241,7 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
     ///
     /// fn main() {
@@ -251,9 +254,31 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&drawing, "circle");
+    /// # }
+    /// ```
+    /// ```rust, no_run
+    /// # use turtle::Drawing;
+    ///     # let mut drawing = Drawing::new();
+    ///     # let mut turtle = drawing.add_turtle();
     ///     turtle.wait_for_click();
+    /// ```
+    /// ```rust
+    /// # use turtle::Drawing;
+    /// # fn main() {
+    ///     # let mut drawing = Drawing::new();
+    ///     # let mut turtle = drawing.add_turtle();
+    ///
+    ///     # for _ in 0..360 {
+    ///     #    // Move forward three steps
+    ///     #    turtle.forward(3.0);
+    ///     #    // Rotate to the right (clockwise) by 1 degree
+    ///     #    turtle.right(1.0);
+    ///     # }
     ///     drawing.set_center([50.0, 100.0]);
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&drawing, "circle_offset_center");
     /// }
     /// ```
     ///
@@ -321,7 +346,7 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
     ///
     /// fn main() {
@@ -334,9 +359,31 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&drawing, "circle");
+    /// # }
+    /// ```
+    /// ```rust, no_run
+    /// # use turtle::Drawing;
+    ///     # let mut drawing = Drawing::new();
+    ///     # let mut turtle = drawing.add_turtle();
     ///     turtle.wait_for_click();
+    /// ```
+    /// ```rust
+    /// # use turtle::Drawing;
+    /// # fn main() {
+    ///     # let mut drawing = Drawing::new();
+    ///     # let mut turtle = drawing.add_turtle();
+    ///
+    ///     # for _ in 0..360 {
+    ///     #    // Move forward three steps
+    ///     #    turtle.forward(3.0);
+    ///     #    // Rotate to the right (clockwise) by 1 degree
+    ///     #    turtle.right(1.0);
+    ///     # }
     ///     drawing.set_size((300, 300));
+    ///     # #[cfg(feature = "docs_image")]
+    ///     # turtle_docs_helper::save_docs_image(&drawing, "small_drawing");
     /// }
     /// ```
     ///
@@ -585,7 +632,7 @@ impl Drawing {
 
     /// Saves the current drawings in SVG format at the location specified by `path`.
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::{Drawing, Turtle, Color, ExportError};
     ///
     /// fn main() -> Result<(), ExportError> {
@@ -634,7 +681,9 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_background_color() {
         let mut drawing = Drawing::new();
         drawing.set_background_color(Color {
@@ -655,7 +704,7 @@ mod tests {
 
     #[test]
     fn ignores_center_nan_inf() {
-        let center = Point {x: 5.0, y: 10.0};
+        let center = Point { x: 5.0, y: 10.0 };
 
         let mut drawing = Drawing::new();
         drawing.set_center(center);
