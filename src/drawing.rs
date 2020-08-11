@@ -67,6 +67,13 @@ impl From<AsyncDrawing> for Drawing {
     }
 }
 
+#[cfg(docs_images)]
+impl turtle_docs_helpers::SaveSvg for Drawing {
+    fn save_svg(&self, path: &Path) {
+        self.drawing.save_svg(path).unwrap();
+    }
+}
+
 impl Drawing {
     /// Creates a new drawing
     ///
@@ -142,7 +149,7 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
     ///
     /// fn main() {
@@ -150,6 +157,14 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_title("My Fancy Title! - Yay!");
+    ///     println!("hello");
+    ///     # #[cfg(docs_image)] 
+    ///     # println!("test");
+    ///     # #[cfg(docs_image)] 
+    ///     # turtle_docs_helpers::foo();
+    ///     # #[cfg(docs_image)] 
+    ///     # turtle_docs_helpers::save_docs_image(&drawing, "cats");
+    ///     
     /// }
     /// ```
     ///
