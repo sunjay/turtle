@@ -4,9 +4,9 @@ use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
 use crate::{Angle, Color, Distance, Point, Speed};
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 use std::path::Path;
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 use turtle_docs_helper;
 
 /// A turtle with a pen attached to its tail
@@ -35,7 +35,7 @@ impl From<AsyncTurtle> for Turtle {
     }
 }
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 impl turtle_docs_helper::SaveSvg for Turtle {
     fn save_svg(&self, path: &Path) -> Result<(), String> {
         match self.turtle.save_svg(path) {
@@ -565,7 +565,7 @@ impl Turtle {
     ///     turtle.set_pen_color("#4CAF50"); // green
     ///     turtle.set_pen_size(100.0);
     ///     turtle.forward(200.0);
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&turtle, "pen_thickness");
     /// }
     /// ```
@@ -617,7 +617,7 @@ impl Turtle {
     ///         turtle.forward(25.0);
     ///         turtle.right(10.0);
     ///     }
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&drawing, "colored_circle");
     /// }
     /// ```
@@ -719,7 +719,7 @@ impl Turtle {
     ///     }
     ///     turtle.right(90.0);
     ///     turtle.forward(120.0);
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&turtle, "red_circle");
     /// }
     /// ```
@@ -823,7 +823,7 @@ impl Turtle {
     ///     let mut turtle = Turtle::new();
     ///     turtle.right(32.0);
     ///     turtle.forward(150.0);
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&turtle, "clear_before_click");
     /// # }
     /// ```
@@ -840,7 +840,7 @@ impl Turtle {
     ///    # turtle.right(32.0);
     ///    # turtle.forward(150.0);
     ///     turtle.clear();
-    /// # #[cfg(feature = "docs_image")]
+    /// # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&turtle, "clear_after_click");
     /// }
     /// ```

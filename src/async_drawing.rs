@@ -65,9 +65,9 @@ impl From<Drawing> for AsyncDrawing {
 }
 
 use crate::sync_runtime::block_on;
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 use turtle_docs_helper;
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 impl turtle_docs_helper::SaveSvg for AsyncDrawing {
     fn save_svg(&self, path: &Path) -> Result<(), String> {
         self.client.save_svg(path)

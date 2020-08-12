@@ -5,7 +5,7 @@ use crate::async_drawing::AsyncDrawing;
 use crate::sync_runtime::block_on;
 use crate::{Color, ExportError, Point, Size, Turtle};
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 use turtle_docs_helper;
 
 /// Provides access to properties of the drawing that the turtle is creating
@@ -70,7 +70,7 @@ impl From<AsyncDrawing> for Drawing {
     }
 }
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 impl turtle_docs_helper::SaveSvg for Drawing {
     fn save_svg(&self, path: &Path) -> Result<(), String> {
         match block_on(self.drawing.save_svg(path)) {
@@ -163,7 +163,7 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_title("My Fancy Title! - Yay!");
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&drawing, "changed_title");
     ///     
     /// }
@@ -205,7 +205,7 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_background_color("orange");
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&drawing, "orange_background");
     /// }
     /// ```
@@ -254,7 +254,7 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&drawing, "circle");
     /// # }
     /// ```
@@ -277,7 +277,7 @@ impl Drawing {
     ///     #    turtle.right(1.0);
     ///     # }
     ///     drawing.set_center([50.0, 100.0]);
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&drawing, "circle_offset_center");
     /// }
     /// ```
@@ -359,7 +359,7 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&drawing, "circle");
     /// # }
     /// ```
@@ -382,7 +382,7 @@ impl Drawing {
     ///     #    turtle.right(1.0);
     ///     # }
     ///     drawing.set_size((300, 300));
-    ///     # #[cfg(feature = "docs_image")]
+    ///     # #[cfg(docs_image)]
     ///     # turtle_docs_helper::save_docs_image(&drawing, "small_drawing");
     /// }
     /// ```

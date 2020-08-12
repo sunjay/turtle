@@ -21,16 +21,16 @@ impl From<RendererClient> for ProtocolClient {
     }
 }
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 use turtle_docs_helper;
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 use std::path::Path;
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 use crate::sync_runtime::block_on;
 
-#[cfg(feature = "docs_image")]
+#[cfg(docs_image)]
 impl turtle_docs_helper::SaveSvg for ProtocolClient {
     fn save_svg(&self, path: &Path) -> Result<(), String> {
         match block_on(self.export_svg(path.to_path_buf())) {
