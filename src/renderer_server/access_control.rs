@@ -465,9 +465,11 @@ impl AccessControl {
         }
 
         // Signal that all data requests have been queued and the next call to get() can proceed.
-        // This is very important to get the ordering guarantees we are going for. Without this,
-        // we would have a race condition between all callers of get() where the order would be
-        // randomly determined based on the order the tasks calling get() are scheduled.
+        // This is necessary since we can only guarantee request ordering if each request gets to
+        // this point before the next call to `get`. Without this, we would have a race condition
+        // between all callers of get() where the order would be randomly determined based on the
+        // order that the tasks calling get() are scheduled.
+        //
         // Ignoring errors since this just means that whoever was waiting to find out when the
         // requests have been queued no longer needs to know.
         data_req_queued.send(()).unwrap_or(());
