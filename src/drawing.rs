@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 use std::path::Path;
 
 use crate::{Turtle, Color, Point, Size, ExportError};
@@ -57,6 +57,13 @@ pub struct Drawing {
     drawing: AsyncDrawing,
     //TODO: Remove this field when multiple turtles are supported
     turtles: usize,
+}
+
+impl Debug for Drawing {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let state = block_on(self.drawing.debug());
+        Debug::fmt(&state, f)
+    }
 }
 
 impl From<AsyncDrawing> for Drawing {

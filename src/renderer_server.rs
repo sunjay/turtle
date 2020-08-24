@@ -164,6 +164,13 @@ async fn run_request(
         ClearTurtle(id) => {
             handlers::clear_turtle(data_req_queued, &app_control, &display_list, event_loop, id).await
         },
+
+        DebugTurtle(id, angle_unit) => {
+            handlers::debug_turtle(data_req_queued, conn, &app_control, id, angle_unit).await
+        },
+        DebugDrawing => {
+            handlers::debug_drawing(data_req_queued, conn, &app_control).await
+        },
     };
 
     use handlers::HandlerError::*;

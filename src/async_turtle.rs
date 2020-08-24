@@ -6,6 +6,7 @@ use crate::radians::{self, Radians};
 use crate::ipc_protocol::{ProtocolClient, RotationDirection};
 use crate::renderer_server::TurtleId;
 use crate::{Turtle, Color, Point, Speed};
+use crate::debug;
 
 /// Any distance value (positive or negative)
 pub type Distance = f64;
@@ -17,8 +18,8 @@ pub type Distance = f64;
 /// [`use_radians()`](struct.Turtle.html#method.use_radians) methods for more information.
 pub type Angle = f64;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum AngleUnit {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum AngleUnit {
     Degrees,
     Radians,
 }
@@ -308,5 +309,12 @@ impl AsyncTurtle {
             // Sleep for ~1 frame (at 120fps) to avoid pegging the CPU.
             self.wait(1.0 / 120.0).await;
         }
+    }
+
+    //TODO: If we move to a shared memory architecture, we wouldn't need to make
+    // any request here and thus would not need this method at all. We should
+    // think things through before making this method public.
+    pub(crate) async fn debug(&self) -> debug::Turtle {
+        self.client.debug_turtle(self.id, self.angle_unit).await
     }
 }

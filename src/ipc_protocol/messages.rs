@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::{Color, Point, Speed, Event, Distance, Size};
 use crate::renderer_server::{TurtleId, ExportError};
-use crate::radians::Radians;
+use crate::{async_turtle::AngleUnit, radians::Radians, debug};
 
 /// The different kinds of requests that can be sent from a client
 ///
@@ -141,6 +141,17 @@ pub enum ClientRequest {
     ///
     /// Response: N/A
     ClearTurtle(TurtleId),
+
+    /// Returns the entire current state of the given turtle in a format useful
+    /// for printing only.
+    ///
+    /// Response: `ServerResponse::DebugTurtle`
+    DebugTurtle(TurtleId, AngleUnit),
+    /// Returns the entire current state of the drawing in a format useful
+    /// for printing only.
+    ///
+    /// Response: `ServerResponse::DebugDrawing`
+    DebugDrawing,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -165,6 +176,13 @@ pub enum ServerResponse {
 
     /// An animation was completed for a given turtle
     AnimationComplete(TurtleId),
+
+    /// A representation of the entire state of a turtle, suitable for printing
+    /// only
+    DebugTurtle(TurtleId, debug::Turtle),
+    /// A representation of the entire state of the drawing, suitable for
+    /// printing only
+    DebugDrawing(debug::Drawing),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
