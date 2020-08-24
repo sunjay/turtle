@@ -174,6 +174,13 @@ impl AsyncDrawing {
     //TODO: If we move to a shared memory architecture, we wouldn't need to make
     // any request here and thus would not need this method at all. We should
     // think things through before making this method public.
+    /// # Stability
+    ///
+    /// **Warning:** This method exists because it is necessary to do some work
+    /// currently asynchronously in order to print out a useful debug
+    /// representation of this type. There is no async `Debug` trait. Please
+    /// only use this method for debugging. It may be removed in a future
+    /// release if we find a way to implement `Debug` trait for this type.
     pub(crate) async fn debug(&self) -> debug::Drawing {
         self.client.debug_drawing().await
     }
