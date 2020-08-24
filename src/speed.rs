@@ -11,7 +11,7 @@ use crate::Distance;
 const MIN_SPEED: i32 = 1;
 const MAX_SPEED: i32 = 25;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Ord, Hash, Serialize, Deserialize)]
 pub(crate) enum SpeedLevel {
     Value(i32),
     Instant,
@@ -168,7 +168,7 @@ impl PartialOrd for SpeedLevel {
 /// [`set_speed` method]: struct.Turtle.html#method.set_speed
 /// [`Speed::instant()`]: struct.Speed.html#method.instant
 /// [`is_instant()` method]: struct.Speed.html#method.is_instant
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Speed(SpeedLevel);
 
 /// The default speed is "normal"
@@ -279,9 +279,15 @@ impl fmt::Display for Speed {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use SpeedLevel::*;
         match self.0 {
-            Value(speed) => write!(f, "Speed::from({})", speed),
-            Instant => write!(f, "Speed::instant()"),
+            Value(value) => fmt::Display::fmt(&value, f),
+            Instant => write!(f, "\"instant\""),
         }
+    }
+}
+
+impl fmt::Debug for Speed {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Speed({})", self)
     }
 }
 
