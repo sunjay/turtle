@@ -25,8 +25,18 @@ pub struct TurtleDrawings {
 /// The entire state of the application, shared between threads in the server
 #[derive(Default, Debug)]
 pub struct App {
+    // NOTE: To avoid deadlocking, all of the code in this crate follows a consistent locking
+    // order as specified below:
+    //
+    // 1. drawing.lock()
+    // 2. turtle.lock()
+    // 3. display_list.lock()
+    // 4. event_loop.lock()
+    //
+    // Any of these steps may be omitted, but the order must always be consistent.
+
     /// The current state of the drawing
-    drawing: Mutex<DrawingState>,
+    drawing: Arc<Mutex<DrawingState>>,
     /// Each `TurtleId` indexes into this field
     ///
     /// Need to be very careful deleting from this field because the `TurtleId` returned from
@@ -46,6 +56,10 @@ impl App {
         let id = TurtleId(turtles.len());
         turtles.push(Default::default());
         id
+    }
+
+    pub fn drawing(&self) -> &Arc<Mutex<DrawingState>> {
+        &self.drawing
     }
 
     /// Returns a mutable handle to the drawing state

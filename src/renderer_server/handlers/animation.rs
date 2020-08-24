@@ -12,7 +12,7 @@ use super::super::{
     event_loop_notifier::EventLoopNotifier,
     state::TurtleState,
     app::{TurtleId, TurtleDrawings},
-    access_control::{AccessControl, RequiredData, RequiredTurtles},
+    access_control::AccessControl,
     renderer::display_list::{DisplayList, PrimHandle},
 };
 
@@ -34,16 +34,12 @@ pub(crate) async fn move_forward(
     id: TurtleId,
     distance: Distance,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
+    let turtle = app_control.get(id, data_req_queued).await;
 
     // Borrow the data initially to setup the animation but then drop it so the locks on the turtle
     // and display list are released (allows for rendering to occur)
     let mut anim = {
-        let mut turtles = data.turtles_mut().await;
-        let turtle = turtles.one_mut();
+        let mut turtle = turtle.lock().await;
 
         let TurtleState {position, heading, ..} = turtle.state;
 
@@ -55,7 +51,7 @@ pub(crate) async fn move_forward(
         let target_pos = position + movement;
 
         let mut display_list = display_list.lock().await;
-        MoveAnimation::new(turtle, &mut display_list, target_pos)
+        MoveAnimation::new(&mut turtle, &mut display_list, target_pos)
     };
 
     while anim.running {
@@ -67,11 +63,10 @@ pub(crate) async fn move_forward(
 
         // These locks are dropped at the end of this loop iteration to allow rendering to occur
         // while we wait
-        let mut turtles = data.turtles_mut().await;
-        let turtle = turtles.one_mut();
+        let mut turtle = turtle.lock().await;
         let mut display_list = display_list.lock().await;
 
-        anim.step(turtle, &mut display_list);
+        anim.step(&mut turtle, &mut display_list);
     }
 
     // Signal the main thread one last time that the image has changed
@@ -92,19 +87,15 @@ pub(crate) async fn move_to(
     id: TurtleId,
     target_pos: Point,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
+    let turtle = app_control.get(id, data_req_queued).await;
 
     // Borrow the data initially to setup the animation but then drop it so the locks on the turtle
     // and display list are released (allows for rendering to occur)
     let mut anim = {
-        let mut turtles = data.turtles_mut().await;
-        let turtle = turtles.one_mut();
+        let mut turtle = turtle.lock().await;
 
         let mut display_list = display_list.lock().await;
-        MoveAnimation::new(turtle, &mut display_list, target_pos)
+        MoveAnimation::new(&mut turtle, &mut display_list, target_pos)
     };
 
     while anim.running {
@@ -116,11 +107,10 @@ pub(crate) async fn move_to(
 
         // These locks are dropped at the end of this loop iteration to allow rendering to occur
         // while we wait
-        let mut turtles = data.turtles_mut().await;
-        let turtle = turtles.one_mut();
+        let mut turtle = turtle.lock().await;
         let mut display_list = display_list.lock().await;
 
-        anim.step(turtle, &mut display_list);
+        anim.step(&mut turtle, &mut display_list);
     }
 
     // Signal the main thread one last time that the image has changed
@@ -277,18 +267,14 @@ pub(crate) async fn rotate_in_place(
     angle: Radians,
     direction: RotationDirection,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
+    let turtle = app_control.get(id, data_req_queued).await;
 
     // Borrow the data initially to setup the animation but then drop it so the lock on the turtle
     // is released (allows for rendering to occur)
     let mut anim = {
-        let mut turtles = data.turtles_mut().await;
-        let turtle = turtles.one_mut();
+        let mut turtle = turtle.lock().await;
 
-        RotateAnimation::new(turtle, angle, direction)
+        RotateAnimation::new(&mut turtle, angle, direction)
     };
 
     while anim.running {
@@ -300,10 +286,9 @@ pub(crate) async fn rotate_in_place(
 
         // This lock is dropped at the end of this loop iteration to allow rendering to occur
         // while we wait
-        let mut turtles = data.turtles_mut().await;
-        let turtle = turtles.one_mut();
+        let mut turtle = turtle.lock().await;
 
-        anim.step(turtle);
+        anim.step(&mut turtle);
     }
 
     // Signal the main thread one last time that the image has changed
