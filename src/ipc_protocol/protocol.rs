@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::renderer_client::RendererClient;
 use crate::renderer_server::{TurtleId, ExportError};
 use crate::radians::Radians;
-use crate::{Distance, Point, Color, Speed, Event, Size};
+use crate::{Distance, Point, Color, Speed, Event, Size, async_turtle::AngleUnit, debug};
 
 use super::{
     ConnectionError,
@@ -382,5 +382,30 @@ impl ProtocolClient {
 
     pub fn clear_turtle(&self, id: TurtleId) {
         self.client.send(ClientRequest::ClearTurtle(id))
+    }
+
+    pub async fn debug_turtle(&self, id: TurtleId, angle_unit: AngleUnit) -> debug::Turtle {
+        self.client.send(ClientRequest::DebugTurtle(id, angle_unit));
+
+        let response = self.client.recv().await;
+        match response {
+            ServerResponse::DebugTurtle(recv_id, state) => {
+                debug_assert_eq!(id, recv_id, "bug: received debug turtle for incorrect turtle");
+                state
+            },
+            _ => unreachable!("bug: expected to receive `DebugTurtle` in response to `DebugTurtle` request"),
+        }
+    }
+
+    pub async fn debug_drawing(&self) -> debug::Drawing {
+        self.client.send(ClientRequest::DebugDrawing);
+
+        let response = self.client.recv().await;
+        match response {
+            ServerResponse::DebugDrawing(state) => {
+                state
+            },
+            _ => unreachable!("bug: expected to receive `DebugDrawing` in response to `DebugDrawing` request"),
+        }
     }
 }

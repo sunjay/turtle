@@ -6,6 +6,7 @@ use serde::{Serialize, Deserialize};
 use crate::ipc_protocol::ProtocolClient;
 use crate::async_turtle::AsyncTurtle;
 use crate::{Drawing, Point, Color, Event, ExportError};
+use crate::debug;
 
 /// Represents a size
 ///
@@ -168,5 +169,12 @@ impl AsyncDrawing {
 
     pub async fn save_svg<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {
         self.client.export_svg(path.as_ref().to_path_buf()).await
+    }
+
+    //TODO: If we move to a shared memory architecture, we wouldn't need to make
+    // any request here and thus would not need this method at all. We should
+    // think things through before making this method public.
+    pub(crate) async fn debug(&self) -> debug::Drawing {
+        self.client.debug_drawing().await
     }
 }

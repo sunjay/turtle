@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 
 use crate::{Color, Point, Speed, Distance, Angle};
 use crate::async_turtle::AsyncTurtle;
@@ -16,6 +16,13 @@ use crate::sync_runtime::block_on;
 /// can use with the turtle.
 pub struct Turtle {
     turtle: AsyncTurtle,
+}
+
+impl Debug for Turtle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let state = block_on(self.turtle.debug());
+        Debug::fmt(&state, f)
+    }
 }
 
 impl Default for Turtle {
