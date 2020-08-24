@@ -14,7 +14,7 @@ use super::super::{
     event_loop_notifier::EventLoopNotifier,
     state::{self, TurtleState},
     app::{TurtleId, TurtleDrawings},
-    access_control::{AccessControl, RequiredData, RequiredTurtles},
+    access_control::AccessControl,
     renderer::display_list::DisplayList,
 };
 
@@ -25,13 +25,10 @@ pub(crate) async fn turtle_prop(
     id: TurtleId,
     prop: TurtleProp,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app_control.get(id, data_req_queued).await;
+    let turtle = turtle.lock().await;
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &*turtle;
 
     use TurtleProp::*;
     use PenProp::*;
@@ -62,13 +59,10 @@ pub(crate) async fn set_turtle_prop(
     id: TurtleId,
     prop_value: TurtlePropValue,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app_control.get(id, data_req_queued).await;
+    let mut turtle = turtle.lock().await;
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &mut *turtle;
 
     use TurtlePropValue::*;
     use PenPropValue::*;
@@ -117,13 +111,10 @@ pub(crate) async fn reset_turtle_prop(
     id: TurtleId,
     prop: TurtleProp,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app_control.get(id, data_req_queued).await;
+    let mut turtle = turtle.lock().await;
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &mut *turtle;
 
     let mut drawing_changed = false;
 
@@ -189,13 +180,10 @@ pub(crate) async fn reset_turtle(
     event_loop: EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app_control.get(id, data_req_queued).await;
+    let mut turtle = turtle.lock().await;
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &mut *turtle;
 
     *turtle = TurtleState::default();
 

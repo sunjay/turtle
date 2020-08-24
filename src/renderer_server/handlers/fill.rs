@@ -4,7 +4,7 @@ use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
     app::{TurtleId, TurtleDrawings},
-    access_control::{AccessControl, RequiredData, RequiredTurtles},
+    access_control::AccessControl,
     renderer::display_list::DisplayList,
 };
 
@@ -15,13 +15,10 @@ pub(crate) async fn begin_fill(
     event_loop: EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app_control.get(id, data_req_queued).await;
+    let mut turtle = turtle.lock().await;
 
-    let TurtleDrawings {state: turtle, drawings, current_fill_polygon} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, drawings, current_fill_polygon} = &mut *turtle;
 
     // Ignore the request if we are already filling
     if current_fill_polygon.is_some() {
@@ -43,13 +40,10 @@ pub(crate) async fn end_fill(
     app_control: &AccessControl,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app_control.get(id, data_req_queued).await;
+    let mut turtle = turtle.lock().await;
 
-    let TurtleDrawings {current_fill_polygon, ..} = turtles.one_mut();
+    let TurtleDrawings {current_fill_polygon, ..} = &mut *turtle;
 
     // No need to add the turtle's current position to the polygon since it should already be there
 

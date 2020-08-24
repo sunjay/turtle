@@ -6,7 +6,7 @@ use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
     state::DrawingState,
-    access_control::{AccessControl, RequiredData},
+    access_control::AccessControl,
 };
 
 pub(crate) async fn drawing_prop(
@@ -15,12 +15,8 @@ pub(crate) async fn drawing_prop(
     app_control: &AccessControl,
     prop: DrawingProp,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: true,
-        turtles: None,
-    }, data_req_queued).await;
-
-    let drawing = data.drawing_mut();
+    let drawing = app_control.get_drawing(data_req_queued).await;
+    let drawing = drawing.lock().await;
 
     use DrawingProp::*;
     let value = match prop {
@@ -45,14 +41,10 @@ pub(crate) async fn set_drawing_prop(
     event_loop: EventLoopNotifier,
     prop_value: DrawingPropValue,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: true,
-        turtles: None,
-    }, data_req_queued).await;
+    let drawing = app_control.get_drawing(data_req_queued).await;
+    let mut drawing = drawing.lock().await;
 
-    let drawing = data.drawing_mut();
-
-    modify_drawing(drawing, event_loop, prop_value).await
+    modify_drawing(&mut drawing, event_loop, prop_value).await
 }
 
 pub(crate) async fn reset_drawing_prop(
@@ -61,15 +53,11 @@ pub(crate) async fn reset_drawing_prop(
     event_loop: EventLoopNotifier,
     prop: DrawingProp,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: true,
-        turtles: None,
-    }, data_req_queued).await;
-
-    let drawing = data.drawing_mut();
+    let drawing = app_control.get_drawing(data_req_queued).await;
+    let mut drawing = drawing.lock().await;
 
     use DrawingProp::*;
-    modify_drawing(drawing, event_loop, match prop {
+    modify_drawing(&mut drawing, event_loop, match prop {
         Title => DrawingPropValue::Title(DrawingState::DEFAULT_TITLE.to_string()),
         Background => DrawingPropValue::Background(DrawingState::DEFAULT_BACKGROUND),
         Center => DrawingPropValue::Center(DrawingState::DEFAULT_CENTER),
