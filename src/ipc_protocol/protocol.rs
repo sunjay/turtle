@@ -375,7 +375,6 @@ impl ProtocolClient {
         self.client.send(ClientRequest::EndFill(id))
     }
 
-    #[allow(dead_code)] //TODO(#16): This is part of the multiple turtles feature (for Drawing::clear())
     pub fn clear_all(&self) {
         self.client.send(ClientRequest::ClearAll)
     }

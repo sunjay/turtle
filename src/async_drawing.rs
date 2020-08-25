@@ -162,6 +162,10 @@ impl AsyncDrawing {
         self.client.drawing_set_is_fullscreen(false)
     }
 
+    pub fn clear(&mut self) {
+        self.client.clear_all()
+    }
+
     pub async fn poll_event(&mut self) -> Option<Event> {
         self.client.poll_event().await
     }
