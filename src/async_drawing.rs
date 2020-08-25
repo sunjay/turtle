@@ -175,9 +175,9 @@ impl AsyncDrawing {
     // think things through before making this method public.
     /// # Stability
     ///
-    /// **Warning:** This method exists because it is necessary to do some work
-    /// currently asynchronously in order to print out a useful debug
-    /// representation of this type. There is no async `Debug` trait. Please
+    /// **Warning:** This method exists because it is currently necessary to
+    /// do some work asynchronously in order to print out a useful debug
+    /// representation for this type. There is no async `Debug` trait. Please
     /// only use this method for debugging. It may be removed in a future
     /// release if we find a way to implement `Debug` trait for this type.
     pub async fn debug(&self) -> impl Debug {
