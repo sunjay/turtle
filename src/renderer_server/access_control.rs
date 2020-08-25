@@ -99,17 +99,19 @@ pub use resources::*;
 
 use std::sync::Arc;
 
-use tokio::sync::{Mutex, oneshot};
+use tokio::sync::oneshot;
+use parking_lot::Mutex;
 
 use super::app::{App, TurtleId};
+
+type SharedResources = Arc<Mutex<Resources>>;
 
 /// Manages access to the app state, enforcing the rules around sequential consistency and
 /// concurrent access
 #[derive(Debug)]
 pub struct AccessControl {
     app: Arc<App>,
-    resources: Arc<Mutex<Resources>>,
-    resource_manager: ResourceManager,
+    resources: SharedResources,
 }
 
 impl AccessControl {
@@ -121,14 +123,9 @@ impl AccessControl {
         assert_eq!(app.turtles_len().await, 0,
             "bug: access control assumes that turtles are only added through itself");
 
-        let resources = Arc::new(Mutex::new(Resources::default()));
-        let resource_manager = ResourceManager::new(resources.clone());
+        let resources = SharedResources::default();
 
-        Self {
-            app,
-            resources,
-            resource_manager,
-        }
+        Self {app, resources}
     }
 
     /// Adds a new turtle to the application state
@@ -196,7 +193,7 @@ impl AccessControl {
         };
 
         {
-            let mut res = self.resources.lock().await;
+            let mut res = self.resources.lock();
             data_req.poll_resources(&mut res, generate_data_request);
         }
 
@@ -218,6 +215,6 @@ impl AccessControl {
 
         // Fetch all the data that was requested (should only be contended by renderer)
 
-        data_req.fetch_resources(&self.app, &self.resource_manager).await
+        data_req.fetch_resources(&self.app, &self.resources).await
     }
 }
