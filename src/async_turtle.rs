@@ -6,7 +6,6 @@ use crate::radians::{self, Radians};
 use crate::ipc_protocol::{ProtocolClient, RotationDirection};
 use crate::renderer_server::TurtleId;
 use crate::{Turtle, Color, Point, Speed};
-use crate::debug;
 
 /// Any distance value (positive or negative)
 pub type Distance = f64;
@@ -321,7 +320,7 @@ impl AsyncTurtle {
     /// representation of this type. There is no async `Debug` trait. Please
     /// only use this method for debugging. It may be removed in a future
     /// release if we find a way to implement `Debug` trait for this type.
-    pub(crate) async fn debug(&self) -> debug::Turtle {
+    pub async fn debug(&self) -> impl Debug {
         self.client.debug_turtle(self.id, self.angle_unit).await
     }
 }
