@@ -1,7 +1,8 @@
-use std::sync::{Arc, Mutex, atomic::{AtomicUsize, Ordering}};
+use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
 use std::collections::{VecDeque, HashMap};
 
 use tokio::sync::oneshot;
+use parking_lot::Mutex;
 
 use super::super::app::TurtleId;
 
@@ -20,13 +21,12 @@ impl DataReadyNotifier {
     pub fn signal_ready(&self) {
         let DataReadyNotifier(sender) = self;
 
+        let sender = sender.lock().take()
+            .expect("bug: only the last resource should notify that the data is ready");
+
         // There are some cases (e.g. a panic) where AccessControl can get dropped before all of the
-        // DataReadyNotifiers. In that case, the lock or send might fail and we can just ignore it.
-        if let Ok(mut sender) = sender.lock() {
-            let sender = sender.take()
-                .expect("bug: only the last resource should notify that the data is ready");
-            sender.send(()).unwrap_or(())
-        }
+        // DataReadyNotifiers. In that case, the send might fail and we can just ignore it.
+        sender.send(()).unwrap_or(())
     }
 }
 
