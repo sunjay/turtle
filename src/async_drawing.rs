@@ -6,7 +6,6 @@ use serde::{Serialize, Deserialize};
 use crate::ipc_protocol::ProtocolClient;
 use crate::async_turtle::AsyncTurtle;
 use crate::{Drawing, Point, Color, Event, ExportError};
-use crate::debug;
 
 /// Represents a size
 ///
@@ -181,7 +180,7 @@ impl AsyncDrawing {
     /// representation of this type. There is no async `Debug` trait. Please
     /// only use this method for debugging. It may be removed in a future
     /// release if we find a way to implement `Debug` trait for this type.
-    pub(crate) async fn debug(&self) -> debug::Drawing {
+    pub async fn debug(&self) -> impl Debug {
         self.client.debug_drawing().await
     }
 }
