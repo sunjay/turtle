@@ -381,10 +381,10 @@ mod tests {
     #[test]
     fn display() {
         let speed: Speed = "instant".into();
-        assert_eq!(format!("{}", speed), "Speed::instant()");
+        assert_eq!(format!("{}", speed), "\"instant\"");
         for value in 1..MAX_SPEED {
             let speed: Speed = value.into();
-            assert_eq!(format!("{}", speed), format!("Speed::from({})", value));
+            assert_eq!(format!("{}", speed), format!("{}", value));
         }
     }
 
