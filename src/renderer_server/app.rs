@@ -63,6 +63,7 @@ impl App {
     }
 
     /// Returns a mutable handle to the drawing state
+    #[cfg_attr(feature = "test", allow(dead_code))] // Used in renderer, but not for tests
     pub async fn drawing_mut(&self) -> MutexGuard<'_, DrawingState> {
         self.drawing.lock().await
     }
