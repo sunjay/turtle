@@ -11,7 +11,7 @@ use crate::{
 use super::HandlerError;
 use super::super::{
     app::{TurtleId, TurtleDrawings},
-    access_control::{AccessControl, RequiredData, RequiredTurtles},
+    access_control::AccessControl,
 };
 
 pub(crate) async fn debug_turtle(
@@ -21,13 +21,10 @@ pub(crate) async fn debug_turtle(
     id: TurtleId,
     angle_unit: AngleUnit,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app_control.get(id, data_req_queued).await;
+    let turtle = turtle.lock().await;
 
-    let TurtleDrawings {state: turtle, ..} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, ..} = &*turtle;
 
     let debug_state = turtle.to_debug(angle_unit);
 
@@ -41,11 +38,8 @@ pub(crate) async fn debug_drawing(
     conn: ServerOneshotSender,
     app_control: &AccessControl,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: true,
-        turtles: None,
-    }, data_req_queued).await;
-    let drawing = data.drawing_mut();
+    let drawing = app_control.get_drawing(data_req_queued).await;
+    let drawing = drawing.lock().await;
 
     let debug_state = drawing.to_debug();
 
