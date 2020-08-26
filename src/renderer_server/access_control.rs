@@ -104,6 +104,11 @@ use parking_lot::Mutex;
 
 use super::app::{App, TurtleId};
 
+// Note: It is important that all of the resources be protected together by a Mutex rather than
+// individually on a per-resource basis. This is how we guarantee that if a request needs multiple
+// resources, it is able to reserve them all at once. Without that, two requests could race to
+// reserve the same resources and end up deadlocked because the requests were queued in the wrong
+// order.
 type SharedResources = Arc<Mutex<Resources>>;
 
 /// Manages access to the app state, enforcing the rules around sequential consistency and
