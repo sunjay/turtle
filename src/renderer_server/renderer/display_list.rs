@@ -1,4 +1,6 @@
-use std::collections::BTreeMap;
+use std::{sync::Arc, collections::BTreeMap};
+
+use parking_lot::Mutex;
 
 use crate::{Point, Color};
 
@@ -58,6 +60,8 @@ impl DrawPrim {
 /// Handles are guaranteed to be unique, even across removals from the display list.
 #[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub struct PrimHandle(usize);
+
+pub type SharedDisplayList = Arc<Mutex<DisplayList>>;
 
 /// A list of drawing primitives in the order that they are rendered
 #[derive(Default, Debug)]
