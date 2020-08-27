@@ -112,6 +112,11 @@ impl ServerOneshotSender {
         Self {client_id, sender}
     }
 
+    /// Returns the ID that this sender would send to
+    pub fn client_id(&self) -> ClientId {
+        self.client_id
+    }
+
     /// Sends a response to the client
     ///
     /// This method can only be called once and thus it ensures that every request is only
