@@ -69,6 +69,7 @@ impl App {
     }
 
     /// Returns an iterator over all of the turtles
+    #[cfg_attr(feature = "test", allow(dead_code))] // Used in renderer, but not for tests
     pub fn turtles(&self) -> impl Iterator<Item=(TurtleId, &TurtleDrawings)> {
         (0..).zip(self.turtles.iter()).map(|(id, turtle)| (TurtleId(id), turtle))
     }
