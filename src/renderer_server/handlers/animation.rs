@@ -6,7 +6,7 @@ use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
     state::TurtleState,
-    app::{TurtleId, App, Animation, MoveAnimation, RotateAnimation},
+    app::{TurtleId, App, Animation, MoveAnimation, RotateAnimation, AnimationRunner},
     renderer::display_list::DisplayList,
 };
 
@@ -15,6 +15,7 @@ pub(crate) fn move_forward(
     app: &mut App,
     display_list: &mut DisplayList,
     event_loop: &EventLoopNotifier,
+    anim_runner: &AnimationRunner,
     id: TurtleId,
     distance: Distance,
 ) -> Result<(), HandlerError> {
@@ -36,6 +37,7 @@ pub(crate) fn move_forward(
     if anim.is_running() {
         // Save the animation so it can run to completion
         turtle.animation = Some(Animation::Move(anim, conn.client_id()));
+        anim_runner.notify_animation_added();
 
     } else {
         // Instant animations complete right away and don't need to be queued
@@ -53,6 +55,7 @@ pub(crate) fn move_to(
     app: &mut App,
     display_list: &mut DisplayList,
     event_loop: &EventLoopNotifier,
+    anim_runner: &AnimationRunner,
     id: TurtleId,
     target_pos: Point,
 ) -> Result<(), HandlerError> {
@@ -65,6 +68,7 @@ pub(crate) fn move_to(
     if anim.is_running() {
         // Save the animation so it can run to completion
         turtle.animation = Some(Animation::Move(anim, conn.client_id()));
+        anim_runner.notify_animation_added();
 
     } else {
         // Instant animations complete right away and don't need to be queued
@@ -81,6 +85,7 @@ pub(crate) fn rotate_in_place(
     conn: ServerOneshotSender,
     app: &mut App,
     event_loop: &EventLoopNotifier,
+    anim_runner: &AnimationRunner,
     id: TurtleId,
     angle: Radians,
     direction: RotationDirection,
@@ -94,6 +99,7 @@ pub(crate) fn rotate_in_place(
     if anim.is_running() {
         // Save the animation so it can run to completion
         turtle.animation = Some(Animation::Rotate(anim, conn.client_id()));
+        anim_runner.notify_animation_added();
 
     } else {
         // Instant animations complete right away and don't need to be queued

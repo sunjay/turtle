@@ -293,7 +293,7 @@ fn redraw(
 ) {
     let draw_size = gl_context.window().inner_size();
     let drawing = app.drawing();
-    let turtle_states = app.turtles().map(|turtle| &turtle.state);
+    let turtle_states = app.turtles().map(|(_, turtle)| &turtle.state);
 
     renderer.render(draw_size, display_list, drawing, turtle_states);
     gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
