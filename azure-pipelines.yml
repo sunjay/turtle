@@ -1,5 +1,10 @@
 # https://aka.ms/yaml
 
+# Various configuration values defined early and available below.
+parameters:
+  tarpaulin_version: '0.13.3'
+  codecov_token: ''
+
 strategy:
   matrix:
     windows-stable:
@@ -76,6 +81,14 @@ steps:
 - script: |
     cargo test --verbose --all --features "test unstable"
   displayName: test
+
+- script: |
+    cargo install install --verbose cargo-tarpaulin --version ${{ parameters.tarpaulin_version }}
+    cargo tarpaulin --verbose --all --features "test unstable" --out Xml
+    bash <(curl -s https://codecov.io/bash)
+  displayName: cov
+  env:
+    CODECOV_TOKEN: ${{ parameters.codecov_token }}
 
 - script: |
     cargo doc --no-deps --verbose --all

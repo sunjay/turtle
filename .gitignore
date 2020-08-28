@@ -7,6 +7,9 @@ flame.svg
 *test*.data
 *test*.png
 
+# Tarpaulin test coverage XML output
+cobertura.xml
+
 # Created by https://www.gitignore.io/api/rust
 
 ### Rust ###
