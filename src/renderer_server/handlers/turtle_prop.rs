@@ -23,9 +23,7 @@ pub(crate) fn turtle_prop(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, animation, ..} = turtle;
-    debug_assert!(animation.is_none(),
-        "bug: cannot get turtle properties while animation is playing");
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     use TurtleProp::*;
     use PenProp::*;
@@ -57,9 +55,7 @@ pub(crate) fn set_turtle_prop(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, animation, ..} = turtle;
-    debug_assert!(animation.is_none(),
-        "bug: cannot update turtle state while animation is playing");
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     use TurtlePropValue::*;
     use PenPropValue::*;
@@ -108,9 +104,7 @@ pub(crate) fn reset_turtle_prop(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, animation, ..} = turtle;
-    debug_assert!(animation.is_none(),
-        "bug: cannot update turtle state while animation is playing");
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     let mut drawing_changed = false;
 
@@ -176,9 +170,7 @@ pub(crate) fn reset_turtle(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, animation, ..} = turtle;
-    debug_assert!(animation.is_none(),
-        "bug: cannot update turtle state while animation is playing");
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     *turtle = TurtleState::default();
 

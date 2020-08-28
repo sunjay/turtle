@@ -3,6 +3,7 @@ mod app;
 mod coords;
 mod renderer;
 mod backend;
+mod animation;
 mod handlers;
 mod start;
 
@@ -29,9 +30,10 @@ use parking_lot::{RwLock, Mutex};
 use crate::ipc_protocol::{ServerSender, ServerOneshotSender, ServerReceiver, ClientRequest};
 use crate::Event;
 
-use app::{SharedApp, App, AnimationRunner};
+use app::{SharedApp, App};
 use renderer::display_list::{SharedDisplayList, DisplayList};
 use event_loop_notifier::EventLoopNotifier;
+use animation::AnimationRunner;
 
 /// Serves requests from the client forever
 async fn serve(
@@ -158,16 +160,16 @@ fn dispatch_request(
     }
 }
 
-fn handle_handler_result<T>(res: Result<T, handlers::HandlerError>) -> Option<T> {
+fn handle_handler_result(res: Result<(), handlers::HandlerError>) {
     use handlers::HandlerError::*;
     match res {
-        Ok(value) => Some(value),
+        Ok(_) => {},
         Err(IpcChannelError(err)) => panic!("Error while serializing response: {}", err),
         // Task managing window has ended, this task will end soon too.
         //TODO: This potentially leaves the turtle/drawing state in an inconsistent state. Should
         // we deal with that somehow? Panicking doesn't seem appropriate since this probably isn't
         // an error, but we should definitely stop processing commands and make sure the process
         // ends shortly after.
-        Err(EventLoopClosed(_)) => None,
+        Err(EventLoopClosed(_)) => {},
     }
 }

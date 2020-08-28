@@ -19,9 +19,7 @@ pub(crate) fn debug_turtle(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle(id);
 
-    let TurtleDrawings {state: turtle, animation, ..} = turtle;
-    debug_assert!(animation.is_none(),
-        "bug: cannot get turtle properties while animation is playing");
+    let TurtleDrawings {state: turtle, ..} = turtle;
 
     let debug_state = turtle.to_debug(angle_unit);
 
