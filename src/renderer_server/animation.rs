@@ -385,10 +385,20 @@ fn rotate(angle: Radians, rotation: Radians, direction: RotationDirection) -> Ra
     angle - radians::TWO_PI * (angle / radians::TWO_PI).floor()
 }
 
+#[derive(Debug)]
+enum Message {
+    /// Run the given animation
+    Play(Animation),
+    /// Stop all animations that are currently playing
+    ///
+    /// Animations stop at wherever they were last updated.
+    StopAll,
+}
+
 /// Spawns a task to manage running animations and drive them to completion
 #[derive(Debug)]
 pub struct AnimationRunner {
-    sender: mpsc::UnboundedSender<Animation>,
+    sender: mpsc::UnboundedSender<Message>,
 }
 
 impl AnimationRunner {
@@ -412,8 +422,16 @@ impl AnimationRunner {
     }
 
     pub fn play(&self, turtle_id: TurtleId, kind: impl Into<AnimationKind>, client_id: ClientId) {
-        self.sender.send(Animation::new(turtle_id, kind, client_id))
-            .expect("bug: animation runner task should run as long as server task")
+        self.send(Message::Play(Animation::new(turtle_id, kind, client_id)));
+    }
+
+    pub fn stop_all(&self) {
+        self.send(Message::StopAll);
+    }
+
+    fn send(&self, mess: Message) {
+        self.sender.send(mess)
+            .expect("bug: animation runner task should run as long as server task");
     }
 }
 
@@ -423,7 +441,7 @@ async fn animation_loop(
     app: SharedApp,
     display_list: SharedDisplayList,
     event_loop: EventLoopNotifier,
-    mut incoming_animations: mpsc::UnboundedReceiver<Animation>,
+    mut receiver: mpsc::UnboundedReceiver<Message>,
 ) {
     // Map of turtle ID to the current animation playing for it (if any)
     let mut animations: HashMap<TurtleId, Animation> = HashMap::new();
@@ -438,20 +456,30 @@ async fn animation_loop(
 
     loop {
         tokio::select! {
-            anim = incoming_animations.recv() => {
-                let anim = match anim {
-                    Some(anim) => anim,
-                    // Sender has been dropped, so renderer server has ended
-                    None => break,
-                };
+            mess = receiver.recv() => match mess {
+                Some(Message::Play(anim)) => {
+                    // Insert the new animation so we can account for it when selecting the next
+                    // update time. Keeping the previous next frame value since we don't want to
+                    // bump to another future frame just because we got another animation.
+                    debug_assert!(!animations.contains_key(&anim.turtle_id),
+                        "bug: cannot animate turtle while another animation is playing");
+                    animations.insert(anim.turtle_id, anim);
+                },
 
-                // Insert the new animation so we can account for it when selecting the next update
-                // time. Keeping the previous next frame value since we don't want to bump to
-                // another future frame just because we got another animation.
-                debug_assert!(!animations.contains_key(&anim.turtle_id),
-                    "bug: cannot animate turtle while another animation is playing");
-                animations.insert(anim.turtle_id, anim);
+                Some(Message::StopAll) => {
+                    // Complete all pending animations at their last update
+                    for anim in animations.values() {
+                        handle_handler_result(conn.send(
+                            anim.client_id,
+                            ServerResponse::AnimationComplete(anim.turtle_id),
+                        ).map_err(HandlerError::IpcChannelError));
+                    }
 
+                    animations.clear();
+                },
+
+                // Sender has been dropped, so renderer server has stopped running
+                None => break,
             },
 
             // Trigger an update once the next update time has elapsed
