@@ -18,7 +18,7 @@ pub(crate) fn export_drawings(
     let drawing = app.drawing();
 
     #[cfg(debug_assertions)]
-    for turtle in app.turtles() {
+    for (_, turtle) in app.turtles() {
         debug_assert!(turtle.animation.is_none(),
             "bug: cannot export while a turtle animation is playing");
     }

@@ -29,7 +29,7 @@ use parking_lot::{RwLock, Mutex};
 use crate::ipc_protocol::{ServerSender, ServerOneshotSender, ServerReceiver, ClientRequest};
 use crate::Event;
 
-use app::{SharedApp, App};
+use app::{SharedApp, App, AnimationRunner};
 use renderer::display_list::{SharedDisplayList, DisplayList};
 use event_loop_notifier::EventLoopNotifier;
 
@@ -43,6 +43,13 @@ async fn serve(
     mut events_receiver: mpsc::UnboundedReceiver<Event>,
     mut server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
+    let anim_runner = AnimationRunner::new(
+        conn.clone(),
+        app.clone(),
+        display_list.clone(),
+        event_loop.clone(),
+    );
+
     loop {
         // This will either receive the next request or end this task
         let (client_id, request) = tokio::select! {
@@ -65,6 +72,7 @@ async fn serve(
             &display_list,
             &event_loop,
             &mut events_receiver,
+            &anim_runner,
             request,
         ));
 
@@ -77,6 +85,7 @@ fn dispatch_request(
     display_list: &Mutex<DisplayList>,
     event_loop: &EventLoopNotifier,
     events_receiver: &mut mpsc::UnboundedReceiver<Event>,
+    anim_runner: &AnimationRunner,
     request: ClientRequest,
 ) -> Result<(), handlers::HandlerError> {
     use ClientRequest::*;
@@ -117,13 +126,13 @@ fn dispatch_request(
         },
 
         MoveForward(id, distance) => {
-            handlers::move_forward(conn, &mut app.write(), &mut display_list.lock(), event_loop, id, distance)
+            handlers::move_forward(conn, &mut app.write(), &mut display_list.lock(), event_loop, anim_runner, id, distance)
         },
         MoveTo(id, target_pos) => {
-            handlers::move_to(conn, &mut app.write(), &mut display_list.lock(), event_loop, id, target_pos)
+            handlers::move_to(conn, &mut app.write(), &mut display_list.lock(), event_loop, anim_runner, id, target_pos)
         },
         RotateInPlace(id, angle, direction) => {
-            handlers::rotate_in_place(conn, &mut app.write(), event_loop, id, angle, direction)
+            handlers::rotate_in_place(conn, &mut app.write(), event_loop, anim_runner, id, angle, direction)
         },
 
         BeginFill(id) => {
@@ -149,16 +158,16 @@ fn dispatch_request(
     }
 }
 
-fn handle_handler_result(res: Result<(), handlers::HandlerError>) {
+fn handle_handler_result<T>(res: Result<T, handlers::HandlerError>) -> Option<T> {
     use handlers::HandlerError::*;
     match res {
-        Ok(()) => {},
+        Ok(value) => Some(value),
         Err(IpcChannelError(err)) => panic!("Error while serializing response: {}", err),
         // Task managing window has ended, this task will end soon too.
         //TODO: This potentially leaves the turtle/drawing state in an inconsistent state. Should
         // we deal with that somehow? Panicking doesn't seem appropriate since this probably isn't
         // an error, but we should definitely stop processing commands and make sure the process
         // ends shortly after.
-        Err(EventLoopClosed(_)) => {},
+        Err(EventLoopClosed(_)) => None,
     }
 }

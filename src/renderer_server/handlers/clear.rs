@@ -12,7 +12,7 @@ pub(crate) fn clear_all(
 ) -> Result<(), HandlerError> {
     display_list.clear();
 
-    for turtle in app.turtles_mut() {
+    for (_, turtle) in app.turtles_mut() {
         let TurtleDrawings {state: _, drawings, current_fill_polygon, animation} = turtle;
         debug_assert!(animation.is_none(),
             "bug: cannot clear turtle while animation is playing");

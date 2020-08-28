@@ -76,13 +76,13 @@ impl App {
     }
 
     /// Returns an iterator over all of the turtles
-    pub fn turtles(&self) -> impl Iterator<Item=&TurtleDrawings> {
-        self.turtles.iter()
+    pub fn turtles(&self) -> impl Iterator<Item=(TurtleId, &TurtleDrawings)> {
+        (0..).zip(self.turtles.iter()).map(|(id, turtle)| (TurtleId(id), turtle))
     }
 
     /// Returns an iterator over all of the turtles
-    pub fn turtles_mut(&mut self) -> impl Iterator<Item=&mut TurtleDrawings> {
-        self.turtles.iter_mut()
+    pub fn turtles_mut(&mut self) -> impl Iterator<Item=(TurtleId, &mut TurtleDrawings)> {
+        (0..).zip(self.turtles.iter_mut()).map(|(id, turtle)| (TurtleId(id), turtle))
     }
 }
 
