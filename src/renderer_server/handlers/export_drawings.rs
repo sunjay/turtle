@@ -17,12 +17,6 @@ pub(crate) fn export_drawings(
 ) -> Result<(), HandlerError> {
     let drawing = app.drawing();
 
-    #[cfg(debug_assertions)]
-    for (_, turtle) in app.turtles() {
-        debug_assert!(turtle.animation.is_none(),
-            "bug: cannot export while a turtle animation is playing");
-    }
-
     use ExportFormat::*;
     let res = match format {
         Svg => export::save_svg(display_list, drawing, path),

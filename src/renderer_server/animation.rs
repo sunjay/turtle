@@ -1,24 +1,23 @@
-use std::sync::Arc;
 use std::cmp::min;
 use std::collections::HashMap;
 
-use tokio::{sync::Notify, time};
+use tokio::{sync::mpsc, time};
 use interpolation::lerp;
+use parking_lot::{RwLock, Mutex};
 
 use crate::renderer_client::ClientId;
 use crate::ipc_protocol::{ServerSender, RotationDirection, ServerResponse};
 use crate::radians::{self, Radians};
 use crate::Point;
 
-use super::super::{
+use super::{
     handle_handler_result,
+    app::{SharedApp, App, TurtleDrawings, TurtleId},
     state::TurtleState,
     renderer::display_list::{DisplayList, SharedDisplayList, PrimHandle},
     event_loop_notifier::EventLoopNotifier,
     handlers::HandlerError,
 };
-
-use super::{SharedApp, App, TurtleDrawings, TurtleId};
 
 /// Frames per second - The number of times the animation will update per second
 const FPS: u64 = 60;
@@ -29,35 +28,53 @@ const MICROS_PER_SEC: u64 = 1_000_000;
 /// The maximum length of an animation frame
 const FRAME_DURATION: time::Duration = time::Duration::from_micros(MICROS_PER_SEC / FPS);
 
-/// Each animation and client that will be notified when that animation is completed
 #[derive(Debug)]
-pub enum Animation {
-    Move(MoveAnimation, ClientId),
-    Rotate(RotateAnimation, ClientId),
+pub enum AnimationKind {
+    Move(MoveAnimation),
+    Rotate(RotateAnimation),
+}
+
+impl From<MoveAnimation> for AnimationKind {
+    fn from(anim: MoveAnimation) -> Self {
+        AnimationKind::Move(anim)
+    }
+}
+
+impl From<RotateAnimation> for AnimationKind {
+    fn from(anim: RotateAnimation) -> Self {
+        AnimationKind::Rotate(anim)
+    }
+}
+
+#[derive(Debug)]
+struct Animation {
+    /// The ID of the turtle associated with this animation
+    turtle_id: TurtleId,
+    /// The animation that will be played
+    kind: AnimationKind,
+    /// The client that will be notified when that animation is completed
+    client_id: ClientId,
 }
 
 impl Animation {
+    pub fn new(turtle_id: TurtleId, kind: impl Into<AnimationKind>, client_id: ClientId) -> Self {
+        let kind = kind.into();
+        Self {turtle_id, kind, client_id}
+    }
+
     pub fn is_running(&self) -> bool {
-        use Animation::*;
-        match self {
-            Move(anim, _) => anim.is_running(),
-            Rotate(anim, _) => anim.is_running(),
+        use AnimationKind::*;
+        match &self.kind {
+            Move(anim) => anim.is_running(),
+            Rotate(anim) => anim.is_running(),
         }
     }
 
     pub fn next_update(&self) -> time::Instant {
-        use Animation::*;
-        match self {
-            Move(anim, _) => anim.next_update(),
-            Rotate(anim, _) => anim.next_update(),
-        }
-    }
-
-    pub fn client_id(&self) -> ClientId {
-        use Animation::*;
-        match self {
-            &Move(_, id) |
-            &Rotate(_, id) => id,
+        use AnimationKind::*;
+        match &self.kind {
+            Move(anim) => anim.next_update(),
+            Rotate(anim) => anim.next_update(),
         }
     }
 }
@@ -78,6 +95,8 @@ pub struct MoveAnimation {
     start_pos: Point,
     /// The target position to move to (i.e. the final value of the animation)
     target_pos: Point,
+    /// The current position of the turtle (updated by step)
+    current_pos: Point,
     /// The total duration of the animation
     total_duration: time::Duration,
     /// A handle to the line that is manipulated by this animation (if any)
@@ -114,6 +133,7 @@ impl MoveAnimation {
                 start,
                 start_pos: position,
                 target_pos,
+                current_pos: position,
                 total_duration: time::Duration::from_micros(0),
                 prim,
                 fill_poly_index,
@@ -148,6 +168,7 @@ impl MoveAnimation {
                 start,
                 start_pos: position,
                 target_pos,
+                current_pos: position,
                 total_duration,
                 prim,
                 fill_poly_index,
@@ -164,26 +185,21 @@ impl MoveAnimation {
     }
 
     /// Advances the animation based on the amount of time that has elapsed since it started
-    pub fn step(
-        &mut self,
-        now: time::Instant,
-        state: &mut TurtleState,
-        current_fill_polygon: Option<PrimHandle>,
-        display_list: &mut DisplayList,
-    ) {
+    pub fn step(&mut self, now: time::Instant) {
         let &mut Self {
             ref mut running,
             ref mut next_update,
             ref start,
             start_pos,
             target_pos,
+            ref mut current_pos,
             total_duration,
-            prim,
-            fill_poly_index,
+            prim: _,
+            fill_poly_index: _,
         } = self;
 
         let elapsed = start.elapsed();
-        let pos = if elapsed >= total_duration {
+        *current_pos = if elapsed >= total_duration {
             *running = false;
             *next_update = now;
 
@@ -200,19 +216,28 @@ impl MoveAnimation {
 
             current_pos
         };
+    }
+
+    pub fn write_current_state(
+        &self,
+        state: &mut TurtleState,
+        current_fill_polygon: Option<PrimHandle>,
+        display_list: &mut DisplayList,
+    ) {
+        let pos = self.current_pos;
 
         // Update state with the current position
         state.position = pos;
 
         // Update the end of the line we have been drawing, if any
-        if let Some(prim) = prim {
+        if let Some(prim) = self.prim {
             display_list.line_update_end(prim, pos);
         }
 
         // Replace the point in the current fill polygon, if any
         if let Some(poly_handle) = current_fill_polygon {
             // This unwrap is safe because `current_fill_polygon` is `Some`
-            display_list.polygon_update(poly_handle, fill_poly_index.unwrap(), pos);
+            display_list.polygon_update(poly_handle, self.fill_poly_index.unwrap(), pos);
         }
     }
 }
@@ -231,6 +256,8 @@ pub struct RotateAnimation {
     start: time::Instant,
     /// The start angle of the turtle
     start_heading: Radians,
+    /// The current angle of the turtle (updated by step)
+    current_heading: Radians,
     /// The angle in radians that the turtle is to have rotated by the end of the animation
     delta_angle: Radians,
     /// The direction of rotation
@@ -259,6 +286,7 @@ impl RotateAnimation {
                 next_update: start,
                 start,
                 start_heading: heading,
+                current_heading: heading,
                 delta_angle,
                 direction,
                 total_duration: time::Duration::from_micros(0),
@@ -283,6 +311,7 @@ impl RotateAnimation {
                 next_update,
                 start,
                 start_heading: heading,
+                current_heading: heading,
                 delta_angle,
                 direction,
                 total_duration,
@@ -299,19 +328,20 @@ impl RotateAnimation {
     }
 
     /// Advances the animation based on the amount of time that has elapsed since it started
-    pub fn step(&mut self, now: time::Instant, state: &mut TurtleState) {
+    pub fn step(&mut self, now: time::Instant) {
         let &mut Self {
             ref mut running,
             ref mut next_update,
             ref start,
             start_heading,
+            ref mut current_heading,
             delta_angle,
             direction,
             total_duration,
         } = self;
 
         let elapsed = start.elapsed();
-        let heading = if elapsed >= total_duration {
+        *current_heading = if elapsed >= total_duration {
             *running = false;
             *next_update = now;
 
@@ -329,9 +359,11 @@ impl RotateAnimation {
 
             rotate(start_heading, current_delta, direction)
         };
+    }
 
-        state.heading = heading;
-        debug_assert!(!heading.is_nan(), "bug: heading became NaN");
+    pub fn write_current_state(&self, state: &mut TurtleState) {
+        state.heading = self.current_heading;
+        debug_assert!(!self.current_heading.is_nan(), "bug: heading became NaN");
     }
 }
 
@@ -356,9 +388,7 @@ fn rotate(angle: Radians, rotation: Radians, direction: RotationDirection) -> Ra
 /// Spawns a task to manage running animations and drive them to completion
 #[derive(Debug)]
 pub struct AnimationRunner {
-    /// Notifies the animation loop that a new animation has been added so it needs to update its
-    /// timing info
-    new_animation_notifier: Arc<Notify>,
+    sender: mpsc::UnboundedSender<Animation>,
 }
 
 impl AnimationRunner {
@@ -368,26 +398,22 @@ impl AnimationRunner {
         display_list: SharedDisplayList,
         event_loop: EventLoopNotifier,
     ) -> Self {
-        let new_animation_notifier = Arc::new(Notify::new());
+        let (sender, receiver) = mpsc::unbounded_channel();
 
         tokio::spawn(animation_loop(
             conn,
             app,
             display_list,
             event_loop,
-            new_animation_notifier.clone(),
+            receiver,
         ));
 
-        Self {new_animation_notifier}
+        Self {sender}
     }
 
-    /// Notify the animation runner that a new animation has been added
-    ///
-    /// If this is not called when the animation field is set, it may result in animations not
-    /// completing on time. Specifically, this can occur when the animation starts with less than a
-    /// frame duration remaining.
-    pub fn notify_animation_added(&self) {
-        self.new_animation_notifier.notify();
+    pub fn play(&self, turtle_id: TurtleId, kind: impl Into<AnimationKind>, client_id: ClientId) {
+        self.sender.send(Animation::new(turtle_id, kind, client_id))
+            .expect("bug: animation runner task should run as long as server task")
     }
 }
 
@@ -397,110 +423,145 @@ async fn animation_loop(
     app: SharedApp,
     display_list: SharedDisplayList,
     event_loop: EventLoopNotifier,
-    new_animation_notifier: Arc<Notify>,
+    mut incoming_animations: mpsc::UnboundedReceiver<Animation>,
 ) {
-    // Map of turtle ID to the next instant at which the turtle's current animation needs to updated
-    let mut anim_next_update = HashMap::new();
+    // Map of turtle ID to the current animation playing for it (if any)
+    let mut animations: HashMap<TurtleId, Animation> = HashMap::new();
 
-    loop {
-        let next_update = handle_handler_result(update_animations(
-            &conn,
-            &mut app.write(),
-            &mut display_list.lock(),
-            &event_loop,
-            &mut anim_next_update,
-        ));
-
-        let next_update = match next_update {
-            Some(next_update) => next_update,
-            None => break,
-        };
-
-        tokio::select! {
-            _ = time::delay_until(next_update) => {},
-
-            // If a new animation is added, we need to update the current animations and potentially
-            // compute a new next delay
-            _ = new_animation_notifier.notified() => {},
-        }
-    }
-}
-
-/// Updates all the animations, returning the minimum instant of time to wait until before updating
-/// again
-///
-/// Only the animations whose instant in `anim_next_update` has elapsed will be updated. If an
-/// animation is not currently stored there, it will be added.
-fn update_animations(
-    conn: &ServerSender,
-    app: &mut App,
-    display_list: &mut DisplayList,
-    event_loop: &EventLoopNotifier,
-    anim_next_update: &mut HashMap<TurtleId, time::Instant>,
-) -> Result<time::Instant, HandlerError> {
-    // true if even one animation was updated
-    let mut animation_updated = false;
-
+    let mut next_frame = time::Instant::now() + FRAME_DURATION;
     // It's important to update as soon as an animation is ready to be updated because otherwise we
     // may delay the sending of the AnimationComplete message. Without that, if a turtle is drawing
     // many small lines that take less than a frame duration, it may have to wait too long in
     // between lines. That would make Speed stop mattering under a certain line length and would
     // impose an undesirable minimum amount of time on each animation.
-    let now = time::Instant::now();
-    let mut min_next_update = now + FRAME_DURATION;
+    let mut next_update = compute_next_update(next_frame, &animations);
 
-    for (id, turtle) in app.turtles_mut() {
-        let TurtleDrawings {state, drawings: _, current_fill_polygon, animation} = turtle;
+    loop {
+        tokio::select! {
+            anim = incoming_animations.recv() => {
+                let anim = match anim {
+                    Some(anim) => anim,
+                    // Sender has been dropped, so renderer server has ended
+                    None => break,
+                };
 
-        if let Some(anim) = animation {
-            // Don't update more than necessary
-            match anim_next_update.get(&id) {
-                Some(&next_update) => {
-                    if now < next_update {
-                        continue;
-                    }
-                },
+                // Insert the new animation so we can account for it when selecting the next update
+                // time. Keeping the previous next frame value since we don't want to bump to
+                // another future frame just because we got another animation.
+                debug_assert!(!animations.contains_key(&anim.turtle_id),
+                    "bug: cannot animate turtle while another animation is playing");
+                animations.insert(anim.turtle_id, anim);
 
-                None => {
-                    // Insert the next update time
-                    let next_update = anim.next_update();
-                    anim_next_update.insert(id, next_update);
-                    if now < next_update {
-                        continue;
-                    }
+            },
+
+            // Trigger an update once the next update time has elapsed
+            _ = time::delay_until(next_update) => {
+                let now = time::Instant::now();
+
+                handle_handler_result(update_animations(
+                    now,
+                    &conn,
+                    &app,
+                    &display_list,
+                    &event_loop,
+                    &mut animations,
+                ));
+
+                // Only advance if the frame has elapsed
+                //
+                // This loop should only ever execute once, but we're still using a loop here to
+                // guarantee that we never fall behind
+                while now >= next_frame {
+                    // Advance the next frame based on its previous value, not based on `now` since
+                    // that may be any arbitrary time.
+                    next_frame += FRAME_DURATION;
                 }
-            }
-
-            use Animation::*;
-            match anim {
-                Move(anim, _) => anim.step(now, state, *current_fill_polygon, display_list),
-                Rotate(anim, _) => anim.step(now, state),
-            }
-
-            // Check if the animation was completed
-            if anim.is_running() {
-                // Wait for the amount of time remaining in this animation, up to the length of an
-                // animation frame
-                let next_update = anim.next_update();
-                min_next_update = min(min_next_update, next_update);
-
-                anim_next_update.insert(id, next_update);
-
-            } else {
-                conn.send(anim.client_id(), ServerResponse::AnimationComplete(id))?;
-
-                *animation = None;
-
-                anim_next_update.remove(&id);
-            }
-
-            animation_updated = true;
+            },
         }
+
+        // Set the time at which we should schedule the next update
+        next_update = compute_next_update(next_frame, &animations);
+    }
+}
+
+/// Compute the time of the next update, returning a value up to the time of the next frame
+fn compute_next_update(
+    next_frame: time::Instant,
+    animations: &HashMap<TurtleId, Animation>,
+) -> time::Instant {
+    let next_update = animations.values()
+        .map(|anim| anim.next_update())
+        .min()
+        .unwrap_or(next_frame);
+
+    min(next_update, next_frame)
+}
+
+/// Updates all animations that are ready to be updated again based on the last time they were
+/// updated
+fn update_animations(
+    now: time::Instant,
+    conn: &ServerSender,
+    app: &RwLock<App>,
+    display_list: &Mutex<DisplayList>,
+    event_loop: &EventLoopNotifier,
+    animations: &mut HashMap<TurtleId, Animation>,
+) -> Result<(), HandlerError> {
+    // true if even one animation was updated
+    let mut animation_updated = false;
+
+    let mut completed_animations = Vec::new();
+    for anim in animations.values_mut() {
+        // Only update animations when they are ready to be updated
+        if now < anim.next_update() {
+            continue;
+        }
+
+        use AnimationKind::*;
+        match &mut anim.kind {
+            Move(anim) => anim.step(now),
+            Rotate(anim) => anim.step(now),
+        }
+
+        // Check if the animation has completed
+        if !anim.is_running() {
+            conn.send(anim.client_id, ServerResponse::AnimationComplete(anim.turtle_id))?;
+
+            completed_animations.push(anim.turtle_id);
+        }
+
+        animation_updated = true;
     }
 
     if animation_updated {
+        // Update turtles after animations have been updated to keep the critical section as small
+        // as possible
+        let mut app = app.write();
+        let mut display_list = display_list.lock();
+        for anim in animations.values_mut() {
+            let TurtleDrawings {state, current_fill_polygon, ..} = app.turtle_mut(anim.turtle_id);
+
+            use AnimationKind::*;
+            match &anim.kind {
+                Move(anim) => {
+                    anim.write_current_state(state, *current_fill_polygon, &mut display_list);
+                },
+
+                Rotate(anim) => {
+                    anim.write_current_state(state);
+                },
+            }
+        }
+
+        // Only request a redraw if an update occurred
         event_loop.request_redraw()?;
     }
 
-    Ok(min_next_update)
+    // Wait to remove the completed animations so we have a chance to update the turtles with the
+    // final state of each animation
+    for id in completed_animations {
+        animations.remove(&id);
+    }
+
+    Ok(())
 }

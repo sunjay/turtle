@@ -6,7 +6,8 @@ use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
     state::TurtleState,
-    app::{TurtleId, App, Animation, MoveAnimation, RotateAnimation, AnimationRunner},
+    app::{TurtleId, App},
+    animation::{MoveAnimation, RotateAnimation, AnimationRunner},
     renderer::display_list::DisplayList,
 };
 
@@ -20,8 +21,6 @@ pub(crate) fn move_forward(
     distance: Distance,
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
-    debug_assert!(turtle.animation.is_none(),
-        "bug: cannot animate turtle while another animation is playing");
 
     let TurtleState {position, heading, ..} = turtle.state;
 
@@ -35,9 +34,7 @@ pub(crate) fn move_forward(
     let anim = MoveAnimation::new(turtle, display_list, target_pos);
 
     if anim.is_running() {
-        // Save the animation so it can run to completion
-        turtle.animation = Some(Animation::Move(anim, conn.client_id()));
-        anim_runner.notify_animation_added();
+        anim_runner.play(id, anim, conn.client_id());
 
     } else {
         // Instant animations complete right away and don't need to be queued
@@ -60,15 +57,11 @@ pub(crate) fn move_to(
     target_pos: Point,
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
-    debug_assert!(turtle.animation.is_none(),
-        "bug: cannot animate turtle while another animation is playing");
 
     let anim = MoveAnimation::new(turtle, display_list, target_pos);
 
     if anim.is_running() {
-        // Save the animation so it can run to completion
-        turtle.animation = Some(Animation::Move(anim, conn.client_id()));
-        anim_runner.notify_animation_added();
+        anim_runner.play(id, anim, conn.client_id());
 
     } else {
         // Instant animations complete right away and don't need to be queued
@@ -91,15 +84,11 @@ pub(crate) fn rotate_in_place(
     direction: RotationDirection,
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
-    debug_assert!(turtle.animation.is_none(),
-        "bug: cannot animate turtle while another animation is playing");
 
     let anim = RotateAnimation::new(turtle, angle, direction);
 
     if anim.is_running() {
-        // Save the animation so it can run to completion
-        turtle.animation = Some(Animation::Rotate(anim, conn.client_id()));
-        anim_runner.notify_animation_added();
+        anim_runner.play(id, anim, conn.client_id());
 
     } else {
         // Instant animations complete right away and don't need to be queued

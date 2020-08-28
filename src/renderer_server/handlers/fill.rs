@@ -13,9 +13,7 @@ pub(crate) fn begin_fill(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, drawings, current_fill_polygon, animation} = turtle;
-    debug_assert!(animation.is_none(),
-        "bug: cannot update turtle fill while animation is playing");
+    let TurtleDrawings {state: turtle, drawings, current_fill_polygon} = turtle;
 
     // Ignore the request if we are already filling
     if current_fill_polygon.is_some() {
@@ -37,9 +35,7 @@ pub(crate) fn end_fill(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {current_fill_polygon, animation, ..} = turtle;
-    debug_assert!(animation.is_none(),
-        "bug: cannot update turtle fill while animation is playing");
+    let TurtleDrawings {current_fill_polygon, ..} = turtle;
 
     // No need to add the turtle's current position to the polygon since it should already be there
 

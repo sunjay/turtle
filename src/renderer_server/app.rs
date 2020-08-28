@@ -1,7 +1,3 @@
-mod animation;
-
-pub use animation::*;
-
 use std::sync::Arc;
 
 use serde::{Serialize, Deserialize};
@@ -28,9 +24,6 @@ pub struct TurtleDrawings {
     /// This handle will already be present in `drawings`, so it does not need to be added after
     /// the fill has begun.
     pub current_fill_polygon: Option<PrimHandle>,
-
-    /// The drawing currently being animated for this turtle (if any)
-    pub animation: Option<Animation>,
 }
 
 /// The entire state of the application, shared between threads in the server
