@@ -1,24 +1,18 @@
-//! This example uses multiple turtles to demonstrate the sequential consistency guarantees of this
-//! crate.
+//! This example uses multiple turtles to demonstrate what happens when you clear the drawing while
+//! other turtles are in the middle of drawing.
 //!
-//! Turtle 1: Draws a single long line across the top of the window
+//! Thread 1: Draws a single long line across the top of the window
 //!
-//! Turtle 2: Draws many short lines across the top of the window
+//! Thread 2: Draws many short lines across the top of the window
 //!
-//! Turtle 3: Draws a short line, then clears the image (including the lines from Turtle 1 and 2),
-//!   then continues drawing
+//! Thread 3 (main thread): Draws a short line, then clears the entire drawing, then continues
+//! drawing
 //!
-//! If Turtle 1 has already started drawing before Turtle 3 clears the image, Turtle 3 will have to
-//! wait for Turtle 1 to finish drawing its line before it can clear the image and keep drawing.
-//! This is because Turtle 1 has exclusive access to its turtle while it is drawing. The clear
-//! command cannot execute until that line has finished drawing and it is given access.
-//!
-//! Turtle 2 also stops drawing when the drawing is cleared, but for different reasons than
-//! Turtle 3. Turtle 2 can technically still continue because it isn't blocked on a clear command.
-//! The issue is that when clear is run, it reserves all turtles, including Turtle 2. Turtle 2 has
-//! to wait for the clear command to run before it can draw its next line. This is how we ensure
-//! that commands run in the order they are executed (sequential consistency). No command gets
-//! precedence just because the resources it needs are available.
+//! When Thread 3 clears the entire drawing, the line from Thread 1 is deleted and the turtle is
+//! stopped immediately at its current position. Thread 2 is also stopped, but continues drawing its
+//! remaining lines from wherever it was stopped. Note that the lines in Thread 2 will not finish at
+//! their intended position. This is because the code is not able to account for the fact that
+//! Thread 2 may be interrupted while it is drawing a line.
 
 // To run this example, use the command: cargo run --features unstable --example concurrencytest
 #[cfg(all(not(feature = "unstable")))]
@@ -76,10 +70,10 @@ fn main() {
     turtle3.set_pen_color("blue");
     turtle3.set_pen_size(5.0);
 
-    turtle3.forward(100.0);
+    turtle3.forward(200.0);
     drawing.clear();
     turtle3.set_pen_color("red");
-    turtle3.forward(100.0);
+    turtle3.forward(200.0);
 
     //TODO: Currently, if the main thread ends before the other threads, the window just closes
     thread::park();

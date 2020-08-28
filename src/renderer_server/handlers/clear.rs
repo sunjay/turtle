@@ -2,6 +2,7 @@ use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
     app::{App, TurtleId, TurtleDrawings},
+    animation::AnimationRunner,
     renderer::display_list::DisplayList,
 };
 
@@ -9,6 +10,7 @@ pub(crate) fn clear_all(
     app: &mut App,
     display_list: &mut DisplayList,
     event_loop: &EventLoopNotifier,
+    anim_runner: &AnimationRunner,
 ) -> Result<(), HandlerError> {
     display_list.clear();
 
@@ -18,6 +20,9 @@ pub(crate) fn clear_all(
         drawings.clear();
         *current_fill_polygon = None;
     }
+
+    // Stop all animations that may have been running
+    anim_runner.stop_all();
 
     // Signal the main thread that the image has changed
     event_loop.request_redraw()?;

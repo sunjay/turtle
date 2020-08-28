@@ -145,7 +145,7 @@ fn dispatch_request(
         },
 
         ClearAll => {
-            handlers::clear_all(&mut app.write(), &mut display_list.lock(), event_loop)
+            handlers::clear_all(&mut app.write(), &mut display_list.lock(), event_loop, anim_runner)
         },
         ClearTurtle(id) => {
             handlers::clear_turtle(&mut app.write(), &mut display_list.lock(), event_loop, id)
