@@ -60,7 +60,7 @@ async fn serve(
 
         // Each request is executed immediately, in the order it arrives
         handle_handler_result(dispatch_request(
-            ServerOneshotSender::new(client_id, conn.clone()),
+            ServerOneshotSender::new(client_id, &conn),
             &app,
             &display_list,
             &event_loop,

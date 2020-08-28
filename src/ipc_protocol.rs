@@ -102,13 +102,13 @@ pub async fn connect_client<S, F>(
 
 /// Provides the ability to send a single response to a client
 #[derive(Debug)]
-pub struct ServerOneshotSender {
+pub struct ServerOneshotSender<'a> {
     client_id: ClientId,
-    sender: ServerSender,
+    sender: &'a ServerSender,
 }
 
-impl ServerOneshotSender {
-    pub fn new(client_id: ClientId, sender: ServerSender) -> Self {
+impl<'a> ServerOneshotSender<'a> {
+    pub fn new(client_id: ClientId, sender: &'a ServerSender) -> Self {
         Self {client_id, sender}
     }
 
