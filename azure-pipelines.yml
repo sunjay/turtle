@@ -77,13 +77,13 @@ steps:
     cargo test --verbose --all --features "test unstable"
   displayName: test
 
+# TODO: Use the latest version of tarpaulin once our code compiles with it
 - script: |
     cargo install --verbose cargo-tarpaulin --version '0.13.3'
-    cargo tarpaulin --verbose --all --features "test unstable" --out Xml
+    cargo tarpaulin --verbose --all --features "test unstable" --out Xml --run-types  Tests Doctests
     bash <(curl -s https://codecov.io/bash)
-  displayName: cov
-  env:
-    CODECOV_TOKEN: $(CODECOV_TOKEN_SECRET)
+  displayName: code_coverage
+  condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['rustup_toolchain'], 'stable' ) )
 
 - script: |
     cargo doc --no-deps --verbose --all
