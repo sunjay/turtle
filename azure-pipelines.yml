@@ -78,7 +78,7 @@ steps:
   displayName: test
 
 - script: |
-    cargo install install --verbose cargo-tarpaulin --version '0.13.3'
+    cargo install --verbose cargo-tarpaulin --version '0.13.3'
     cargo tarpaulin --verbose --all --features "test unstable" --out Xml
     bash <(curl -s https://codecov.io/bash)
   displayName: cov
