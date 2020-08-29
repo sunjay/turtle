@@ -109,7 +109,7 @@ pub fn save_svg(display_list: &DisplayList, drawing: &DrawingState, path: &FileP
             let img = resvg::render(svg, usvg::FitTo::Original, None).unwrap();
             img.save_png(save_path).unwrap();
         } else {
-            svg::save("test.svg", &document).map_err(|err| ExportError(err.to_string()))?;
+            svg::save(path, &document).map_err(|err| ExportError(err.to_string()))?;
         }
     }
 
