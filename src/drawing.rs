@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 use std::path::Path;
 
 use crate::async_drawing::AsyncDrawing;
@@ -57,6 +57,13 @@ pub struct Drawing {
     drawing: AsyncDrawing,
     //TODO: Remove this field when multiple turtles are supported
     turtles: usize,
+}
+
+impl Debug for Drawing {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let state = block_on(self.drawing.debug());
+        Debug::fmt(&state, f)
+    }
 }
 
 impl From<AsyncDrawing> for Drawing {
@@ -492,6 +499,14 @@ impl Drawing {
     /// ```
     pub fn exit_fullscreen(&mut self) {
         self.drawing.exit_fullscreen()
+    }
+
+    //TODO(#16): This method is hidden because it hasn't been properly documented
+    #[doc(hidden)]
+    #[cfg(feature = "unstable")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
+    pub fn clear(&mut self) {
+        self.drawing.clear();
     }
 
     /// Returns the next event (if any). Returns `None` if there are no events to be processed at

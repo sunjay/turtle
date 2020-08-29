@@ -6,6 +6,7 @@ mod turtle_prop;
 mod animation;
 mod fill;
 mod clear;
+mod debug;
 
 pub(crate) use create_turtle::*;
 pub(crate) use export_drawings::*;
@@ -15,6 +16,7 @@ pub(crate) use turtle_prop::*;
 pub(crate) use animation::*;
 pub(crate) use fill::*;
 pub(crate) use clear::*;
+pub(crate) use debug::*;
 
 use thiserror::Error;
 

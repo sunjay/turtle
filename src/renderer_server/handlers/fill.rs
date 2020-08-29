@@ -1,34 +1,25 @@
-use tokio::sync::{oneshot, Mutex};
-
 use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
-    app::{TurtleId, TurtleDrawings},
-    access_control::{AccessControl, RequiredData, RequiredTurtles},
+    app::{TurtleId, TurtleDrawings, App},
     renderer::display_list::DisplayList,
 };
 
-pub(crate) async fn begin_fill(
-    data_req_queued: oneshot::Sender<()>,
-    app_control: &AccessControl,
-    display_list: &Mutex<DisplayList>,
-    event_loop: EventLoopNotifier,
+pub(crate) fn begin_fill(
+    app: &mut App,
+    display_list: &mut DisplayList,
+    event_loop: &EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, drawings, current_fill_polygon} = turtles.one_mut();
+    let TurtleDrawings {state: turtle, drawings, current_fill_polygon} = turtle;
 
     // Ignore the request if we are already filling
     if current_fill_polygon.is_some() {
         return Ok(());
     }
 
-    let mut display_list = display_list.lock().await;
     let poly_handle = display_list.push_polygon_start(turtle.position, turtle.fill_color);
     drawings.push(poly_handle);
     *current_fill_polygon = Some(poly_handle);
@@ -38,18 +29,13 @@ pub(crate) async fn begin_fill(
     Ok(())
 }
 
-pub(crate) async fn end_fill(
-    data_req_queued: oneshot::Sender<()>,
-    app_control: &AccessControl,
+pub(crate) fn end_fill(
+    app: &mut App,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: false,
-        turtles: Some(RequiredTurtles::One(id)),
-    }, data_req_queued).await;
-    let mut turtles = data.turtles_mut().await;
+    let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {current_fill_polygon, ..} = turtles.one_mut();
+    let TurtleDrawings {current_fill_polygon, ..} = turtle;
 
     // No need to add the turtle's current position to the polygon since it should already be there
 

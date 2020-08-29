@@ -1,26 +1,18 @@
-use tokio::sync::oneshot;
-
 use crate::ipc_protocol::{ServerOneshotSender, ServerResponse, DrawingProp, DrawingPropValue};
 
 use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
     state::DrawingState,
-    access_control::{AccessControl, RequiredData},
+    app::App,
 };
 
-pub(crate) async fn drawing_prop(
-    data_req_queued: oneshot::Sender<()>,
+pub(crate) fn drawing_prop(
     conn: ServerOneshotSender,
-    app_control: &AccessControl,
+    app: &App,
     prop: DrawingProp,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: true,
-        turtles: None,
-    }, data_req_queued).await;
-
-    let drawing = data.drawing_mut();
+    let drawing = app.drawing();
 
     use DrawingProp::*;
     let value = match prop {
@@ -39,37 +31,25 @@ pub(crate) async fn drawing_prop(
     Ok(())
 }
 
-pub(crate) async fn set_drawing_prop(
-    data_req_queued: oneshot::Sender<()>,
-    app_control: &AccessControl,
-    event_loop: EventLoopNotifier,
+pub(crate) fn set_drawing_prop(
+    app: &mut App,
+    event_loop: &EventLoopNotifier,
     prop_value: DrawingPropValue,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: true,
-        turtles: None,
-    }, data_req_queued).await;
+    let mut drawing = app.drawing_mut();
 
-    let drawing = data.drawing_mut();
-
-    modify_drawing(drawing, event_loop, prop_value).await
+    modify_drawing(&mut drawing, event_loop, prop_value)
 }
 
-pub(crate) async fn reset_drawing_prop(
-    data_req_queued: oneshot::Sender<()>,
-    app_control: &AccessControl,
-    event_loop: EventLoopNotifier,
+pub(crate) fn reset_drawing_prop(
+    app: &mut App,
+    event_loop: &EventLoopNotifier,
     prop: DrawingProp,
 ) -> Result<(), HandlerError> {
-    let mut data = app_control.get(RequiredData {
-        drawing: true,
-        turtles: None,
-    }, data_req_queued).await;
-
-    let drawing = data.drawing_mut();
+    let mut drawing = app.drawing_mut();
 
     use DrawingProp::*;
-    modify_drawing(drawing, event_loop, match prop {
+    modify_drawing(&mut drawing, event_loop, match prop {
         Title => DrawingPropValue::Title(DrawingState::DEFAULT_TITLE.to_string()),
         Background => DrawingPropValue::Background(DrawingState::DEFAULT_BACKGROUND),
         Center => DrawingPropValue::Center(DrawingState::DEFAULT_CENTER),
@@ -81,12 +61,12 @@ pub(crate) async fn reset_drawing_prop(
         Height => DrawingPropValue::Height(DrawingState::DEFAULT_HEIGHT),
         IsMaximized => DrawingPropValue::IsMaximized(DrawingState::DEFAULT_IS_MAXIMIZED),
         IsFullscreen => DrawingPropValue::IsFullscreen(DrawingState::DEFAULT_IS_FULLSCREEN),
-    }).await
+    })
 }
 
-async fn modify_drawing(
+fn modify_drawing(
     drawing: &mut DrawingState,
-    event_loop: EventLoopNotifier,
+    event_loop: &EventLoopNotifier,
     prop_value: DrawingPropValue,
 ) -> Result<(), HandlerError> {
     use DrawingPropValue::*;

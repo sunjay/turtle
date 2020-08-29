@@ -1,9 +1,9 @@
 mod state;
 mod app;
-mod access_control;
 mod coords;
 mod renderer;
 mod backend;
+mod animation;
 mod handlers;
 mod start;
 
@@ -23,31 +23,34 @@ pub(crate) use backend::RendererServer;
 pub use renderer::export::ExportError;
 pub use start::start;
 
-use std::sync::Arc;
-
 use ipc_channel::ipc::IpcError;
-use tokio::sync::{mpsc, oneshot, Mutex};
+use tokio::sync::mpsc;
+use parking_lot::{RwLock, Mutex};
 
 use crate::ipc_protocol::{ServerSender, ServerOneshotSender, ServerReceiver, ClientRequest};
 use crate::Event;
 
-use app::App;
-use access_control::AccessControl;
-use renderer::display_list::DisplayList;
+use app::{SharedApp, App};
+use renderer::display_list::{SharedDisplayList, DisplayList};
 use event_loop_notifier::EventLoopNotifier;
+use animation::AnimationRunner;
 
 /// Serves requests from the client forever
 async fn serve(
     conn: ServerSender,
     client_requests: ServerReceiver,
-    app: Arc<App>,
-    display_list: Arc<Mutex<DisplayList>>,
+    app: SharedApp,
+    display_list: SharedDisplayList,
     event_loop: EventLoopNotifier,
-    events_receiver: mpsc::UnboundedReceiver<Event>,
+    mut events_receiver: mpsc::UnboundedReceiver<Event>,
     mut server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
-    let app_control = Arc::new(AccessControl::new(app).await);
-    let events_receiver = Arc::new(Mutex::new(events_receiver));
+    let anim_runner = AnimationRunner::new(
+        conn.clone(),
+        app.clone(),
+        display_list.clone(),
+        event_loop.clone(),
+    );
 
     loop {
         // This will either receive the next request or end this task
@@ -64,111 +67,103 @@ async fn serve(
             },
         };
 
-        // To preserve the ordering of requests in cases where they can't run concurrently, we use
-        // a channel to synchronize that each request has finished requesting the data it needs
-        // before the next request can be processed at all.
-        let (data_req_queued, data_req_queued_receiver) = oneshot::channel();
-
-        // Each incoming request is executed immediately in its own task. This allows requests that
-        // can run concurrently to do so. Requests that use an overlapping set of data will run
-        // in the order in which they arrived. The ordering is enforced with `data_req_queued`.
-        tokio::spawn(run_request(
-            data_req_queued,
-            ServerOneshotSender::new(client_id, conn.clone()),
-            app_control.clone(),
-            display_list.clone(),
-            event_loop.clone(),
-            events_receiver.clone(),
+        // Each request is executed immediately, in the order it arrives
+        handle_handler_result(dispatch_request(
+            ServerOneshotSender::new(client_id, &conn),
+            &app,
+            &display_list,
+            &event_loop,
+            &mut events_receiver,
+            &anim_runner,
             request,
         ));
 
-        // Check if we are ready for the next request to be processed
-        //
-        // Ignoring error because if data_req_queued was dropped, it probably just means that the
-        // request didn't need to call AccessControl::get()
-        data_req_queued_receiver.await.unwrap_or(());
     }
 }
 
-async fn run_request(
-    data_req_queued: oneshot::Sender<()>,
+fn dispatch_request(
     conn: ServerOneshotSender,
-    app_control: Arc<AccessControl>,
-    display_list: Arc<Mutex<DisplayList>>,
-    event_loop: EventLoopNotifier,
-    events_receiver: Arc<Mutex<mpsc::UnboundedReceiver<Event>>>,
+    app: &RwLock<App>,
+    display_list: &Mutex<DisplayList>,
+    event_loop: &EventLoopNotifier,
+    events_receiver: &mut mpsc::UnboundedReceiver<Event>,
+    anim_runner: &AnimationRunner,
     request: ClientRequest,
-) {
+) -> Result<(), handlers::HandlerError> {
     use ClientRequest::*;
-    let res = match request {
+    match request {
         CreateTurtle => {
-            handlers::create_turtle(conn, &app_control, event_loop).await
+            handlers::create_turtle(conn, &mut app.write(), event_loop)
         },
 
         Export(path, format) => {
-            handlers::export_drawings(data_req_queued, conn, &app_control, &display_list, &path, format).await
+            handlers::export_drawings(conn, &app.read(), &display_list.lock(), &path, format)
         },
 
         PollEvent => {
-            // NOTE: Technically, because this does not send to `data_req_queued`, it is possible
-            // to have several callers of `poll_event` race to get the next event. This is probably
-            // fine though because we don't guarantee the ordering of events if they are polled
-            // from multiple threads/tasks. Thus, following the order of requests does not matter
-            // in this specific case.
-            handlers::poll_event(conn, &events_receiver).await
+            handlers::poll_event(conn, events_receiver)
         },
 
         DrawingProp(prop) => {
-            handlers::drawing_prop(data_req_queued, conn, &app_control, prop).await
+            handlers::drawing_prop(conn, &app.read(), prop)
         },
         SetDrawingProp(prop_value) => {
-            handlers::set_drawing_prop(data_req_queued, &app_control, event_loop, prop_value).await
+            handlers::set_drawing_prop(&mut app.write(), event_loop, prop_value)
         },
         ResetDrawingProp(prop) => {
-            handlers::reset_drawing_prop(data_req_queued, &app_control, event_loop, prop).await
+            handlers::reset_drawing_prop(&mut app.write(), event_loop, prop)
         },
 
         TurtleProp(id, prop) => {
-            handlers::turtle_prop(data_req_queued, conn, &app_control, id, prop).await
+            handlers::turtle_prop(conn, &app.read(), id, prop)
         },
         SetTurtleProp(id, prop_value) => {
-            handlers::set_turtle_prop(data_req_queued, &app_control, &display_list, event_loop, id, prop_value).await
+            handlers::set_turtle_prop(&mut app.write(), &mut display_list.lock(), event_loop, id, prop_value)
         },
         ResetTurtleProp(id, prop) => {
-            handlers::reset_turtle_prop(data_req_queued, &app_control, &display_list, event_loop, id, prop).await
+            handlers::reset_turtle_prop(&mut app.write(), &mut display_list.lock(), event_loop, id, prop)
         },
         ResetTurtle(id) => {
-            handlers::reset_turtle(data_req_queued, &app_control, &display_list, event_loop, id).await
+            handlers::reset_turtle(&mut app.write(), &mut display_list.lock(), event_loop, id)
         },
 
         MoveForward(id, distance) => {
-            handlers::move_forward(data_req_queued, conn, &app_control, &display_list, event_loop, id, distance).await
+            handlers::move_forward(conn, &mut app.write(), &mut display_list.lock(), event_loop, anim_runner, id, distance)
         },
         MoveTo(id, target_pos) => {
-            handlers::move_to(data_req_queued, conn, &app_control, &display_list, event_loop, id, target_pos).await
+            handlers::move_to(conn, &mut app.write(), &mut display_list.lock(), event_loop, anim_runner, id, target_pos)
         },
         RotateInPlace(id, angle, direction) => {
-            handlers::rotate_in_place(data_req_queued, conn, &app_control, event_loop, id, angle, direction).await
+            handlers::rotate_in_place(conn, &mut app.write(), event_loop, anim_runner, id, angle, direction)
         },
 
         BeginFill(id) => {
-            handlers::begin_fill(data_req_queued, &app_control, &display_list, event_loop, id).await
+            handlers::begin_fill(&mut app.write(), &mut display_list.lock(), event_loop, id)
         },
         EndFill(id) => {
-            handlers::end_fill(data_req_queued, &app_control, id).await
+            handlers::end_fill(&mut app.write(), id)
         },
 
         ClearAll => {
-            handlers::clear_all(data_req_queued, &app_control, &display_list, event_loop).await
+            handlers::clear_all(&mut app.write(), &mut display_list.lock(), event_loop, anim_runner)
         },
         ClearTurtle(id) => {
-            handlers::clear_turtle(data_req_queued, &app_control, &display_list, event_loop, id).await
+            handlers::clear_turtle(&mut app.write(), &mut display_list.lock(), event_loop, id)
         },
-    };
 
+        DebugTurtle(id, angle_unit) => {
+            handlers::debug_turtle(conn, &app.read(), id, angle_unit)
+        },
+        DebugDrawing => {
+            handlers::debug_drawing(conn, &app.read())
+        },
+    }
+}
+
+fn handle_handler_result(res: Result<(), handlers::HandlerError>) {
     use handlers::HandlerError::*;
     match res {
-        Ok(()) => {},
+        Ok(_) => {},
         Err(IpcChannelError(err)) => panic!("Error while serializing response: {}", err),
         // Task managing window has ended, this task will end soon too.
         //TODO: This potentially leaves the turtle/drawing state in an inconsistent state. Should

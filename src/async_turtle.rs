@@ -17,8 +17,8 @@ pub type Distance = f64;
 /// [`use_radians()`](struct.Turtle.html#method.use_radians) methods for more information.
 pub type Angle = f64;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum AngleUnit {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum AngleUnit {
     Degrees,
     Radians,
 }
@@ -313,6 +313,20 @@ impl AsyncTurtle {
             // Sleep for ~1 frame (at 120fps) to avoid pegging the CPU.
             self.wait(1.0 / 120.0).await;
         }
+    }
+
+    //TODO: If we move to a shared memory architecture, we wouldn't need to make
+    // any request here and thus would not need this method at all. We should
+    // think things through before making this method public.
+    /// # Stability
+    ///
+    /// **Warning:** This method exists because it is currently necessary to
+    /// do some work asynchronously in order to print out a useful debug
+    /// representation for this type. There is no async `Debug` trait. Please
+    /// only use this method for debugging. It may be removed in a future
+    /// release if we find a way to implement `Debug` trait for this type.
+    pub async fn debug(&self) -> impl Debug {
+        self.client.debug_turtle(self.id, self.angle_unit).await
     }
 }
 

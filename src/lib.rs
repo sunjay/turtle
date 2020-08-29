@@ -103,6 +103,7 @@ mod renderer_client;
 mod async_drawing;
 mod async_turtle;
 mod sync_runtime;
+mod debug;
 mod drawing;
 mod turtle;
 

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use serde::{Serialize, Deserialize};
-use tokio::sync::{RwLock, Mutex, MutexGuard};
+use parking_lot::RwLock;
 
 use super::state::{TurtleState, DrawingState};
 use super::renderer::display_list::PrimHandle;
@@ -12,8 +12,12 @@ pub struct TurtleId(usize);
 
 #[derive(Default, Debug)]
 pub struct TurtleDrawings {
+    /// The current state of this turtle: position, heading, etc.
     pub state: TurtleState,
+
+    /// The drawings in the display list that have been created by this turtle
     pub drawings: Vec<PrimHandle>,
+
     /// If the turtle is currently filling, this is the handle to the fill polygon that new points
     /// should be appended to
     ///
@@ -26,51 +30,56 @@ pub struct TurtleDrawings {
 #[derive(Default, Debug)]
 pub struct App {
     /// The current state of the drawing
-    drawing: Mutex<DrawingState>,
+    drawing: DrawingState,
     /// Each `TurtleId` indexes into this field
     ///
     /// Need to be very careful deleting from this field because the `TurtleId` returned from
-    /// `add_turtle()` must remain unique and thus can never be repeated. Also, we wouldn't want to
-    /// invalidate any clones of the `Arc<Mutex<TurtleDrawings>>` returned from the `turtle()`
-    /// method.
-    ///
-    /// The outer `RwLock` in this type makes it possible to 1) push into the `Vec` using `write()`
-    /// and 2) `clone` multiple items in the `Vec` concurrently using `read()`.
-    turtles: RwLock<Vec<Arc<Mutex<TurtleDrawings>>>>,
+    /// `add_turtle()` must remain unique and thus can never be repeated.
+    turtles: Vec<TurtleDrawings>,
 }
 
 impl App {
     /// Adds a new turtle to the application state, returning its `TurtleId`
-    pub async fn add_turtle(&self) -> TurtleId {
-        let mut turtles = self.turtles.write().await;
-        let id = TurtleId(turtles.len());
-        turtles.push(Default::default());
+    pub fn add_turtle(&mut self) -> TurtleId {
+        let id = TurtleId(self.turtles.len());
+        self.turtles.push(Default::default());
         id
     }
 
+    /// Returns a read-only handle to the drawing state
+    pub fn drawing(&self) -> &DrawingState {
+        &self.drawing
+    }
+
     /// Returns a mutable handle to the drawing state
-    pub async fn drawing_mut(&self) -> MutexGuard<'_, DrawingState> {
-        self.drawing.lock().await
+    pub fn drawing_mut(&mut self) -> &mut DrawingState {
+        &mut self.drawing
     }
 
-    /// Returns the total number of turtles currently stored in the application state
-    pub async fn turtles_len(&self) -> usize {
-        self.turtles.read().await.len()
-    }
-
-    /// Returns the IDs of all turtles currently stored in the application state
-    pub async fn turtle_ids(&self) -> impl Iterator<Item=TurtleId> + Clone {
-        let len = self.turtles_len().await;
-        (0..len).map(TurtleId)
-    }
-
-    /// Returns a handle to a the state and drawings of the given turtle
-    ///
-    /// The data is not locked, so multiple callers of this method may race to lock the data after
-    /// the mutex is returned.
-    pub async fn turtle(&self, id: TurtleId) -> Arc<Mutex<TurtleDrawings>> {
+    /// Returns a read-only handle to the given turtle
+    pub fn turtle(&self, id: TurtleId) -> &TurtleDrawings {
         let TurtleId(index) = id;
-        let turtles = self.turtles.read().await;
-        turtles[index].clone()
+        &self.turtles[index]
+    }
+
+    /// Returns a mutable handle to the given turtle
+    pub fn turtle_mut(&mut self, id: TurtleId) -> &mut TurtleDrawings {
+        let TurtleId(index) = id;
+        &mut self.turtles[index]
+    }
+
+    /// Returns an iterator over all of the turtles
+    #[cfg_attr(feature = "test", allow(dead_code))] // Used in renderer, but not for tests
+    pub fn turtles(&self) -> impl Iterator<Item=(TurtleId, &TurtleDrawings)> {
+        (0..).zip(self.turtles.iter()).map(|(id, turtle)| (TurtleId(id), turtle))
+    }
+
+    /// Returns an iterator over all of the turtles
+    pub fn turtles_mut(&mut self) -> impl Iterator<Item=(TurtleId, &mut TurtleDrawings)> {
+        (0..).zip(self.turtles.iter_mut()).map(|(id, turtle)| (TurtleId(id), turtle))
     }
 }
+
+// Using `RwLock` so that requests that only need to read from the state can run concurrently with
+// rendering.
+pub type SharedApp = Arc<RwLock<App>>;

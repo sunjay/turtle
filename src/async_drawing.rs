@@ -161,12 +161,30 @@ impl AsyncDrawing {
         self.client.drawing_set_is_fullscreen(false)
     }
 
+    pub fn clear(&mut self) {
+        self.client.clear_all()
+    }
+
     pub async fn poll_event(&mut self) -> Option<Event> {
         self.client.poll_event().await
     }
 
     pub async fn save_svg<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {
         self.client.export_svg(path.as_ref().to_path_buf()).await
+    }
+
+    //TODO: If we move to a shared memory architecture, we wouldn't need to make
+    // any request here and thus would not need this method at all. We should
+    // think things through before making this method public.
+    /// # Stability
+    ///
+    /// **Warning:** This method exists because it is currently necessary to
+    /// do some work asynchronously in order to print out a useful debug
+    /// representation for this type. There is no async `Debug` trait. Please
+    /// only use this method for debugging. It may be removed in a future
+    /// release if we find a way to implement `Debug` trait for this type.
+    pub async fn debug(&self) -> impl Debug {
+        self.client.debug_drawing().await
     }
 }
 

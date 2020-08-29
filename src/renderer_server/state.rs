@@ -2,10 +2,17 @@ use std::f64::consts::PI;
 
 use serde::{Serialize, Deserialize};
 
-use crate::radians::Radians;
-use crate::{Color, Point, Speed, colors::{WHITE, BLACK}};
+use crate::{
+    Color,
+    Point,
+    Speed,
+    debug,
+    radians::Radians,
+    colors::{WHITE, BLACK},
+    async_turtle::AngleUnit,
+};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DrawingState {
     pub title: String,
     pub background: Color,
@@ -40,7 +47,33 @@ impl Default for DrawingState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+impl DrawingState {
+    pub(crate) fn to_debug(&self) -> debug::Drawing {
+        let &Self {
+            ref title,
+            background,
+            center,
+            width,
+            height,
+            is_maximized,
+            is_fullscreen,
+        } = self;
+
+        let title = title.clone();
+
+        debug::Drawing {
+            title,
+            background,
+            center,
+            width,
+            height,
+            is_maximized,
+            is_fullscreen,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TurtleState {
     pub pen: Pen,
     pub fill_color: Color,
@@ -70,7 +103,35 @@ impl Default for TurtleState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+impl TurtleState {
+    pub(crate) fn to_debug(&self, angle_unit: AngleUnit) -> debug::Turtle {
+        let &Self {
+            position,
+            heading,
+            speed,
+            ref pen,
+            fill_color,
+            is_visible,
+        } = self;
+
+        let heading = match angle_unit {
+            AngleUnit::Degrees => debug::DebugAngle::Degrees(heading.to_degrees()),
+            AngleUnit::Radians => debug::DebugAngle::Radians(heading.to_radians()),
+        };
+        let pen = pen.to_debug();
+
+        debug::Turtle {
+            position,
+            heading,
+            speed,
+            pen,
+            fill_color,
+            is_visible,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Pen {
     pub is_enabled: bool,
     pub thickness: f64,
@@ -89,6 +150,22 @@ impl Default for Pen {
             is_enabled: Self::DEFAULT_IS_ENABLED,
             thickness: Self::DEFAULT_THICKNESS,
             color: Self::DEFAULT_COLOR,
+        }
+    }
+}
+
+impl Pen {
+    pub(crate) fn to_debug(&self) -> debug::Pen {
+        let &Self {
+            is_enabled,
+            thickness,
+            color,
+        } = self;
+
+        debug::Pen {
+            is_enabled,
+            thickness,
+            color,
         }
     }
 }
