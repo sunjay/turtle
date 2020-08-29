@@ -1,6 +1,5 @@
 use std::time::{Instant, Duration};
 use std::future::Future;
-use std::sync::Arc;
 
 use glutin::{
     GlProfile,
@@ -22,7 +21,7 @@ use glutin::{
     platform::desktop::EventLoopExtDesktop,
 };
 use tokio::{
-    sync::{mpsc, Mutex},
+    sync::mpsc,
     runtime::Handle,
 };
 
@@ -30,11 +29,11 @@ use crate::Event;
 use crate::ipc_protocol::{ServerSender, ServerReceiver, ConnectionError};
 
 use super::{
-    app::App,
+    app::{SharedApp, App},
     coords::ScreenPoint,
     renderer::{
         Renderer,
-        display_list::DisplayList,
+        display_list::{SharedDisplayList, DisplayList},
     },
     event_loop_notifier::{EventLoopNotifier, MainThreadAction},
 };
@@ -81,15 +80,12 @@ pub fn run_main(
     establish_connection: impl Future<Output=Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
 ) {
     // The state of the drawing and the state/drawings associated with each turtle
-    let app = Arc::new(App::default());
+    let app = SharedApp::default();
     // All of the drawing primitives in the order in which they wil be drawn
     //
-    // This is managed separately from the rest of the app state because the display list is shared
-    // by pretty much everything. Trying to control it via `AccessControl` would remove all
-    // opportunities for parallelism and essentially make all turtle programs sequential.
-    //
-    // Critical sections containing the display list should be as short as possible.
-    let display_list = Arc::new(Mutex::new(DisplayList::default()));
+    // Critical sections containing the display list should be as short as possible to avoid holding
+    // up the renderer.
+    let display_list = SharedDisplayList::default();
 
     let mut event_loop = new_event_loop();
     // Create the proxy that will be given to the thread managing IPC
@@ -101,11 +97,14 @@ pub fn run_main(
     // because borrow checker cannot verify which events only fire once.
     let mut events_receiver = Some(events_receiver);
     let mut establish_connection = Some(establish_connection);
+    // Using a bounded (size = 1) channel because a oneshot consumes self when awaited and this
+    // needs to be polled multiple times
     let (mut server_shutdown, server_shutdown_receiver) = mpsc::channel(1);
     let mut server_shutdown_receiver = Some(server_shutdown_receiver);
 
     let window_builder = {
-        let drawing = handle.block_on(app.drawing_mut());
+        let app = app.read();
+        let drawing = app.drawing();
         WindowBuilder::new()
             .with_title(&drawing.title)
             .with_inner_size(LogicalSize {width: drawing.width, height: drawing.height})
@@ -194,7 +193,8 @@ pub fn run_main(
             match event {
                 WindowEvent::Resized(size) => {
                     let size = size.to_logical(scale_factor);
-                    let mut drawing = handle.block_on(app.drawing_mut());
+                    let mut app = app.write();
+                    let mut drawing = app.drawing_mut();
                     drawing.width = size.width;
                     drawing.height = size.height;
                 },
@@ -207,7 +207,8 @@ pub fn run_main(
 
             // Converts to logical coordinates, only locking the drawing if this is actually called
             let to_logical = |pos: PhysicalPosition<f64>| {
-                let drawing = handle.block_on(app.drawing_mut());
+                let app = app.read();
+                let drawing = app.drawing();
                 let center = drawing.center;
                 let draw_size = gl_context.window().inner_size();
                 let fb_center = ScreenPoint {
@@ -263,7 +264,9 @@ pub fn run_main(
                 return;
             }
 
-            handle.block_on(redraw(&app, &display_list, &gl_context, &mut renderer));
+            let app = app.read();
+            let display_list = display_list.lock();
+            redraw(&app, &display_list, &gl_context, &mut renderer);
             last_render = Instant::now();
 
             // Do not re-render unless there is a reason to
@@ -282,46 +285,24 @@ pub fn run_main(
     });
 }
 
-async fn redraw(
+fn redraw(
     app: &App,
-    display_list: &Mutex<DisplayList>,
+    display_list: &DisplayList,
     gl_context: &WindowedContext<PossiblyCurrent>,
     renderer: &mut Renderer,
 ) {
-    let drawing = {
-        // Hold the drawing lock for as little time as possible
-        let drawing = app.drawing_mut().await;
-        drawing.clone()
-    };
-
-    // Locking the turtles before the display list to be consistent with all of the request
-    // handlers. Inconsistent lock ordering can cause deadlock.
-    let mut turtles = Vec::new();
-    for id in app.turtle_ids().await {
-        turtles.push(app.turtle(id).await);
-    }
-    // Very important to have all the data locked before rendering. Do not want renderer to have
-    // to figure out how to lock.
-    let mut locked_turtles = Vec::with_capacity(turtles.len());
-    for turtle in &turtles {
-        locked_turtles.push(turtle.lock().await);
-    }
-    // Renderer only needs (read-only) access to TurtleState
-    // Doing this also decouples renderer code from runtime by not having to
-    // know about the `MutexGuard` type in tokio
-    let turtle_states = locked_turtles.iter().map(|t| &t.state);
-
-    let display_list = display_list.lock().await;
-
     let draw_size = gl_context.window().inner_size();
-    renderer.render(draw_size, &display_list, &drawing, turtle_states);
+    let drawing = app.drawing();
+    let turtle_states = app.turtles().map(|(_, turtle)| &turtle.state);
+
+    renderer.render(draw_size, display_list, drawing, turtle_states);
     gl_context.swap_buffers().expect("unable to swap the buffer (for double buffering)");
 }
 
 fn spawn_async_server(
     handle: &Handle,
-    app: Arc<App>,
-    display_list: Arc<Mutex<DisplayList>>,
+    app: SharedApp,
+    display_list: SharedDisplayList,
     event_loop: EventLoopNotifier,
     events_receiver: mpsc::UnboundedReceiver<Event>,
     establish_connection: impl Future<Output=Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,

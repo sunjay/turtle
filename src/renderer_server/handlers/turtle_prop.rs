@@ -1,5 +1,3 @@
-use tokio::sync::{oneshot, Mutex};
-
 use crate::ipc_protocol::{
     ServerOneshotSender,
     ServerResponse,
@@ -13,22 +11,19 @@ use super::HandlerError;
 use super::super::{
     event_loop_notifier::EventLoopNotifier,
     state::{self, TurtleState},
-    app::{TurtleId, TurtleDrawings},
-    access_control::AccessControl,
+    app::{TurtleId, TurtleDrawings, App},
     renderer::display_list::DisplayList,
 };
 
-pub(crate) async fn turtle_prop(
-    data_req_queued: oneshot::Sender<()>,
+pub(crate) fn turtle_prop(
     conn: ServerOneshotSender,
-    app_control: &AccessControl,
+    app: &App,
     id: TurtleId,
     prop: TurtleProp,
 ) -> Result<(), HandlerError> {
-    let turtle = app_control.get(id, data_req_queued).await;
-    let turtle = turtle.lock().await;
+    let turtle = app.turtle(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &*turtle;
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     use TurtleProp::*;
     use PenProp::*;
@@ -51,18 +46,16 @@ pub(crate) async fn turtle_prop(
     Ok(())
 }
 
-pub(crate) async fn set_turtle_prop(
-    data_req_queued: oneshot::Sender<()>,
-    app_control: &AccessControl,
-    display_list: &Mutex<DisplayList>,
-    event_loop: EventLoopNotifier,
+pub(crate) fn set_turtle_prop(
+    app: &mut App,
+    display_list: &mut DisplayList,
+    event_loop: &EventLoopNotifier,
     id: TurtleId,
     prop_value: TurtlePropValue,
 ) -> Result<(), HandlerError> {
-    let turtle = app_control.get(id, data_req_queued).await;
-    let mut turtle = turtle.lock().await;
+    let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &mut *turtle;
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     use TurtlePropValue::*;
     use PenPropValue::*;
@@ -76,7 +69,6 @@ pub(crate) async fn set_turtle_prop(
 
             // Update the current fill polygon to the new color
             if let Some(poly_handle) = *current_fill_polygon {
-                let mut display_list = display_list.lock().await;
                 display_list.polygon_set_fill_color(poly_handle, fill_color);
 
                 // Signal the main thread that the image has changed
@@ -103,18 +95,16 @@ pub(crate) async fn set_turtle_prop(
     Ok(())
 }
 
-pub(crate) async fn reset_turtle_prop(
-    data_req_queued: oneshot::Sender<()>,
-    app_control: &AccessControl,
-    display_list: &Mutex<DisplayList>,
-    event_loop: EventLoopNotifier,
+pub(crate) fn reset_turtle_prop(
+    app: &mut App,
+    display_list: &mut DisplayList,
+    event_loop: &EventLoopNotifier,
     id: TurtleId,
     prop: TurtleProp,
 ) -> Result<(), HandlerError> {
-    let turtle = app_control.get(id, data_req_queued).await;
-    let mut turtle = turtle.lock().await;
+    let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &mut *turtle;
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     let mut drawing_changed = false;
 
@@ -130,7 +120,6 @@ pub(crate) async fn reset_turtle_prop(
 
             // Update the current fill polygon to the new color
             if let Some(poly_handle) = *current_fill_polygon {
-                let mut display_list = display_list.lock().await;
                 display_list.polygon_set_fill_color(poly_handle, TurtleState::DEFAULT_FILL_COLOR);
 
                 drawing_changed = true;
@@ -173,23 +162,20 @@ pub(crate) async fn reset_turtle_prop(
     Ok(())
 }
 
-pub(crate) async fn reset_turtle(
-    data_req_queued: oneshot::Sender<()>,
-    app_control: &AccessControl,
-    display_list: &Mutex<DisplayList>,
-    event_loop: EventLoopNotifier,
+pub(crate) fn reset_turtle(
+    app: &mut App,
+    display_list: &mut DisplayList,
+    event_loop: &EventLoopNotifier,
     id: TurtleId,
 ) -> Result<(), HandlerError> {
-    let turtle = app_control.get(id, data_req_queued).await;
-    let mut turtle = turtle.lock().await;
+    let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = &mut *turtle;
+    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
 
     *turtle = TurtleState::default();
 
     // Update the current fill polygon to the new color
     if let Some(poly_handle) = *current_fill_polygon {
-        let mut display_list = display_list.lock().await;
         display_list.polygon_set_fill_color(poly_handle, TurtleState::DEFAULT_FILL_COLOR);
     }
 

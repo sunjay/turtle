@@ -1,6 +1,4 @@
-use std::sync::Arc;
-
-use tokio::sync::{mpsc, oneshot, Mutex};
+use tokio::sync::{mpsc, oneshot};
 use futures_util::future::{FutureExt, RemoteHandle};
 
 use crate::ipc_protocol::{
@@ -13,8 +11,8 @@ use crate::ipc_protocol::{
 
 use super::super::{
     serve,
-    app::App,
-    renderer::display_list::DisplayList,
+    app::SharedApp,
+    renderer::display_list::SharedDisplayList,
     test_event_loop_notifier::EventLoopNotifier
 };
 
@@ -56,13 +54,13 @@ impl RendererServer {
 
 pub async fn run_main(server_name: String) {
     // The state of the drawing and the state/drawings associated with each turtle
-    let app = Arc::new(App::default());
+    let app = SharedApp::default();
     // All of the drawing primitives in the order in which they wil be drawn
     //
     // This is managed separately from the rest of the app state because the display list is shared
     // among pretty much everything and so critical sections containing the display list need to be
     // as short as possible.
-    let display_list = Arc::new(Mutex::new(DisplayList::default()));
+    let display_list = SharedDisplayList::default();
 
     // Create the proxy that will be given to the thread managing IPC
     let event_loop_notifier = EventLoopNotifier::new();

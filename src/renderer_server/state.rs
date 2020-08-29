@@ -12,7 +12,7 @@ use crate::{
     async_turtle::AngleUnit,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DrawingState {
     pub title: String,
     pub background: Color,
@@ -73,7 +73,7 @@ impl DrawingState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TurtleState {
     pub pen: Pen,
     pub fill_color: Color,
@@ -131,7 +131,7 @@ impl TurtleState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Pen {
     pub is_enabled: bool,
     pub thickness: f64,

@@ -1,5 +1,3 @@
-use tokio::sync::oneshot;
-
 use crate::{
     async_turtle::AngleUnit,
     ipc_protocol::{
@@ -10,21 +8,18 @@ use crate::{
 
 use super::HandlerError;
 use super::super::{
-    app::{TurtleId, TurtleDrawings},
-    access_control::AccessControl,
+    app::{TurtleId, TurtleDrawings, App},
 };
 
-pub(crate) async fn debug_turtle(
-    data_req_queued: oneshot::Sender<()>,
+pub(crate) fn debug_turtle(
     conn: ServerOneshotSender,
-    app_control: &AccessControl,
+    app: &App,
     id: TurtleId,
     angle_unit: AngleUnit,
 ) -> Result<(), HandlerError> {
-    let turtle = app_control.get(id, data_req_queued).await;
-    let turtle = turtle.lock().await;
+    let turtle = app.turtle(id);
 
-    let TurtleDrawings {state: turtle, ..} = &*turtle;
+    let TurtleDrawings {state: turtle, ..} = turtle;
 
     let debug_state = turtle.to_debug(angle_unit);
 
@@ -33,13 +28,11 @@ pub(crate) async fn debug_turtle(
     Ok(())
 }
 
-pub(crate) async fn debug_drawing(
-    data_req_queued: oneshot::Sender<()>,
+pub(crate) fn debug_drawing(
     conn: ServerOneshotSender,
-    app_control: &AccessControl,
+    app: &App,
 ) -> Result<(), HandlerError> {
-    let drawing = app_control.get_drawing(data_req_queued).await;
-    let drawing = drawing.lock().await;
+    let drawing = app.drawing();
 
     let debug_state = drawing.to_debug();
 
