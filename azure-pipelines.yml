@@ -83,7 +83,7 @@ steps:
     cargo tarpaulin --verbose --all --features "test unstable" --out Xml --run-types  Tests Doctests
     bash <(curl -s https://codecov.io/bash)
   displayName: code_coverage
-  condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['rustup_toolchain'], 'stable' ) )
+  condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['rustup_toolchain'], 'nightly' ) )
 
 - script: |
     cargo doc --no-deps --verbose --all
