@@ -494,8 +494,9 @@ impl Color {
     ///
     /// Let's look at a more complete example to really show what happens when we're mixing colors together.
     ///
-    /// ```no_run
+    /// ```
     /// use turtle::{Color, Drawing};
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     ///
     /// fn main() {
     ///     let mut drawing = Drawing::new();
@@ -525,6 +526,7 @@ impl Color {
     ///     turtle.set_pen_color(red.mix("blue", 0.75));
     ///     turtle.forward(100.0);
     ///     turtle.right(90.0);
+    /// # #[cfg(docs_images)] drawing.save_png("color_mixing").unwrap();
     /// }
     /// ```
     ///

@@ -4,11 +4,6 @@ use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
 use crate::{Angle, Color, Distance, Point, Speed};
 
-#[cfg(docs_image)]
-use std::path::Path;
-#[cfg(docs_image)]
-use turtle_docs_helper;
-
 /// A turtle with a pen attached to its tail
 ///
 /// **The idea:** You control a turtle with a pen tied to its tail. As it moves
@@ -32,16 +27,6 @@ impl Default for Turtle {
 impl From<AsyncTurtle> for Turtle {
     fn from(turtle: AsyncTurtle) -> Self {
         Self { turtle }
-    }
-}
-
-#[cfg(docs_image)]
-impl turtle_docs_helper::SaveSvg for Turtle {
-    fn save_svg(&self, path: &Path) -> Result<(), String> {
-        match self.turtle.save_svg(path) {
-            Ok(()) => Ok(()),
-            Err(e) => Err(e.to_string()),
-        }
     }
 }
 
@@ -546,6 +531,7 @@ impl Turtle {
     /// ```rust
     /// use turtle::Turtle;
     ///
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     /// fn main() {
     ///     let mut turtle = Turtle::new();
     ///
@@ -565,8 +551,7 @@ impl Turtle {
     ///     turtle.set_pen_color("#4CAF50"); // green
     ///     turtle.set_pen_size(100.0);
     ///     turtle.forward(200.0);
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&turtle, "pen_thickness");
+    ///     # #[cfg(docs_images)] turtle.save_png("pen_thickness").unwrap();
     /// }
     /// ```
     ///
@@ -603,6 +588,7 @@ impl Turtle {
     ///
     /// ```rust
     /// use turtle::Drawing;
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     ///
     /// fn main() {
     ///     let mut drawing = Drawing::new();
@@ -617,8 +603,7 @@ impl Turtle {
     ///         turtle.forward(25.0);
     ///         turtle.right(10.0);
     ///     }
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&drawing, "colored_circle");
+    ///     # #[cfg(docs_images)] drawing.save_png("colored_circle").unwrap();
     /// }
     /// ```
     ///
@@ -694,9 +679,10 @@ impl Turtle {
     /// **Note:** The fill color must be set **before** `begin_fill()` is called in order to be
     /// used when filling the shape.
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Turtle;
     ///
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     /// fn main() {
     ///     let mut turtle = Turtle::new();
     ///     turtle.right(90.0);
@@ -719,8 +705,7 @@ impl Turtle {
     ///     }
     ///     turtle.right(90.0);
     ///     turtle.forward(120.0);
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&turtle, "red_circle");
+    ///     # #[cfg(docs_images)] turtle.save_png("red_circle").unwrap();
     /// }
     /// ```
     ///
@@ -818,30 +803,17 @@ impl Turtle {
     ///
     /// ```rust
     /// use turtle::Turtle;
-    ///
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
+    /// 
     /// fn main() {
     ///     let mut turtle = Turtle::new();
     ///     turtle.right(32.0);
     ///     turtle.forward(150.0);
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&turtle, "clear_before_click");
-    /// # }
-    /// ```
-    /// ```rust, no_run
-    /// # use turtle::Turtle;
-    ///     # let mut turtle = Turtle::new();
+    ///     # #[cfg(docs_images)] turtle.save_png("clear_before_click").unwrap();
+    ///     # #[cfg(doctests_run_user_input)]
     ///     turtle.wait_for_click();
-    /// ```
-    /// ```rust
-    /// # use turtle::Turtle;
-    ///
-    /// # fn main() {
-    ///    # let mut turtle = Turtle::new();
-    ///    # turtle.right(32.0);
-    ///    # turtle.forward(150.0);
     ///     turtle.clear();
-    /// # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&turtle, "clear_after_click");
+    ///     # #[cfg(docs_images)] turtle.save_png("clear_after_click").unwrap();
     /// }
     /// ```
     ///
@@ -920,6 +892,17 @@ impl Turtle {
         block_on(self.turtle.wait_for_click())
     }
 }
+
+#[cfg(docs_images)]
+impl crate::SavePng for Turtle {
+    fn save_png(&self, path: &str) -> Result<(), String> {
+        match self.turtle.save_png(path) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

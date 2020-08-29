@@ -175,6 +175,11 @@ requires an extra flag which is documented below.
     ```bash
     RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --features "unstable" --open
     ```
+* To generate images for documentation, run `cargo test --features "test unstable docs_images_save_png" --doc`
+  * `clang` will need to be installed along with the following flags:
+    * `RUSTDOCFLAGS = "--cfg docs_images" `
+    * `RUSTFLAGS = "--cfg docs_images" `
+  * The same flags need to be used for `RUSTDOCFLAGS` and `RUSTFLAGS` is that we need to tell rust that we want to implement the helper trait `SavePng` for a bunch of things. Then when we are running the actual doc tests need to tell rust to create the images. But as they are run seperately the flag doesn't carry over so we need to have it in both places. (note: the flag `doctests_run_user_input` is used for tests that require userinput that we don't want to run but to show in the docs)
 
 ## Adding Examples
 [adding-examples]: #adding-examples

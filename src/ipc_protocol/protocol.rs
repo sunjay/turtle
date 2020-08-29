@@ -21,25 +21,6 @@ impl From<RendererClient> for ProtocolClient {
     }
 }
 
-#[cfg(docs_image)]
-use turtle_docs_helper;
-
-#[cfg(docs_image)]
-use std::path::Path;
-
-#[cfg(docs_image)]
-use crate::sync_runtime::block_on;
-
-#[cfg(docs_image)]
-impl turtle_docs_helper::SaveSvg for ProtocolClient {
-    fn save_svg(&self, path: &Path) -> Result<(), String> {
-        match block_on(self.export_svg(path.to_path_buf())) {
-            Ok(()) => Ok(()),
-            Err(e) => Err(e.to_string()),
-        }
-    }
-}
-
 impl ProtocolClient {
     /// Spawns a new server process and creates a connection to it
     pub async fn new() -> Result<Self, ConnectionError> {
@@ -421,5 +402,22 @@ impl ProtocolClient {
 
     pub fn clear_turtle(&self, id: TurtleId) {
         self.client.send(ClientRequest::ClearTurtle(id))
+    }
+}
+
+
+#[cfg(docs_images)]
+use std::path::Path;
+
+#[cfg(docs_images)]
+use crate::sync_runtime::block_on;
+
+#[cfg(docs_images)]
+impl crate::SavePng for ProtocolClient {
+    fn save_png(&self, path: &str) -> Result<(), String> {
+        match block_on(self.export_svg(Path::new(path).to_path_buf())) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }

@@ -85,6 +85,12 @@ broken unless you do so. See [Unstable features](#unstable-features) below for m
 #[cfg(all(test, not(feature = "test")))]
 compile_error!("Make sure you run tests with `cargo test --features \"test unstable\"`");
 
+/// Used to add helper method for doctests to generate pngs
+#[cfg(docs_images)]
+pub trait SavePng {
+    fn save_png(&self, path: &str) -> Result<(), String>;
+}
+
 mod radians;
 mod point;
 mod speed;

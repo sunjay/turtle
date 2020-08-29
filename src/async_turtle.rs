@@ -7,15 +7,6 @@ use crate::radians::{self, Radians};
 use crate::renderer_server::TurtleId;
 use crate::{Color, Point, Speed, Turtle};
 
-#[cfg(docs_image)]
-use turtle_docs_helper;
-
-#[cfg(docs_image)]
-use std::path::Path;
-
-#[cfg(docs_image)]
-use crate::sync_runtime::block_on;
-
 /// Any distance value (positive or negative)
 pub type Distance = f64;
 
@@ -52,16 +43,6 @@ pub struct AsyncTurtle {
     client: ProtocolClient,
     id: TurtleId,
     angle_unit: AngleUnit,
-}
-
-#[cfg(docs_image)]
-impl turtle_docs_helper::SaveSvg for AsyncTurtle {
-    fn save_svg(&self, path: &Path) -> Result<(), String> {
-        match self.client.save_svg(path) {
-            Ok(()) => Ok(()),
-            Err(e) => Err(e.to_string()),
-        }
-    }
 }
 
 impl From<Turtle> for AsyncTurtle {
@@ -331,6 +312,16 @@ impl AsyncTurtle {
 
             // Sleep for ~1 frame (at 120fps) to avoid pegging the CPU.
             self.wait(1.0 / 120.0).await;
+        }
+    }
+}
+
+#[cfg(docs_images)]
+impl crate::SavePng for AsyncTurtle {
+    fn save_png(&self, path: &str) -> Result<(), String> {
+        match self.client.save_png(path) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
         }
     }
 }

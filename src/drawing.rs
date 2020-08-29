@@ -5,9 +5,6 @@ use crate::async_drawing::AsyncDrawing;
 use crate::sync_runtime::block_on;
 use crate::{Color, ExportError, Point, Size, Turtle};
 
-#[cfg(docs_image)]
-use turtle_docs_helper;
-
 /// Provides access to properties of the drawing that the turtle is creating
 ///
 /// # Accessing The Drawing
@@ -67,16 +64,6 @@ impl From<AsyncDrawing> for Drawing {
         //TODO: There is no way to set `turtles` properly here, but that's okay since it is going
         // to be removed soon.
         Self { drawing, turtles: 1 }
-    }
-}
-
-#[cfg(docs_image)]
-impl turtle_docs_helper::SaveSvg for Drawing {
-    fn save_svg(&self, path: &Path) -> Result<(), String> {
-        match block_on(self.drawing.save_svg(path)) {
-            Ok(()) => Ok(()),
-            Err(e) => Err(e.to_string()),
-        }
     }
 }
 
@@ -163,8 +150,6 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_title("My Fancy Title! - Yay!");
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&drawing, "changed_title");
     ///     
     /// }
     /// ```
@@ -205,8 +190,6 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_background_color("orange");
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&drawing, "orange_background");
     /// }
     /// ```
     ///
@@ -243,6 +226,7 @@ impl Drawing {
     ///
     /// ```rust
     /// use turtle::Drawing;
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     ///
     /// fn main() {
     ///     let mut drawing = Drawing::new();
@@ -254,31 +238,11 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&drawing, "circle");
-    /// # }
-    /// ```
-    /// ```rust, no_run
-    /// # use turtle::Drawing;
-    ///     # let mut drawing = Drawing::new();
-    ///     # let mut turtle = drawing.add_turtle();
+    ///     # #[cfg(docs_images)] drawing.save_png("circle").unwrap();
+    ///     # #[cfg(doctests_run_user_input)]
     ///     turtle.wait_for_click();
-    /// ```
-    /// ```rust
-    /// # use turtle::Drawing;
-    /// # fn main() {
-    ///     # let mut drawing = Drawing::new();
-    ///     # let mut turtle = drawing.add_turtle();
-    ///
-    ///     # for _ in 0..360 {
-    ///     #    // Move forward three steps
-    ///     #    turtle.forward(3.0);
-    ///     #    // Rotate to the right (clockwise) by 1 degree
-    ///     #    turtle.right(1.0);
-    ///     # }
     ///     drawing.set_center([50.0, 100.0]);
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&drawing, "circle_offset_center");
+    ///     # #[cfg(docs_images)] drawing.save_png("circle_offset_center").unwrap();
     /// }
     /// ```
     ///
@@ -348,7 +312,8 @@ impl Drawing {
     ///
     /// ```rust
     /// use turtle::Drawing;
-    ///
+    /// 
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     /// fn main() {
     ///     let mut drawing = Drawing::new();
     ///     let mut turtle = drawing.add_turtle();
@@ -359,31 +324,11 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&drawing, "circle");
-    /// # }
-    /// ```
-    /// ```rust, no_run
-    /// # use turtle::Drawing;
-    ///     # let mut drawing = Drawing::new();
-    ///     # let mut turtle = drawing.add_turtle();
+    ///     # #[cfg(docs_images)] drawing.save_png("drawing").unwrap();
+    ///      # #[cfg(doctest_run_user_input)]
     ///     turtle.wait_for_click();
-    /// ```
-    /// ```rust
-    /// # use turtle::Drawing;
-    /// # fn main() {
-    ///     # let mut drawing = Drawing::new();
-    ///     # let mut turtle = drawing.add_turtle();
-    ///
-    ///     # for _ in 0..360 {
-    ///     #    // Move forward three steps
-    ///     #    turtle.forward(3.0);
-    ///     #    // Rotate to the right (clockwise) by 1 degree
-    ///     #    turtle.right(1.0);
-    ///     # }
     ///     drawing.set_size((300, 300));
-    ///     # #[cfg(docs_image)]
-    ///     # turtle_docs_helper::save_docs_image(&drawing, "small_drawing");
+    ///     # #[cfg(docs_images)] drawing.save_png("small_drawing").unwrap();
     /// }
     /// ```
     ///
@@ -673,6 +618,16 @@ impl Drawing {
     /// ![squares](https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/docs/squares.svg?sanitize=true)
     pub fn save_svg<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {
         block_on(self.drawing.save_svg(path))
+    }
+}
+
+#[cfg(docs_images)]
+impl crate::SavePng for Drawing {
+    fn save_png(&self, path: &str) -> Result<(), String> {
+        match block_on(self.drawing.save_svg(Path::new(path))) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }
 

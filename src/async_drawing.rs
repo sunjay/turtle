@@ -64,16 +64,6 @@ impl From<Drawing> for AsyncDrawing {
     }
 }
 
-use crate::sync_runtime::block_on;
-#[cfg(docs_image)]
-use turtle_docs_helper;
-#[cfg(docs_image)]
-impl turtle_docs_helper::SaveSvg for AsyncDrawing {
-    fn save_svg(&self, path: &Path) -> Result<(), String> {
-        self.client.save_svg(path)
-    }
-}
-
 impl AsyncDrawing {
     pub async fn new() -> Self {
         // This needs to be called as close to the start of the program as possible. We call it
@@ -177,5 +167,13 @@ impl AsyncDrawing {
 
     pub async fn save_svg<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {
         self.client.export_svg(path.as_ref().to_path_buf()).await
+    }
+}
+
+
+#[cfg(docs_images)]
+impl crate::SavePng for AsyncDrawing {
+    fn save_png(&self, path: &str) -> Result<(), String> {
+        self.client.save_png(path)
     }
 }

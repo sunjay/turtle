@@ -1,9 +1,0 @@
-[package]
-name = "turtle_docs_helper"
-version = "0.1.0"
-authors = ["Joe Ling"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
