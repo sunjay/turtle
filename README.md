@@ -5,6 +5,7 @@
 [![Crates.io](https://img.shields.io/crates/l/turtle.svg)](https://crates.io/crates/turtle)
 [![Crates.io](https://img.shields.io/crates/d/turtle.svg)](https://crates.io/crates/turtle)
 [![Build Status](https://dev.azure.com/sunjayv/turtle/_apis/build/status/sunjay.turtle?branchName=master)](https://dev.azure.com/sunjayv/turtle/_build/latest?definitionId=1&branchName=master)
+[![Codecov](https://codecov.io/gh/sunjay/turtle/branch/master/graph/badge.svg)](https://codecov.io/gh/sunjay/turtle)
 [![Zulip](https://img.shields.io/badge/chat-on%20zulip-success)](https://turtle.zulipchat.com)
 [![Tokei Line Count](https://tokei.rs/b1/github/sunjay/turtle?category=code)](https://github.com/sunjay/turtle)
 
