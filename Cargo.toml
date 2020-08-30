@@ -51,6 +51,11 @@ cfg-if = "0.1"
 
 parking_lot = "0.10"
 
+# This dependency should be uncommented when rebuilding the images in the API
+# documentation. In all other cases this dependency cannot be used since having
+# a path-only dependency would make it impossible to publish this crate.
+#turtle_docs_helpers = { path = "turtle_docs_helpers" }
+
 [dependencies.futures-util]
 version = "0.3"
 default-features = false

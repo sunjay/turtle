@@ -408,3 +408,12 @@ impl ProtocolClient {
         }
     }
 }
+
+#[cfg(docs_images)]
+impl turtle_docs_helpers::SaveDocsSvg for ProtocolClient {
+    fn save_docs_svg(&self, path: std::path::PathBuf) {
+        use crate::sync_runtime::block_on;
+        block_on(self.export_svg(path))
+            .expect("unable to save docs image");
+    }
+}

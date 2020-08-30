@@ -535,7 +535,7 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Turtle;
     ///
     /// fn main() {
@@ -557,6 +557,7 @@ impl Turtle {
     ///     turtle.set_pen_color("#4CAF50"); // green
     ///     turtle.set_pen_size(100.0);
     ///     turtle.forward(200.0);
+    ///     # #[cfg(docs_images)] turtle_docs_helpers::save_docs_image(&turtle, "pen_thickness");
     /// }
     /// ```
     ///
@@ -888,6 +889,13 @@ impl Turtle {
     /// ```
     pub fn wait_for_click(&mut self) {
         block_on(self.turtle.wait_for_click())
+    }
+}
+
+#[cfg(docs_images)]
+impl turtle_docs_helpers::SaveDocsSvg for Turtle {
+    fn save_docs_svg(&self, path: std::path::PathBuf) {
+        self.turtle.save_docs_svg(path);
     }
 }
 

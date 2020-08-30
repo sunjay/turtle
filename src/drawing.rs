@@ -629,6 +629,13 @@ impl Drawing {
     }
 }
 
+#[cfg(docs_images)]
+impl turtle_docs_helpers::SaveDocsSvg for Drawing {
+    fn save_docs_svg(&self, path: std::path::PathBuf) {
+        self.drawing.save_docs_svg(path);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

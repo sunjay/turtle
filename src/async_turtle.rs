@@ -324,3 +324,10 @@ impl AsyncTurtle {
         self.client.debug_turtle(self.id, self.angle_unit).await
     }
 }
+
+#[cfg(docs_images)]
+impl turtle_docs_helpers::SaveDocsSvg for AsyncTurtle {
+    fn save_docs_svg(&self, path: std::path::PathBuf) {
+        self.client.save_docs_svg(path);
+    }
+}

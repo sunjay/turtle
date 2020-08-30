@@ -188,3 +188,10 @@ impl AsyncDrawing {
         self.client.debug_drawing().await
     }
 }
+
+#[cfg(docs_images)]
+impl turtle_docs_helpers::SaveDocsSvg for AsyncDrawing {
+    fn save_docs_svg(&self, path: std::path::PathBuf) {
+        self.client.save_docs_svg(path);
+    }
+}
