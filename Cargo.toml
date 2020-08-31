@@ -51,6 +51,9 @@ cfg-if = "0.1"
 
 parking_lot = "0.10"
 
+nsvg = "0.5.1"
+image = "0.23"
+
 [dependencies.futures-util]
 version = "0.3"
 default-features = false

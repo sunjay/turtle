@@ -4,6 +4,8 @@ use std::path::Path as FilePath;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 use svg::node::element::{Line, Polygon, Rectangle};
+use image;
+use nsvg;
 
 use crate::Color;
 
@@ -13,10 +15,10 @@ use super::super::{
     state::DrawingState,
 };
 
-/// Converts a color to its RGBA color string (suitable for SVG)
-fn rgba(color: Color) -> String {
-    let Color {red, green, blue, alpha} = color;
-    format!("rgba({}, {}, {}, {})", red as u8, green as u8, blue as u8, alpha)
+/// Converts a color to its RGB color string (suitable for SVG)
+fn rgb(color: Color) -> String {
+    let Color {red, green, blue, alpha: _} = color;
+    format!("rgb({}, {}, {})", red as u8, green as u8, blue as u8)
 }
 
 /// Converts a value into a string with the unit "px"
@@ -43,11 +45,10 @@ fn pairs(mut items: impl Iterator<Item=ScreenPoint>) -> String {
 #[error("{0}")]
 pub struct ExportError(String);
 
-pub fn save_svg(
+fn create_svg_document(
     display_list: &DisplayList,
     drawing: &DrawingState,
-    path: &FilePath,
-) -> Result<(), ExportError> {
+) -> Result<svg::Document, ExportError> {
     let mut document = svg::Document::new()
         .set("viewBox", (0, 0, drawing.width, drawing.height));
 
@@ -55,7 +56,8 @@ pub fn save_svg(
     let background = Rectangle::new()
         .set("width", "100%")
         .set("height", "100%")
-        .set("fill", rgba(drawing.background));
+        .set("fill-opacity", drawing.background.alpha)
+        .set("fill", rgb(drawing.background));
     document = document.add(background);
 
     let center = drawing.center;
@@ -76,7 +78,8 @@ pub fn save_svg(
                     .set("y2", end.y)
                     .set("stroke-linecap", "round")
                     .set("stroke-linejoin", "round")
-                    .set("stroke", rgba(color))
+                    .set("stroke", rgb(color))
+                    .set("stroke-opacity", color.alpha)
                     .set("stroke-width", px(thickness));
 
                 document = document.add(line);
@@ -93,12 +96,54 @@ pub fn save_svg(
                 let polygon = Polygon::new()
                     .set("points", pairs(points))
                     .set("fill-rule", "nonzero")
-                    .set("fill", rgba(fill_color));
+                    .set("fill-opacity", fill_color.alpha)
+                    .set("fill", rgb(fill_color));
 
                 document = document.add(polygon);
             },
         }
     }
 
+    Ok(document)
+}
+
+
+pub fn save_svg(
+    display_list: &DisplayList,
+    drawing: &DrawingState,
+    path: &FilePath,
+) -> Result<(), ExportError> {
+    let document = create_svg_document(display_list, drawing)?;
     svg::save(path, &document).map_err(|err| ExportError(err.to_string()))
+}
+
+pub fn save_png(
+    display_list: &DisplayList,
+    drawing: &DrawingState,
+    path: &FilePath,
+) -> Result<(), ExportError> {
+    let document = create_svg_document(display_list, drawing)?;
+
+    // Some SVG features are not supported by nsvg:
+    //    - Text elements are ignored, although text can simply be converted to a path and it will work just fine
+    //    - Embedded bitmap images are ignored
+    //    - Scripts are ignored
+    //    - Animations are ignored
+    // If this becomes an issue we can "usvg" to convert the svg into a svg of just paths.
+    let svg = nsvg::parse_str(&document.to_string(), nsvg::Units::Pixel, 96.0)
+        .map_err(|err| ExportError(err.to_string()))?;
+
+    // Rasterize the loaded SVG and return an RgbaImage
+    let image = svg.rasterize(1.0).map_err(|err| ExportError(err.to_string()))?;
+
+    let (width, height) = image.dimensions();
+
+    // Write the image to disk as a PNG
+    image::save_buffer(
+        path,
+        &image.into_raw(),
+        width,
+        height,
+        image::ColorType::Rgba8,
+    ).map_err(|err| ExportError(err.to_string()))
 }

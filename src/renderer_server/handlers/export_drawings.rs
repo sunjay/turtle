@@ -20,6 +20,7 @@ pub(crate) fn export_drawings(
     use ExportFormat::*;
     let res = match format {
         Svg => export::save_svg(display_list, drawing, path),
+        Png => export::save_png(display_list, drawing, path),
     };
 
     conn.send(ServerResponse::ExportComplete(res))?;

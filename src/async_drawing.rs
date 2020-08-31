@@ -174,6 +174,10 @@ impl AsyncDrawing {
         self.client.export_svg(path.as_ref().to_path_buf()).await
     }
 
+    pub async fn save_png<P: AsRef<Path>>(&self, path: P) -> Result<(), ExportError> {
+        self.client.export_png(path.as_ref().to_path_buf()).await
+    }
+
     //TODO: If we move to a shared memory architecture, we wouldn't need to make
     // any request here and thus would not need this method at all. We should
     // think things through before making this method public.

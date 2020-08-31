@@ -62,6 +62,16 @@ impl ProtocolClient {
         }
     }
 
+    pub async fn export_png(&self, path: PathBuf) -> Result<(), ExportError> {
+        self.client.send(ClientRequest::Export(path, ExportFormat::Png));
+
+        let response = self.client.recv().await;
+        match response {
+            ServerResponse::ExportComplete(res) => res,
+            _ => unreachable!("bug: expected to receive `ExportComplete` in response to `Export` request"),
+        }
+    }
+
     pub async fn poll_event(&self) -> Option<Event> {
         self.client.send(ClientRequest::PollEvent);
 
