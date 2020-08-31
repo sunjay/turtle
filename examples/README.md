@@ -11,34 +11,50 @@ which you should take a look at.
 ## Level: Beginner
 ### Simple Square
 
+![square](../docs/assets/images/examples/square.gif)
+
 **Source Code**: [square.rs](square.rs)
 
 ### Simple Circle
+
+![circle](../docs/assets/images/examples/circle.gif)
 
 **Source Code**: [circle.rs](circle.rs)
 
 ### Dashed Circle
 
+![dashed_circle](../docs/assets/images/examples/dashed_circle.gif)
+
 **Source Code**: [dashed_circle.rs](dashed_circle.rs)
 
 ### Radioactive Triangles
 
+![three-triangles](../docs/assets/images/examples/three-triangles.gif)
+
 **Source Code**: [three-triangles.rs](three-triangles.rs)
 
 ### Five Branch Star
+
+![empty_star](../docs/assets/images/examples/empty_star.gif)
 
 **Source Code**: [empty_star.rs](empty_star.rs)
 
 ## Level: Intermediate
 ### Color-filled Squares Spiral
 
+![squares](../docs/assets/images/examples/squares.gif)
+
 **Source Code**: [squares.rs](squares.rs)
 
 ### Isometric Nested Cubes
 
+![nestedcubes](../docs/assets/images/examples/nestedcubes.gif)
+
 **Source Code**: [nestedcubes.rs](nestedcubes.rs)
 
 ### Randomly-colored Tornado
+
+![coloredridge](../docs/assets/images/examples/coloredridge.gif)
 
 **Source Code**: [coloredridge.rs](coloredridge.rs)
 
@@ -56,22 +72,32 @@ which you should take a look at.
 
 ### Snowman
 
+![snowman](../docs/assets/images/examples/snowman.gif)
+
 **Source Code**: [snowman.rs](snowman.rs)
 
 ### Turtle
+
+![draw_turtle](../docs/assets/images/examples/draw_turtle.gif)
 
 **Source Code**: [draw_turtle.rs](draw_turtle.rs)
 
 ## Level: Advanced
 ### Highway Dragon Curve
 
+![dragon](../docs/assets/images/examples/dragon.gif)
+
 **Source Code**: [dragon.rs](dragon.rs)
 
 ### Square Fractal Tree
 
+![tree](../docs/assets/images/examples/tree.gif)
+
 **Source Code**: [tree.rs](tree.rs)
 
 ### Von Koch Snowflake
+
+![snowflake](../docs/assets/images/examples/snowflake.gif)
 
 **Source Code**: [snowflake.rs](snowflake.rs)
 
