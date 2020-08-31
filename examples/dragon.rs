@@ -1,7 +1,7 @@
-//! Draw a dragon curve, more specifically a highway dragon.
+//! Draw a dragon curve, more specifically a Heighway dragon.
 //! (https://en.wikipedia.org/wiki/Dragon_curve)
 //!
-//! As can be seen in the above wikipedia article, the highway dragon can be
+//! As can be seen in the above Wikipedia article, the Heighway dragon can be
 //! constructed by repeatedly folding a strip of paper and looking at the
 //! directions of the folds/turns.
 //!
