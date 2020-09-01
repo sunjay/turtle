@@ -1,14 +1,25 @@
 # Examples
 
 The examples in this directory are meant to help teach you about different
-aspects of the turtle library. Each example shows a different way of using the
-library to create a drawing. Examples range from "beginner" to "advanced". Even
-if you don't feel like you're advanced enough yet, it may be worthwhile to read
-and try to understand how some of the advanced examples work. Some examples are
-more advanced than others. The following are some of the most prominent examples
-which you should take a look at.
+aspects of the turtle crate. Each example shows a different way of using it
+to create a drawing. 
+
+Examples range from "beginner" to "advanced". This rating is subjective and
+subject to change, so you may find that you're able to understand examples
+in one of the higher categories even if you're still learning. The examples
+listed here are just a few of the more prominent ones from the crate. See
+the other files in the `examples` directory for even more.
+
+## Table of Contents
+
+<!-- TODO: Make a more detailed table of contents that lists all the examples -->
+
+* [Beginner](#level-beginner)
+* [Intermediate](#level-intermediate)
+* [Beginner](#level-beginner)
 
 ## Level: Beginner
+
 ### Simple Square
 
 ![square](../docs/assets/images/examples/square.gif)
@@ -24,11 +35,8 @@ square on the canvas by repeating the two basic `forward` and `right` methods.
 
 **Source Code**: [circle.rs](circle.rs)
 
-The circle is usually the next step after simple geometric shapes like polygons
-because of its apparent simplicity. There is a catch though: a turtle may only
-turn in place or go in a straight line. So then we have to decompose the circle
-into small lines and turns in order to obtain a regular polygon with just a lot
-of sides so that it looks like a circle.
+This circle is drawn using many small lines and short turns. It's hard to tell
+just by looking at it, but it isn't actually perfectly round!
 
 ### Dashed Circle
 
@@ -36,8 +44,10 @@ of sides so that it looks like a circle.
 
 **Source Code**: [dashed_circle.rs](dashed_circle.rs)
 
-This one is just a variant of the previous showcasing the ability to raise or
-lower the drawing pen using the `pen_up` and `pen_down` turtle methods.
+This image is drawn using the `pen_up` and `pen_down` methods to periodically
+lift the pen as the turtle moves around the circle. The code uses integer
+division as well as the remainder operator to figure out when to lift and
+lower the pen.
 
 ### Radioactive Triangles
 
@@ -45,28 +55,31 @@ lower the drawing pen using the `pen_up` and `pen_down` turtle methods.
 
 **Source Code**: [three-triangles.rs](three-triangles.rs)
 
-Shows how a simple operation like drawing an equilateral triangle can be repeated
-in order to get a more complex result.
+Draws three equilateral triangles and shows how the program for a single triangle
+can be reused to draw several of them.
 
-### Five Branch Star
+### Five-pointed Star
 
 ![empty_star](../docs/assets/images/examples/empty_star.gif)
 
 **Source Code**: [empty_star.rs](empty_star.rs)
 
-Simple five branch star with an empty middle that colors the background and the
-pen with a thicker pen size as well, using respectively the `set_background_color`,
-`set_pen_color` and `set_pen_size` turtle methods.
+A five-pointed star with no lines in the middle. The background color is changed
+from the default white and the pen size and pen color are changed as well. This
+is done using the `set_background_color`, `set_pen_size`, and `set_pen_color`
+methods respectively.
 
 ## Level: Intermediate
-### Color-filled Squares Spiral
+
+### Square-petalled Flower
 
 ![squares](../docs/assets/images/examples/squares.gif)
 
 **Source Code**: [squares.rs](squares.rs)
 
-This is a repetition of the square drawing, but with added colors and an inner
-colored fill using the `set_fill_color`, `begin_fill` and `end_fill` methods.
+This program repeatedly draws squares while rotating the turtle to produce a
+square-petalled flower. The red and white squares are colored using the
+`set_fill_color`, `begin_fill` and `end_fill` methods.
 
 ### Isometric Nested Cubes
 
@@ -74,9 +87,8 @@ colored fill using the `set_fill_color`, `begin_fill` and `end_fill` methods.
 
 **Source Code**: [nestedcubes.rs](nestedcubes.rs)
 
-This one is quite interesting: it draws a hexagonal spiral with a regularly
-fading color until it makes it go back to the original one, but it slowly
-reveals a form of visual illusion showing nested concentric three-dimensional
+This example draws a hexagonal spiral with a fading color that alternates
+between blue and white. It creates an illusion of nested three-dimensional
 cubes isometrically projected onto the two-dimensional space of the canvas.
 
 ### Randomly-colored Tornado
@@ -85,16 +97,18 @@ cubes isometrically projected onto the two-dimensional space of the canvas.
 
 **Source Code**: [coloredridge.rs](coloredridge.rs)
 
-This color frenzy is also nice to look at: the regular shape is generated using
-a gaussian function setting the pen size.
+This example varies the pen size and color as the turtle moves. The size is
+set to the value of a gaussian function and random pen colors are used to
+ensure that you'll get a completely different image every time.
 
-### Heart Emoji
+### Heart
 
 ![heart](../docs/assets/images/examples/heart.gif)
 
 **Source Code**: [heart.rs](heart.rs)
 
-Cute heart. The arcs are not as easy to draw as one could imagine at first.
+A cute drawing of a heart. The arcs are more difficult to draw than you
+might expect!
 
 ### Rust Logo
 
@@ -102,7 +116,10 @@ Cute heart. The arcs are not as easy to draw as one could imagine at first.
 
 **Source Code**: [rust.rs](rust.rs)
 
-The - approximate - Rust language logo using this crate!
+A (simplified) version of the [logo][rust-logo] for the Rust
+programming language.
+
+[rust-logo]: https://github.com/rust-lang/rust-artwork/blob/master/logo/rust-logo-blk.svg
 
 ### Snowman
 
@@ -121,6 +138,7 @@ A nice-looking snowman with all its common features.
 A turtle drawn by... a turtle!
 
 ## Level: Advanced
+
 ### Heighway Dragon Curve
 
 ![dragon](../docs/assets/images/examples/dragon.gif)
@@ -139,8 +157,8 @@ repeat the process using this one in order to generate the next step.
 
 **Source Code**: [tree.rs](tree.rs)
 
-Another tree-like fractal curve where the trunks or branches are squares rather
-than lines, with sizes chosen to make two squares' vertices coincide.
+This is a tree-like fractal curve where the trunks or branches are squares
+rather than lines. The sizes are chosen to make two squares' vertices coincide.
 
 ### Von Koch Snowflake
 
@@ -160,5 +178,5 @@ repeating the process for each side of step n.
 
 **Source Code**: [maze/main.rs](maze/main.rs)
 
-In this example, the turtle generates and draws a maze. Then it goes through
+In this example, the turtle generates and draws a maze. Then, it goes through
 and solves the maze by moving through the passages until it finds the exit.
