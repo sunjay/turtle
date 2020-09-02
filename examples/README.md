@@ -16,7 +16,7 @@ the other files in the `examples` directory for even more.
 
 * [Beginner](#level-beginner)
 * [Intermediate](#level-intermediate)
-* [Beginner](#level-beginner)
+* [Advanced](#level-advanced)
 
 ## Level: Beginner
 
