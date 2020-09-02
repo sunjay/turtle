@@ -26,8 +26,8 @@ the other files in the `examples` directory for even more.
 
 **Source Code**: [square.rs](square.rs)
 
-This is almost the simplest turtle program possible: it draws a non-centered
-square on the canvas by repeating the two basic `forward` and `right` methods.
+This program draws a square on the canvas by repeatedly calling the `forward`
+and `right` methods.
 
 ### Simple Circle
 
