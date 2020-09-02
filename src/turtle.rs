@@ -1,8 +1,8 @@
 use std::fmt::{self, Debug};
 
-use crate::{Color, Point, Speed, Distance, Angle};
 use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
+use crate::{Angle, Color, Distance, Point, Speed};
 
 /// A turtle with a pen attached to its tail
 ///
@@ -33,7 +33,7 @@ impl Default for Turtle {
 
 impl From<AsyncTurtle> for Turtle {
     fn from(turtle: AsyncTurtle) -> Self {
-        Self {turtle}
+        Self { turtle }
     }
 }
 
@@ -535,9 +535,10 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Turtle;
     ///
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     /// fn main() {
     ///     let mut turtle = Turtle::new();
     ///
@@ -557,6 +558,7 @@ impl Turtle {
     ///     turtle.set_pen_color("#4CAF50"); // green
     ///     turtle.set_pen_size(100.0);
     ///     turtle.forward(200.0);
+    ///     # #[cfg(docs_images)] turtle.save_png("pen_thickness").unwrap();
     /// }
     /// ```
     ///
@@ -591,8 +593,9 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     ///
     /// fn main() {
     ///     let mut drawing = Drawing::new();
@@ -607,6 +610,7 @@ impl Turtle {
     ///         turtle.forward(25.0);
     ///         turtle.right(10.0);
     ///     }
+    ///     # #[cfg(docs_images)] drawing.save_png("colored_circle").unwrap();
     /// }
     /// ```
     ///
@@ -682,9 +686,10 @@ impl Turtle {
     /// **Note:** The fill color must be set **before** `begin_fill()` is called in order to be
     /// used when filling the shape.
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Turtle;
     ///
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     /// fn main() {
     ///     let mut turtle = Turtle::new();
     ///     turtle.right(90.0);
@@ -707,6 +712,7 @@ impl Turtle {
     ///     }
     ///     turtle.right(90.0);
     ///     turtle.forward(120.0);
+    ///     # #[cfg(docs_images)] turtle.save_png("red_circle").unwrap();
     /// }
     /// ```
     ///
@@ -802,16 +808,19 @@ impl Turtle {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Turtle;
-    ///
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
+    /// 
     /// fn main() {
     ///     let mut turtle = Turtle::new();
     ///     turtle.right(32.0);
     ///     turtle.forward(150.0);
-    ///
+    ///     # #[cfg(docs_images)] turtle.save_png("clear_before_click").unwrap();
+    ///     # #[cfg(doctests_run_user_input)]
     ///     turtle.wait_for_click();
     ///     turtle.clear();
+    ///     # #[cfg(docs_images)] turtle.save_png("clear_after_click").unwrap();
     /// }
     /// ```
     ///
@@ -890,6 +899,17 @@ impl Turtle {
         block_on(self.turtle.wait_for_click())
     }
 }
+
+#[cfg(docs_images)]
+impl crate::SavePng for Turtle {
+    fn save_png(&self, path: &str) -> Result<(), String> {
+        match self.turtle.save_png(path) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -971,7 +991,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_pen_color() {
         let mut turtle = Turtle::new();
         turtle.set_pen_color(Color {
@@ -983,7 +1005,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_fill_color() {
         let mut turtle = Turtle::new();
         turtle.set_fill_color(Color {

@@ -1,9 +1,9 @@
 use std::fmt::{self, Debug};
 use std::path::Path;
 
-use crate::{Turtle, Color, Point, Size, ExportError};
 use crate::async_drawing::AsyncDrawing;
 use crate::sync_runtime::block_on;
+use crate::{Color, ExportError, Point, Size, Turtle};
 
 /// Provides access to properties of the drawing that the turtle is creating
 ///
@@ -70,7 +70,7 @@ impl From<AsyncDrawing> for Drawing {
     fn from(drawing: AsyncDrawing) -> Self {
         //TODO: There is no way to set `turtles` properly here, but that's okay since it is going
         // to be removed soon.
-        Self {drawing, turtles: 1}
+        Self { drawing, turtles: 1 }
     }
 }
 
@@ -149,7 +149,7 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
     ///
     /// fn main() {
@@ -157,6 +157,7 @@ impl Drawing {
     ///     # #[allow(unused)] // Good to show turtle creation here even if unused
     ///     let mut turtle = drawing.add_turtle();
     ///     drawing.set_title("My Fancy Title! - Yay!");
+    ///     
     /// }
     /// ```
     ///
@@ -188,7 +189,7 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
     ///
     /// fn main() {
@@ -230,8 +231,9 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     ///
     /// fn main() {
     ///     let mut drawing = Drawing::new();
@@ -243,9 +245,11 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///
+    ///     # #[cfg(docs_images)] drawing.save_png("circle").unwrap();
+    ///     # #[cfg(doctests_run_user_input)]
     ///     turtle.wait_for_click();
     ///     drawing.set_center([50.0, 100.0]);
+    ///     # #[cfg(docs_images)] drawing.save_png("circle_offset_center").unwrap();
     /// }
     /// ```
     ///
@@ -313,9 +317,10 @@ impl Drawing {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::Drawing;
-    ///
+    /// 
+    /// # #[cfg(docs_images)] use crate::turtle::SavePng;
     /// fn main() {
     ///     let mut drawing = Drawing::new();
     ///     let mut turtle = drawing.add_turtle();
@@ -326,9 +331,11 @@ impl Drawing {
     ///         // Rotate to the right (clockwise) by 1 degree
     ///         turtle.right(1.0);
     ///     }
-    ///
+    ///     # #[cfg(docs_images)] drawing.save_png("drawing").unwrap();
+    ///      # #[cfg(doctest_run_user_input)]
     ///     turtle.wait_for_click();
     ///     drawing.set_size((300, 300));
+    ///     # #[cfg(docs_images)] drawing.save_png("small_drawing").unwrap();
     /// }
     /// ```
     ///
@@ -585,7 +592,7 @@ impl Drawing {
 
     /// Saves the current drawings in SVG format at the location specified by `path`.
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use turtle::{Drawing, Turtle, Color, ExportError};
     ///
     /// fn main() -> Result<(), ExportError> {
@@ -629,12 +636,24 @@ impl Drawing {
     }
 }
 
+#[cfg(docs_images)]
+impl crate::SavePng for Drawing {
+    fn save_png(&self, path: &str) -> Result<(), String> {
+        match block_on(self.drawing.save_svg(Path::new(path))) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_background_color() {
         let mut drawing = Drawing::new();
         drawing.set_background_color(Color {
@@ -655,7 +674,7 @@ mod tests {
 
     #[test]
     fn ignores_center_nan_inf() {
-        let center = Point {x: 5.0, y: 10.0};
+        let center = Point { x: 5.0, y: 10.0 };
 
         let mut drawing = Drawing::new();
         drawing.set_center(center);

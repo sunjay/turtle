@@ -51,6 +51,11 @@ cfg-if = "0.1"
 
 parking_lot = "0.10"
 
+
+# docs_images_save_png feature
+resvg = {version = "0.11.0", optional = true}
+usvg = {version = "0.11.0", optional = true}
+
 [dependencies.futures-util]
 version = "0.3"
 default-features = false
@@ -77,6 +82,7 @@ features = [
 # a library.
 [dev-dependencies]
 bitvec = "0.17"
+# doctest_run_user_input
 
 # Since the debug performance of turtle isn't all that great, we recommend that
 # every user of turtle add the following to their Cargo.toml
@@ -95,7 +101,7 @@ opt-level = 3
 
 [features]
 # The reason we do this is because doctests don't get cfg(test)
-# See: https://github.com/rust-lang/cargo/issues/4669
+# See: https://github.com/rust-lang/rust/issues/45599
 #
 # This allows us to write attributes like the following and have it work
 # in all tests.
@@ -110,3 +116,11 @@ test = []
 #
 # Users of the crate must explicitly opt-in to activate them.
 unstable = []
+
+# This feature is only designed for generating images to be used for documentation. Therefore you need to
+# set both RUSTFLAGS and RUSTDOCFLAGS to "--cfg docs_images" in order to generate png files when running
+# the doc tests. For more information please see: CONTRIBUTING.md
+# note: clang is required for resvg
+# note: the flag `doctests_run_user_input` is used for tests that 
+# require userinput that we don't want to run but to show in the docs
+docs_images_save_png = ["resvg", "usvg"]
