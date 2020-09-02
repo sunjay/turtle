@@ -167,11 +167,14 @@ rather than lines. The sizes are chosen to make two squares' vertices coincide.
 
 **Source Code**: [snowflake.rs](snowflake.rs)
 
-Draws a [Von Koch snowflake](https://en.wikipedia.org/wiki/Koch_snowflake). This
-uses yet another recursive algorithm: step 1 is an equilateral triangle, step 2
-is cutting each of its sides in three and replaces their middle parts with an
-equilateral triangle of adequate size but without a base side, step n + 1 is
-repeating the process for each side of step n.
+Draws a [Von Koch snowflake](https://en.wikipedia.org/wiki/Koch_snowflake).
+This uses yet another recursive algorithm: Step 1 is an equilateral triangle.
+Step 2 is cutting each of its sides in three and replacing their middle parts
+with an equilateral triangle with sides of the same length as the surrounding
+parts but without a base side. Step n + 1 is repeating the process for each
+side of step n. Note there is no "cutting" happening during the drawing, all
+the drawn sides are the same length, but the turning angles are computed
+recursively following the described algorithm.
 
 ### Random Maze Generator + Solver
 
