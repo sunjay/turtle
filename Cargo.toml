@@ -76,7 +76,7 @@ features = [
 # Dependencies used when developing `turtle` directly, but not when using it as
 # a library.
 [dev-dependencies]
-bitvec = "0.17"
+bitvec = "0.18"
 
 # Since the debug performance of turtle isn't all that great, we recommend that
 # every user of turtle add the following to their Cargo.toml
