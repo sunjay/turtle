@@ -10,7 +10,7 @@
 //! [`bitvec`]: //crates.io/crates/bitvec
 
 // This imports the things we need from `bitvec`, including the `Bits` trait for
-// the `.bits::<_>()` method we use to view memory.
+// the `.view_bits::<_>()` method we use to view memory.
 use bitvec::prelude::*;
 use turtle::Turtle;
 
@@ -103,8 +103,8 @@ fn draw_text(turtle: &mut Turtle, text: &str) {
         let row: &[u8] = &text.as_bytes()[start .. start + byte_count];
 
         // For each byte (`u8`), we use `bitvec` to make a view into its bits.
-        // `bitvec` provides the `.bits::<_>()` method on Rust integers for easy
-        // access to its view types.
+        // `bitvec` provides the `.view_bits::<_>()` method on Rust integers for
+        // easy access to its view types.
         //
         // The `Lsb0` means that the view moves from least significant bit to
         // most significant. Since we want to display on screen the most
@@ -119,7 +119,7 @@ fn draw_text(turtle: &mut Turtle, text: &str) {
         for byte in row {
             println!("  Byte {:02}:\n    Value: 0x{:02X}\n    Bits: {:08b}", row_num, byte, byte);
 
-            let bits: &BitSlice<_, _> = byte.bits::<Lsb0>();
+            let bits: &BitSlice<_, _> = byte.view_bits::<Lsb0>();
 
             // Then we draw the byte's bits as a row
             draw_row(turtle, bits);
@@ -152,7 +152,7 @@ fn draw_number(turtle: &mut Turtle, number: f32) {
     let raw_number: u32 = number.to_bits();
 
     // `bitvec` can also view bits from left to right, with `Msb0`.
-    let bits: &BitSlice<_, _> = raw_number.bits::<Msb0>();
+    let bits: &BitSlice<_, _> = raw_number.view_bits::<Msb0>();
 
     // The `&BitSlice` type acts just like `&[bool]`, so it comes with a
     // `.chunks` method which divides it into smaller pieces. `bitvec` can take
