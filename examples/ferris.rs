@@ -148,4 +148,67 @@ fn main() {
     turtle.bezier_rel(middle_curve_part2);
 
     turtle.end_fill();
+    turtle.set_fill_color(FRONT_SHELL_COLOR);
+    turtle.begin_fill();
+
+    turtle.bezier_rel(rp([
+        ap([239.45, 504.36]),
+        ap([233.00, 508.18]),
+        ap([213.45, 519.82]),
+        ap([212.50, 524.44]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([212.25, 524.44]),
+        ap([215.00, 570.50]),
+        ap([300.00, 657.50]),
+        ap([304.52, 700.83]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([303.56, 702.56]),
+        ap([206.50, 599.75]),
+        ap([133.25, 541.75]),
+        ap([138.00, 522.82]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([138.00, 523.18]),
+        ap([137.82, 511.73]),
+        ap([145.55, 510.64]),
+        ap([176.00, 476.00]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([175.64, 475.55]),
+        ap([138.73, 455.36]),
+        ap([111.09, 430.55]),
+        ap([103.73, 408.91]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([103.91, 409.55]),
+        ap([-21.00, 349.50]),
+        ap([5.00, 282.50]),
+        ap([52.00, 244.12]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([52.69, 244.19]),
+        ap([59.00, 289.00]),
+        ap([83.12, 323.00]),
+        ap([109.56, 344.59]),
+    ]));
+    let left_claw_heading = (180.0 - 82.13f64).to_radians();
+    turtle.set_heading(left_claw_heading);
+    turtle.forward(ad(124.2, turtle.heading()));
+    turtle.bezier_rel(rp([
+        ap([93.13, 221.13]),
+        ap([163.25, 250.75]),
+        ap([216.25, 316.75]),
+        ap([148.35, 405.39]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([148.52, 405.43]),
+        ap([160.27, 422.64]),
+        ap([185.00, 435.45]),
+        ap([207.04, 443.65]),
+    ]));
+    let left_claw_heading = 45f64.to_radians();
+    turtle.set_heading(left_claw_heading);
+    turtle.forward(ad(12.7, turtle.heading()));
 }
