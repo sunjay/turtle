@@ -245,4 +245,26 @@ fn main() {
     let left_claw_heading = 45f64.to_radians();
     turtle.set_heading(left_claw_heading);
     turtle.forward(ad(12.7, turtle.heading()));
+
+    let spike_start_turn = 52.57f64.to_radians();
+    let spike_start_length = 49.2;
+    let spike_top_curve = rp([
+        ap([509.52, 106.52]),
+        ap([512.17, 99.17]),
+        ap([524.30, 96.83]),
+        ap([529.52, 102.48]),
+    ]);
+    let spike_end_turn = 58.28f64.to_radians();
+    let spike_end_length = 47.49;
+    let spike_between_length = 12.0;
+    turtle.left(81.32f64.to_radians() - spike_start_turn);
+
+    for _ in 0..13 {
+        turtle.left(spike_start_turn);
+        turtle.forward(ad(spike_start_length, turtle.heading()));
+        turtle.bezier_rel_head(spike_top_curve);
+        turtle.forward(ad(spike_end_length, turtle.heading()));
+        turtle.left(spike_end_turn);
+        turtle.forward(ad(spike_between_length, turtle.heading()));
+    }
 }
