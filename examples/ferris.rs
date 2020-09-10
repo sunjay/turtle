@@ -1,4 +1,4 @@
-use turtle::{Angle, Distance, Drawing, Point, Size, Turtle};
+use turtle::{Angle, Color, Distance, Drawing, Point, Size, Turtle};
 
 trait Rotate {
     fn rot(&self, angle: Angle) -> Self;
@@ -122,6 +122,17 @@ fn turn_and_go_to(turtle: &mut Turtle, point: Point) {
     turtle.go_to(point);
 }
 
+fn next_fill(turtle: &mut Turtle, color: impl Into<Color>) {
+    next_fill_at(turtle, color, turtle.position());
+}
+
+fn next_fill_at(turtle: &mut Turtle, color: impl Into<Color>, pos: Point) {
+    turtle.end_fill();
+    turtle.set_fill_color(color.into());
+    turn_and_go_to(turtle, pos);
+    turtle.begin_fill();
+}
+
 fn main() {
     let mut drawing = Drawing::new();
     let size = drawing.size();
@@ -189,9 +200,7 @@ fn main() {
     ]);
     turtle.bezier_rel(middle_curve_part2);
 
-    turtle.end_fill();
-    turtle.set_fill_color(FRONT_SHELL_COLOR);
-    turtle.begin_fill();
+    next_fill(&mut turtle, FRONT_SHELL_COLOR);
 
     turtle.bezier_rel(rp([
         ap([239.45, 504.36]),
@@ -333,10 +342,7 @@ fn main() {
     turtle.bezier_rel(middle_curve_part1);
     turtle.bezier_rel(middle_curve_part2);
 
-    turtle.end_fill();
-    turtle.set_fill_color(MOUTH_COLOR);
-    turn_and_go_to(&mut turtle, ap([539.88, 510.78]));
-    turtle.begin_fill();
+    next_fill_at(&mut turtle, MOUTH_COLOR, ap([539.88, 510.78]));
 
     turtle.bezier_rel(rp([
         ap([539.88, 510.78]),
@@ -351,10 +357,7 @@ fn main() {
         ap([540.57, 510.48]),
     ]));
 
-    turtle.end_fill();
-    turtle.set_fill_color(PUPIL_COLOR);
-    turn_and_go_to(&mut turtle, ap([522.57, 455.57]));
-    turtle.begin_fill();
+    next_fill_at(&mut turtle, PUPIL_COLOR, ap([522.57, 455.57]));
 
     turtle.bezier_rel(rp([
         ap([522.57, 455.57]),
@@ -369,10 +372,7 @@ fn main() {
         ap([522.45, 455.55]),
     ]));
 
-    turtle.end_fill();
-    turtle.set_fill_color(MOUTH_COLOR);
-    turn_and_go_to(&mut turtle, ap([710.44, 507.56]));
-    turtle.begin_fill();
+    next_fill_at(&mut turtle, MOUTH_COLOR, ap([710.44, 507.56]));
 
     turtle.bezier_rel(rp([
         ap([710.44, 507.56]),
@@ -393,10 +393,7 @@ fn main() {
         ap([711.50, 507.50]),
     ]));
 
-    turtle.end_fill();
-    turtle.set_fill_color(PUPIL_COLOR);
-    turn_and_go_to(&mut turtle, ap([699.12, 453.53]));
-    turtle.begin_fill();
+    next_fill_at(&mut turtle, PUPIL_COLOR, ap([699.12, 453.53]));
 
     turtle.bezier_rel(rp([
         ap([699.12, 453.53]),
@@ -411,10 +408,7 @@ fn main() {
         ap([699.06, 453.50]),
     ]));
 
-    turtle.end_fill();
-    turtle.set_fill_color(MOUTH_COLOR);
-    turn_and_go_to(&mut turtle, ap([673.44, 530.4]));
-    turtle.begin_fill();
+    next_fill_at(&mut turtle, MOUTH_COLOR, ap([673.44, 530.4]));
 
     turtle.bezier_rel(rp([
         ap([673.44, 530.4]),
