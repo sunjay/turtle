@@ -112,6 +112,11 @@ fn adapt_distance(distance: Distance, angle: Angle, size: Size) -> Distance {
     .sqrt()
 }
 
+fn adapted_head_forward(turtle: &mut Turtle, distance: Distance, head: Angle, size: Size) {
+    turtle.set_heading(head);
+    turtle.forward(adapt_distance(distance, head, size));
+}
+
 fn main() {
     let mut drawing = Drawing::new();
     let size = drawing.size();
@@ -124,6 +129,8 @@ fn main() {
     let rp = rel_points;
     let ap = |point| adapt_point(point, size);
     let ad = |distance, angle| adapt_distance(distance, angle, size);
+    let ahf =
+        |turtle: &mut Turtle, distance, head| adapted_head_forward(turtle, distance, head, size);
 
     let start_point = ap([240.0, 504.0]);
     turtle.set_fill_color(BACK_SHELL_COLOR);
@@ -133,9 +140,7 @@ fn main() {
     turtle.set_speed("faster");
     turtle.begin_fill();
 
-    let start_heading = (180.0 + 32.01f64).to_radians();
-    turtle.set_heading(start_heading);
-    turtle.forward(ad(18.9, start_heading));
+    ahf(&mut turtle, 18.9, (180.0 + 32.01f64).to_radians());
     turtle.bezier_rel(rp([
         ap([223.64, 514.18]),
         ap([222.18, 525.09]),
@@ -227,9 +232,7 @@ fn main() {
         ap([83.12, 323.00]),
         ap([109.56, 344.59]),
     ]));
-    let left_claw_heading = (180.0 - 82.13f64).to_radians();
-    turtle.set_heading(left_claw_heading);
-    turtle.forward(ad(124.2, turtle.heading()));
+    ahf(&mut turtle, 124.2, (180.0 - 82.13f64).to_radians());
     turtle.bezier_rel(rp([
         ap([93.13, 221.13]),
         ap([163.25, 250.75]),
@@ -242,9 +245,7 @@ fn main() {
         ap([185.00, 435.45]),
         ap([207.04, 443.65]),
     ]));
-    let left_claw_heading = 45f64.to_radians();
-    turtle.set_heading(left_claw_heading);
-    turtle.forward(ad(12.7, turtle.heading()));
+    ahf(&mut turtle, 12.7, 45f64.to_radians());
 
     let spike_start_turn = 52.57f64.to_radians();
     let spike_start_length = 49.2;
@@ -274,9 +275,7 @@ fn main() {
         ap([1035.27, 410.91]),
         ap([1041.87, 402.91]),
     ]));
-    let right_claw_heading = 66.8f64.to_radians();
-    turtle.set_heading(right_claw_heading);
-    turtle.forward(ad(22.8, right_claw_heading));
+    ahf(&mut turtle, 22.8, 66.8f64.to_radians());
     turtle.bezier_rel(rp([
         ap([1050.65, 381.52]),
         ap([980.00, 298.25]),
@@ -307,18 +306,14 @@ fn main() {
         ap([1048.64, 453.45]),
         ap([1033.47, 465.31]),
     ]));
-    let right_leg_heading = -36.3f64.to_radians();
-    turtle.set_heading(right_leg_heading);
-    turtle.forward(ad(60.8, right_leg_heading));
+    ahf(&mut turtle, 60.8, -36.3f64.to_radians());
     turtle.bezier_rel(rp([
         ap([1081.88, 502.06]),
         ap([1084.65, 506.52]),
         ap([1088.26, 511.17]),
         ap([1074.84, 534.82]),
     ]));
-    let right_leg_heading = (180.0 + 55.56f64).to_radians();
-    turtle.set_heading(right_leg_heading);
-    turtle.forward(ad(127.3, right_leg_heading));
+    ahf(&mut turtle, 127.3, (180.0 + 55.56f64).to_radians());
     turtle.bezier_rel(rp([
         ap([1002.84, 639.87]),
         ap([975.18, 675.00]),
@@ -331,9 +326,7 @@ fn main() {
         ap([1012.12, 586.75]),
         ap([1016.50, 523.19]),
     ]));
-    let right_leg_heading = (180.0 - 41.87f64).to_radians();
-    turtle.set_heading(right_leg_heading);
-    turtle.forward(ad(11.4, right_leg_heading));
+    ahf(&mut turtle, 11.4, (180.0 - 41.87f64).to_radians());
     turtle.bezier_rel(middle_curve_part1);
     turtle.bezier_rel(middle_curve_part2);
     turtle.end_fill();
