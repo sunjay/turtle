@@ -1,4 +1,19 @@
-use turtle::{Angle, Color, Distance, Drawing, Point, Size, Turtle};
+use turtle::{Angle, Distance, Drawing, Point, Size, Turtle};
+
+trait Rotate {
+    fn rot(&self, angle: Angle) -> Self;
+}
+
+impl Rotate for Point {
+    fn rot(&self, angle: Angle) -> Self {
+        let (sin_angle, cos_angle) = angle.sin_cos();
+        [
+            self.x * cos_angle - self.y * sin_angle,
+            self.x * sin_angle + self.y * cos_angle,
+        ]
+        .into()
+    }
+}
 
 trait CubicBezier {
     const DEFAULT_SAMPLES: usize = 100;
