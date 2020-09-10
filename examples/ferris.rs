@@ -20,6 +20,7 @@ trait CubicBezier {
 
     fn bezier_abs_pr(&mut self, samples: usize, points: [Point; 4]);
     fn bezier_rel_pr(&mut self, samples: usize, rel_points: [Point; 3]);
+    fn bezier_rel_head_pr(&mut self, samples: usize, rel_points: [Point; 3]);
 
     fn bezier_abs(&mut self, points: [Point; 4]) {
         self.bezier_abs_pr(Self::DEFAULT_SAMPLES, points)
@@ -27,6 +28,10 @@ trait CubicBezier {
 
     fn bezier_rel(&mut self, rel_points: [Point; 3]) {
         self.bezier_rel_pr(Self::DEFAULT_SAMPLES, rel_points)
+    }
+
+    fn bezier_rel_head(&mut self, rel_points: [Point; 3]) {
+        self.bezier_rel_head_pr(Self::DEFAULT_SAMPLES, rel_points)
     }
 
     fn curve_at(t: f64, points: [Point; 4]) -> Point {
@@ -57,6 +62,20 @@ impl CubicBezier for Turtle {
                 pos + rel_points[0],
                 pos + rel_points[1],
                 pos + rel_points[2],
+            ],
+        )
+    }
+
+    fn bezier_rel_head_pr(&mut self, samples: usize, rel_points: [Point; 3]) {
+        let pos = self.position();
+        let rot_angle = self.heading() - rel_points[0].atan2();
+        self.bezier_abs_pr(
+            samples,
+            [
+                pos,
+                pos + rel_points[0].rot(rot_angle),
+                pos + rel_points[1].rot(rot_angle),
+                pos + rel_points[2].rot(rot_angle),
             ],
         )
     }
