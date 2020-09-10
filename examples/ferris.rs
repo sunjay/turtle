@@ -117,6 +117,11 @@ fn adapted_head_forward(turtle: &mut Turtle, distance: Distance, head: Angle, si
     turtle.forward(adapt_distance(distance, head, size));
 }
 
+fn turn_and_go_to(turtle: &mut Turtle, point: Point) {
+    turtle.turn_towards(point);
+    turtle.go_to(point);
+}
+
 fn main() {
     let mut drawing = Drawing::new();
     let size = drawing.size();
@@ -132,11 +137,9 @@ fn main() {
     let ahf =
         |turtle: &mut Turtle, distance, head| adapted_head_forward(turtle, distance, head, size);
 
-    let start_point = ap([240.0, 504.0]);
     turtle.set_fill_color(BACK_SHELL_COLOR);
     turtle.set_speed("instant");
-    turtle.turn_towards(start_point);
-    turtle.go_to(start_point);
+    turn_and_go_to(&mut turtle, ap([240.0, 504.0]));
     turtle.set_speed("faster");
     turtle.begin_fill();
 
