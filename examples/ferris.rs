@@ -267,4 +267,76 @@ fn main() {
         turtle.left(spike_end_turn);
         turtle.forward(ad(spike_between_length, turtle.heading()));
     }
+
+    turtle.bezier_rel(rp([
+        ap([1000.36, 439.64]),
+        ap([1008.36, 434.45]),
+        ap([1035.27, 410.91]),
+        ap([1041.87, 402.91]),
+    ]));
+    let right_claw_heading = 66.8f64.to_radians();
+    turtle.set_heading(right_claw_heading);
+    turtle.forward(ad(22.8, right_claw_heading));
+    turtle.bezier_rel(rp([
+        ap([1050.65, 381.52]),
+        ap([980.00, 298.25]),
+        ap([1027.75, 236.75]),
+        ap([1109.50, 200.62]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([1109.57, 200.26]),
+        ap([1096.75, 232.50]),
+        ap([1100.12, 304.25]),
+        ap([1100.13, 316.87]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([1101.50, 316.91]),
+        ap([1139.00, 298.00]),
+        ap([1156.62, 260.62]),
+        ap([1166.34, 219.34]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([1166.53, 218.62]),
+        ap([1216.75, 298.00]),
+        ap([1148.50, 372.00]),
+        ap([1085.75, 405.78]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([1085.78, 405.72]),
+        ap([1077.36, 420.27]),
+        ap([1048.64, 453.45]),
+        ap([1033.47, 465.31]),
+    ]));
+    let right_leg_heading = -36.3f64.to_radians();
+    turtle.set_heading(right_leg_heading);
+    turtle.forward(ad(60.8, right_leg_heading));
+    turtle.bezier_rel(rp([
+        ap([1081.88, 502.06]),
+        ap([1084.65, 506.52]),
+        ap([1088.26, 511.17]),
+        ap([1074.84, 534.82]),
+    ]));
+    let right_leg_heading = (180.0 + 55.56f64).to_radians();
+    turtle.set_heading(right_leg_heading);
+    turtle.forward(ad(127.3, right_leg_heading));
+    turtle.bezier_rel(rp([
+        ap([1002.84, 639.87]),
+        ap([975.18, 675.00]),
+        ap([965.82, 698.00]),
+        ap([959.53, 702.47]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([959.13, 701.74]),
+        ap([958.25, 656.00]),
+        ap([1012.12, 586.75]),
+        ap([1016.50, 523.19]),
+    ]));
+    let right_leg_heading = (180.0 - 41.87f64).to_radians();
+    turtle.set_heading(right_leg_heading);
+    turtle.forward(ad(11.4, right_leg_heading));
+    turtle.bezier_rel(middle_curve_part1);
+    turtle.bezier_rel(middle_curve_part2);
+    turtle.end_fill();
+
+    turtle.set_speed(23);
 }
