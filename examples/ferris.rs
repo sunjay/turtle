@@ -332,7 +332,98 @@ fn main() {
     ahf(&mut turtle, 11.4, (180.0 - 41.87f64).to_radians());
     turtle.bezier_rel(middle_curve_part1);
     turtle.bezier_rel(middle_curve_part2);
-    turtle.end_fill();
 
-    turtle.set_speed(23);
+    turtle.end_fill();
+    turtle.set_fill_color(MOUTH_COLOR);
+    turn_and_go_to(&mut turtle, ap([539.88, 510.78]));
+    turtle.begin_fill();
+
+    turtle.bezier_rel(rp([
+        ap([539.88, 510.78]),
+        ap([498.12, 499.00]),
+        ap([470.12, 463.28]),
+        ap([512.38, 399.28]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([512.44, 399.38]),
+        ap([605.64, 358.55]),
+        ap([627.09, 510.55]),
+        ap([540.57, 510.48]),
+    ]));
+
+    turtle.end_fill();
+    turtle.set_fill_color(PUPIL_COLOR);
+    turn_and_go_to(&mut turtle, ap([522.57, 455.57]));
+    turtle.begin_fill();
+
+    turtle.bezier_rel(rp([
+        ap([522.57, 455.57]),
+        ap([495.45, 455.73]),
+        ap([493.64, 397.55]),
+        ap([522.53, 397.50]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([522.18, 397.55]),
+        ap([551.45, 397.55]),
+        ap([549.73, 455.55]),
+        ap([522.45, 455.55]),
+    ]));
+
+    turtle.end_fill();
+    turtle.set_fill_color(MOUTH_COLOR);
+    turn_and_go_to(&mut turtle, ap([710.44, 507.56]));
+    turtle.begin_fill();
+
+    turtle.bezier_rel(rp([
+        ap([710.44, 507.56]),
+        ap([675.09, 512.36]),
+        ap([644.91, 454.00]),
+        ap([677.57, 410.30]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([677.52, 410.52]),
+        ap([693.44, 389.69]),
+        ap([730.06, 384.00]),
+        ap([751.44, 411.53]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([751.47, 411.56]),
+        ap([782.36, 480.00]),
+        ap([749.45, 500.91]),
+        ap([711.50, 507.50]),
+    ]));
+
+    turtle.end_fill();
+    turtle.set_fill_color(PUPIL_COLOR);
+    turn_and_go_to(&mut turtle, ap([699.12, 453.53]));
+    turtle.begin_fill();
+
+    turtle.bezier_rel(rp([
+        ap([699.12, 453.53]),
+        ap([672.91, 453.55]),
+        ap([671.73, 397.45]),
+        ap([699.11, 395.44]),
+    ]));
+    turtle.bezier_rel(rp([
+        ap([699.03, 395.53]),
+        ap([727.55, 397.55]),
+        ap([725.07, 453.56]),
+        ap([699.06, 453.50]),
+    ]));
+
+    turtle.end_fill();
+    turtle.set_fill_color(MOUTH_COLOR);
+    turn_and_go_to(&mut turtle, ap([673.44, 530.4]));
+    turtle.begin_fill();
+
+    turtle.bezier_rel(rp([
+        ap([673.44, 530.4]),
+        ap([663.27, 570.64]),
+        ap([611.91, 579.64]),
+        ap([593.57, 536.61]),
+    ]));
+    ahf(&mut turtle, 80.2, 4.24f64.to_radians());
+
+    turtle.end_fill();
+    turtle.hide();
 }
