@@ -1,10 +1,58 @@
+//! Draw the officially unofficial Rust mascot.
+//!
+//! # Synopsis
+//!
+//! This example draws a happy Ferris, the Rust language mascot. The original
+//! image was taken from the Rust community website [rustacean.net].
+//!
+//! # Implementation details
+//!
+//! As the image is quite curvy, building arcs by hand would have been awful.
+//! So this example uses a [cubic Bézier curve] implementation extensively.
+//! It does it by first using [GIMP] in order to measure each curve's cubic
+//! parameters and simply paste them in the drawing code. Those are "unadapted"
+//! points because the original and actual drawing aspect ratios are not
+//! necessarily the same. So they are first "adapted" by distorting the space.
+//! They are also absolute points because using them directly would not take
+//! into account the current position of the turtle. So they are then transformed
+//! into relative points. Finally, the current position is added into the mix in
+//! order to get absolute points back and draw the cubic Bézier curve simply by
+//! applying the formula. Some linear movements are of course used as well.
+//!
+//! As one can see, there has been a great deal of effort put into making the
+//! drawing as independent as possible of the canvas size. Although it worked
+//! fine for the first parts of the drawing, it does not for the shell spikes
+//! unfortunately. This is because measuring curve parameters takes a long time,
+//! so to avoid that, a simple loop is used to draw the spikes. For them to be
+//! drawn correctly however, a rotation of the Bézier points had to be implemented,
+//! otherwise the crab would be flat. The ratio adaptation could not be added
+//! in the rotation, so resizing the canvas results in chaos sadly.
+//!
+//! Solutions to fix this could be:
+//!  * Finding a way to adapt rotated adapted relative points.
+//!  * Using elliptic arcs for the spike tip parts, which would be convenient
+//!    to adapt.
+//!  * Removing all the ratio adaptation, replacing it with size adaptation and
+//!    using a canvas size with the same aspect ratio as the original image.
+//!
+//! Any contribution or suggestion towards this is welcome!
+//!
+//! [rustacean.net]: https://rustacean.net/
+//! [cubic Bézier curve]: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
+//! [GIMP]: https://www.gimp.org/
+
+/// Imports of most of `turtle`'s API.
 use turtle::{Angle, Color, Distance, Drawing, Point, Size, Turtle};
 
+/// Provides a rotation method producing new values.
 trait Rotate {
+    /// Rotates in the 2D space by the given angle into a new value.
     fn rot(&self, angle: Angle) -> Self;
 }
 
+/// Extension of the `Point` struct.
 impl Rotate for Point {
+    /// 2D counterclockwise rotates the point by the given angle.
     fn rot(&self, angle: Angle) -> Self {
         let (sin_angle, cos_angle) = angle.sin_cos();
         [
@@ -15,25 +63,40 @@ impl Rotate for Point {
     }
 }
 
+/// Cubic bézier methods with customizable default and per case sampling precision.
 trait CubicBezier {
+    /// The default amount of samples taken from the curve when receiving it explicitly.
     const DEFAULT_SAMPLES: usize = 100;
 
+    /// Samples and draws the cubic Bézier curve parameterized by the given `points`.
     fn bezier_abs_pr(&mut self, samples: usize, points: [Point; 4]);
+    /// Samples and draws the cubic Bézier curve parameterized by the given
+    /// `rel_points` relative to the current position.
     fn bezier_rel_pr(&mut self, samples: usize, rel_points: [Point; 3]);
+    /// Samples and draws the cubic Bézier curve parameterized by the given
+    /// `rel_points` relative to the current position and that are be rotated
+    /// in order for the first point to be aligned with the current heading.
     fn bezier_rel_head_pr(&mut self, samples: usize, rel_points: [Point; 3]);
 
+    /// Draws the cubic Bézier curve parameterized by the given `points` with the
+    /// default sampling precision.
     fn bezier_abs(&mut self, points: [Point; 4]) {
         self.bezier_abs_pr(Self::DEFAULT_SAMPLES, points)
     }
 
+    /// Draws the cubic Bézier curve parameterized by the given relative `rel_points`
+    /// with the default sampling precision.
     fn bezier_rel(&mut self, rel_points: [Point; 3]) {
         self.bezier_rel_pr(Self::DEFAULT_SAMPLES, rel_points)
     }
 
+    /// Draws the cubic Bézier curve parameterized by the given relative `rel_points`
+    /// to be aligned on the current heading with the default sampling precision.
     fn bezier_rel_head(&mut self, rel_points: [Point; 3]) {
         self.bezier_rel_head_pr(Self::DEFAULT_SAMPLES, rel_points)
     }
 
+    /// Computes and returns the `Point` at position `0 <= t <= 1` along the curve.
     fn curve_at(t: f64, points: [Point; 4]) -> Point {
         (1.0 - t).powi(3) * points[0]
             + 3.0 * (1.0 - t).powi(2) * t * points[1]
@@ -48,11 +111,13 @@ impl CubicBezier for Turtle {
             .map(|i| i as f64 / samples as f64)
             .map(|t| Self::curve_at(t, points))
             .for_each(|point| {
-                self.turn_towards(point);
+                self.turn_towards(point); // `go_to` does not turn
                 self.go_to(point);
             })
     }
 
+    // Only the relative movements are received here, then they are made absolute
+    // again by adding the current position to it.
     fn bezier_rel_pr(&mut self, samples: usize, rel_points: [Point; 3]) {
         let pos = self.position();
         self.bezier_abs_pr(
@@ -66,6 +131,8 @@ impl CubicBezier for Turtle {
         )
     }
 
+    // Does the same but also rotates the points so the first is aligned with
+    // the current heading.
     fn bezier_rel_head_pr(&mut self, samples: usize, rel_points: [Point; 3]) {
         let pos = self.position();
         let rot_angle = self.heading() - rel_points[0].atan2();
@@ -81,15 +148,25 @@ impl CubicBezier for Turtle {
     }
 }
 
+/// The color for the front shell part of the drawing as a string.
 const FRONT_SHELL_COLOR: &str = "#f74c00";
+/// The color for the back shell part of the drawing as a string.
 const BACK_SHELL_COLOR: &str = "#a52b00";
+/// The color for the pupils as a string.
 const PUPIL_COLOR: &str = "#ffffff";
+/// The color for the mouth and irises as a string.
 const MOUTH_COLOR: &str = "#000000";
+/// The original width and height of the image. Used to adapt the drawing to the
+/// used window size.
 const ORIGINAL_SIZE: Size = Size {
     width: 1200,
     height: 800,
 };
 
+/// Adapts the given `point` to the window's `size` with respect to the original
+/// drawing size by distorting the 2D space. I therefore does not preserve aspect
+/// ratio. Also, negates the Y coordinate as the origin is placed at the top-left
+/// corner in this example.
 fn adapt_point(point: impl Into<Point>, size: Size) -> Point {
     let point = point.into();
     Point {
@@ -98,6 +175,8 @@ fn adapt_point(point: impl Into<Point>, size: Size) -> Point {
     }
 }
 
+/// Produces the relative movement points from the given absolute points
+/// `abs_points` by subtracting the first from the other three in order.
 fn rel_points(abs_points: [Point; 4]) -> [Point; 3] {
     [
         abs_points[1] - abs_points[0],
@@ -106,26 +185,35 @@ fn rel_points(abs_points: [Point; 4]) -> [Point; 3] {
     ]
 }
 
+/// Does the same as `adapt_point` but for a given `distance`. An `angle` is
+/// necessary in order to apply the surface distortion correctly.
 fn adapt_distance(distance: Distance, angle: Angle, size: Size) -> Distance {
     ((distance * angle.cos() * size.width as f64 / ORIGINAL_SIZE.width as f64).powi(2)
         + (distance * angle.sin() * size.height as f64 / ORIGINAL_SIZE.height as f64).powi(2))
     .sqrt()
 }
 
+/// Utility function that regroups the operations of setting the heading to the
+/// given `head` and going forward by the given `distance` adapted to `size`.
 fn adapted_head_forward(turtle: &mut Turtle, distance: Distance, head: Angle, size: Size) {
     turtle.set_heading(head);
     turtle.forward(adapt_distance(distance, head, size));
 }
 
+/// Utility function that groups turning towards and going to the given `Point`.
 fn turn_and_go_to(turtle: &mut Turtle, point: Point) {
     turtle.turn_towards(point);
     turtle.go_to(point);
 }
 
+/// Utility function that groups ending the current fill, setting the fill color
+/// to the given one and beginning a new fill. The position and heading are preserved.
 fn next_fill(turtle: &mut Turtle, color: impl Into<Color>) {
     next_fill_at(turtle, color, turtle.position());
 }
 
+/// Utility function that groups ending the current fill, setting the fill color
+/// to the given one, turning ang going to the given position and beginning a new fill.
 fn next_fill_at(turtle: &mut Turtle, color: impl Into<Color>, pos: Point) {
     turtle.end_fill();
     turtle.set_fill_color(color.into());
@@ -133,27 +221,34 @@ fn next_fill_at(turtle: &mut Turtle, color: impl Into<Color>, pos: Point) {
     turtle.begin_fill();
 }
 
+/// Where all the drawing is decided. It is kept in one single function because
+/// splitting into multiple ones would only introduce complications without any
+/// possible re-usability.
 fn main() {
+    // Drawing window with the default size. The center is placed at the top-left.
     let mut drawing = Drawing::new();
     let size = drawing.size();
     drawing.set_center([size.width as f64 / 2.0, -(size.height as f64) / 2.0]);
 
     let mut turtle = drawing.add_turtle();
-    turtle.use_radians();
-    turtle.pen_up();
+    turtle.use_radians(); // Radians are used throughout the example.
+    turtle.pen_up(); // The turtle does never actually draw, it only fills.
 
+    // Captures and aliases in order to avoid repeated code and lengthy lines.
     let rp = rel_points;
     let ap = |point| adapt_point(point, size);
     let ad = |distance, angle| adapt_distance(distance, angle, size);
     let ahf =
         |turtle: &mut Turtle, distance, head| adapted_head_forward(turtle, distance, head, size);
 
+    // Go to the starting point.
     turtle.set_fill_color(BACK_SHELL_COLOR);
     turtle.set_speed("instant");
     turn_and_go_to(&mut turtle, ap([240.0, 504.0]));
     turtle.set_speed("faster");
     turtle.begin_fill();
 
+    // Back shell part in a darker orange with curves mostly. Loops on itself.
     ahf(&mut turtle, 18.9, (180.0 + 32.01f64).to_radians());
     turtle.bezier_rel(rp([
         ap([223.64, 514.18]),
@@ -200,8 +295,10 @@ fn main() {
     ]);
     turtle.bezier_rel(middle_curve_part2);
 
+    // Front shell part in brighter orange. Consists of many sub-parts.
     next_fill(&mut turtle, FRONT_SHELL_COLOR);
 
+    // Left front leg.
     turtle.bezier_rel(rp([
         ap([239.45, 504.36]),
         ap([233.00, 508.18]),
@@ -226,6 +323,7 @@ fn main() {
         ap([145.55, 510.64]),
         ap([176.00, 476.00]),
     ]));
+    // Left claw.
     turtle.bezier_rel(rp([
         ap([175.64, 475.55]),
         ap([138.73, 455.36]),
@@ -259,8 +357,15 @@ fn main() {
     ]));
     ahf(&mut turtle, 12.7, 45f64.to_radians());
 
+    // Top spikes: uses a loop in order to avoid having to measure and paste
+    // 13 curves, but that makes it actually not capable of adapting to a
+    // size other than the default one, unless by tinkering around with the
+    // adaptation functions or by using adapted ellipses.
     let spike_start_turn = 52.57f64.to_radians();
     let spike_start_length = 49.2;
+    // Although `adapt_point` is used here, the fact that the points are rotated
+    // incorrectly afterwards considering the aspect ratio renders this part not
+    // easily scalable.
     let spike_top_curve = rp([
         ap([509.52, 106.52]),
         ap([512.17, 99.17]),
@@ -272,6 +377,7 @@ fn main() {
     let spike_between_length = 12.0;
     turtle.left(81.32f64.to_radians() - spike_start_turn);
 
+    // The loop making all the spikes.
     for _ in 0..13 {
         turtle.left(spike_start_turn);
         turtle.forward(ad(spike_start_length, turtle.heading()));
@@ -281,6 +387,7 @@ fn main() {
         turtle.forward(ad(spike_between_length, turtle.heading()));
     }
 
+    // Right claw.
     turtle.bezier_rel(rp([
         ap([1000.36, 439.64]),
         ap([1008.36, 434.45]),
@@ -318,6 +425,7 @@ fn main() {
         ap([1048.64, 453.45]),
         ap([1033.47, 465.31]),
     ]));
+    // Right leg.
     ahf(&mut turtle, 60.8, -36.3f64.to_radians());
     turtle.bezier_rel(rp([
         ap([1081.88, 502.06]),
@@ -342,6 +450,7 @@ fn main() {
     turtle.bezier_rel(middle_curve_part1);
     turtle.bezier_rel(middle_curve_part2);
 
+    // Left eye's iris.
     next_fill_at(&mut turtle, MOUTH_COLOR, ap([539.88, 510.78]));
 
     turtle.bezier_rel(rp([
@@ -357,6 +466,7 @@ fn main() {
         ap([540.57, 510.48]),
     ]));
 
+    // Left eye's pupil.
     next_fill_at(&mut turtle, PUPIL_COLOR, ap([522.57, 455.57]));
 
     turtle.bezier_rel(rp([
@@ -372,6 +482,7 @@ fn main() {
         ap([522.45, 455.55]),
     ]));
 
+    // Right eye's iris.
     next_fill_at(&mut turtle, MOUTH_COLOR, ap([710.44, 507.56]));
 
     turtle.bezier_rel(rp([
@@ -393,6 +504,7 @@ fn main() {
         ap([711.50, 507.50]),
     ]));
 
+    // Right eye's pupil.
     next_fill_at(&mut turtle, PUPIL_COLOR, ap([699.12, 453.53]));
 
     turtle.bezier_rel(rp([
@@ -408,6 +520,7 @@ fn main() {
         ap([699.06, 453.50]),
     ]));
 
+    // Mouth.
     next_fill_at(&mut turtle, MOUTH_COLOR, ap([673.44, 530.4]));
 
     turtle.bezier_rel(rp([
@@ -419,5 +532,5 @@ fn main() {
     ahf(&mut turtle, 80.2, 4.24f64.to_radians());
 
     turtle.end_fill();
-    turtle.hide();
+    turtle.hide(); // The turtle hides at the end to show the result.
 }
