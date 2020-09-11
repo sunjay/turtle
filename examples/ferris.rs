@@ -155,7 +155,7 @@ const BACK_SHELL_COLOR: &str = "#a52b00";
 /// The color for the pupils as a string.
 const PUPIL_COLOR: &str = "#ffffff";
 /// The color for the mouth and irises as a string.
-const MOUTH_COLOR: &str = "#000000";
+const MOUTH_AND_IRISES_COLOR: &str = "#000000";
 /// The original width and height of the image. Used to adapt the drawing to the
 /// used window size.
 const ORIGINAL_SIZE: Size = Size {
@@ -451,7 +451,7 @@ fn main() {
     turtle.bezier_rel(middle_curve_part2);
 
     // Left eye's iris.
-    next_fill_at(&mut turtle, MOUTH_COLOR, ap([539.88, 510.78]));
+    next_fill_at(&mut turtle, MOUTH_AND_IRISES_COLOR, ap([539.88, 510.78]));
 
     turtle.bezier_rel(rp([
         ap([539.88, 510.78]),
@@ -483,7 +483,7 @@ fn main() {
     ]));
 
     // Right eye's iris.
-    next_fill_at(&mut turtle, MOUTH_COLOR, ap([710.44, 507.56]));
+    next_fill_at(&mut turtle, MOUTH_AND_IRISES_COLOR, ap([710.44, 507.56]));
 
     turtle.bezier_rel(rp([
         ap([710.44, 507.56]),
@@ -521,7 +521,7 @@ fn main() {
     ]));
 
     // Mouth.
-    next_fill_at(&mut turtle, MOUTH_COLOR, ap([673.44, 530.4]));
+    next_fill_at(&mut turtle, MOUTH_AND_IRISES_COLOR, ap([673.44, 530.4]));
 
     turtle.bezier_rel(rp([
         ap([673.44, 530.4]),
