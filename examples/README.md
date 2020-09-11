@@ -137,6 +137,18 @@ A nice-looking snowman with all its common features.
 
 A turtle drawn by... a turtle!
 
+### Ferris
+
+![ferris](../docs/assets/images/examples/ferris.gif)
+
+**Source Code**: [ferris.rs](ferris.rs)
+
+Draws the officially unofficial mascot of the Rust language: Ferris in the
+["happy" version]! It uses [cubic Bézier curves] extensively.
+
+["happy" version]: https://rustacean.net/assets/rustacean-flat-happy.svg
+[cubic Bézier curves]: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
+
 ## Level: Advanced
 
 ### Heighway Dragon Curve
