@@ -529,7 +529,6 @@ fn main() {
         ap([611.91, 579.64]),
         ap([593.57, 536.61]),
     ]));
-    ahf(&mut turtle, 80.2, 4.24f64.to_radians());
 
     turtle.end_fill();
     turtle.hide(); // The turtle hides at the end to show the result.
