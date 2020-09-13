@@ -41,7 +41,6 @@
 //! [cubic Bézier curve]: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
 //! [GIMP]: https://www.gimp.org/
 
-/// Imports of most of `turtle`'s API.
 use turtle::{Angle, Color, Distance, Drawing, Point, Size, Turtle};
 
 /// Provides a rotation method producing new values.
