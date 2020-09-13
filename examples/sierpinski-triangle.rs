@@ -60,4 +60,6 @@ fn main() {
     turtle.set_speed(SPEED);
 
     sierpinski_triangle_auto(&mut turtle, LEVELS, drawing.size());
+
+    turtle.hide();
 }
