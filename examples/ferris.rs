@@ -45,13 +45,13 @@ use turtle::{Angle, Color, Distance, Drawing, Point, Size, Turtle};
 
 /// Provides a rotation method producing new values.
 trait Rotate {
-    /// Rotates in the 2D space by the given angle into a new value.
+    /// Rotates in the 2D space by the given angle in radians into a new value.
     fn rot(&self, angle: Angle) -> Self;
 }
 
 /// Extension of the `Point` struct.
 impl Rotate for Point {
-    /// 2D counterclockwise rotates the point by the given angle.
+    /// 2D counterclockwise rotates the point by the given angle in radians.
     fn rot(&self, angle: Angle) -> Self {
         let (sin_angle, cos_angle) = angle.sin_cos();
         [
@@ -185,7 +185,8 @@ fn rel_points(abs_points: [Point; 4]) -> [Point; 3] {
 }
 
 /// Does the same as `adapt_point` but for a given `distance`. An `angle` is
-/// necessary in order to apply the surface distortion correctly.
+/// necessary in order to apply the surface distortion correctly. It should
+/// be expressed in radians.
 fn adapt_distance(distance: Distance, angle: Angle, size: Size) -> Distance {
     ((distance * angle.cos() * size.width as f64 / ORIGINAL_SIZE.width as f64).powi(2)
         + (distance * angle.sin() * size.height as f64 / ORIGINAL_SIZE.height as f64).powi(2))
@@ -193,7 +194,8 @@ fn adapt_distance(distance: Distance, angle: Angle, size: Size) -> Distance {
 }
 
 /// Utility function that regroups the operations of setting the heading to the
-/// given `head` and going forward by the given `distance` adapted to `size`.
+/// given `head` in radians and going forward by the given `distance` adapted
+/// to `size`.
 fn adapted_head_forward(turtle: &mut Turtle, distance: Distance, head: Angle, size: Size) {
     turtle.set_heading(head);
     turtle.forward(adapt_distance(distance, head, size));
