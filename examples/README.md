@@ -164,6 +164,17 @@ from Step 1 and rotate it by 90° along one of its extremities to create a new
 extremity. You repeat the process using the new extremity and continue along to
 generate each line.
 
+### Sierpiński Triangle
+
+![sierpinski-triangle](../docs/assets/images/examples/sierpinski-triangle.gif)
+
+**Source Code**: [sierpinski-triangle.rs](sierpinski-triangle.rs)
+
+Draws a [Sierpiński triangle](https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle)
+The Sierpiński triangle is another recursively drawn self-similar shape. It
+consists of many nested equilateral triangles, each containing three, one in
+every corner.
+
 ### Square Fractal Tree
 
 ![tree](../docs/assets/images/examples/tree.gif)
