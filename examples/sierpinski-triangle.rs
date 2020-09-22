@@ -3,6 +3,7 @@ use turtle::{Distance, Drawing, Point, Size, Turtle};
 const LEVELS: u8 = 6;
 const SPEED: f64 = 25.0;
 const BORDER_MARGIN: Distance = 15.0;
+const CANVAS_SIZE: Option<Size> = None;
 
 fn turn_and_go_to(turtle: &mut Turtle, dest: Point) {
     turtle.turn_towards(dest);
@@ -57,8 +58,12 @@ fn sierpinski_triangle_auto(turtle: &mut Turtle, level: u8, canvas_size: Size) {
 
 fn main() {
     let mut drawing = Drawing::new();
-    let mut turtle = drawing.add_turtle();
 
+    if let Some(canvas_size) = CANVAS_SIZE {
+        drawing.set_size(canvas_size);
+    }
+
+    let mut turtle = drawing.add_turtle();
     turtle.use_degrees();
     turtle.set_speed(SPEED);
 
