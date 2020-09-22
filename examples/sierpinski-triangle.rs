@@ -1,6 +1,6 @@
 use turtle::{Distance, Drawing, Point, Size, Turtle};
 
-const LEVELS: u8 = 7;
+const LEVELS: u8 = 6;
 const SPEED: f64 = 25.0;
 const BORDER_MARGIN: Distance = 15.0;
 
