@@ -42,11 +42,14 @@ fn sierpinski_triangle(turtle: &mut Turtle, level: u8, size: Distance) {
 }
 
 fn sierpinski_triangle_auto(turtle: &mut Turtle, level: u8, canvas_size: Size) {
-    let auto_size = canvas_size.width.min(canvas_size.height) as f64 - 2.0 * BORDER_MARGIN;
-    let start_point_coord = -auto_size / 2.0;
+    let auto_size = (canvas_size.width as f64).min(canvas_size.height as f64 * 2.0 / 3f64.sqrt())
+        - 2.0 * BORDER_MARGIN;
 
     turtle.pen_up();
-    turn_and_go_to(turtle, [start_point_coord, start_point_coord].into());
+    turn_and_go_to(
+        turtle,
+        [-auto_size / 2.0, -auto_size / 4.0 * 3f64.sqrt()].into(),
+    );
     turtle.set_heading(0.0);
 
     sierpinski_triangle(turtle, level, auto_size);
