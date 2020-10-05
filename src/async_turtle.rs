@@ -101,6 +101,28 @@ impl AsyncTurtle {
         time::delay_for(time::Duration::from_millis((secs * 1000.0) as u64)).await
     }
 
+    pub async fn arc_left(&mut self, radius: Distance, extent: Angle) {
+        self.client
+            .circular_arc(
+                self.id,
+                radius,
+                self.angle_unit.to_radians(extent),
+                RotationDirection::Counterclockwise,
+            )
+            .await
+    }
+
+    pub async fn arc_right(&mut self, radius: Distance, extent: Angle) {
+        self.client
+            .circular_arc(
+                self.id,
+                radius,
+                self.angle_unit.to_radians(extent),
+                RotationDirection::Clockwise,
+            )
+            .await
+    }
+
     pub fn into_sync(self) -> Turtle {
         self.into()
     }
