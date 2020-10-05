@@ -206,6 +206,14 @@ impl Turtle {
         block_on(self.turtle.wait(secs))
     }
 
+    pub fn arc_left(&mut self, radius: Distance, extent: Angle) {
+        block_on(self.turtle.arc_left(radius, extent))
+    }
+
+    pub fn arc_right(&mut self, radius: Distance, extent: Angle) {
+        block_on(self.turtle.arc_right(radius, extent))
+    }
+
     pub(crate) fn into_async(self) -> AsyncTurtle {
         self.turtle
     }
