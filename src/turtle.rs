@@ -262,6 +262,8 @@ impl Turtle {
     /// assert!((turtle.position() - [-100.0, -100.0].into()).len() <= 0.5);
     /// assert!(turtle.heading().abs().min((turtle.heading() - 360.0).abs()) <= 0.1);
     /// ```
+    #[cfg(feature = "unstable")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
     pub fn arc_left(&mut self, radius: Distance, extent: Angle) {
         block_on(self.turtle.arc_left(radius, extent))
     }
@@ -322,6 +324,8 @@ impl Turtle {
     /// assert!((turtle.position() - [100.0, -100.0].into()).len() <= 0.5);
     /// assert!((turtle.heading() - 180.0).abs() <= 0.1);
     /// ```
+    #[cfg(feature = "unstable")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
     pub fn arc_right(&mut self, radius: Distance, extent: Angle) {
         block_on(self.turtle.arc_right(radius, extent))
     }
