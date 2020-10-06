@@ -1043,6 +1043,40 @@ mod tests {
         turtle.wait(::std::f64::INFINITY);
         turtle.wait(-::std::f64::INFINITY);
 
+        turtle.arc_left(0.0, 0.0);
+        turtle.arc_left(0.0, f64::NAN);
+        turtle.arc_left(0.0, f64::INFINITY);
+        turtle.arc_left(0.0, -f64::INFINITY);
+        turtle.arc_left(f64::NAN, 0.0);
+        turtle.arc_left(f64::NAN, f64::NAN);
+        turtle.arc_left(f64::NAN, f64::INFINITY);
+        turtle.arc_left(f64::NAN, -f64::INFINITY);
+        turtle.arc_left(f64::INFINITY, 0.0);
+        turtle.arc_left(f64::INFINITY, f64::NAN);
+        turtle.arc_left(f64::INFINITY, f64::INFINITY);
+        turtle.arc_left(f64::INFINITY, -f64::INFINITY);
+        turtle.arc_left(-f64::INFINITY, 0.0);
+        turtle.arc_left(-f64::INFINITY, f64::NAN);
+        turtle.arc_left(-f64::INFINITY, f64::INFINITY);
+        turtle.arc_left(-f64::INFINITY, -f64::INFINITY);
+
+        turtle.arc_right(0.0, 0.0);
+        turtle.arc_right(0.0, f64::NAN);
+        turtle.arc_right(0.0, f64::INFINITY);
+        turtle.arc_right(0.0, -f64::INFINITY);
+        turtle.arc_right(f64::NAN, 0.0);
+        turtle.arc_right(f64::NAN, f64::NAN);
+        turtle.arc_right(f64::NAN, f64::INFINITY);
+        turtle.arc_right(f64::NAN, -f64::INFINITY);
+        turtle.arc_right(f64::INFINITY, 0.0);
+        turtle.arc_right(f64::INFINITY, f64::NAN);
+        turtle.arc_right(f64::INFINITY, f64::INFINITY);
+        turtle.arc_right(f64::INFINITY, -f64::INFINITY);
+        turtle.arc_right(-f64::INFINITY, 0.0);
+        turtle.arc_right(-f64::INFINITY, f64::NAN);
+        turtle.arc_right(-f64::INFINITY, f64::INFINITY);
+        turtle.arc_right(-f64::INFINITY, -f64::INFINITY);
+
         assert_eq!(turtle.position(), position);
         assert_eq!(turtle.heading(), heading);
     }
