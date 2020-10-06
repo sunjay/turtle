@@ -206,10 +206,122 @@ impl Turtle {
         block_on(self.turtle.wait(secs))
     }
 
+    /// Draw a circular arc starting at the current position and going to the left of the turtle,
+    /// thus globally turning counterclockwise.
+    ///
+    /// It is configured through the `radius` and `extent` arguments:
+    ///  * `radius` places the center of the arc itself `Distance` units away from the left of the
+    ///    turtle, with respect to its current orientation. When negative, it does so to the right.
+    ///  * `extent` controls how much of the arc is to be drawn, that is to say the `Angle` that
+    ///    forms the circular portion of the given `radius`. When negative, the turtle moves
+    ///    backwards instead, but it still goes to its left. It can also be greater than the
+    ///    turtle's current angle unit domain limit, i.e. 360° when using degrees or 2π when using
+    ///    radians: the turtle will simply continue to draw until the complete angle is reached.
+    ///
+    /// This method does *nothing* if either one of the provided arguments is not "normal" in the
+    /// sense of [floating-point numbers' definition](f64::is_normal) of it.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use turtle::Turtle;
+    /// let mut turtle = Turtle::new();
+    ///
+    /// // No movement when anormal.
+    /// turtle.arc_left(0.0, 1.0);
+    /// turtle.arc_left(f64::NAN, -f64::INFINITY);
+    /// assert_eq!(turtle.position(), [0.0, 0.0].into());
+    /// assert_eq!(turtle.heading(), 90.0);
+    ///
+    /// // Quarter of a circle.
+    /// turtle.arc_left(100.0, 90.0);
+    /// assert!((turtle.position() - [-100.0, 100.0].into()).len() <= 0.5);
+    /// assert!((turtle.heading() - 180.0).abs() <= 0.1);
+    ///
+    /// // Full circle.
+    /// turtle.reset();
+    /// turtle.arc_left(100.0, 360.0);
+    /// assert!((turtle.position() - [0.0, 0.0].into()).len() <= 0.5);
+    /// assert!((turtle.heading() - 90.0).abs() <= 0.1);
+    ///
+    /// // Full + quarter circle.
+    /// turtle.reset();
+    /// turtle.arc_left(100.0, 360.0 + 90.0);
+    /// assert!((turtle.position() - [-100.0, 100.0].into()).len() <= 2.5);
+    /// assert!((turtle.heading() - 180.0).abs() <= 0.1);
+    ///
+    /// // Negative radius: flip center to the right.
+    /// turtle.reset();
+    /// turtle.arc_left(-100.0, 90.0);
+    /// assert!((turtle.position() - [100.0, 100.0].into()).len() <= 0.5);
+    /// assert!(turtle.heading().abs().min((turtle.heading() - 360.0).abs()) <= 0.1);
+    ///
+    /// // Negative extent: go backwards to the left.
+    /// turtle.reset();
+    /// turtle.arc_left(100.0, -90.0);
+    /// assert!((turtle.position() - [-100.0, -100.0].into()).len() <= 0.5);
+    /// assert!(turtle.heading().abs().min((turtle.heading() - 360.0).abs()) <= 0.1);
+    /// ```
     pub fn arc_left(&mut self, radius: Distance, extent: Angle) {
         block_on(self.turtle.arc_left(radius, extent))
     }
 
+    /// Draw a circular arc starting at the current position and going to the right of the turtle,
+    /// thus globally turning clockwise.
+    ///
+    /// It is configured through the `radius` and `extent` arguments:
+    ///  * `radius` places the center of the arc itself `Distance` units away from the right of the
+    ///    turtle, with respect to its current orientation. When negative, it does so to the left.
+    ///  * `extent` controls how much of the arc is to be drawn, that is to say the `Angle` that
+    ///    forms the circular portion of the given `radius`. When negative, the turtle moves
+    ///    backwards instead, but it still goes to its right. It can also be greater than the
+    ///    turtle's current angle unit domain limit, i.e. 360° when using degrees or 2π when using
+    ///    radians: the turtle will simply continue to draw until the complete angle is reached.
+    ///
+    /// This method does *nothing* if either one of the provided arguments is not "normal" in the
+    /// sense of [floating-point numbers' definition](f64::is_normal) of it.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use turtle::Turtle;
+    /// let mut turtle = Turtle::new();
+    ///
+    /// // No movement when anormal.
+    /// turtle.arc_right(0.0, 1.0);
+    /// turtle.arc_right(f64::NAN, -f64::INFINITY);
+    /// assert_eq!(turtle.position(), [0.0, 0.0].into());
+    /// assert_eq!(turtle.heading(), 90.0);
+    ///
+    /// // Quarter of a circle.
+    /// turtle.arc_right(100.0, 90.0);
+    /// assert!((turtle.position() - [100.0, 100.0].into()).len() <= 0.5);
+    /// assert!(turtle.heading().abs().min((turtle.heading() - 360.0).abs()) <= 0.1);
+    ///
+    /// // Full circle.
+    /// turtle.reset();
+    /// turtle.arc_right(100.0, 360.0);
+    /// assert!((turtle.position() - [0.0, 0.0].into()).len() <= 0.5);
+    /// assert!((turtle.heading() - 90.0).abs() <= 0.1);
+    ///
+    /// // Full + quarter circle.
+    /// turtle.reset();
+    /// turtle.arc_right(100.0, 360.0 + 90.0);
+    /// assert!((turtle.position() - [100.0, 100.0].into()).len() <= 2.5);
+    /// assert!(turtle.heading().abs().min((turtle.heading() - 360.0).abs()) <= 0.1);
+    ///
+    /// // Negative radius: flip center to the left.
+    /// turtle.reset();
+    /// turtle.arc_right(-100.0, 90.0);
+    /// assert!((turtle.position() - [-100.0, 100.0].into()).len() <= 0.5);
+    /// assert!((turtle.heading() - 180.0).abs() <= 0.1);
+    ///
+    /// // Negative extent: go backwards to the right.
+    /// turtle.reset();
+    /// turtle.arc_right(100.0, -90.0);
+    /// assert!((turtle.position() - [100.0, -100.0].into()).len() <= 0.5);
+    /// assert!((turtle.heading() - 180.0).abs() <= 0.1);
+    /// ```
     pub fn arc_right(&mut self, radius: Distance, extent: Angle) {
         block_on(self.turtle.arc_right(radius, extent))
     }
