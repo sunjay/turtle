@@ -11,7 +11,7 @@
 use serde::{Serialize, Deserialize};
 use glutin::{
     dpi::{LogicalSize, PhysicalPosition},
-    event::{self as glutin_event, WindowEvent, KeyboardInput},
+    event::{self as glutin_event, ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
 };
 
 use crate::Point;
@@ -113,10 +113,10 @@ pub enum PressedState {
 
 impl PressedState {
     #[cfg_attr(any(feature = "test", test), allow(dead_code))]
-    fn from_state(state: glutin_event::ElementState) -> PressedState {
+    fn from_state(state: ElementState) -> PressedState {
         match state {
-            glutin_event::ElementState::Pressed => PressedState::Pressed,
-            glutin_event::ElementState::Released => PressedState::Released,
+            ElementState::Pressed => PressedState::Pressed,
+            ElementState::Released => PressedState::Released,
         }
     }
 }
@@ -262,179 +262,123 @@ pub enum Key {
 
 impl Key {
     #[cfg_attr(any(feature = "test", test), allow(dead_code))]
-    fn from_keycode(key: glutin_event::VirtualKeyCode) -> Option<Self> {
-        use glutin_event::VirtualKeyCode::*;
+    fn from_keycode(key: VirtualKeyCode) -> Option<Self> {
         Some(match key {
-            Key1 => Key::Num1,
-            Key2 => Key::Num2,
-            Key3 => Key::Num3,
-            Key4 => Key::Num4,
-            Key5 => Key::Num5,
-            Key6 => Key::Num6,
-            Key7 => Key::Num7,
-            Key8 => Key::Num8,
-            Key9 => Key::Num9,
-            Key0 => Key::Num0,
+            VirtualKeyCode::Key1 => Key::Num1,
+            VirtualKeyCode::Key2 => Key::Num2,
+            VirtualKeyCode::Key3 => Key::Num3,
+            VirtualKeyCode::Key4 => Key::Num4,
+            VirtualKeyCode::Key5 => Key::Num5,
+            VirtualKeyCode::Key6 => Key::Num6,
+            VirtualKeyCode::Key7 => Key::Num7,
+            VirtualKeyCode::Key8 => Key::Num8,
+            VirtualKeyCode::Key9 => Key::Num9,
+            VirtualKeyCode::Key0 => Key::Num0,
 
-            A => Key::A,
-            B => Key::B,
-            C => Key::C,
-            D => Key::D,
-            E => Key::E,
-            F => Key::F,
-            G => Key::G,
-            H => Key::H,
-            I => Key::I,
-            J => Key::J,
-            K => Key::K,
-            L => Key::L,
-            M => Key::M,
-            N => Key::N,
-            O => Key::O,
-            P => Key::P,
-            Q => Key::Q,
-            R => Key::R,
-            S => Key::S,
-            T => Key::T,
-            U => Key::U,
-            V => Key::V,
-            W => Key::W,
-            X => Key::X,
-            Y => Key::Y,
-            Z => Key::Z,
+            VirtualKeyCode::A => Key::A,
+            VirtualKeyCode::B => Key::B,
+            VirtualKeyCode::C => Key::C,
+            VirtualKeyCode::D => Key::D,
+            VirtualKeyCode::E => Key::E,
+            VirtualKeyCode::F => Key::F,
+            VirtualKeyCode::G => Key::G,
+            VirtualKeyCode::H => Key::H,
+            VirtualKeyCode::I => Key::I,
+            VirtualKeyCode::J => Key::J,
+            VirtualKeyCode::K => Key::K,
+            VirtualKeyCode::L => Key::L,
+            VirtualKeyCode::M => Key::M,
+            VirtualKeyCode::N => Key::N,
+            VirtualKeyCode::O => Key::O,
+            VirtualKeyCode::P => Key::P,
+            VirtualKeyCode::Q => Key::Q,
+            VirtualKeyCode::R => Key::R,
+            VirtualKeyCode::S => Key::S,
+            VirtualKeyCode::T => Key::T,
+            VirtualKeyCode::U => Key::U,
+            VirtualKeyCode::V => Key::V,
+            VirtualKeyCode::W => Key::W,
+            VirtualKeyCode::X => Key::X,
+            VirtualKeyCode::Y => Key::Y,
+            VirtualKeyCode::Z => Key::Z,
 
-            Escape => Key::Esc,
+            VirtualKeyCode::Escape => Key::Esc,
 
-            F1 => Key::F1,
-            F2 => Key::F2,
-            F3 => Key::F3,
-            F4 => Key::F4,
-            F5 => Key::F5,
-            F6 => Key::F6,
-            F7 => Key::F7,
-            F8 => Key::F8,
-            F9 => Key::F9,
-            F10 => Key::F10,
-            F11 => Key::F11,
-            F12 => Key::F12,
-            F13 => Key::F13,
-            F14 => Key::F14,
-            F15 => Key::F15,
-            F16 => Key::F16,
-            F17 => Key::F17,
-            F18 => Key::F18,
-            F19 => Key::F19,
-            F20 => Key::F20,
-            F21 => Key::F21,
-            F22 => Key::F22,
-            F23 => Key::F23,
-            F24 => Key::F24,
+            VirtualKeyCode::F1 => Key::F1,
+            VirtualKeyCode::F2 => Key::F2,
+            VirtualKeyCode::F3 => Key::F3,
+            VirtualKeyCode::F4 => Key::F4,
+            VirtualKeyCode::F5 => Key::F5,
+            VirtualKeyCode::F6 => Key::F6,
+            VirtualKeyCode::F7 => Key::F7,
+            VirtualKeyCode::F8 => Key::F8,
+            VirtualKeyCode::F9 => Key::F9,
+            VirtualKeyCode::F10 => Key::F10,
+            VirtualKeyCode::F11 => Key::F11,
+            VirtualKeyCode::F12 => Key::F12,
+            VirtualKeyCode::F13 => Key::F13,
+            VirtualKeyCode::F14 => Key::F14,
+            VirtualKeyCode::F15 => Key::F15,
+            VirtualKeyCode::F16 => Key::F16,
+            VirtualKeyCode::F17 => Key::F17,
+            VirtualKeyCode::F18 => Key::F18,
+            VirtualKeyCode::F19 => Key::F19,
+            VirtualKeyCode::F20 => Key::F20,
+            VirtualKeyCode::F21 => Key::F21,
+            VirtualKeyCode::F22 => Key::F22,
+            VirtualKeyCode::F23 => Key::F23,
+            VirtualKeyCode::F24 => Key::F24,
 
-            Home => Key::Home,
-            Delete => Key::Delete,
-            End => Key::End,
-            PageDown => Key::PageDown,
-            PageUp => Key::PageUp,
-            Back => Key::Backspace,
-            Return => Key::Return,
-            Space => Key::Space,
+            VirtualKeyCode::Home => Key::Home,
+            VirtualKeyCode::Delete => Key::Delete,
+            VirtualKeyCode::End => Key::End,
+            VirtualKeyCode::PageDown => Key::PageDown,
+            VirtualKeyCode::PageUp => Key::PageUp,
+            VirtualKeyCode::Back => Key::Backspace,
+            VirtualKeyCode::Return => Key::Return,
+            VirtualKeyCode::Space => Key::Space,
 
-            Left => Key::LeftArrow,
-            Up => Key::UpArrow,
-            Right => Key::RightArrow,
-            Down => Key::DownArrow,
+            VirtualKeyCode::Left => Key::LeftArrow,
+            VirtualKeyCode::Up => Key::UpArrow,
+            VirtualKeyCode::Right => Key::RightArrow,
+            VirtualKeyCode::Down => Key::DownArrow,
 
-            Numpad0 => Key::Numpad0,
-            Numpad1 => Key::Numpad1,
-            Numpad2 => Key::Numpad2,
-            Numpad3 => Key::Numpad3,
-            Numpad4 => Key::Numpad4,
-            Numpad5 => Key::Numpad5,
-            Numpad6 => Key::Numpad6,
-            Numpad7 => Key::Numpad7,
-            Numpad8 => Key::Numpad8,
-            Numpad9 => Key::Numpad9,
+            VirtualKeyCode::Numpad0 => Key::Numpad0,
+            VirtualKeyCode::Numpad1 => Key::Numpad1,
+            VirtualKeyCode::Numpad2 => Key::Numpad2,
+            VirtualKeyCode::Numpad3 => Key::Numpad3,
+            VirtualKeyCode::Numpad4 => Key::Numpad4,
+            VirtualKeyCode::Numpad5 => Key::Numpad5,
+            VirtualKeyCode::Numpad6 => Key::Numpad6,
+            VirtualKeyCode::Numpad7 => Key::Numpad7,
+            VirtualKeyCode::Numpad8 => Key::Numpad8,
+            VirtualKeyCode::Numpad9 => Key::Numpad9,
 
-            Add => Key::Plus,
-            Apostrophe => Key::Apostrophe,
-            At => Key::At,
-            Backslash => Key::Backslash,
-            Colon => Key::Colon,
-            Comma => Key::Comma,
-            Decimal => Key::Decimal,
-            Divide => Key::Divide,
-            Equals => Key::Equals,
-            Grave => Key::Backtick,
-            LBracket => Key::LeftBracket,
-            Minus => Key::Minus,
-            Multiply => Key::Multiply,
-            NumpadComma => Key::NumpadComma,
-            NumpadEnter => Key::NumpadEnter,
-            NumpadEquals => Key::NumpadEquals,
-            Period => Key::Period,
-            RBracket => Key::RightBracket,
-            Semicolon => Key::Semicolon,
-            Slash => Key::Slash,
-            Subtract => Key::Minus,
-            Tab => Key::Tab,
+            VirtualKeyCode::Apostrophe => Key::Apostrophe,
+            VirtualKeyCode::At => Key::At,
+            VirtualKeyCode::Backslash => Key::Backslash,
+            VirtualKeyCode::Colon => Key::Colon,
+            VirtualKeyCode::Comma => Key::Comma,
+            VirtualKeyCode::Equals => Key::Equals,
+            VirtualKeyCode::Grave => Key::Backtick,
+            VirtualKeyCode::LBracket => Key::LeftBracket,
+            VirtualKeyCode::Minus => Key::Minus,
+            VirtualKeyCode::NumpadAdd => Key::Plus,
+            VirtualKeyCode::NumpadComma => Key::NumpadComma,
+            VirtualKeyCode::NumpadDecimal => Key::Decimal,
+            VirtualKeyCode::NumpadDivide => Key::Divide,
+            VirtualKeyCode::NumpadEnter => Key::NumpadEnter,
+            VirtualKeyCode::NumpadEquals => Key::NumpadEquals,
+            VirtualKeyCode::NumpadMultiply => Key::Multiply,
+            VirtualKeyCode::NumpadSubtract => Key::Minus,
+            VirtualKeyCode::Period => Key::Period,
+            VirtualKeyCode::RBracket => Key::RightBracket,
+            VirtualKeyCode::Semicolon => Key::Semicolon,
+            VirtualKeyCode::Slash => Key::Slash,
+            VirtualKeyCode::Tab => Key::Tab,
 
             // Unsupported keys (could be changed in the future)
-            Snapshot |
-            Scroll |
-            Pause |
-            Insert |
-            Compose |
-            Caret |
-            Numlock |
-            AbntC1 |
-            AbntC2 |
-            Apps |
-            Ax |
-            Calculator |
-            Capital |
-            Convert |
-            Kana |
-            Kanji |
-            LAlt |
-            LControl |
-            LShift |
-            LWin |
-            Mail |
-            MediaSelect |
-            MediaStop |
-            Mute |
-            MyComputer |
-            NavigateForward |
-            NavigateBackward |
-            NextTrack |
-            NoConvert |
-            OEM102 |
-            PlayPause |
-            Power |
-            PrevTrack |
-            RAlt |
-            RControl |
-            RShift |
-            RWin |
-            Sleep |
-            Stop |
-            Sysrq |
-            Underline |
-            Unlabeled |
-            VolumeDown |
-            VolumeUp |
-            Wake |
-            WebBack |
-            WebFavorites |
-            WebForward |
-            WebHome |
-            WebRefresh |
-            WebSearch |
-            WebStop |
-            Yen |
-            Copy |
-            Paste |
-            Cut => return None,
+            _ => return None,
         })
     }
 }
@@ -454,12 +398,11 @@ pub enum MouseButton {
 impl MouseButton {
     #[cfg_attr(any(feature = "test", test), allow(dead_code))]
     fn from_button(button: glutin_event::MouseButton) -> Option<Self> {
-        use glutin_event::MouseButton::*;
         match button {
-            Left => Some(MouseButton::LeftButton),
-            Middle => Some(MouseButton::MiddleButton),
-            Right => Some(MouseButton::RightButton),
-            Other(_) => None,
+            glutin_event::MouseButton::Left => Some(MouseButton::LeftButton),
+            glutin_event::MouseButton::Middle => Some(MouseButton::MiddleButton),
+            glutin_event::MouseButton::Right => Some(MouseButton::RightButton),
+            glutin_event::MouseButton::Other(_) => None,
         }
     }
 }
