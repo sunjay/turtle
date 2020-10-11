@@ -368,15 +368,17 @@ impl ProtocolClient {
     }
 
     pub async fn circular_arc(&self, id: TurtleId, radius: Distance, extent: Radians, direction: RotationDirection) {
-        if radius.is_normal() && extent.is_normal() {
-            let steps = 250;    // Arbitrary value for now.
-            let step = radius.abs() * extent.to_radians() / steps as f64;
-            let rotation = radius.signum() * extent / steps as f64;
+        if !radius.is_normal() || !extent.is_normal() {
+            return;
+        }
 
-            for _ in 0..steps {
-                self.move_forward(id, step).await;
-                self.rotate_in_place(id, rotation, direction).await;
-            }
+        let steps = 250;    // Arbitrary value for now.
+        let step = radius.abs() * extent.to_radians() / steps as f64;
+        let rotation = radius.signum() * extent / steps as f64;
+
+        for _ in 0..steps {
+            self.move_forward(id, step).await;
+            self.rotate_in_place(id, rotation, direction).await;
         }
     }
 

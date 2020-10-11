@@ -4,6 +4,10 @@
 //! They both provide the ability to draw a circular arc defined by the given `radius` and `extent`
 //! parameters, while the first makes the turtle draw it to the left and the second to the right.
 
+// To run this example, use the command: cargo run --features unstable --example flower
+#[cfg(all(not(feature = "unstable")))]
+compile_error!("This example relies on unstable features. Run with `--features unstable`");
+
 use turtle::{Angle, Distance, Drawing};
 
 const TURTLE_SPEED: &str = "faster";
@@ -74,9 +78,12 @@ fn main() {
 
         // Right leaf.
         turtle.right(RIGHT_LEAF_INCLINATION);
-        turtle.arc_right(RIGHT_LEAF_BOTTOM_RADIUS, RIGHT_LEAF_BOTTOM_EXTENT);
+        // Note that `arc_left` with a negative radius is the same as calling `arc_right`.
+        // This is used below for illustration purposes only. You'd probably want to use
+        // `arc_right` in real code.
+        turtle.arc_left(-RIGHT_LEAF_BOTTOM_RADIUS, RIGHT_LEAF_BOTTOM_EXTENT);
         turtle.right(RIGHT_LEAF_INCLINATION);
-        turtle.arc_right(RIGHT_LEAF_TOP_RADIUS, -RIGHT_LEAF_TOP_EXTENT);
+        turtle.arc_left(-RIGHT_LEAF_TOP_RADIUS, -RIGHT_LEAF_TOP_EXTENT);
 
         // Trunk.
         turtle.end_fill();
