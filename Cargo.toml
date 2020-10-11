@@ -40,14 +40,14 @@ pathfinder_resources = "0.5"
 pathfinder_color = "0.5"
 pathfinder_geometry = "0.5"
 pathfinder_gl = "0.5"
-glutin = "0.24"
+glutin = "0.25"
 gl = "0.14"
 
 ipc-channel = "0.14"
 thiserror = "1.0"
 once_cell = "1.3"
 
-cfg-if = "0.1"
+cfg-if = "1.0"
 
 parking_lot = "0.10"
 

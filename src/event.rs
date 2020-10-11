@@ -264,6 +264,7 @@ impl Key {
     #[cfg_attr(any(feature = "test", test), allow(dead_code))]
     fn from_keycode(key: glutin_event::VirtualKeyCode) -> Option<Self> {
         use glutin_event::VirtualKeyCode::*;
+        #[deny(unreachable_patterns, unused_variables)]
         Some(match key {
             Key1 => Key::Num1,
             Key2 => Key::Num2,
@@ -355,27 +356,26 @@ impl Key {
             Numpad8 => Key::Numpad8,
             Numpad9 => Key::Numpad9,
 
-            Add => Key::Plus,
             Apostrophe => Key::Apostrophe,
             At => Key::At,
             Backslash => Key::Backslash,
             Colon => Key::Colon,
             Comma => Key::Comma,
-            Decimal => Key::Decimal,
-            Divide => Key::Divide,
             Equals => Key::Equals,
             Grave => Key::Backtick,
             LBracket => Key::LeftBracket,
-            Minus => Key::Minus,
-            Multiply => Key::Multiply,
+            NumpadAdd | Plus => Key::Plus,
             NumpadComma => Key::NumpadComma,
+            NumpadDecimal => Key::Decimal,
+            NumpadDivide => Key::Divide,
             NumpadEnter => Key::NumpadEnter,
             NumpadEquals => Key::NumpadEquals,
+            NumpadMultiply | Asterisk => Key::Multiply,
+            NumpadSubtract | Minus => Key::Minus,
             Period => Key::Period,
             RBracket => Key::RightBracket,
             Semicolon => Key::Semicolon,
             Slash => Key::Slash,
-            Subtract => Key::Minus,
             Tab => Key::Tab,
 
             // Unsupported keys (could be changed in the future)
@@ -455,6 +455,7 @@ impl MouseButton {
     #[cfg_attr(any(feature = "test", test), allow(dead_code))]
     fn from_button(button: glutin_event::MouseButton) -> Option<Self> {
         use glutin_event::MouseButton::*;
+        #[deny(unreachable_patterns, unused_variables)]
         match button {
             Left => Some(MouseButton::LeftButton),
             Middle => Some(MouseButton::MiddleButton),
