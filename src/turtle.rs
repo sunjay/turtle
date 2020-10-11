@@ -210,7 +210,7 @@ impl Turtle {
     /// thus globally turning counterclockwise.
     ///
     /// It is configured through the `radius` and `extent` arguments:
-    ///  * `radius` places the center of the arc itself `Distance` units away from the left of the
+    ///  * `radius` places the center of the arc itself `radius` units away from the left of the
     ///    turtle, with respect to its current orientation. When negative, it does so to the right.
     ///  * `extent` controls how much of the arc is to be drawn, that is to say the `Angle` that
     ///    forms the circular portion of the given `radius`. When negative, the turtle moves
@@ -218,18 +218,12 @@ impl Turtle {
     ///    turtle's current angle unit domain limit, i.e. 360° when using degrees or 2π when using
     ///    radians: the turtle will simply continue to draw until the complete angle is reached.
     ///
-    /// This method does *nothing* if either one of the provided arguments is not "normal" in the
-    /// sense of [floating-point numbers' definition](f64::is_normal) of it.
-    ///
     /// # Example
     ///
     /// ```rust
     /// # use turtle::Turtle;
     /// let mut turtle = Turtle::new();
     ///
-    /// // No movement when anormal.
-    /// turtle.arc_left(0.0, 1.0);
-    /// turtle.arc_left(f64::NAN, -f64::INFINITY);
     /// assert_eq!(turtle.position(), [0.0, 0.0].into());
     /// assert_eq!(turtle.heading(), 90.0);
     ///
@@ -272,7 +266,7 @@ impl Turtle {
     /// thus globally turning clockwise.
     ///
     /// It is configured through the `radius` and `extent` arguments:
-    ///  * `radius` places the center of the arc itself `Distance` units away from the right of the
+    ///  * `radius` places the center of the arc itself `radius` units away from the right of the
     ///    turtle, with respect to its current orientation. When negative, it does so to the left.
     ///  * `extent` controls how much of the arc is to be drawn, that is to say the `Angle` that
     ///    forms the circular portion of the given `radius`. When negative, the turtle moves
@@ -280,18 +274,12 @@ impl Turtle {
     ///    turtle's current angle unit domain limit, i.e. 360° when using degrees or 2π when using
     ///    radians: the turtle will simply continue to draw until the complete angle is reached.
     ///
-    /// This method does *nothing* if either one of the provided arguments is not "normal" in the
-    /// sense of [floating-point numbers' definition](f64::is_normal) of it.
-    ///
     /// # Example
     ///
     /// ```rust
     /// # use turtle::Turtle;
     /// let mut turtle = Turtle::new();
     ///
-    /// // No movement when anormal.
-    /// turtle.arc_right(0.0, 1.0);
-    /// turtle.arc_right(f64::NAN, -f64::INFINITY);
     /// assert_eq!(turtle.position(), [0.0, 0.0].into());
     /// assert_eq!(turtle.heading(), 90.0);
     ///
