@@ -78,6 +78,7 @@ steps:
   displayName: test
 
 - script: |
+    rustup component add rustfmt
     cargo fmt --verbose --all -- --check
   displayName: style_check
 
