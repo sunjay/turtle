@@ -1092,7 +1092,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. \
+                    See the color module documentation for more information."
     )]
     fn rejects_invalid_pen_color() {
         let mut turtle = Turtle::new();
@@ -1106,7 +1107,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. \
+                    See the color module documentation for more information."
     )]
     fn rejects_invalid_fill_color() {
         let mut turtle = Turtle::new();

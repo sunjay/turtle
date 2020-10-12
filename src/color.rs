@@ -1888,7 +1888,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 256.0, green: 1.0, blue: 1.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 256.0, green: 1.0, blue: 1.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_mix_invalid_color_panic() {
         let c: Color = "green".into();
@@ -2238,7 +2239,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_grayscale_invalid_color_panics() {
         let c = Color {
@@ -2270,7 +2272,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_complement_invalid_color_panics() {
         let c = Color {
@@ -2296,7 +2299,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_invert_invalid_color_panics() {
         let c = Color {
@@ -2310,7 +2314,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_hue_invalid_color_panics() {
         let c = Color {
@@ -2324,7 +2329,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_saturation_invalid_color_panics() {
         let c = Color {
@@ -2338,7 +2344,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_lightness_invalid_color_panics() {
         let c = Color {
@@ -2352,7 +2359,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_saturate_invalid_color_panics() {
         let c = Color {
@@ -2366,7 +2374,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_desaturate_invalid_color_panics() {
         let c = Color {
@@ -2380,7 +2389,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_darken_invalid_color_panics() {
         let c = Color {
@@ -2394,7 +2404,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_lighten_invalid_color_panics() {
         let c = Color {
@@ -2408,7 +2419,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. Please see color module documentation."
+        expected = "Color { red: 255.0, green: 256.0, blue: 255.0, alpha: 1.0 } is not a valid Color. \
+                    Please see color module documentation."
     )]
     fn ensure_rotate_hue_invalid_color_panics() {
         let c = Color {

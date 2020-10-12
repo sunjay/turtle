@@ -345,7 +345,8 @@ impl<'a> From<&'a str> for Speed {
             "faster" => Value(15),
             "instant" => Instant,
             _ => panic!(
-                "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
+                "Invalid speed specified, use one of the words: \"slowest\", \
+                \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
             ),
         })
     }
@@ -357,9 +358,15 @@ impl From<i32> for Speed {
 
         Speed(match n {
             // Special error message for 0 because this used to be a valid speed
-            0 => panic!("Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()"),
+            0 => panic!(
+                "Invalid speed: 0. If you wanted to set the speed to instant, \
+                please use the string \"instant\" or Speed::instant()"
+            ),
             n if n >= MIN_SPEED && n <= MAX_SPEED => Value(n),
-            n => panic!("Invalid speed: {}. Must be a value between {} and {}", n, MIN_SPEED, MAX_SPEED),
+            n => panic!(
+                "Invalid speed: {}. Must be a value between {} and {}",
+                n, MIN_SPEED, MAX_SPEED
+            ),
         })
     }
 }
@@ -409,7 +416,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
+        expected = "Invalid speed specified, use one of the words: \"slowest\", \
+                    \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
     )]
     fn invalid_speed() {
         let mut turtle = Turtle::new();
@@ -457,7 +465,8 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()"
+        expected = "Invalid speed: 0. If you wanted to set the speed to instant, \
+                    please use the string \"instant\" or Speed::instant()"
     )]
     fn disallow_zero() {
         let mut turtle = Turtle::new();
