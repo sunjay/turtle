@@ -2,8 +2,8 @@
 #[cfg(all(not(feature = "unstable")))]
 compile_error!("This example relies on unstable features. Run with `--features unstable`");
 
-use turtle::Event::MouseMove;
 use turtle::Drawing;
+use turtle::Event::MouseMove;
 
 fn main() {
     let mut drawing = Drawing::new();

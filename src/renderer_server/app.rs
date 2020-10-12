@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use serde::{Serialize, Deserialize};
 use parking_lot::RwLock;
+use serde::{Deserialize, Serialize};
 
-use super::state::{TurtleState, DrawingState};
 use super::renderer::display_list::PrimHandle;
+use super::state::{DrawingState, TurtleState};
 
 /// The unique ID of a particular turtle
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -70,13 +70,17 @@ impl App {
 
     /// Returns an iterator over all of the turtles
     #[cfg_attr(feature = "test", allow(dead_code))] // Used in renderer, but not for tests
-    pub fn turtles(&self) -> impl Iterator<Item=(TurtleId, &TurtleDrawings)> {
-        (0..).zip(self.turtles.iter()).map(|(id, turtle)| (TurtleId(id), turtle))
+    pub fn turtles(&self) -> impl Iterator<Item = (TurtleId, &TurtleDrawings)> {
+        (0..)
+            .zip(self.turtles.iter())
+            .map(|(id, turtle)| (TurtleId(id), turtle))
     }
 
     /// Returns an iterator over all of the turtles
-    pub fn turtles_mut(&mut self) -> impl Iterator<Item=(TurtleId, &mut TurtleDrawings)> {
-        (0..).zip(self.turtles.iter_mut()).map(|(id, turtle)| (TurtleId(id), turtle))
+    pub fn turtles_mut(&mut self) -> impl Iterator<Item = (TurtleId, &mut TurtleDrawings)> {
+        (0..)
+            .zip(self.turtles.iter_mut())
+            .map(|(id, turtle)| (TurtleId(id), turtle))
     }
 }
 

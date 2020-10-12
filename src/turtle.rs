@@ -1,8 +1,8 @@
 use std::fmt::{self, Debug};
 
-use crate::{Color, Point, Speed, Distance, Angle};
 use crate::async_turtle::AsyncTurtle;
 use crate::sync_runtime::block_on;
+use crate::{Angle, Color, Distance, Point, Speed};
 
 /// A turtle with a pen attached to its tail
 ///
@@ -33,7 +33,7 @@ impl Default for Turtle {
 
 impl From<AsyncTurtle> for Turtle {
     fn from(turtle: AsyncTurtle) -> Self {
-        Self {turtle}
+        Self { turtle }
     }
 }
 
@@ -1055,35 +1055,45 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid thickness: -10. The pen thickness must be greater than or equal to zero")]
+    #[should_panic(
+        expected = "Invalid thickness: -10. The pen thickness must be greater than or equal to zero"
+    )]
     fn set_pen_size_rejects_negative() {
         let mut turtle = Turtle::new();
         turtle.set_pen_size(-10.0);
     }
 
     #[test]
-    #[should_panic(expected = "Invalid thickness: NaN. The pen thickness must be greater than or equal to zero")]
+    #[should_panic(
+        expected = "Invalid thickness: NaN. The pen thickness must be greater than or equal to zero"
+    )]
     fn set_pen_size_rejects_nan() {
         let mut turtle = Turtle::new();
         turtle.set_pen_size(::std::f64::NAN);
     }
 
     #[test]
-    #[should_panic(expected = "Invalid thickness: inf. The pen thickness must be greater than or equal to zero")]
+    #[should_panic(
+        expected = "Invalid thickness: inf. The pen thickness must be greater than or equal to zero"
+    )]
     fn set_pen_size_rejects_inf() {
         let mut turtle = Turtle::new();
         turtle.set_pen_size(::std::f64::INFINITY);
     }
 
     #[test]
-    #[should_panic(expected = "Invalid thickness: -inf. The pen thickness must be greater than or equal to zero")]
+    #[should_panic(
+        expected = "Invalid thickness: -inf. The pen thickness must be greater than or equal to zero"
+    )]
     fn set_pen_size_rejects_neg_inf() {
         let mut turtle = Turtle::new();
         turtle.set_pen_size(-::std::f64::INFINITY);
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_pen_color() {
         let mut turtle = Turtle::new();
         turtle.set_pen_color(Color {
@@ -1095,7 +1105,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
+    #[should_panic(
+        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
+    )]
     fn rejects_invalid_fill_color() {
         let mut turtle = Turtle::new();
         turtle.set_fill_color(Color {

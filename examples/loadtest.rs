@@ -11,11 +11,11 @@ use std::f64::consts::PI;
 use std::sync::{Arc, Barrier};
 use std::thread;
 
-use turtle::{Drawing, Turtle, Color, rand::random};
+use turtle::{rand::random, Color, Drawing, Turtle};
 
 /// This number is somewhat configurable, but the code doesn't robustly support all values
 /// For example, non-perfect squares may not work.
-const TURTLES: u32 = 20*20;
+const TURTLES: u32 = 20 * 20;
 
 fn main() {
     let mut drawing = Drawing::new();
@@ -75,7 +75,7 @@ fn circles(turtle: &mut Turtle) {
 fn circle(turtle: &mut Turtle, radius: f64) {
     let degrees = 180.0;
 
-    let circumference = 2.0*PI*radius;
+    let circumference = 2.0 * PI * radius;
     let step = circumference / degrees;
     let rotation = 360.0 / degrees;
 

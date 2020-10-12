@@ -53,15 +53,30 @@ fn main() {
         &mut turtle,
         cell_height,
         cell_width,
-        maze.grid().last_col().rev().map(|cell| cell.east.is_closed()),
+        maze.grid()
+            .last_col()
+            .rev()
+            .map(|cell| cell.east.is_closed()),
         maze.grid().cols().rev(),
         |col| col.map(|cell| cell.west.is_closed()).rev(),
         true,
     );
 
     turtle.right(90.0);
-    draw_marker(&mut turtle, maze.start(), cell_width, cell_height, "#C5E1A5");
-    draw_marker(&mut turtle, maze.finish(), cell_width, cell_height, "#FFAB91");
+    draw_marker(
+        &mut turtle,
+        maze.start(),
+        cell_width,
+        cell_height,
+        "#C5E1A5",
+    );
+    draw_marker(
+        &mut turtle,
+        maze.finish(),
+        cell_width,
+        cell_height,
+        "#FFAB91",
+    );
 
     turtle.pen_up();
     turtle.forward(cell_width * 0.5);

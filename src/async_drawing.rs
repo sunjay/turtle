@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::ipc_protocol::ProtocolClient;
 use crate::async_turtle::AsyncTurtle;
-use crate::{Drawing, Point, Color, Event, ExportError};
+use crate::ipc_protocol::ProtocolClient;
+use crate::{Color, Drawing, Event, ExportError, Point};
 
 /// Represents a size
 ///
@@ -71,9 +71,10 @@ impl AsyncDrawing {
         // of many programs that use the turtle crate.
         crate::start();
 
-        let client = ProtocolClient::new().await
+        let client = ProtocolClient::new()
+            .await
             .expect("unable to create renderer client");
-        Self {client}
+        Self { client }
     }
 
     pub async fn add_turtle(&mut self) -> AsyncTurtle {
@@ -129,7 +130,10 @@ impl AsyncDrawing {
 
     pub fn set_size<S: Into<Size>>(&mut self, size: S) {
         let size = size.into();
-        assert!(size.width > 0 && size.height > 0, "The size of the drawing must be non-zero");
+        assert!(
+            size.width > 0 && size.height > 0,
+            "The size of the drawing must be non-zero"
+        );
 
         self.client.drawing_set_size(size)
     }

@@ -1,8 +1,8 @@
-use std::{sync::Arc, collections::BTreeMap};
+use std::{collections::BTreeMap, sync::Arc};
 
 use parking_lot::Mutex;
 
-use crate::{Point, Color};
+use crate::{Color, Point};
 
 use super::super::state::Pen;
 
@@ -80,14 +80,23 @@ impl DisplayList {
     /// If a new line would not need to be drawn based on the pen configuration, `None` is
     /// returned. Otherwise, a handle to the line that will be drawn is returned.
     pub fn push_line(&mut self, start: Point, end: Point, pen: &Pen) -> Option<PrimHandle> {
-        let &Pen {is_enabled, thickness, color} = pen;
+        let &Pen {
+            is_enabled,
+            thickness,
+            color,
+        } = pen;
 
         // Do not draw lines for which the pen is disabled
         if !is_enabled {
             return None;
         }
 
-        let handle = self.insert(DrawPrim::Line(Line {start, end, thickness, color}));
+        let handle = self.insert(DrawPrim::Line(Line {
+            start,
+            end,
+            thickness,
+            color,
+        }));
         Some(handle)
     }
 
@@ -96,14 +105,18 @@ impl DisplayList {
     /// Panics if the given handle does not refer to a line primitive.
     pub fn line_update_end(&mut self, handle: PrimHandle, end: Point) {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
-        let line = prim.as_line_mut()
+        let line = prim
+            .as_line_mut()
             .expect("bug: attempt to update the end of a draw primitive that was not a line");
         line.end = end;
     }
 
     /// Creates a polygon with one point, and pushes it into the display list
     pub fn push_polygon_start(&mut self, start: Point, fill_color: Color) -> PrimHandle {
-        self.insert(DrawPrim::Polygon(Polygon {points: vec![start], fill_color}))
+        self.insert(DrawPrim::Polygon(Polygon {
+            points: vec![start],
+            fill_color,
+        }))
     }
 
     /// Pushes a point into a polygon with the given handle
@@ -114,7 +127,8 @@ impl DisplayList {
     /// Panics if the given handle does not refer to a polygon primitive.
     pub fn polygon_push(&mut self, handle: PrimHandle, point: Point) -> usize {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
-        let polygon = prim.as_polygon_mut()
+        let polygon = prim
+            .as_polygon_mut()
             .expect("bug: attempt to push into a draw primitive that was not a polygon");
 
         let index = polygon.points.len();
@@ -131,7 +145,8 @@ impl DisplayList {
     /// out of bounds.
     pub fn polygon_update(&mut self, handle: PrimHandle, index: usize, point: Point) {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
-        let polygon = prim.as_polygon_mut()
+        let polygon = prim
+            .as_polygon_mut()
             .expect("bug: attempt to update a point in a draw primitive that was not a polygon");
 
         // This will panic if the index is out of bounds
@@ -143,13 +158,14 @@ impl DisplayList {
     /// Panics if the given handle does not refer to a polygon primitive.
     pub fn polygon_set_fill_color(&mut self, handle: PrimHandle, fill_color: Color) {
         let prim = self.items.get_mut(&handle).expect("bug: invalid handle");
-        let polygon = prim.as_polygon_mut()
-            .expect("bug: attempt to set the fill color of a draw primitive that was not a polygon");
+        let polygon = prim.as_polygon_mut().expect(
+            "bug: attempt to set the fill color of a draw primitive that was not a polygon",
+        );
         polygon.fill_color = fill_color;
     }
 
     /// Removes the given items from the display list
-    pub fn remove<I: Iterator<Item=PrimHandle>>(&mut self, items: I) {
+    pub fn remove<I: Iterator<Item = PrimHandle>>(&mut self, items: I) {
         for handle in items {
             self.items.remove(&handle);
         }
@@ -164,7 +180,7 @@ impl DisplayList {
     }
 
     /// Iterates over the items in the display list in the order in which they should be rendered
-    pub fn iter(&self) -> impl Iterator<Item=&DrawPrim> {
+    pub fn iter(&self) -> impl Iterator<Item = &DrawPrim> {
         self.items.values()
     }
 
@@ -172,7 +188,10 @@ impl DisplayList {
     fn insert(&mut self, prim: DrawPrim) -> PrimHandle {
         let handle = PrimHandle(self.next_id);
         self.next_id += 1;
-        assert!(self.items.insert(handle, prim).is_none(), "bug: handles should be unique");
+        assert!(
+            self.items.insert(handle, prim).is_none(),
+            "bug: handles should be unique"
+        );
         handle
     }
 }

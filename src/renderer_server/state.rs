@@ -1,15 +1,13 @@
 use std::f64::consts::PI;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    Color,
-    Point,
-    Speed,
+    async_turtle::AngleUnit,
+    colors::{BLACK, WHITE},
     debug,
     radians::Radians,
-    colors::{WHITE, BLACK},
-    async_turtle::AngleUnit,
+    Color, Point, Speed,
 };
 
 #[derive(Debug, Serialize, Deserialize)]

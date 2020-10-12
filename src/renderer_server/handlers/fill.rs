@@ -1,9 +1,9 @@
-use super::HandlerError;
 use super::super::{
+    app::{App, TurtleDrawings, TurtleId},
     event_loop_notifier::EventLoopNotifier,
-    app::{TurtleId, TurtleDrawings, App},
     renderer::display_list::DisplayList,
 };
+use super::HandlerError;
 
 pub(crate) fn begin_fill(
     app: &mut App,
@@ -13,7 +13,11 @@ pub(crate) fn begin_fill(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, drawings, current_fill_polygon} = turtle;
+    let TurtleDrawings {
+        state: turtle,
+        drawings,
+        current_fill_polygon,
+    } = turtle;
 
     // Ignore the request if we are already filling
     if current_fill_polygon.is_some() {
@@ -29,13 +33,13 @@ pub(crate) fn begin_fill(
     Ok(())
 }
 
-pub(crate) fn end_fill(
-    app: &mut App,
-    id: TurtleId,
-) -> Result<(), HandlerError> {
+pub(crate) fn end_fill(app: &mut App, id: TurtleId) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {current_fill_polygon, ..} = turtle;
+    let TurtleDrawings {
+        current_fill_polygon,
+        ..
+    } = turtle;
 
     // No need to add the turtle's current position to the polygon since it should already be there
 

@@ -1,15 +1,15 @@
-use crate::ipc_protocol::{ServerOneshotSender, ServerResponse, RotationDirection};
+use crate::ipc_protocol::{RotationDirection, ServerOneshotSender, ServerResponse};
 use crate::radians::Radians;
 use crate::{Distance, Point};
 
-use super::HandlerError;
 use super::super::{
+    animation::{AnimationRunner, MoveAnimation, RotateAnimation},
+    app::{App, TurtleId},
     event_loop_notifier::EventLoopNotifier,
-    state::TurtleState,
-    app::{TurtleId, App},
-    animation::{MoveAnimation, RotateAnimation, AnimationRunner},
     renderer::display_list::DisplayList,
+    state::TurtleState,
 };
+use super::HandlerError;
 
 pub(crate) fn move_forward(
     conn: ServerOneshotSender,
@@ -22,7 +22,9 @@ pub(crate) fn move_forward(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleState {position, heading, ..} = turtle.state;
+    let TurtleState {
+        position, heading, ..
+    } = turtle.state;
 
     // The total amount we'll move in the x and y directions
     let movement = Point {
@@ -35,7 +37,6 @@ pub(crate) fn move_forward(
 
     if anim.is_running() {
         anim_runner.play(id, anim, conn.client_id());
-
     } else {
         // Instant animations complete right away and don't need to be queued
         // Signal the main thread that the image has changed
@@ -62,7 +63,6 @@ pub(crate) fn move_to(
 
     if anim.is_running() {
         anim_runner.play(id, anim, conn.client_id());
-
     } else {
         // Instant animations complete right away and don't need to be queued
         // Signal the main thread that the image has changed
@@ -89,7 +89,6 @@ pub(crate) fn rotate_in_place(
 
     if anim.is_running() {
         anim_runner.play(id, anim, conn.client_id());
-
     } else {
         // Instant animations complete right away and don't need to be queued
         // Signal the main thread that the image has changed

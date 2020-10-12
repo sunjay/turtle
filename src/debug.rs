@@ -10,7 +10,7 @@
 
 use std::fmt;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::{Color, Point, Speed};
 

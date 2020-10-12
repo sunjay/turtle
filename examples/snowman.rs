@@ -175,13 +175,13 @@ fn sidestep_left(turtle: &mut Turtle, length: f64) {
 
 /// Draws a rectangle starting at the bottom center point
 fn rectangle_bottom_center(turtle: &mut Turtle, width: f64, height: f64) {
-    turtle.forward(width/2.0);
+    turtle.forward(width / 2.0);
     for &length in &[height, width, height] {
         turtle.right(90.0);
         turtle.forward(length);
     }
     turtle.right(90.0);
-    turtle.forward(width/2.0);
+    turtle.forward(width / 2.0);
 }
 
 fn circle(turtle: &mut Turtle, radius: f64) {

@@ -23,11 +23,14 @@
 //!
 //! # Event Handling
 //!
-#![cfg_attr(not(feature = "unstable"), doc = "
+#![cfg_attr(
+    not(feature = "unstable"),
+    doc = "
 **The turtle events API is unstable.** Rebuild the documentation with `--features \"unstable\"` to
 show the documentation for the types and modules that are part of that. Some links may appear
 broken unless you do so. See [Unstable features](#unstable-features) below for more information.
-")]
+"
+)]
 //! The [`Event` enum](event/enum.Event.html) documentation provides information about how you can
 //! create an event loop. This allows you to draw things in response to certain events like the
 //! mouse moving, keys being pressed, and more.
@@ -76,40 +79,40 @@ broken unless you do so. See [Unstable features](#unstable-features) below for m
 
 // This warning usually signals an error and so it should be treated as such.
 #![deny(unused_must_use)]
-
 #![doc(test(attr(deny(warnings), allow(unused_variables))))]
-
-#![doc(html_logo_url = "https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/turtle-logo-512.png")]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/sunjay/turtle/master/docs/assets/images/turtle-logo-512.png"
+)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(all(test, not(feature = "test")))]
 compile_error!("Make sure you run tests with `cargo test --features \"test unstable\"`");
 
-mod radians;
-mod point;
-mod speed;
 mod color;
+mod point;
+mod radians;
 pub mod rand;
+mod speed;
 
-mod ipc_protocol;
-mod renderer_server;
-mod renderer_client;
 mod async_drawing;
 mod async_turtle;
-mod sync_runtime;
 mod debug;
 mod drawing;
+mod ipc_protocol;
+mod renderer_client;
+mod renderer_server;
+mod sync_runtime;
 mod turtle;
 
-pub use crate::color::Color;
-pub use crate::color::colors;
 pub use crate::async_drawing::Size;
+pub use crate::async_turtle::{Angle, Distance};
+pub use crate::color::colors;
+pub use crate::color::Color;
 pub use crate::drawing::Drawing;
 pub use crate::point::Point;
+pub use crate::renderer_server::{start, ExportError};
 pub use crate::speed::Speed;
-pub use crate::async_turtle::{Angle, Distance};
 pub use crate::turtle::Turtle;
-pub use crate::renderer_server::{ExportError, start};
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "unstable")] {

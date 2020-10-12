@@ -1,10 +1,7 @@
 use crate::ipc_protocol::{ServerOneshotSender, ServerResponse};
 
+use super::super::{app::App, event_loop_notifier::EventLoopNotifier};
 use super::HandlerError;
-use super::super::{
-    event_loop_notifier::EventLoopNotifier,
-    app::App,
-};
 
 pub(crate) fn create_turtle(
     conn: ServerOneshotSender,

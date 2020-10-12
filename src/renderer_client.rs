@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use ipc_channel::ipc::IpcError;
-use serde::{Serialize, Deserialize};
-use tokio::sync::{mpsc, RwLock, Mutex};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use tokio::sync::{mpsc, Mutex, RwLock};
 
-use crate::ipc_protocol::{ClientSender, ConnectionError, ClientRequest, ServerResponse};
+use crate::ipc_protocol::{ClientRequest, ClientSender, ConnectionError, ServerResponse};
 use crate::renderer_server::RendererServer;
 
 /// Signals that the IPC connection has been disconnected and therefore the window was probably
@@ -59,7 +59,7 @@ impl ClientDispatcher {
                             client.send(Err(Disconnected)).unwrap_or(());
                         }
                         break;
-                    },
+                    }
 
                     Err(err) => panic!("Error while receiving IPC message: {:?}", err),
                 };
@@ -73,10 +73,15 @@ impl ClientDispatcher {
             }
         });
 
-        Ok((Self {server, clients}, sender))
+        Ok((Self { server, clients }, sender))
     }
 
-    async fn add_client(&self) -> (ClientId, mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>) {
+    async fn add_client(
+        &self,
+    ) -> (
+        ClientId,
+        mpsc::UnboundedReceiver<Result<ServerResponse, Disconnected>>,
+    ) {
         let mut clients = self.clients.write().await;
 
         let id = ClientId(clients.len());
@@ -104,7 +109,12 @@ impl RendererClient {
         let (id, receiver) = dispatcher.add_client().await;
         let receiver = Mutex::new(receiver);
 
-        Ok(Self {dispatcher, id, sender, receiver})
+        Ok(Self {
+            dispatcher,
+            id,
+            sender,
+            receiver,
+        })
     }
 
     /// Creates a new renderer client that can also communicate to the same server
@@ -114,7 +124,12 @@ impl RendererClient {
         let sender = self.sender.clone();
         let receiver = Mutex::new(receiver);
 
-        Self {dispatcher, id, sender, receiver}
+        Self {
+            dispatcher,
+            id,
+            sender,
+            receiver,
+        }
     }
 
     /// Sends a message to the server process
@@ -123,7 +138,8 @@ impl RendererClient {
     pub fn send(&self, req: ClientRequest) {
         // The error produced by send is a serialization error, so it signals a bug in this code,
         // not something that should be propagated to be handled elsewhere.
-        self.sender.send(self.id, req)
+        self.sender
+            .send(self.id, req)
             .expect("bug: error while sending message through IPC")
     }
 
@@ -136,7 +152,9 @@ impl RendererClient {
     /// When possible, prefer using methods from `ProtocolClient` instead of using this directly
     pub async fn recv(&self) -> ServerResponse {
         let mut receiver = self.receiver.lock().await;
-        receiver.recv().await
+        receiver
+            .recv()
+            .await
             // Since this struct keeps a ref-counted copy of the senders, they can't have possibly
             // been dropped at this point.
             .expect("bug: client senders should not be dropped yet")

@@ -12,7 +12,9 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 2 {
-        println!("Interactive LOGO Mode.\nType the commands in stdin.\nPress '^C' (cmd/ctrl+C) to exit");
+        println!(
+            "Interactive LOGO Mode.\nType the commands in stdin.\nPress '^C' (cmd/ctrl+C) to exit"
+        );
         let stdin = io::stdin();
         interpret(&mut turtle, stdin)
     } else {
@@ -40,19 +42,31 @@ fn handle_command<'a, A: Iterator<Item = &'a str>>(turtle: &mut Turtle, mut args
     while let Some(command) = args.next() {
         match command {
             "fd" | "forward" => {
-                let distance = parse_distance(args.next().expect("Expected a distance value after fd/forward command"));
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expected a distance value after fd/forward command"),
+                );
                 turtle.forward(distance);
             }
             "bk" | "back" => {
-                let distance = parse_distance(args.next().expect("Expect a distance value after bk/back command"));
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expect a distance value after bk/back command"),
+                );
                 turtle.backward(distance);
             }
             "lt" | "left" => {
-                let distance = parse_distance(args.next().expect("Expect a distance value after lt/left command"));
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expect a distance value after lt/left command"),
+                );
                 turtle.left(distance);
             }
             "rt" | "right" => {
-                let distance = parse_distance(args.next().expect("Expect a distance value after rt/right command"));
+                let distance = parse_distance(
+                    args.next()
+                        .expect("Expect a distance value after rt/right command"),
+                );
                 turtle.right(distance);
             }
             "home" => {

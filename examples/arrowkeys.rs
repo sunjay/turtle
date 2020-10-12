@@ -2,7 +2,10 @@
 #[cfg(all(not(feature = "unstable")))]
 compile_error!("This example relies on unstable features. Run with `--features unstable`");
 
-use turtle::{Drawing, Event, event::{Key, PressedState}};
+use turtle::{
+    event::{Key, PressedState},
+    Drawing, Event,
+};
 
 fn main() {
     let mut drawing = Drawing::new();
@@ -27,7 +30,7 @@ fn main() {
                             turtle.left(4.5);
                         }
                         turtle.set_speed(4);
-                    },
+                    }
                     RightArrow => {
                         turtle.set_speed(8);
                         for _ in 0..20 {
@@ -35,10 +38,10 @@ fn main() {
                             turtle.right(4.5);
                         }
                         turtle.set_speed(4);
-                    },
-                    _ => {},
+                    }
+                    _ => {}
                 },
-                _ => {},
+                _ => {}
             }
         }
     }

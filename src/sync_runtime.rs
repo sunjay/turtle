@@ -12,7 +12,6 @@ use tokio::runtime::Runtime;
 static RUNTIME: OnceCell<Runtime> = OnceCell::new();
 
 pub fn block_on<F: Future>(future: F) -> F::Output {
-    let runtime = RUNTIME.get_or_init(|| Runtime::new()
-        .expect("unable to spawn tokio runtime"));
+    let runtime = RUNTIME.get_or_init(|| Runtime::new().expect("unable to spawn tokio runtime"));
     runtime.handle().block_on(future)
 }

@@ -1,9 +1,9 @@
 use std::thread;
 
-use tokio::sync::{mpsc, oneshot};
+use ipc_channel::ipc::{IpcError, IpcReceiver};
+use serde::{de::DeserializeOwned, Serialize};
 use tokio::runtime::Handle;
-use serde::{Serialize, de::DeserializeOwned};
-use ipc_channel::ipc::{IpcReceiver, IpcError};
+use tokio::sync::{mpsc, oneshot};
 
 /// Asynchronous wrapper over `IpcReceiver` that yields `Result<T, IpcError>`.
 ///
@@ -41,7 +41,7 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
             }
         });
 
-        Self {channel_sender}
+        Self { channel_sender }
     }
 
     /// Receives the next value from the IPC receiver
@@ -50,10 +50,12 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
 
         // The channels should never return errors because the spawned thread runs as long as this
         // thread is still running
-        self.channel_sender.send(sender)
-            .unwrap_or_else(|_| panic!("bug: thread managing IPC receiver terminated before main thread"));
+        self.channel_sender.send(sender).unwrap_or_else(|_| {
+            panic!("bug: thread managing IPC receiver terminated before main thread")
+        });
 
-        receiver.await
+        receiver
+            .await
             .expect("bug: thread managing IPC receiver terminated before main thread")
     }
 }

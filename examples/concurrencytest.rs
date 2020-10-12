@@ -51,11 +51,7 @@ fn main() {
 
         turtle2.set_pen_size(5.0);
         for i in 0..20 {
-            let color = if i % 2 == 0 {
-                "purple"
-            } else {
-                "pink"
-            };
+            let color = if i % 2 == 0 { "purple" } else { "pink" };
             turtle2.set_pen_color(color);
             turtle2.forward(35.0);
         }

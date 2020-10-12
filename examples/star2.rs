@@ -39,7 +39,7 @@ fn main() {
     turtle.set_pen_size(4.0);
     turtle.set_pen_color("yellow");
 
-    for _ in 0.. POINTS as usize {
+    for _ in 0..POINTS as usize {
         turtle.forward(300.0);
         turtle.right(TURN);
     }

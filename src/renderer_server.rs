@@ -1,11 +1,11 @@
-mod state;
-mod app;
-mod coords;
-mod renderer;
-mod backend;
 mod animation;
+mod app;
+mod backend;
+mod coords;
 mod handlers;
+mod renderer;
 mod start;
+mod state;
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "test", test))] {
@@ -24,16 +24,16 @@ pub use renderer::export::ExportError;
 pub use start::start;
 
 use ipc_channel::ipc::IpcError;
+use parking_lot::{Mutex, RwLock};
 use tokio::sync::mpsc;
-use parking_lot::{RwLock, Mutex};
 
-use crate::ipc_protocol::{ServerSender, ServerOneshotSender, ServerReceiver, ClientRequest};
+use crate::ipc_protocol::{ClientRequest, ServerOneshotSender, ServerReceiver, ServerSender};
 use crate::Event;
 
-use app::{SharedApp, App};
-use renderer::display_list::{SharedDisplayList, DisplayList};
-use event_loop_notifier::EventLoopNotifier;
 use animation::AnimationRunner;
+use app::{App, SharedApp};
+use event_loop_notifier::EventLoopNotifier;
+use renderer::display_list::{DisplayList, SharedDisplayList};
 
 /// Serves requests from the client forever
 async fn serve(
@@ -77,7 +77,6 @@ async fn serve(
             &anim_runner,
             request,
         ));
-
     }
 }
 
@@ -92,84 +91,97 @@ fn dispatch_request(
 ) -> Result<(), handlers::HandlerError> {
     use ClientRequest::*;
     match request {
-        CreateTurtle => {
-            handlers::create_turtle(conn, &mut app.write(), event_loop)
-        },
+        CreateTurtle => handlers::create_turtle(conn, &mut app.write(), event_loop),
 
         Export(path, format) => {
             handlers::export_drawings(conn, &app.read(), &display_list.lock(), &path, format)
-        },
+        }
 
-        PollEvent => {
-            handlers::poll_event(conn, events_receiver)
-        },
+        PollEvent => handlers::poll_event(conn, events_receiver),
 
-        DrawingProp(prop) => {
-            handlers::drawing_prop(conn, &app.read(), prop)
-        },
+        DrawingProp(prop) => handlers::drawing_prop(conn, &app.read(), prop),
         SetDrawingProp(prop_value) => {
             handlers::set_drawing_prop(&mut app.write(), event_loop, prop_value)
-        },
-        ResetDrawingProp(prop) => {
-            handlers::reset_drawing_prop(&mut app.write(), event_loop, prop)
-        },
+        }
+        ResetDrawingProp(prop) => handlers::reset_drawing_prop(&mut app.write(), event_loop, prop),
 
-        TurtleProp(id, prop) => {
-            handlers::turtle_prop(conn, &app.read(), id, prop)
-        },
-        SetTurtleProp(id, prop_value) => {
-            handlers::set_turtle_prop(&mut app.write(), &mut display_list.lock(), event_loop, id, prop_value)
-        },
-        ResetTurtleProp(id, prop) => {
-            handlers::reset_turtle_prop(&mut app.write(), &mut display_list.lock(), event_loop, id, prop)
-        },
+        TurtleProp(id, prop) => handlers::turtle_prop(conn, &app.read(), id, prop),
+        SetTurtleProp(id, prop_value) => handlers::set_turtle_prop(
+            &mut app.write(),
+            &mut display_list.lock(),
+            event_loop,
+            id,
+            prop_value,
+        ),
+        ResetTurtleProp(id, prop) => handlers::reset_turtle_prop(
+            &mut app.write(),
+            &mut display_list.lock(),
+            event_loop,
+            id,
+            prop,
+        ),
         ResetTurtle(id) => {
             handlers::reset_turtle(&mut app.write(), &mut display_list.lock(), event_loop, id)
-        },
+        }
 
-        MoveForward(id, distance) => {
-            handlers::move_forward(conn, &mut app.write(), &mut display_list.lock(), event_loop, anim_runner, id, distance)
-        },
-        MoveTo(id, target_pos) => {
-            handlers::move_to(conn, &mut app.write(), &mut display_list.lock(), event_loop, anim_runner, id, target_pos)
-        },
-        RotateInPlace(id, angle, direction) => {
-            handlers::rotate_in_place(conn, &mut app.write(), event_loop, anim_runner, id, angle, direction)
-        },
+        MoveForward(id, distance) => handlers::move_forward(
+            conn,
+            &mut app.write(),
+            &mut display_list.lock(),
+            event_loop,
+            anim_runner,
+            id,
+            distance,
+        ),
+        MoveTo(id, target_pos) => handlers::move_to(
+            conn,
+            &mut app.write(),
+            &mut display_list.lock(),
+            event_loop,
+            anim_runner,
+            id,
+            target_pos,
+        ),
+        RotateInPlace(id, angle, direction) => handlers::rotate_in_place(
+            conn,
+            &mut app.write(),
+            event_loop,
+            anim_runner,
+            id,
+            angle,
+            direction,
+        ),
 
         BeginFill(id) => {
             handlers::begin_fill(&mut app.write(), &mut display_list.lock(), event_loop, id)
-        },
-        EndFill(id) => {
-            handlers::end_fill(&mut app.write(), id)
-        },
+        }
+        EndFill(id) => handlers::end_fill(&mut app.write(), id),
 
-        ClearAll => {
-            handlers::clear_all(&mut app.write(), &mut display_list.lock(), event_loop, anim_runner)
-        },
+        ClearAll => handlers::clear_all(
+            &mut app.write(),
+            &mut display_list.lock(),
+            event_loop,
+            anim_runner,
+        ),
         ClearTurtle(id) => {
             handlers::clear_turtle(&mut app.write(), &mut display_list.lock(), event_loop, id)
-        },
+        }
 
-        DebugTurtle(id, angle_unit) => {
-            handlers::debug_turtle(conn, &app.read(), id, angle_unit)
-        },
-        DebugDrawing => {
-            handlers::debug_drawing(conn, &app.read())
-        },
+        DebugTurtle(id, angle_unit) => handlers::debug_turtle(conn, &app.read(), id, angle_unit),
+        DebugDrawing => handlers::debug_drawing(conn, &app.read()),
     }
 }
 
 fn handle_handler_result(res: Result<(), handlers::HandlerError>) {
     use handlers::HandlerError::*;
     match res {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(IpcChannelError(err)) => panic!("Error while serializing response: {}", err),
         // Task managing window has ended, this task will end soon too.
         //TODO: This potentially leaves the turtle/drawing state in an inconsistent state. Should
         // we deal with that somehow? Panicking doesn't seem appropriate since this probably isn't
         // an error, but we should definitely stop processing commands and make sure the process
         // ends shortly after.
-        Err(EventLoopClosed(_)) => {},
+        Err(EventLoopClosed(_)) => {}
     }
 }

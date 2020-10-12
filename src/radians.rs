@@ -1,8 +1,8 @@
 use std::f64::consts::PI as fPI;
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 
-use serde::{Serialize, Deserialize};
 use interpolation::Lerp;
+use serde::{Deserialize, Serialize};
 
 pub const PI: Radians = Radians(fPI);
 pub const TWO_PI: Radians = Radians(2. * fPI);

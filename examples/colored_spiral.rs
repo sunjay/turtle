@@ -1,4 +1,4 @@
-use turtle::{Drawing, Color};
+use turtle::{Color, Drawing};
 
 fn main() {
     let mut drawing = Drawing::new();

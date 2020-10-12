@@ -1,10 +1,10 @@
-use super::HandlerError;
 use super::super::{
-    event_loop_notifier::EventLoopNotifier,
-    app::{App, TurtleId, TurtleDrawings},
     animation::AnimationRunner,
+    app::{App, TurtleDrawings, TurtleId},
+    event_loop_notifier::EventLoopNotifier,
     renderer::display_list::DisplayList,
 };
+use super::HandlerError;
 
 pub(crate) fn clear_all(
     app: &mut App,
@@ -15,7 +15,11 @@ pub(crate) fn clear_all(
     display_list.clear();
 
     for (_, turtle) in app.turtles_mut() {
-        let TurtleDrawings {state: _, drawings, current_fill_polygon} = turtle;
+        let TurtleDrawings {
+            state: _,
+            drawings,
+            current_fill_polygon,
+        } = turtle;
 
         drawings.clear();
         *current_fill_polygon = None;
@@ -38,7 +42,11 @@ pub(crate) fn clear_turtle(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: _, drawings, current_fill_polygon} = turtle;
+    let TurtleDrawings {
+        state: _,
+        drawings,
+        current_fill_polygon,
+    } = turtle;
 
     display_list.remove(drawings.iter().copied());
     drawings.clear();

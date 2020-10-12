@@ -1,7 +1,7 @@
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
-use serde::{Serialize, Deserialize};
 use interpolation::Lerp;
+use serde::{Deserialize, Serialize};
 
 use crate::rand::{Random, RandomRange};
 

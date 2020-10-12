@@ -12,7 +12,10 @@ pub struct Cell {
 
 impl Cell {
     pub fn is_all_closed(&self) -> bool {
-        self.north.is_closed() && self.east.is_closed() && self.south.is_closed() && self.west.is_closed()
+        self.north.is_closed()
+            && self.east.is_closed()
+            && self.south.is_closed()
+            && self.west.is_closed()
     }
 }
 

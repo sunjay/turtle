@@ -68,8 +68,10 @@ fn assert_main_thread() {
         //
         // It's easy for a user to accidentally cause this panic if they call `Turtle::new()` in a
         // new thread. This message is meant to point them to the solution: `turtle::start()`
-        panic!("Windows can only be created on the main thread. Make sure you have called \
+        panic!(
+            "Windows can only be created on the main thread. Make sure you have called \
                 `turtle::start()` at the beginning of your program's main() function. \
-                See: <https://docs.rs/turtle/*/turtle/fn.start.html>");
+                See: <https://docs.rs/turtle/*/turtle/fn.start.html>"
+        );
     }
 }

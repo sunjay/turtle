@@ -62,7 +62,13 @@ fn main() {
 /// `num_folds`: The number of times to fold the 'strip of paper'.
 /// `color_start`/`color_end`: The color at the start/end of this subsection
 /// of the curve as a number 0-255.
-fn dragon(turtle: &mut Turtle, fold_direction: f64, num_folds: usize, color_start: f64, color_end: f64) {
+fn dragon(
+    turtle: &mut Turtle,
+    fold_direction: f64,
+    num_folds: usize,
+    color_start: f64,
+    color_end: f64,
+) {
     let color_mid = (color_start + color_end) * 0.5;
     if num_folds == 0 {
         // mapping a color number 0-255 to an rgb gradient.

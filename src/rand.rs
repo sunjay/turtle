@@ -371,7 +371,10 @@ macro_rules! impl_random_array {
     };
 }
 
-impl_random_array!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,);
+impl_random_array!(
+    32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
+    T, T,
+);
 
 impl<T: Random> Random for Option<T> {
     fn random() -> Self {
@@ -547,7 +550,10 @@ macro_rules! impl_random_slice {
     };
 }
 
-impl_random_slice!(32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,);
+impl_random_slice!(
+    32, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
+    T, T,
+);
 
 /// Shuffle the elements of the given slice in place.
 ///

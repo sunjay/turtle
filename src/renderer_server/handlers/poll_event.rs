@@ -1,9 +1,6 @@
 use tokio::sync::mpsc::{self, error::TryRecvError};
 
-use crate::ipc_protocol::{
-    ServerOneshotSender,
-    ServerResponse,
-};
+use crate::ipc_protocol::{ServerOneshotSender, ServerResponse};
 use crate::Event;
 
 use super::HandlerError;

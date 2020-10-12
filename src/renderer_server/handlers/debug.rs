@@ -1,15 +1,10 @@
 use crate::{
     async_turtle::AngleUnit,
-    ipc_protocol::{
-        ServerOneshotSender,
-        ServerResponse,
-    },
+    ipc_protocol::{ServerOneshotSender, ServerResponse},
 };
 
+use super::super::app::{App, TurtleDrawings, TurtleId};
 use super::HandlerError;
-use super::super::{
-    app::{TurtleId, TurtleDrawings, App},
-};
 
 pub(crate) fn debug_turtle(
     conn: ServerOneshotSender,
@@ -19,7 +14,7 @@ pub(crate) fn debug_turtle(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle(id);
 
-    let TurtleDrawings {state: turtle, ..} = turtle;
+    let TurtleDrawings { state: turtle, .. } = turtle;
 
     let debug_state = turtle.to_debug(angle_unit);
 
@@ -28,10 +23,7 @@ pub(crate) fn debug_turtle(
     Ok(())
 }
 
-pub(crate) fn debug_drawing(
-    conn: ServerOneshotSender,
-    app: &App,
-) -> Result<(), HandlerError> {
+pub(crate) fn debug_drawing(conn: ServerOneshotSender, app: &App) -> Result<(), HandlerError> {
     let drawing = app.drawing();
 
     let debug_state = drawing.to_debug();

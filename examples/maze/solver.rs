@@ -1,7 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 
 use crate::maze::Maze;
-use turtle::{Turtle, rand::shuffle};
+use turtle::{rand::shuffle, Turtle};
 
 const SOLUTION_COLOR: &str = "#4CAF50";
 const BACKTRACK_COLOR: &str = "#F44336";
@@ -32,7 +32,9 @@ pub fn solve(turtle: &mut Turtle, maze: Maze, cell_width: f64, cell_height: f64)
             loop {
                 let previous = match path_stack.pop_back() {
                     Some(pos) => pos,
-                    None => unreachable!("Backtracked to the beginning. Could not find solution for maze!"),
+                    None => unreachable!(
+                        "Backtracked to the beginning. Could not find solution for maze!"
+                    ),
                 };
 
                 move_to(turtle, current, previous, cell_width, cell_height);
@@ -54,8 +56,13 @@ pub fn solve(turtle: &mut Turtle, maze: Maze, cell_width: f64, cell_height: f64)
     }
 }
 
-fn unvisited_open_adjacents(maze: &Maze, visited: &HashSet<(usize, usize)>, position: (usize, usize)) -> Vec<(usize, usize)> {
-    maze.grid().adjacent_cells(position)
+fn unvisited_open_adjacents(
+    maze: &Maze,
+    visited: &HashSet<(usize, usize)>,
+    position: (usize, usize),
+) -> Vec<(usize, usize)> {
+    maze.grid()
+        .adjacent_cells(position)
         .into_iter()
         .filter(|p| maze.grid().is_open_between(position, *p))
         .filter(|p| !visited.contains(p))
@@ -69,7 +76,10 @@ fn move_to(
     cell_width: f64,
     cell_height: f64,
 ) {
-    let delta = (next_row as isize - curr_row as isize, next_col as isize - curr_col as isize);
+    let delta = (
+        next_row as isize - curr_row as isize,
+        next_col as isize - curr_col as isize,
+    );
     let (target_heading, distance) = match delta {
         // go north
         (-1, 0) => (90.0, cell_height),

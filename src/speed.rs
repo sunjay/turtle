@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 use std::fmt;
 
-use serde::{Serialize, Deserialize};
 use interpolation::lerp;
+use serde::{Deserialize, Serialize};
 
 use crate::radians::{self, Radians};
 use crate::rand::{Random, RandomRange};
@@ -229,9 +229,9 @@ impl Speed {
         // each speed should take.
 
         let distance = 200.0; // px
-        // The time it should take at the minimum speed level (MIN_SPEED) to cross this distance
+                              // The time it should take at the minimum speed level (MIN_SPEED) to cross this distance
         let speed_min_time = 2.0 * 1000.0; // ms
-        // The time it should take at the maximum speed level (MAX_SPEED) to cross this distance
+                                           // The time it should take at the maximum speed level (MAX_SPEED) to cross this distance
         let speed_max_time = 5.0; // ms
 
         use SpeedLevel::*;
@@ -408,7 +408,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\"")]
+    #[should_panic(
+        expected = "Invalid speed specified, use one of the words: \"slowest\", \"slower\", \"slow\", \"normal\", \"fast\", \"faster\", \"instant\""
+    )]
     fn invalid_speed() {
         let mut turtle = Turtle::new();
         turtle.set_speed("wrong");
@@ -454,7 +456,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()")]
+    #[should_panic(
+        expected = "Invalid speed: 0. If you wanted to set the speed to instant, please use the string \"instant\" or Speed::instant()"
+    )]
     fn disallow_zero() {
         let mut turtle = Turtle::new();
         turtle.set_speed(0);

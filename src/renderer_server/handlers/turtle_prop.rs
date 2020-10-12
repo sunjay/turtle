@@ -1,19 +1,14 @@
 use crate::ipc_protocol::{
-    ServerOneshotSender,
-    ServerResponse,
-    TurtleProp,
-    TurtlePropValue,
-    PenProp,
-    PenPropValue,
+    PenProp, PenPropValue, ServerOneshotSender, ServerResponse, TurtleProp, TurtlePropValue,
 };
 
-use super::HandlerError;
 use super::super::{
+    app::{App, TurtleDrawings, TurtleId},
     event_loop_notifier::EventLoopNotifier,
-    state::{self, TurtleState},
-    app::{TurtleId, TurtleDrawings, App},
     renderer::display_list::DisplayList,
+    state::{self, TurtleState},
 };
+use super::HandlerError;
 
 pub(crate) fn turtle_prop(
     conn: ServerOneshotSender,
@@ -23,10 +18,14 @@ pub(crate) fn turtle_prop(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
+    let TurtleDrawings {
+        state: turtle,
+        current_fill_polygon,
+        ..
+    } = turtle;
 
-    use TurtleProp::*;
     use PenProp::*;
+    use TurtleProp::*;
     let value = match prop {
         Pen(IsEnabled) => TurtlePropValue::Pen(PenPropValue::IsEnabled(turtle.pen.is_enabled)),
         Pen(Thickness) => TurtlePropValue::Pen(PenPropValue::Thickness(turtle.pen.thickness)),
@@ -55,10 +54,14 @@ pub(crate) fn set_turtle_prop(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
+    let TurtleDrawings {
+        state: turtle,
+        current_fill_polygon,
+        ..
+    } = turtle;
 
-    use TurtlePropValue::*;
     use PenPropValue::*;
+    use TurtlePropValue::*;
     match prop_value {
         Pen(IsEnabled(is_enabled)) => turtle.pen.is_enabled = is_enabled,
         Pen(Thickness(thickness)) => turtle.pen.thickness = thickness,
@@ -74,12 +77,12 @@ pub(crate) fn set_turtle_prop(
                 // Signal the main thread that the image has changed
                 event_loop.request_redraw()?;
             }
-        },
+        }
 
         IsFilling(_) => unreachable!("bug: should have used `BeginFill` and `EndFill` instead"),
-        Position(_) |
-        PositionX(_) |
-        PositionY(_) => unreachable!("bug: should have used `MoveTo` instead"),
+        Position(_) | PositionX(_) | PositionY(_) => {
+            unreachable!("bug: should have used `MoveTo` instead")
+        }
         Heading(_) => unreachable!("bug: should have used `RotateInPlace` instead"),
 
         Speed(speed) => turtle.speed = speed,
@@ -89,7 +92,7 @@ pub(crate) fn set_turtle_prop(
 
             // Signal the main thread that the image has changed
             event_loop.request_redraw()?;
-        },
+        }
     }
 
     Ok(())
@@ -104,12 +107,16 @@ pub(crate) fn reset_turtle_prop(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
+    let TurtleDrawings {
+        state: turtle,
+        current_fill_polygon,
+        ..
+    } = turtle;
 
     let mut drawing_changed = false;
 
-    use TurtleProp::*;
     use PenProp::*;
+    use TurtleProp::*;
     match prop {
         Pen(IsEnabled) => turtle.pen.is_enabled = state::Pen::DEFAULT_IS_ENABLED,
         Pen(Thickness) => turtle.pen.thickness = state::Pen::DEFAULT_THICKNESS,
@@ -124,34 +131,34 @@ pub(crate) fn reset_turtle_prop(
 
                 drawing_changed = true;
             }
-        },
+        }
 
         IsFilling => unreachable!("bug: should have used `BeginFill` and `EndFill` instead"),
 
         Position => {
             turtle.position = TurtleState::DEFAULT_POSITION;
             drawing_changed = true;
-        },
+        }
         PositionX => {
             turtle.position.x = TurtleState::DEFAULT_POSITION.x;
             drawing_changed = true;
-        },
+        }
         PositionY => {
             turtle.position.y = TurtleState::DEFAULT_POSITION.y;
             drawing_changed = true;
-        },
+        }
 
         Heading => {
             turtle.heading = TurtleState::DEFAULT_HEADING;
             drawing_changed = true;
-        },
+        }
 
         Speed => turtle.speed = crate::Speed::default(),
 
         IsVisible => {
             turtle.is_visible = TurtleState::DEFAULT_IS_VISIBLE;
             drawing_changed = true;
-        },
+        }
     }
 
     if drawing_changed {
@@ -170,7 +177,11 @@ pub(crate) fn reset_turtle(
 ) -> Result<(), HandlerError> {
     let turtle = app.turtle_mut(id);
 
-    let TurtleDrawings {state: turtle, current_fill_polygon, ..} = turtle;
+    let TurtleDrawings {
+        state: turtle,
+        current_fill_polygon,
+        ..
+    } = turtle;
 
     *turtle = TurtleState::default();
 

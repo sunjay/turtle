@@ -148,7 +148,11 @@ impl Grid {
     }
 
     /// Returns true if there is NO wall between two adjacent cells
-    pub fn is_open_between(&self, (row1, col1): (usize, usize), (row2, col2): (usize, usize)) -> bool {
+    pub fn is_open_between(
+        &self,
+        (row1, col1): (usize, usize),
+        (row2, col2): (usize, usize),
+    ) -> bool {
         match (row2 as isize - row1 as isize, col2 as isize - col1 as isize) {
             // second position is north of first position
             (-1, 0) => {
