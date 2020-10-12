@@ -77,6 +77,10 @@ steps:
     cargo test --verbose --all --features "test unstable"
   displayName: test
 
+- script: |
+    cargo fmt --verbose --all -- --check
+  displayName: style_check
+
 # TODO: Use the latest version of tarpaulin once our code compiles with it
 - script: |
     cargo install --verbose cargo-tarpaulin --version '0.13.3'
