@@ -197,6 +197,11 @@ requires an extra flag which is documented below.
     also write as many tests as possible in order to keep your features in
     check and let everyone have a greater trust in them. The higher the score,
     usually the better!
+* The project uses the standard Rust style using `rustfmt`.
+  * In order to reformat your code before committing, run `cargo fmt --all`.
+  * In order to check if it is correctly formatted, run `cargo fmt --all -- --check`.
+  * A style check is ran automatically by our CI for each contribution in order
+    to normalize the project, so make sure you run it!
 * To generate the project's documentation, run `cargo doc`
   * To open the generated documentation, run `cargo doc --open`
   * When writing documentation, it is often easier to have the documentation
@@ -249,18 +254,19 @@ To add an example, complete the following steps:
    is no `.rs` this time)
 6. Make any other changes and re-run the example as many times as you need to
    until you are satisfied
-7. Create a commit with a brief message about your example
+7. Make sure the added files are correctly formatted using `cargo fmt --all`.
+8. Create a commit with a brief message about your example
    ```bash
    git commit -a -m "This is my really cool example of a butterfly"
    ```
-8. [Push the commit](https://guides.github.com/activities/forking/#making-changes)
+9. [Push the commit](https://guides.github.com/activities/forking/#making-changes)
    to your fork
-7. [Create a pull request](https://help.github.com/articles/creating-a-pull-request/)
-   and mention in your title and description that you're adding an example
-   * Follow [this guide](https://guides.github.com/activities/forking/#making-a-pull-request)
-     if you need help
-   * (optional) Tell us a bit about your example and include screenshots or
-     [gifs](https://github.com/phw/peek) of it if you can!
+10. [Create a pull request](https://help.github.com/articles/creating-a-pull-request/)
+    and mention in your title and description that you're adding an example
+    * Follow [this guide](https://guides.github.com/activities/forking/#making-a-pull-request)
+      if you need help
+    * (optional) Tell us a bit about your example and include screenshots or
+      [gifs](https://github.com/phw/peek) of it if you can!
 
 [**Check out this sample pull request of someone adding an example**](https://github.com/sunjay/turtle/pull/29)
 
