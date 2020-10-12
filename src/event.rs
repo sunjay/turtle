@@ -8,11 +8,11 @@
 //! crate. This module may change or be completely removed in the future. There will definitely
 //! be *some* events API in the future, but it may end up looking different than it does today.
 
-use serde::{Serialize, Deserialize};
 use glutin::{
     dpi::{LogicalSize, PhysicalPosition},
-    event::{self as glutin_event, WindowEvent, KeyboardInput},
+    event::{self as glutin_event, KeyboardInput, WindowEvent},
 };
+use serde::{Deserialize, Serialize};
 
 use crate::Point;
 
@@ -65,41 +65,47 @@ impl Event {
     ) -> Option<Self> {
         match event {
             WindowEvent::Resized(size) => {
-                let LogicalSize {width, height} = size.to_logical(scale_factor);
-                Some(Event::WindowResized {width, height})
-            },
+                let LogicalSize { width, height } = size.to_logical(scale_factor);
+                Some(Event::WindowResized { width, height })
+            }
 
-            WindowEvent::KeyboardInput {input: KeyboardInput {state, virtual_keycode, ..}, ..} => {
-                Some(Event::Key(
-                    Key::from_keycode(virtual_keycode?)?,
-                    PressedState::from_state(state),
-                ))
-            },
-            WindowEvent::CursorEntered {..} => Some(Event::WindowCursor(true)),
-            WindowEvent::CursorLeft {..} => Some(Event::WindowCursor(false)),
-            WindowEvent::CursorMoved {position, ..} => {
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state,
+                        virtual_keycode,
+                        ..
+                    },
+                ..
+            } => Some(Event::Key(
+                Key::from_keycode(virtual_keycode?)?,
+                PressedState::from_state(state),
+            )),
+            WindowEvent::CursorEntered { .. } => Some(Event::WindowCursor(true)),
+            WindowEvent::CursorLeft { .. } => Some(Event::WindowCursor(false)),
+            WindowEvent::CursorMoved { position, .. } => {
                 Some(Event::MouseMove(to_logical(position)))
-            },
-            WindowEvent::MouseInput {state, button, ..} => Some(Event::MouseButton(
+            }
+            WindowEvent::MouseInput { state, button, .. } => Some(Event::MouseButton(
                 MouseButton::from_button(button)?,
                 PressedState::from_state(state),
             )),
             WindowEvent::Focused(focused) => Some(Event::WindowFocused(focused)),
             WindowEvent::Destroyed => Some(Event::WindowClosed),
 
-            WindowEvent::Moved(_) |
-            WindowEvent::CloseRequested |
-            WindowEvent::DroppedFile(_) |
-            WindowEvent::HoveredFile(_) |
-            WindowEvent::HoveredFileCancelled |
-            WindowEvent::ReceivedCharacter(_) |
-            WindowEvent::ModifiersChanged(_) |
-            WindowEvent::MouseWheel {..} |
-            WindowEvent::TouchpadPressure {..} |
-            WindowEvent::AxisMotion {..} |
-            WindowEvent::Touch(_) |
-            WindowEvent::ScaleFactorChanged {..} |
-            WindowEvent::ThemeChanged(_) => None, // Not supported
+            WindowEvent::Moved(_)
+            | WindowEvent::CloseRequested
+            | WindowEvent::DroppedFile(_)
+            | WindowEvent::HoveredFile(_)
+            | WindowEvent::HoveredFileCancelled
+            | WindowEvent::ReceivedCharacter(_)
+            | WindowEvent::ModifiersChanged(_)
+            | WindowEvent::MouseWheel { .. }
+            | WindowEvent::TouchpadPressure { .. }
+            | WindowEvent::AxisMotion { .. }
+            | WindowEvent::Touch(_)
+            | WindowEvent::ScaleFactorChanged { .. }
+            | WindowEvent::ThemeChanged(_) => None, // Not supported
         }
     }
 }
@@ -379,62 +385,14 @@ impl Key {
             Tab => Key::Tab,
 
             // Unsupported keys (could be changed in the future)
-            Snapshot |
-            Scroll |
-            Pause |
-            Insert |
-            Compose |
-            Caret |
-            Numlock |
-            AbntC1 |
-            AbntC2 |
-            Apps |
-            Ax |
-            Calculator |
-            Capital |
-            Convert |
-            Kana |
-            Kanji |
-            LAlt |
-            LControl |
-            LShift |
-            LWin |
-            Mail |
-            MediaSelect |
-            MediaStop |
-            Mute |
-            MyComputer |
-            NavigateForward |
-            NavigateBackward |
-            NextTrack |
-            NoConvert |
-            OEM102 |
-            PlayPause |
-            Power |
-            PrevTrack |
-            RAlt |
-            RControl |
-            RShift |
-            RWin |
-            Sleep |
-            Stop |
-            Sysrq |
-            Underline |
-            Unlabeled |
-            VolumeDown |
-            VolumeUp |
-            Wake |
-            WebBack |
-            WebFavorites |
-            WebForward |
-            WebHome |
-            WebRefresh |
-            WebSearch |
-            WebStop |
-            Yen |
-            Copy |
-            Paste |
-            Cut => return None,
+            Snapshot | Scroll | Pause | Insert | Compose | Caret | Numlock | AbntC1 | AbntC2
+            | Apps | Ax | Calculator | Capital | Convert | Kana | Kanji | LAlt | LControl
+            | LShift | LWin | Mail | MediaSelect | MediaStop | Mute | MyComputer
+            | NavigateForward | NavigateBackward | NextTrack | NoConvert | OEM102 | PlayPause
+            | Power | PrevTrack | RAlt | RControl | RShift | RWin | Sleep | Stop | Sysrq
+            | Underline | Unlabeled | VolumeDown | VolumeUp | Wake | WebBack | WebFavorites
+            | WebForward | WebHome | WebRefresh | WebSearch | WebStop | Yen | Copy | Paste
+            | Cut => return None,
         })
     }
 }

@@ -1,19 +1,13 @@
-use tokio::sync::{mpsc, oneshot};
 use futures_util::future::{FutureExt, RemoteHandle};
+use tokio::sync::{mpsc, oneshot};
 
 use crate::ipc_protocol::{
-    ClientSender,
-    ClientReceiver,
-    ConnectionError,
-    connect_server,
-    connect_client,
+    connect_client, connect_server, ClientReceiver, ClientSender, ConnectionError,
 };
 
 use super::super::{
-    serve,
-    app::SharedApp,
-    renderer::display_list::SharedDisplayList,
-    test_event_loop_notifier::EventLoopNotifier
+    app::SharedApp, renderer::display_list::SharedDisplayList, serve,
+    test_event_loop_notifier::EventLoopNotifier,
 };
 
 /// Spawns the task responsible for handling and responding to client requests
@@ -35,20 +29,24 @@ impl RendererServer {
         // Spawn a separate task for the server so this task can continue to make progress
         // while that runs. The remote handle will drop that future when it is dropped.
         let (child, task_handle) = async move {
-            let server_name = server_name_receiver.await
+            let server_name = server_name_receiver
+                .await
                 .expect("bug: unable to receive server name");
             run_main(server_name).await;
-        }.remote_handle();
+        }
+        .remote_handle();
 
         tokio::spawn(child);
 
         let (conn_sender, conn_receiver) = connect_client(move |name| async {
-            server_name_sender.send(name)
+            server_name_sender
+                .send(name)
                 .expect("bug: unable to send server name to test renderer server");
             Ok(())
-        }).await?;
+        })
+        .await?;
 
-        Ok((Self {task_handle}, conn_sender, conn_receiver))
+        Ok((Self { task_handle }, conn_sender, conn_receiver))
     }
 }
 
@@ -69,8 +67,8 @@ pub async fn run_main(server_name: String) {
     // A channel for notifying on shutdown
     let (_server_shutdown, server_shutdown_receiver) = mpsc::channel(1);
 
-    let (conn_sender, conn_receiver) = connect_server(server_name)
-        .expect("unable to establish turtle server connection");
+    let (conn_sender, conn_receiver) =
+        connect_server(server_name).expect("unable to establish turtle server connection");
 
     serve(
         conn_sender,
@@ -80,5 +78,6 @@ pub async fn run_main(server_name: String) {
         event_loop_notifier,
         events_receiver,
         server_shutdown_receiver,
-    ).await;
+    )
+    .await;
 }

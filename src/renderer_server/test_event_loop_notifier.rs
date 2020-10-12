@@ -1,5 +1,5 @@
-use thiserror::Error;
 use glutin::dpi::LogicalSize;
+use thiserror::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 #[error("event loop closed while messages were still being sent to it")]

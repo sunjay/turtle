@@ -37,7 +37,7 @@ pub struct EventLoopNotifier {
 
 impl EventLoopNotifier {
     pub fn new(event_loop: EventLoopProxy<MainThreadAction>) -> Self {
-        Self {event_loop}
+        Self { event_loop }
     }
 
     pub fn request_redraw(&self) -> Result<(), EventLoopClosed> {

@@ -1,22 +1,17 @@
-use std::io;
 use std::env;
-use std::process::{self, Stdio, ExitStatus};
+use std::io;
+use std::process::{self, ExitStatus, Stdio};
 
-use tokio::{
-    runtime::{Runtime, Handle},
-    io::AsyncWriteExt,
-    process::{Command, ChildStdin},
-};
 use futures_util::future::{FutureExt, RemoteHandle};
+use tokio::{
+    io::AsyncWriteExt,
+    process::{ChildStdin, Command},
+    runtime::{Handle, Runtime},
+};
 
 use crate::ipc_protocol::{
+    connect_client, connect_server, ClientReceiver, ClientSender, ConnectionError, ServerReceiver,
     ServerSender,
-    ServerReceiver,
-    ClientSender,
-    ClientReceiver,
-    ConnectionError,
-    connect_server,
-    connect_client,
 };
 
 use super::super::main::run_main;
@@ -54,8 +49,8 @@ impl RendererServer {
         // else their program won't be able to run at all. This is a tradeoff of this design decision.
         if env::var(RENDERER_PROCESS_ENV_VAR).ok().as_deref() == Some("true") {
             // The runtime for driving async code
-            let runtime = Runtime::new()
-                .expect("unable to spawn tokio runtime to run turtle server process");
+            let runtime =
+                Runtime::new().expect("unable to spawn tokio runtime to run turtle server process");
 
             // Run the renderer process
             run_main(runtime.handle().clone(), connect_server_stdin());
@@ -80,7 +75,9 @@ impl RendererServer {
             .kill_on_drop(true)
             .spawn()?;
 
-        let child_stdin = child.stdin.take()
+        let child_stdin = child
+            .stdin
+            .take()
             .expect("bug: renderer process was not spawned with a handle to stdin");
 
         // Spawn a separate task for the child process so this task can continue to make progress
@@ -93,11 +90,17 @@ impl RendererServer {
         let runtime_handle = Handle::current();
 
         // Send IPC oneshot server name by writing to stdin
-        let (conn_sender, conn_receiver) = connect_client(|name| {
-            send_ipc_oneshot_name(child_stdin, name)
-        }).await?;
+        let (conn_sender, conn_receiver) =
+            connect_client(|name| send_ipc_oneshot_name(child_stdin, name)).await?;
 
-        Ok((Self {runtime_handle, task_handle}, conn_sender, conn_receiver))
+        Ok((
+            Self {
+                runtime_handle,
+                task_handle,
+            },
+            conn_sender,
+            conn_receiver,
+        ))
     }
 }
 
@@ -116,7 +119,10 @@ pub async fn connect_server_stdin() -> Result<(ServerSender, ServerReceiver), Co
 
     let mut oneshot_name = String::new();
     reader.read_line(&mut oneshot_name).await?;
-    assert!(!oneshot_name.is_empty(), "bug: unexpected EOF when reading oneshot server name");
+    assert!(
+        !oneshot_name.is_empty(),
+        "bug: unexpected EOF when reading oneshot server name"
+    );
 
     // Remove the trailing newline
     assert_eq!(oneshot_name.pop(), Some('\n'));
@@ -144,13 +150,15 @@ impl Drop for RendererServer {
 
         // Wait for the child process to finish
         match self.runtime_handle.block_on(task_handle) {
-            Ok(proc_status) => if !proc_status.success() {
-                // Propagate error code from child process or exit with status code 1
-                process::exit(proc_status.code().unwrap_or(1));
-            },
+            Ok(proc_status) => {
+                if !proc_status.success() {
+                    // Propagate error code from child process or exit with status code 1
+                    process::exit(proc_status.code().unwrap_or(1));
+                }
+            }
             Err(err) => {
                 panic!("error while running child process: {}", err);
-            },
+            }
         }
     }
 }

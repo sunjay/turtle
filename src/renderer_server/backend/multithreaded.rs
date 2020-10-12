@@ -1,18 +1,10 @@
 use std::panic;
 
-use tokio::{
-    task,
-    sync::oneshot,
-    runtime::Handle,
-};
 use futures_util::future::{FutureExt, RemoteHandle};
+use tokio::{runtime::Handle, sync::oneshot, task};
 
 use crate::ipc_protocol::{
-    ClientSender,
-    ClientReceiver,
-    ConnectionError,
-    connect_server,
-    connect_client,
+    connect_client, connect_server, ClientReceiver, ClientSender, ConnectionError,
 };
 
 use super::super::main::run_main;
@@ -45,15 +37,15 @@ impl RendererServer {
         // Spawn a separate task for the server so this task can continue to make progress
         // while that runs. The remote handle will drop that future when it is dropped.
         let (child, task_handle) = async move {
-            let server_name = server_name_receiver.await
+            let server_name = server_name_receiver
+                .await
                 .expect("bug: unable to receive server name");
             let handle = Handle::current();
             // spawn_blocking() takes care of catching any panics that might occur, so we don't
             // need to do that explicitly here even though Drop will need that information.
-            task::spawn_blocking(|| {
-                run_main(handle, async { connect_server(server_name) })
-            }).await
-        }.remote_handle();
+            task::spawn_blocking(|| run_main(handle, async { connect_server(server_name) })).await
+        }
+        .remote_handle();
 
         tokio::spawn(child);
 
@@ -61,12 +53,21 @@ impl RendererServer {
         let task_handle = Some(task_handle);
 
         let (conn_sender, conn_receiver) = connect_client(move |name| async {
-            server_name_sender.send(name)
+            server_name_sender
+                .send(name)
                 .expect("bug: unable to send server name to renderer server");
             Ok(())
-        }).await?;
+        })
+        .await?;
 
-        Ok((Self {runtime_handle, task_handle}, conn_sender, conn_receiver))
+        Ok((
+            Self {
+                runtime_handle,
+                task_handle,
+            },
+            conn_sender,
+            conn_receiver,
+        ))
     }
 }
 
@@ -90,7 +91,7 @@ impl Drop for RendererServer {
         // Wait for the task running the window to finish
         match self.runtime_handle.block_on(task_handle) {
             // Exit normally
-            Ok(()) => {},
+            Ok(()) => {}
             // Propagate the panic
             //
             // `into_panic()` can fail if the task was cancelled instead of panicking, but that can
