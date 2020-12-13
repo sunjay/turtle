@@ -483,7 +483,7 @@ async fn animation_loop(
             },
 
             // Trigger an update once the next update time has elapsed
-            _ = time::delay_until(next_update) => {
+            _ = time::sleep_until(next_update) => {
                 let now = time::Instant::now();
 
                 handle_handler_result(update_animations(
