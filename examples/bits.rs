@@ -206,7 +206,7 @@ fn draw_row<O, T>(turtle: &mut Turtle, row: &BitSlice<O, T>)
 where O: BitOrder, T: BitStore {
     // `&BitSlice` can iterate over bits. It is just like `&[bool]`, and so it
     // produces `&bool` for each loop.
-    for &bit in row {
+    for bit in row.iter().by_val() {
         // This checks if the bit produced by the row is `1` or `0`, and sets
         // the pen color to black (`1`) or light grey (`0`)
         if bit {
