@@ -18,7 +18,7 @@ use glutin::{
         ElementState,
     },
     event_loop::{ControlFlow, EventLoop},
-    platform::desktop::EventLoopExtDesktop,
+    platform::run_return::EventLoopExtRunReturn,
 };
 use tokio::{
     sync::mpsc,
