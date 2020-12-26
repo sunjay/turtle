@@ -59,7 +59,7 @@ features = [
 ]
 
 [dependencies.tokio]
-version = "0.3"
+version = "1.0"
 default-features = false
 features = [
   "process",
@@ -67,7 +67,6 @@ features = [
   "io-util",
   "rt-multi-thread",
   "sync",
-  "stream",
   "time",
   "macros",
 ]
