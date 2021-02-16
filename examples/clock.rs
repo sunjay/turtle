@@ -1,8 +1,6 @@
 use turtle::Turtle;
-//Add chrono = "0.4" to dependencies in your Cargo.toml file
 use chrono::{Local, Timelike};
 use std::{thread, time};
-
 
 fn main() {
     let hours = 12;

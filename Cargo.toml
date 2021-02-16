@@ -77,6 +77,7 @@ features = [
 # a library.
 [dev-dependencies]
 bitvec = "0.21"
+chrono = "0.4"
 
 # Since the debug performance of turtle isn't all that great, we recommend that
 # every user of turtle add the following to their Cargo.toml
