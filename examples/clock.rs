@@ -17,6 +17,7 @@ fn main() {
     loop{
         //clean everything
         turtle.clear();
+        turtle.pen_up();
         turtle.home();
 
         //Get local time
@@ -24,15 +25,11 @@ fn main() {
 
         //Draw the clock
         for i in 1..=hours{
-            turtle.pen_up();
             turtle.forward(205.0);
-            if (i - 1) % 3 == 0 {
-                turtle.set_pen_size(5.0);
-            }else{
-                turtle.set_pen_size(1.0);
-            }
+            turtle.set_pen_size(if (i - 1) % 3 == 0 {5.0} else {1.0});
             turtle.pen_down();
-            turtle.forward(10.0);
+            turtle.forward(5.0);
+            turtle.pen_up();
             turtle.home();
             turtle.right(full_circle / hours as f64 * i as f64);
         }
@@ -41,19 +38,24 @@ fn main() {
         turtle.home();
         turtle.right(full_circle / hours as f64 * now.hour() as f64);
         turtle.set_pen_size(5.0);
-        turtle.forward(150.0);
+        turtle.pen_down();
+        turtle.forward(120.0);
+        turtle.pen_up();
 
         //Draw the minute hand
         turtle.home();
         turtle.right(full_circle / minutes * now.minute() as f64);
         turtle.set_pen_size(3.0);
-        turtle.forward(160.0);
+        turtle.pen_down();
+        turtle.forward(150.0);
+        turtle.pen_up();
 
         //Draw the second hand
         turtle.home();
         turtle.right(full_circle / seconds * now.second() as f64);
         turtle.set_pen_size(1.0);
-        turtle.forward(175.0);
+        turtle.pen_down();
+        turtle.forward(180.0);
 
         //And update every second
         thread::sleep(second);
