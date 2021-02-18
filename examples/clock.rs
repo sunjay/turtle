@@ -33,28 +33,24 @@ fn main() {
             turtle.home();
             turtle.right(full_circle / hours as f64 * i as f64);
         }
+        turtle.pen_down();
 
         //Draw the hour hand
         turtle.home();
         turtle.right(full_circle / hours as f64 * now.hour() as f64);
         turtle.set_pen_size(5.0);
-        turtle.pen_down();
         turtle.forward(120.0);
-        turtle.pen_up();
 
         //Draw the minute hand
         turtle.home();
         turtle.right(full_circle / minutes * now.minute() as f64);
         turtle.set_pen_size(3.0);
-        turtle.pen_down();
         turtle.forward(150.0);
-        turtle.pen_up();
 
         //Draw the second hand
         turtle.home();
         turtle.right(full_circle / seconds * now.second() as f64);
         turtle.set_pen_size(1.0);
-        turtle.pen_down();
         turtle.forward(180.0);
 
         //And update every second
