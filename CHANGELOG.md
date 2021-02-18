@@ -58,6 +58,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The `set_fill_color` method updates the currently filling shape, even after
   `begin_fill` has been called
   * Previously, you could only set the fill color *before* `begin_fill` was called
+* The `home` method is no longer an instantaneous change in the turtle's position
+  * To move the turtle instantly, use `turtle.set_speed("instant")`
+  * To avoid drawing a line while moving back to the origin, use `turtle.pen_up()`
 * The bits example in `examples/bits.rs` has been updated to bitvec 0.17
 
 ### Removed

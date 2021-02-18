@@ -428,17 +428,22 @@ impl Turtle {
         block_on(self.turtle.set_y(y))
     }
 
-    /// Moves instantaneously to the origin and resets the heading to face north.
+    /// Moves the turtle to the origin and resets its heading to face north. If the pen is down, the
+    /// turtle will draw a line as it moves.
     ///
+    //TODO: We could have a more illustrative doctest here
     /// ```rust
     /// # use turtle::*;
     /// let mut turtle = Turtle::new();
     /// let start_position = turtle.position().round();
     /// let start_heading = turtle.heading().round();
+    ///
     /// turtle.right(55.0);
     /// turtle.forward(127.0);
     /// assert_ne!(turtle.position().round(), start_position);
     /// assert_ne!(turtle.heading().round(), start_heading);
+    ///
+    /// // The turtle will draw a line as it moves
     /// turtle.home();
     /// assert_eq!(turtle.position().round(), start_position);
     /// assert_eq!(turtle.heading().round(), start_heading);
