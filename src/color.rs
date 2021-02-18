@@ -371,7 +371,7 @@ impl Color {
                 t if t < 2. / 3. => p + (q - p) * (2. / 3. - t) * 6.,
                 _ => p,
             }
-        };
+        }
 
         let q = if lightness < 0.5 {
             lightness * (1. + saturation)
