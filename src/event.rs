@@ -125,25 +125,25 @@ impl PressedState {
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Key {
-    /// The '1' key over the letters.
+    /// The '1' key above the letters.
     Num1,
-    /// The '2' key over the letters.
+    /// The '2' key above the letters.
     Num2,
-    /// The '3' key over the letters.
+    /// The '3' key above the letters.
     Num3,
-    /// The '4' key over the letters.
+    /// The '4' key above the letters.
     Num4,
-    /// The '5' key over the letters.
+    /// The '5' key above the letters.
     Num5,
-    /// The '6' key over the letters.
+    /// The '6' key above the letters.
     Num6,
-    /// The '7' key over the letters.
+    /// The '7' key above the letters.
     Num7,
-    /// The '8' key over the letters.
+    /// The '8' key above the letters.
     Num8,
-    /// The '9' key over the letters.
+    /// The '9' key above the letters.
     Num9,
-    /// The '0' key over the letters.
+    /// The '0' key above the letters.
     Num0,
 
     A,
@@ -208,9 +208,9 @@ pub enum Key {
     PageDown,
     /// The PageUp (PgUp) key
     PageUp,
-    /// The backspace key, right over Enter/Return
+    /// The backspace key, right above Enter/Return
     Backspace,
-    /// The Enter/Return key, under Backspace
+    /// The Enter/Return key, below Backspace
     Return,
     /// The spacebar key
     Space,
