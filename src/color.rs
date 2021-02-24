@@ -1940,11 +1940,11 @@ mod tests {
     fn check_hsl_getters() {
         let c = Color::hsl(345.0, 0.804, 0.5);
         // Check hue
-        assert_eq!(345., c.hue());
+        assert!((345. - c.hue()).abs() < f64::EPSILON);
         // Check saturation, rounded to account floats
-        assert_eq!(804., (c.saturation() * 1000.).round());
+        assert!((804. - (c.saturation() * 1000.).round()).abs() < f64::EPSILON);
         // Check lightness
-        assert_eq!(500., (c.lightness() * 1000.).round());
+        assert!((500. - (c.lightness() * 1000.).round()).abs() < f64::EPSILON);
     }
 
     #[test]
