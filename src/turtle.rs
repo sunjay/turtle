@@ -1032,13 +1032,13 @@ mod tests {
     fn clear_leaves_position_and_heading() {
         let mut turtle = Turtle::new();
         assert_eq!(turtle.position(), Point::origin());
-        assert_eq!(turtle.heading(), 90.0);
+        assert!((turtle.heading() - 90.0).abs() < f64::EPSILON);
         turtle.forward(100.0);
         turtle.set_heading(51.0);
         turtle.clear();
         // The rounding is to account for floating-point error
         assert_eq!(turtle.position().round(), Point { x: 0.0, y: 100.0 });
-        assert_eq!(turtle.heading(), 51.0);
+        assert!((turtle.heading() - 51.0).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -1050,11 +1050,11 @@ mod tests {
             let original_angle = radians::TWO_PI * n as f64 / 16.0;
             for i in 0..16 as u32 {
                 turtle.turn_towards([original_angle.cos(), original_angle.sin()]);
-                assert_eq!(turtle.heading().ceil(), original_angle.to_degrees().ceil());
+                assert!((turtle.heading().ceil() - original_angle.to_degrees().ceil()).abs() < f64::EPSILON);
 
                 let target_angle = radians::TWO_PI * i as f64 / 16.0;
                 turtle.turn_towards([target_angle.cos(), target_angle.sin()]);
-                assert_eq!(turtle.heading().ceil(), target_angle.to_degrees().ceil());
+                assert!((turtle.heading().ceil() - target_angle.to_degrees().ceil()).abs() < f64::EPSILON);
             }
         }
     }
@@ -1125,7 +1125,7 @@ mod tests {
         let position = turtle.position();
         assert_ne!(position, default_position);
         let heading = turtle.heading();
-        assert_ne!(heading, default_heading);
+        assert!((heading - default_heading).abs() > f64::EPSILON);
 
         turtle.forward(0.0);
         turtle.forward(::std::f64::NAN);
@@ -1187,7 +1187,7 @@ mod tests {
         turtle.arc_right(-f64::INFINITY, -f64::INFINITY);
 
         assert_eq!(turtle.position(), position);
-        assert_eq!(turtle.heading(), heading);
+        assert!((turtle.heading() - heading).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -1204,7 +1204,7 @@ mod tests {
         let position = turtle.position();
         assert_ne!(position, default_position);
         let heading = turtle.heading();
-        assert_ne!(heading, default_heading);
+        assert!((heading - default_heading).abs() > f64::EPSILON);
 
         turtle.turn_towards([::std::f64::NAN, 0.0]);
         turtle.turn_towards([0.0, ::std::f64::NAN]);
@@ -1239,6 +1239,6 @@ mod tests {
         turtle.set_heading(-::std::f64::INFINITY);
 
         assert_eq!(turtle.position(), position);
-        assert_eq!(turtle.heading(), heading);
+        assert!((turtle.heading() - heading).abs() < f64::EPSILON);
     }
 }
