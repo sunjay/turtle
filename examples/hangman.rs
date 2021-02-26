@@ -1,5 +1,5 @@
 //! A hangman game to guess the hidden word.
-// To run this example, use the command: cargo run --features unstable --example flower
+// To run this example, use the command: cargo run --features unstable --example hangman
 #[cfg(all(not(feature = "unstable")))]
 compile_error!("This example relies on unstable features. Run with `--features unstable`");
 
