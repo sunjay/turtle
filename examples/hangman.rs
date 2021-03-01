@@ -5,7 +5,6 @@ compile_error!("This example relies on unstable features. Run with `--features u
 
 use std::io::{Error, Write};
 
-use graphic::HangmanDesign;
 use turtle::{rand::RandomSlice, Drawing, Point, Speed, Turtle};
 
 // A small word list to choose from
@@ -170,105 +169,103 @@ fn draw_lines(lines: &mut Turtle, secret: &str, all_guesses: &str) {
     println!(); // to switch to the next line and flush the output.
 }
 
-mod graphic {
-    //! This module contains the drawing logic for the hangman graphic
-    //!
-    //! It is used by creating an instance of a [`HangmanDesign`] struct using [`HangmanDesign::default()`].
-    //! Therein is contained a list of all the steps neccessary to draw the hangman in chronologic order.
+// This module contains the drawing logic for the hangman graphic
+//
+// It is used by creating an instance of a [`HangmanDesign`] struct using [`HangmanDesign::default()`].
+// Therein is contained a list of all the steps neccessary to draw the hangman in chronologic order.
 
-    use turtle::{Point, Speed, Turtle};
+use turtle::{Point, Speed, Turtle};
 
-    use crate::teleport_relative;
+use crate::teleport_relative;
 
-    pub struct HangmanDesign {
-        state: usize,
-        steps: &'static [fn(&mut turtle::Turtle); 9],
-    }
+pub struct HangmanDesign {
+    state: usize,
+    steps: &'static [fn(&mut turtle::Turtle); 9],
+}
 
-    impl Default for HangmanDesign {
-        fn default() -> Self {
-            Self {
-                state: 0,
-                steps: &[hill, mast, bar, support, rope, head, arms, body, legs],
-            }
+impl Default for HangmanDesign {
+    fn default() -> Self {
+        Self {
+            state: 0,
+            steps: &[hill, mast, bar, support, rope, head, arms, body, legs],
         }
     }
+}
 
-    impl Iterator for HangmanDesign {
-        type Item = &'static fn(&mut turtle::Turtle);
+impl Iterator for HangmanDesign {
+    type Item = &'static fn(&mut turtle::Turtle);
 
-        fn next(&mut self) -> Option<Self::Item> {
-            self.state += 1;
-            self.steps.get(self.state - 1)
-        }
+    fn next(&mut self) -> Option<Self::Item> {
+        self.state += 1;
+        self.steps.get(self.state - 1)
     }
+}
 
-    pub fn setup(hangman: &mut Turtle) {
-        // hide the hangman-turtle and go th the startigpoint of the graphic.
-        hangman.hide();
-        hangman.set_speed(Speed::instant());
-        hangman.set_pen_size(10.0);
-        teleport_relative(hangman, Point { x: -300.0, y: -300.0 });
-    }
+pub fn setup(hangman: &mut Turtle) {
+    // hide the hangman-turtle and go th the startigpoint of the graphic.
+    hangman.hide();
+    hangman.set_speed(Speed::instant());
+    hangman.set_pen_size(10.0);
+    teleport_relative(hangman, Point { x: -300.0, y: -300.0 });
+}
 
-    fn hill(hangman: &mut Turtle) {
-        // start drawing
-        hangman.arc_right(100.0, 180.0);
-        hangman.left(180.0);
-        hangman.arc_left(100.0, 90.0);
-        hangman.right(90.0);
-    }
+fn hill(hangman: &mut Turtle) {
+    // start drawing
+    hangman.arc_right(100.0, 180.0);
+    hangman.left(180.0);
+    hangman.arc_left(100.0, 90.0);
+    hangman.right(90.0);
+}
 
-    fn mast(hangman: &mut Turtle) {
-        hangman.forward(300.0);
-    }
+fn mast(hangman: &mut Turtle) {
+    hangman.forward(300.0);
+}
 
-    fn bar(hangman: &mut Turtle) {
-        hangman.right(90.0);
-        hangman.forward(150.0);
-    }
+fn bar(hangman: &mut Turtle) {
+    hangman.right(90.0);
+    hangman.forward(150.0);
+}
 
-    fn support(hangman: &mut Turtle) {
-        hangman.backward(100.0);
-        hangman.right(135.0);
-        hangman.forward(70.710678119);
-        hangman.backward(70.710678119);
-        hangman.left(135.0);
-        hangman.forward(100.0);
-    }
+fn support(hangman: &mut Turtle) {
+    hangman.backward(100.0);
+    hangman.right(135.0);
+    hangman.forward(70.710678119);
+    hangman.backward(70.710678119);
+    hangman.left(135.0);
+    hangman.forward(100.0);
+}
 
-    fn rope(hangman: &mut Turtle) {
-        hangman.set_pen_size(3.0);
-        hangman.right(90.0);
-        hangman.forward(70.0);
-    }
+fn rope(hangman: &mut Turtle) {
+    hangman.set_pen_size(3.0);
+    hangman.right(90.0);
+    hangman.forward(70.0);
+}
 
-    fn head(hangman: &mut Turtle) {
-        hangman.left(90.0);
-        hangman.arc_right(30.0, 540.0);
-    }
+fn head(hangman: &mut Turtle) {
+    hangman.left(90.0);
+    hangman.arc_right(30.0, 540.0);
+}
 
-    fn arms(hangman: &mut Turtle) {
-        hangman.left(60.0);
-        hangman.forward(100.0);
-        hangman.backward(100.0);
-        hangman.left(60.0);
-        hangman.forward(100.0);
-        hangman.backward(100.0);
-        hangman.right(30.0);
-    }
+fn arms(hangman: &mut Turtle) {
+    hangman.left(60.0);
+    hangman.forward(100.0);
+    hangman.backward(100.0);
+    hangman.left(60.0);
+    hangman.forward(100.0);
+    hangman.backward(100.0);
+    hangman.right(30.0);
+}
 
-    fn body(hangman: &mut Turtle) {
-        hangman.forward(100.0);
-    }
+fn body(hangman: &mut Turtle) {
+    hangman.forward(100.0);
+}
 
-    fn legs(hangman: &mut Turtle) {
-        hangman.right(20.0);
-        hangman.forward(120.0);
-        hangman.backward(120.0);
-        hangman.left(40.0);
-        hangman.forward(120.0);
-        hangman.backward(120.0);
-        hangman.right(20.0);
-    }
+fn legs(hangman: &mut Turtle) {
+    hangman.right(20.0);
+    hangman.forward(120.0);
+    hangman.backward(120.0);
+    hangman.left(40.0);
+    hangman.forward(120.0);
+    hangman.backward(120.0);
+    hangman.right(20.0);
 }
