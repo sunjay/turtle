@@ -5,39 +5,7 @@ compile_error!("This example relies on unstable features. Run with `--features u
 
 use std::io::{Error, Write};
 
-use turtle::{rand::RandomSlice, Drawing, Point, Speed, Turtle};
-
-// A small word list to choose from
-const WORDS: &[&str; 28] = &[
-    "poetry",
-    "formal",
-    "type",
-    "expresses",
-    "personal",
-    "emotions",
-    "feelings",
-    "typically",
-    "spoken",
-    "equivalent",
-    "lyrics",
-    "term",
-    "derives",
-    "literature",
-    "defined",
-    "musical",
-    "accompaniment",
-    "usually",
-    "stringed",
-    "instrument",
-    "term",
-    "importance",
-    "literary",
-    "theory",
-    "division",
-    "developed",
-    "between",
-    "categories",
-];
+use turtle::{rand, Drawing, Point, Speed, Turtle};
 
 fn main() {
     let mut drawing = Drawing::new();
@@ -53,7 +21,7 @@ fn main() {
     wl.hide();
 
     // the secret word that is to be guessed
-    let secret = *WORDS.choose().unwrap();
+    let secret = rand::choose(WORDS).expect("Failed to choose a ranodm word.");
 
     // this list stores all the steps of the hangman so that they can be drawn from a for loop or an index.
     let hangman_design = HangmanDesign::default();
@@ -169,15 +137,42 @@ fn draw_lines(lines: &mut Turtle, secret: &str, all_guesses: &str) {
     println!(); // to switch to the next line and flush the output.
 }
 
-// This module contains the drawing logic for the hangman graphic
-//
-// It is used by creating an instance of a [`HangmanDesign`] struct using [`HangmanDesign::default()`].
-// Therein is contained a list of all the steps neccessary to draw the hangman in chronologic order.
+// A small word list to choose from
+const WORDS: &[&str; 28] = &[
+    "poetry",
+    "formal",
+    "type",
+    "expresses",
+    "personal",
+    "emotions",
+    "feelings",
+    "typically",
+    "spoken",
+    "equivalent",
+    "lyrics",
+    "term",
+    "derives",
+    "literature",
+    "defined",
+    "musical",
+    "accompaniment",
+    "usually",
+    "stringed",
+    "instrument",
+    "term",
+    "importance",
+    "literary",
+    "theory",
+    "division",
+    "developed",
+    "between",
+    "categories",
+];
 
-use turtle::{Point, Speed, Turtle};
-
-use crate::teleport_relative;
-
+/// The struct contains the drawing logic for the hangman graphic
+///
+/// It is used by creating an instance of a [`HangmanDesign`] struct using [`HangmanDesign::default()`].
+/// Since [`HangmanDesign`] implements [`Iterator`] you can directly iterate over the instance using a for loop.
 pub struct HangmanDesign {
     state: usize,
     steps: &'static [fn(&mut turtle::Turtle); 9],
