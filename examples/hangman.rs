@@ -5,7 +5,7 @@ compile_error!("This example relies on unstable features. Run with `--features u
 
 use std::io::{Error, Write};
 
-use turtle::{rand, Drawing, Point, Speed, Turtle};
+use turtle::{rand::RandomSlice, Drawing, Point, Speed, Turtle};
 
 fn main() {
     let mut drawing = Drawing::new();
@@ -20,12 +20,12 @@ fn main() {
     let mut wl = drawing.add_turtle();
     wl.hide();
 
-    // the secret word that is to be guessed
-    let secret = rand::choose(WORDS).expect("Failed to choose a ranodm word.");
+    // the secret word that is to be guessed (the choose function method is part of the [`turtle::rand::RandomSlice`] Trait)
+    let secret = WORDS.choose().expect("Failed to choose a random word.");
 
     // this list stores all the steps of the hangman so that they can be drawn from a for loop or an index.
     let hangman_design = HangmanDesign::default();
-    graphic::setup(&mut hangman);
+    setup(&mut hangman);
 
     let mut all_guesses = String::new();
 
