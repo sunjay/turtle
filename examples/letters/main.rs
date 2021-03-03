@@ -18,15 +18,19 @@ mod a_to_d;
 mod diacritics;
 mod e_to_i;
 mod j_to_o;
+mod numbers;
 mod p_to_t;
 mod punctuation;
 mod u_to_z;
 
-use a_to_d::{a, b, c, d};
-use e_to_i::{e, f, g, h, i};
-use j_to_o::{j, k, l, m, n, o};
-use p_to_t::{p, q, r, s, t};
-use u_to_z::{u, v, w, x, y, z};
+use a_to_d::*;
+use diacritics::*;
+use e_to_i::*;
+use j_to_o::*;
+use numbers::*;
+use p_to_t::*;
+use punctuation::*;
+use u_to_z::*;
 
 use turtle::Turtle;
 
@@ -41,6 +45,16 @@ fn main() {
 
     for character in text.chars() {
         match character {
+            '0' => zero(&mut turtle, font_size),
+            '1' => one(&mut turtle, font_size),
+            '2' => two(&mut turtle, font_size),
+            '3' => three(&mut turtle, font_size),
+            '4' => four(&mut turtle, font_size),
+            '5' => five(&mut turtle, font_size),
+            '6' => six(&mut turtle, font_size),
+            '7' => seven(&mut turtle, font_size),
+            '8' => eight(&mut turtle, font_size),
+            '9' => nine(&mut turtle, font_size),
             'a' | 'A' => a(&mut turtle, font_size),
             'b' | 'B' => b(&mut turtle, font_size),
             'c' | 'C' => c(&mut turtle, font_size),
@@ -56,7 +70,7 @@ fn main() {
             'm' | 'M' => m(&mut turtle, font_size),
             'n' | 'N' => n(&mut turtle, font_size),
             'ñ' | 'Ñ' => {
-                diacritics::tilde(&mut turtle, font_size);
+                tilde(&mut turtle, font_size);
                 turtle.pen_up();
                 turtle.left(90.0);
                 turtle.forward(1.5 * font_size);
@@ -77,7 +91,7 @@ fn main() {
             'y' | 'Y' => y(&mut turtle, font_size),
             'z' | 'Z' => z(&mut turtle, font_size),
             'á' | 'Á' | 'é' | 'É' | 'í' | 'Í' | 'ó' | 'Ó' | 'ú' | 'Ú' => {
-                diacritics::acutte(&mut turtle, font_size);
+                acutte(&mut turtle, font_size);
                 turtle.left(90.0);
                 turtle.forward(font_size);
                 turtle.pen_down();
@@ -90,23 +104,23 @@ fn main() {
                     _ => u(&mut turtle, font_size),
                 };
             }
-            '!' => punctuation::exclamation(&mut turtle, font_size),
-            '¡' => punctuation::inverted_exclamation(&mut turtle, font_size),
-            ',' => punctuation::comma(&mut turtle, font_size),
-            '?' => punctuation::question(&mut turtle, font_size),
-            '¿' => punctuation::inverted_question(&mut turtle, font_size),
-            '~' => diacritics::tilde(&mut turtle, font_size),
-            '.' => punctuation::dot(&mut turtle, font_size),
-            ':' => punctuation::colon(&mut turtle, font_size),
-            ';' => punctuation::semicolon(&mut turtle, font_size),
-            '´' => diacritics::acutte(&mut turtle, font_size),
-            '\'' => diacritics::apostrophe(&mut turtle, font_size),
+            '´' => acutte(&mut turtle, font_size),
+            '\'' => apostrophe(&mut turtle, font_size),
+            ':' => colon(&mut turtle, font_size),
+            ',' => comma(&mut turtle, font_size),
+            '.' => dot(&mut turtle, font_size),
+            '!' => exclamation(&mut turtle, font_size),
+            '¡' => inverted_exclamation(&mut turtle, font_size),
+            '¿' => inverted_question(&mut turtle, font_size),
+            '?' => question(&mut turtle, font_size),
+            ';' => semicolon(&mut turtle, font_size),
+            '~' => tilde(&mut turtle, font_size),
             character if character.is_whitespace() => punctuation::space(&mut turtle, font_size),
             _ => {
                 println!("We still don't have an implementation for the '{}' character!", character);
                 println!("but you can add it!:");
                 println!("https://github.com/sunjay/turtle#contributing");
-                punctuation::question(&mut turtle, font_size);
+                question(&mut turtle, font_size);
             }
         }
         turtle.pen_down();
