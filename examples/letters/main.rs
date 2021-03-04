@@ -115,7 +115,7 @@ fn main() {
             '?' => question(&mut turtle, font_size),
             ';' => semicolon(&mut turtle, font_size),
             '~' => tilde(&mut turtle, font_size),
-            character if character.is_whitespace() => punctuation::space(&mut turtle, font_size),
+            character if character.is_whitespace() => space(&mut turtle, font_size),
             _ => {
                 println!("We still don't have an implementation for the '{}' character!", character);
                 println!("but you can add it!:");
