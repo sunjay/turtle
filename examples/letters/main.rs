@@ -13,26 +13,25 @@
 
 use std::env;
 use std::process;
+use turtle::Turtle;
 
 mod a_to_d;
-mod diacritics;
 mod e_to_i;
 mod j_to_o;
-mod numbers;
 mod p_to_t;
-mod punctuation;
 mod u_to_z;
+mod diacritics;
+mod numbers;
+mod punctuation;
 
 use a_to_d::*;
-use diacritics::*;
 use e_to_i::*;
 use j_to_o::*;
-use numbers::*;
 use p_to_t::*;
-use punctuation::*;
 use u_to_z::*;
-
-use turtle::Turtle;
+use diacritics::*;
+use numbers::*;
+use punctuation::*;
 
 fn main() {
     let mut turtle = Turtle::new();
