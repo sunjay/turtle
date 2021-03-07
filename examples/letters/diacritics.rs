@@ -61,17 +61,19 @@ pub fn tilde(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_down();
 }
 
-pub fn with_title(turtle: &mut Turtle, font_size: f64) {
+pub fn with_accute(mut turtle: &mut Turtle, font_size: f64) {
+    acutte(&mut turtle, font_size);
+    turtle.left(90.0);
+    turtle.forward(font_size);
+    turtle.pen_down();
+    turtle.right(90.0);
+}
+
+pub fn with_title(mut turtle: &mut Turtle, font_size: f64) {
+    tilde(&mut turtle, font_size);
     turtle.pen_up();
     turtle.left(90.0);
     turtle.forward(1.5 * font_size);
     turtle.right(90.0);
     turtle.pen_down();
-}
-
-pub fn with_accute(turtle: &mut Turtle, font_size: f64) {
-    turtle.left(90.0);
-    turtle.forward(font_size);
-    turtle.pen_down();
-    turtle.right(90.0);
 }

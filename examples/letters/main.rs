@@ -117,7 +117,6 @@ fn go_to_initial_position(turtle: &mut Turtle, text: &str, font_size: f64) {
 }
 
 fn stressed_vowels(mut turtle: &mut Turtle, font_size: f64, character: char) {
-    acutte(&mut turtle, font_size);
     with_accute(&mut turtle, font_size);
     match character {
         'á' | 'Á' => a(&mut turtle, font_size),
