@@ -1,6 +1,8 @@
 use std::f64::consts::PI;
 use turtle::Turtle;
 
+use crate::diacritics::{tilde, with_title};
+
 pub fn j(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.forward(font_size / 2.0);
@@ -69,6 +71,12 @@ pub fn n(turtle: &mut Turtle, font_size: f64) {
     turtle.right(90.0);
     turtle.forward(font_size / 2.0);
     turtle.left(90.0);
+}
+
+pub fn enie(mut turtle: &mut Turtle, font_size: f64) {
+    tilde(&mut turtle, font_size);
+    with_title(&mut turtle, font_size);
+    n(&mut turtle, font_size);
 }
 
 pub fn o(turtle: &mut Turtle, font_size: f64) {

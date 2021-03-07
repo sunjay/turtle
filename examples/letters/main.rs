@@ -69,11 +69,7 @@ fn main() {
             'l' | 'L' => l(&mut turtle, font_size),
             'm' | 'M' => m(&mut turtle, font_size),
             'n' | 'N' => n(&mut turtle, font_size),
-            'ñ' | 'Ñ' => {
-                tilde(&mut turtle, font_size);
-                with_title(&mut turtle, font_size);
-                n(&mut turtle, font_size);
-            }
+            'ñ' | 'Ñ' => enie(&mut turtle, font_size),
             'o' | 'O' => o(&mut turtle, font_size),
             'p' | 'P' => p(&mut turtle, font_size),
             'q' | 'Q' => q(&mut turtle, font_size),
@@ -86,17 +82,7 @@ fn main() {
             'x' | 'X' => x(&mut turtle, font_size),
             'y' | 'Y' => y(&mut turtle, font_size),
             'z' | 'Z' => z(&mut turtle, font_size),
-            'á' | 'Á' | 'é' | 'É' | 'í' | 'Í' | 'ó' | 'Ó' | 'ú' | 'Ú' => {
-                acutte(&mut turtle, font_size);
-                with_accute(&mut turtle, font_size);
-                match character {
-                    'á' | 'Á' => a(&mut turtle, font_size),
-                    'é' | 'É' => e(&mut turtle, font_size),
-                    'í' | 'Í' => i(&mut turtle, font_size),
-                    'ó' | 'Ó' => o(&mut turtle, font_size),
-                    _ => u(&mut turtle, font_size),
-                };
-            }
+            'á' | 'Á' | 'é' | 'É' | 'í' | 'Í' | 'ó' | 'Ó' | 'ú' | 'Ú' => stressed_vowels(&mut turtle, font_size, character),
             '´' => acutte(&mut turtle, font_size),
             '\'' => apostrophe(&mut turtle, font_size),
             ':' => colon(&mut turtle, font_size),
@@ -131,19 +117,16 @@ fn go_to_initial_position(turtle: &mut Turtle, text: &str, font_size: f64) {
     turtle.pen_down();
 }
 
-fn with_title(turtle: &mut Turtle, font_size: f64) {
-    turtle.pen_up();
-    turtle.left(90.0);
-    turtle.forward(1.5 * font_size);
-    turtle.right(90.0);
-    turtle.pen_down();
-}
-
-fn with_accute(turtle: &mut Turtle, font_size: f64) {
-    turtle.left(90.0);
-    turtle.forward(font_size);
-    turtle.pen_down();
-    turtle.right(90.0);
+fn stressed_vowels(mut turtle: &mut Turtle, font_size: f64, character: char) {
+    acutte(&mut turtle, font_size);
+    with_accute(&mut turtle, font_size);
+    match character {
+        'á' | 'Á' => a(&mut turtle, font_size),
+        'é' | 'É' => e(&mut turtle, font_size),
+        'í' | 'Í' => i(&mut turtle, font_size),
+        'ó' | 'Ó' => o(&mut turtle, font_size),
+        _ => u(&mut turtle, font_size),
+    };
 }
 
 /// Parses the command line arguments or exits with a help message if there was

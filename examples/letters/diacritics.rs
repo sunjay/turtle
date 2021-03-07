@@ -60,3 +60,18 @@ pub fn tilde(turtle: &mut Turtle, font_size: f64) {
     turtle.left(90.0);
     turtle.pen_down();
 }
+
+pub fn with_title(turtle: &mut Turtle, font_size: f64) {
+    turtle.pen_up();
+    turtle.left(90.0);
+    turtle.forward(1.5 * font_size);
+    turtle.right(90.0);
+    turtle.pen_down();
+}
+
+pub fn with_accute(turtle: &mut Turtle, font_size: f64) {
+    turtle.left(90.0);
+    turtle.forward(font_size);
+    turtle.pen_down();
+    turtle.right(90.0);
+}
