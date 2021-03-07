@@ -1,3 +1,7 @@
+// With the diacritics, we have an special case
+// with certain accents as "decorators" of other characters ('ñ', 'á', ...)
+// so we have an atlernated "initial position" for some cases
+// ( with_accute, with_title )
 use std::f64::consts::PI;
 use turtle::Turtle;
 
