@@ -71,11 +71,7 @@ fn main() {
             'n' | 'N' => n(&mut turtle, font_size),
             'ñ' | 'Ñ' => {
                 tilde(&mut turtle, font_size);
-                turtle.pen_up();
-                turtle.left(90.0);
-                turtle.forward(1.5 * font_size);
-                turtle.right(90.0);
-                turtle.pen_down();
+                with_title(&mut turtle, font_size);
                 n(&mut turtle, font_size);
             }
             'o' | 'O' => o(&mut turtle, font_size),
@@ -92,10 +88,7 @@ fn main() {
             'z' | 'Z' => z(&mut turtle, font_size),
             'á' | 'Á' | 'é' | 'É' | 'í' | 'Í' | 'ó' | 'Ó' | 'ú' | 'Ú' => {
                 acutte(&mut turtle, font_size);
-                turtle.left(90.0);
-                turtle.forward(font_size);
-                turtle.pen_down();
-                turtle.right(90.0);
+                with_accute(&mut turtle, font_size);
                 match character {
                     'á' | 'Á' => a(&mut turtle, font_size),
                     'é' | 'É' => e(&mut turtle, font_size),
@@ -136,6 +129,21 @@ fn go_to_initial_position(turtle: &mut Turtle, text: &str, font_size: f64) {
     }
     turtle.right(90.0);
     turtle.pen_down();
+}
+
+fn with_title(turtle: &mut Turtle, font_size: f64) {
+    turtle.pen_up();
+    turtle.left(90.0);
+    turtle.forward(1.5 * font_size);
+    turtle.right(90.0);
+    turtle.pen_down();
+}
+
+fn with_accute(turtle: &mut Turtle, font_size: f64) {
+    turtle.left(90.0);
+    turtle.forward(font_size);
+    turtle.pen_down();
+    turtle.right(90.0);
 }
 
 /// Parses the command line arguments or exits with a help message if there was
