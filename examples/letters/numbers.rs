@@ -56,7 +56,7 @@ pub fn two(turtle: &mut Turtle, font_size: f64) {
     turtle.forward(font_size / 1.4);
     turtle.pen_down();
     for _ in 0..125 {
-        turtle.forward(0.01  * font_size);
+        turtle.forward(0.01 * font_size);
         turtle.right(1.8);
     }
     turtle.forward(font_size * 2_f64.sqrt() / 2.0);
@@ -159,7 +159,7 @@ pub fn seven(turtle: &mut Turtle, font_size: f64) {
     turtle.right(45.0);
     turtle.backward(font_size);
     turtle.pen_up();
-    turtle.forward(font_size* 1.25);
+    turtle.forward(font_size * 1.25);
     turtle.left(90.0);
     turtle.backward(font_size);
 }
