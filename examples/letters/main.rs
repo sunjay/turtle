@@ -15,6 +15,11 @@ use std::env;
 use std::process;
 use turtle::Turtle;
 
+// The implementations for each char works under the assumption that we will
+// start the drawing in the left bottom corner on an imaginary rectangule
+// heading to top.
+// So each individual char impl will end in this default position for the next
+// char to start.
 mod a_to_d;
 mod e_to_i;
 mod j_to_o;
@@ -37,12 +42,15 @@ fn main() {
     let mut turtle = Turtle::new();
     turtle.set_speed("fast");
 
+    // Get the args
     let (text, font_size) = parse_args();
 
-    // Go to the start of the text
+    // Go to the start of the text.
     go_to_initial_position(&mut turtle, &text, font_size);
 
+    // We look the string, char to char.
     for character in text.chars() {
+        // And for each char we check the corresponding implementation.
         match character {
             '0' => zero(&mut turtle, font_size),
             '1' => one(&mut turtle, font_size),
