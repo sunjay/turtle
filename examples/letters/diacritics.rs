@@ -69,8 +69,9 @@ pub fn with_accute(mut turtle: &mut Turtle, font_size: f64) {
     acutte(&mut turtle, font_size);
     turtle.left(90.0);
     turtle.forward(font_size);
-    turtle.pen_down();
     turtle.right(90.0);
+    turtle.backward(font_size / 8.0);
+    turtle.pen_down();
 }
 
 pub fn with_title(mut turtle: &mut Turtle, font_size: f64) {

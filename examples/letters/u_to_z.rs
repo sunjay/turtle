@@ -77,16 +77,16 @@ pub fn x(turtle: &mut Turtle, font_size: f64) {
 }
 
 pub fn y(turtle: &mut Turtle, font_size: f64) {
-    turtle.right(45.0);
-    turtle.forward(2.0_f64.sqrt() * font_size);
+    turtle.right(30.0);
+    turtle.forward(1.25 * font_size);
     turtle.pen_up();
-    turtle.backward(2.0_f64.sqrt() * font_size / 2.0);
-    turtle.left(90.0);
+    turtle.backward(1.25 * font_size / 2.0);
+    turtle.left(60.0);
     turtle.pen_down();
-    turtle.forward(2.0_f64.sqrt() * font_size / 2.0);
+    turtle.forward(1.25  * font_size / 2.0);
     turtle.pen_up();
-    turtle.backward(2.0_f64.sqrt() * font_size);
-    turtle.right(135.0);
+    turtle.backward(1.25  * font_size);
+    turtle.right(120.0);
     turtle.forward(font_size / 2.0);
     turtle.left(90.0);
 }

@@ -4,19 +4,19 @@ use turtle::Turtle;
 pub fn e(turtle: &mut Turtle, font_size: f64) {
     turtle.forward(font_size);
     turtle.right(90.0);
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.right(90.0);
     turtle.pen_up();
     turtle.forward(font_size / 2.0);
     turtle.pen_down();
     turtle.right(90.0);
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.right(90.0);
     turtle.pen_up();
     turtle.backward(font_size / 2.0);
     turtle.right(90.0);
     turtle.pen_down();
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.pen_up();
     turtle.forward(font_size / 2.0);
     turtle.left(90.0);
@@ -25,19 +25,19 @@ pub fn e(turtle: &mut Turtle, font_size: f64) {
 pub fn f(turtle: &mut Turtle, font_size: f64) {
     turtle.forward(font_size);
     turtle.right(90.0);
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.right(90.0);
     turtle.pen_up();
     turtle.forward(font_size / 2.0);
     turtle.pen_down();
     turtle.right(90.0);
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.right(90.0);
     turtle.pen_up();
     turtle.backward(font_size / 2.0);
     turtle.right(90.0);
     turtle.pen_up();
-    turtle.forward(font_size * 1.5);
+    turtle.forward(font_size);
     turtle.left(90.0);
 }
 
@@ -66,29 +66,40 @@ pub fn h(turtle: &mut Turtle, font_size: f64) {
     turtle.forward(font_size);
     turtle.pen_up();
     turtle.right(90.0);
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.pen_down();
     turtle.right(90.0);
     turtle.forward(font_size);
     turtle.backward(font_size / 2.0);
     turtle.right(90.0);
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.right(180.0);
     turtle.pen_up();
-    turtle.forward(font_size * 1.5);
+    turtle.forward(font_size);
     turtle.left(90.0);
     turtle.backward(font_size / 2.0);
 }
 
 pub fn i(turtle: &mut Turtle, font_size: f64) {
-    turtle.forward(font_size * 0.8);
     turtle.pen_up();
-    turtle.forward(font_size * 0.1);
-    turtle.pen_down();
-    turtle.forward(font_size * 0.1);
-    turtle.pen_up();
-    turtle.backward(font_size);
+    turtle.forward(font_size);
     turtle.right(90.0);
-    turtle.forward(font_size / 2.0);
+    turtle.pen_down();
+    turtle.forward(font_size * 0.75);
+    turtle.pen_up();
+    turtle.right(90.0);
+    turtle.forward(font_size);
+    turtle.right(90.0);
+    turtle.pen_down();
+    turtle.forward(font_size * 0.75);
+    turtle.pen_up();
+    turtle.backward(font_size * 0.375);
+    turtle.right(90.0);
+    turtle.pen_down();
+    turtle.forward(font_size );
+    turtle.pen_up();
+    turtle.right(90.0);
+    turtle.forward(font_size * 0.625);
     turtle.left(90.0);
+    turtle.backward(font_size);
 }
