@@ -5,14 +5,14 @@ use crate::diacritics:: with_title;
 
 pub fn j(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
-    turtle.forward(font_size / 2.0);
+    turtle.forward(font_size / 3.0);
     turtle.pen_down();
     turtle.left(180.0);
     for _ in 0..50 {
-        turtle.forward(PI / 100.0 * font_size);
+        turtle.forward(PI / 150.0 * font_size);
         turtle.left(3.6);
     }
-    turtle.forward(font_size / 2.0);
+    turtle.forward(font_size * 2.0 / 3.0);
     turtle.pen_up();
     turtle.backward(font_size);
     turtle.right(90.0);

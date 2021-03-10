@@ -12,7 +12,7 @@ pub fn a(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_down();
     turtle.forward(font_size * 0.56);
     turtle.pen_up();
-    turtle.backward(font_size * 1.56);
+    turtle.backward(font_size * 1.20);
     turtle.right(90.0);
     turtle.backward(font_size / 2.0);
 }

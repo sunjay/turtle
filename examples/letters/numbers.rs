@@ -47,6 +47,10 @@ pub fn one(turtle: &mut Turtle, font_size: f64) {
     turtle.backward(font_size);
     turtle.pen_up();
     turtle.right(90.0);
+    turtle.backward(font_size * 0.25);
+    turtle.pen_down();
+    turtle.forward(font_size * 0.5);
+    turtle.pen_up();
     turtle.forward(font_size * 0.25);
     turtle.left(90.0);
 }
@@ -63,12 +67,13 @@ pub fn two(turtle: &mut Turtle, font_size: f64) {
     turtle.right(45.0);
     turtle.backward(font_size / 2.0);
     turtle.pen_up();
-    turtle.backward(font_size * 0.25);
+    turtle.backward(font_size * 0.3);
     turtle.right(90.0);
 }
 
 pub fn three(turtle: &mut Turtle, font_size: f64) {
     turtle.right(90.0);
+    turtle.forward(font_size * 0.3);
     for _ in 0..50 {
         turtle.forward(PI / 200.0 * font_size);
         turtle.left(3.6);
@@ -78,11 +83,12 @@ pub fn three(turtle: &mut Turtle, font_size: f64) {
         turtle.forward(PI / 200.0 * font_size);
         turtle.left(3.6);
     }
+    turtle.forward(font_size * 0.3);
     turtle.pen_up();
     turtle.left(90.0);
     turtle.forward(font_size);
     turtle.left(90.0);
-    turtle.forward(font_size / 2.0);
+    turtle.forward(font_size * 0.8);
     turtle.left(90.0);
 }
 
@@ -119,9 +125,9 @@ pub fn five(turtle: &mut Turtle, font_size: f64) {
     turtle.right(90.0);
     turtle.forward(font_size / 2.0);
     turtle.right(90.0);
-    turtle.forward(font_size * 0.8);
+    turtle.forward(font_size * 0.75);
     turtle.pen_up();
-    turtle.forward(font_size * 0.25);
+    turtle.forward(font_size / 2.0);
     turtle.left(90.0);
     turtle.backward(font_size);
 }
@@ -149,17 +155,17 @@ pub fn six(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.backward(font_size * 0.75);
     turtle.right(90.0);
-    turtle.forward(font_size / 2.0);
+    turtle.forward(font_size * 0.25);
     turtle.left(90.0);
 }
 
 pub fn seven(turtle: &mut Turtle, font_size: f64) {
-    turtle.right(45.0);
-    turtle.forward(font_size * 2_f64.sqrt());
-    turtle.right(45.0);
-    turtle.backward(font_size);
+    turtle.right(30.0);
+    turtle.forward(font_size * 1.15);
+    turtle.right(60.0);
+    turtle.backward(font_size * 0.75);
     turtle.pen_up();
-    turtle.forward(font_size * 1.25);
+    turtle.forward(font_size);
     turtle.left(90.0);
     turtle.backward(font_size);
 }
@@ -168,6 +174,7 @@ pub fn eight(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.forward(font_size / 2.0);
     turtle.left(90.0);
+    turtle.backward(font_size * 0.25);
     turtle.pen_down();
     for _ in 0..100 {
         turtle.forward(PI / 200.0 * font_size);
@@ -178,7 +185,7 @@ pub fn eight(turtle: &mut Turtle, font_size: f64) {
         turtle.right(3.6);
     }
     turtle.pen_up();
-    turtle.backward(font_size / 2.0);
+    turtle.backward(font_size * 0.75);
     turtle.right(90.0);
     turtle.backward(font_size / 2.0);
 }
@@ -205,7 +212,7 @@ pub fn nine(turtle: &mut Turtle, font_size: f64) {
     }
     turtle.pen_up();
     turtle.right(90.0);
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.left(90.0);
     turtle.backward(font_size / 4.0);
 }
