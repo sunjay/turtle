@@ -145,29 +145,30 @@ fn letter(turtle: &mut Turtle) {
     turtle.forward(65.0);
     turtle.backward(80.0);
 
-    // flat tip
-         turtle.set_pen_size(5.0);
-         
-         turtle.backward(10.0);
-         turtle.left(90.0);
+    // Flatten tip of the bottom line of the letter "R"
+    // This corrects for the rounded tip of the turtle's pen
+    turtle.set_pen_size(5.0);
 
-         turtle.forward(9.5);
-         turtle.right(90.0);
-         turtle.forward(15.0);
-         turtle.backward(15.0);
-         turtle.left(90.0);
+    turtle.backward(10.0);
+    turtle.left(90.0);
 
-         turtle.backward(19.0);
-         turtle.right(90.0);
-         turtle.forward(15.0);
-         turtle.backward(15.0);
-         turtle.left(90.0);
-         
-         //resetting position after correction
-         turtle.forward(9.5);
-         turtle.right(90.0);
-         
-         turtle.set_pen_size(24.0);
+    turtle.forward(9.5);
+    turtle.right(90.0);
+    turtle.forward(15.0);
+    turtle.backward(15.0);
+    turtle.left(90.0);
+
+    turtle.backward(19.0);
+    turtle.right(90.0);
+    turtle.forward(15.0);
+    turtle.backward(15.0);
+    turtle.left(90.0);
+
+    //resetting position after correction
+    turtle.forward(9.5);
+    turtle.right(90.0);
+
+    turtle.set_pen_size(24.0);
     // end
 
     turtle.pen_up();
