@@ -96,7 +96,7 @@ pub fn i(turtle: &mut Turtle, font_size: f64) {
     turtle.backward(font_size * 0.375);
     turtle.right(90.0);
     turtle.pen_down();
-    turtle.forward(font_size );
+    turtle.forward(font_size);
     turtle.pen_up();
     turtle.right(90.0);
     turtle.forward(font_size * 0.625);
