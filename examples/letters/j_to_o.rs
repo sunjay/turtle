@@ -1,7 +1,7 @@
 use std::f64::consts::PI;
 use turtle::Turtle;
 
-use crate::diacritics:: with_title;
+use crate::diacritics::with_title;
 
 pub fn j(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();

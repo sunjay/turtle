@@ -83,9 +83,9 @@ pub fn y(turtle: &mut Turtle, font_size: f64) {
     turtle.backward(1.25 * font_size / 2.0);
     turtle.left(60.0);
     turtle.pen_down();
-    turtle.forward(1.25  * font_size / 2.0);
+    turtle.forward(1.25 * font_size / 2.0);
     turtle.pen_up();
-    turtle.backward(1.25  * font_size);
+    turtle.backward(1.25 * font_size);
     turtle.right(120.0);
     turtle.forward(font_size / 2.0);
     turtle.left(90.0);

@@ -21,22 +21,22 @@ use turtle::Turtle;
 // So each individual char impl will end in this default position for the next
 // char to start.
 mod a_to_d;
+mod diacritics;
 mod e_to_i;
 mod j_to_o;
-mod p_to_t;
-mod u_to_z;
-mod diacritics;
 mod numbers;
+mod p_to_t;
 mod punctuation;
+mod u_to_z;
 
 use a_to_d::*;
+use diacritics::*;
 use e_to_i::*;
 use j_to_o::*;
-use p_to_t::*;
-use u_to_z::*;
-use diacritics::*;
 use numbers::*;
+use p_to_t::*;
 use punctuation::*;
+use u_to_z::*;
 
 fn main() {
     let mut turtle = Turtle::new();
