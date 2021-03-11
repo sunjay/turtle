@@ -40,23 +40,19 @@ pub fn w(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.forward(font_size);
     turtle.pen_down();
-    turtle.backward(font_size * 2.0 / 3.0);
-    turtle.left(180.0);
-    for _ in 0..50 {
-        turtle.forward(PI / 200.0 * font_size);
-        turtle.left(3.6);
-    }
-    turtle.left(180.0);
-    for _ in 0..50 {
-        turtle.forward(PI / 200.0 * font_size);
-        turtle.left(3.6);
-    }
-    turtle.forward(font_size * 2.0 / 3.0);
-    turtle.pen_up();
-    turtle.left(180.0);
-    turtle.forward(font_size);
-    turtle.left(90.0);
+    turtle.left(20.0);
+    turtle.backward(font_size * 1.1);
+    turtle.right(40.0);
     turtle.forward(font_size / 2.0);
+    turtle.left(40.0);
+    turtle.backward(font_size / 2.0);
+    turtle.right(40.0);
+    turtle.forward(font_size * 1.1);
+    turtle.pen_up();
+    turtle.left(20.0);
+    turtle.backward(font_size);
+    turtle.right(90.0);
+    turtle.forward(font_size * 0.25);
     turtle.left(90.0);
 }
 

@@ -34,7 +34,7 @@ pub fn b(turtle: &mut Turtle, font_size: f64) {
     }
     turtle.forward(font_size / 2.0);
     turtle.pen_up();
-    turtle.backward(font_size * 1.5);
+    turtle.backward(font_size * 1.25);
     turtle.right(90.0);
 }
 
@@ -42,12 +42,14 @@ pub fn c(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.forward(font_size);
     turtle.right(90.0);
-    turtle.forward(0.5 * font_size);
+    turtle.forward(font_size * 0.70);
     turtle.pen_down();
+    turtle.backward(font_size * 0.20);
     for _ in 0..50 {
         turtle.backward(PI / 100.0 * font_size);
         turtle.left(3.6);
     }
+    turtle.backward(font_size * 0.20);
     turtle.pen_up();
     turtle.backward(font_size / 2.0);
     turtle.right(90.0);
@@ -56,10 +58,12 @@ pub fn c(turtle: &mut Turtle, font_size: f64) {
 pub fn d(turtle: &mut Turtle, font_size: f64) {
     turtle.forward(font_size);
     turtle.right(90.0);
+    turtle.forward(font_size * 0.20);
     for _ in 0..50 {
         turtle.forward(PI / 100.0 * font_size);
         turtle.right(3.6);
     }
+    turtle.forward(font_size * 0.20);
     turtle.pen_up();
     turtle.backward(font_size);
     turtle.right(90.0);
