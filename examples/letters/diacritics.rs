@@ -45,19 +45,19 @@ pub fn apostrophe(turtle: &mut Turtle, font_size: f64) {
 
 pub fn tilde(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
-    turtle.forward(font_size * 1.5);
+    turtle.forward(font_size * 1.25);
     turtle.pen_down();
-    turtle.left(180.0);
-    for _ in 0..50 {
-        turtle.backward(PI / 200.0 * font_size);
+    turtle.right(150.0);
+    for i in 0..50 {
+        turtle.backward(PI / (200.0 + if i > 25 { -50.0 } else { 50.0 }) * font_size);
         turtle.right(3.6);
     }
-    for _ in 0..50 {
-        turtle.backward(PI / 200.0 * font_size);
+    for i in 0..50 {
+        turtle.backward(PI / (200.0 + if i < 25 { -50.0 } else { 50.0 }) * font_size);
         turtle.left(3.6);
     }
     turtle.pen_up();
-    turtle.left(180.0);
+    turtle.left(150.0);
     turtle.backward(font_size * 1.5);
     turtle.right(90.0);
     turtle.forward(font_size * 0.5);

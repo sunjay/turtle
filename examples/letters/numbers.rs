@@ -39,19 +39,19 @@ pub fn zero(turtle: &mut Turtle, font_size: f64) {
 
 pub fn one(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
-    turtle.forward(font_size / 2.0);
+    turtle.forward(font_size * 0.75);
     turtle.right(45.0);
     turtle.pen_down();
-    turtle.forward(font_size * 2_f64.sqrt() / 2.0);
+    turtle.forward(font_size * 2_f64.sqrt() / 4.0);
     turtle.left(45.0);
     turtle.backward(font_size);
     turtle.pen_up();
     turtle.right(90.0);
-    turtle.backward(font_size * 0.25);
+    turtle.backward(font_size / 6.0);
     turtle.pen_down();
-    turtle.forward(font_size * 0.5);
+    turtle.forward(font_size / 3.0);
     turtle.pen_up();
-    turtle.forward(font_size * 0.25);
+    turtle.forward(font_size / 3.0);
     turtle.left(90.0);
 }
 
