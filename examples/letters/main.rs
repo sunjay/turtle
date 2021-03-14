@@ -117,9 +117,7 @@ fn main() {
 fn go_to_initial_position(turtle: &mut Turtle, text: &str, font_size: f64) {
     turtle.pen_up();
     turtle.left(90.0);
-    for _ in text.chars() {
-        turtle.forward(font_size / 2.0);
-    }
+    turtle.forward(text.chars().count() as f64 * font_size / 2.0);
     turtle.right(90.0);
     turtle.pen_down();
 }

@@ -18,7 +18,7 @@ pub fn e(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_down();
     turtle.forward(font_size * 0.75);
     turtle.pen_up();
-    turtle.forward(font_size / 2.0);
+    turtle.forward(font_size * 0.25);
     turtle.left(90.0);
 }
 

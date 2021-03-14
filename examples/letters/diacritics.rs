@@ -36,7 +36,7 @@ pub fn apostrophe(turtle: &mut Turtle, font_size: f64) {
     }
     turtle.set_pen_size(1.0);
     turtle.pen_up();
-    turtle.backward(font_size / 3.0);
+    turtle.backward(font_size / 4.0);
     turtle.backward(font_size);
     turtle.right(90.0);
     turtle.forward(font_size * 0.25);
