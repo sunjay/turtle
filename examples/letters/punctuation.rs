@@ -28,7 +28,7 @@ pub fn colon(turtle: &mut Turtle, font_size: f64) {
 pub fn comma(turtle: &mut Turtle, font_size: f64) {
     turtle.right(90.0);
     turtle.pen_up();
-    turtle.backward(font_size / 3.0);
+    turtle.backward(font_size / 6.0);
     turtle.pen_down();
     for i in 0..50 {
         turtle.set_pen_size(3.0 - ((i as f64 + 1.0) / 25.5));
@@ -46,7 +46,7 @@ pub fn comma(turtle: &mut Turtle, font_size: f64) {
 pub fn dot(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.right(90.0);
-    turtle.backward(font_size / 4.0);
+    turtle.backward(font_size / 6.0);
     turtle.pen_down();
     for _ in 0..100 {
         turtle.forward(PI / 100.0);
@@ -60,7 +60,7 @@ pub fn dot(turtle: &mut Turtle, font_size: f64) {
 pub fn exclamation(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.right(90.0);
-    turtle.backward(font_size / 3.0);
+    turtle.backward(font_size / 6.0);
     turtle.left(90.0);
     turtle.pen_down();
     turtle.set_pen_size(3.0);
@@ -142,7 +142,7 @@ pub fn semicolon(turtle: &mut Turtle, font_size: f64) {
     turtle.pen_up();
     turtle.forward(font_size / 2.0);
     turtle.right(90.0);
-    turtle.backward(font_size / 4.0);
+    turtle.backward(font_size / 6.0);
     turtle.pen_down();
     for _ in 0..100 {
         turtle.forward(PI / 100.0);
@@ -152,7 +152,7 @@ pub fn semicolon(turtle: &mut Turtle, font_size: f64) {
     turtle.left(90.0);
     turtle.backward(font_size / 2.0);
     turtle.right(90.0);
-    turtle.forward(font_size / 3.0);
+    turtle.forward(font_size / 6.0);
     turtle.left(90.0);
     turtle.pen_down();
     comma(turtle, font_size);

@@ -4,7 +4,7 @@ use turtle::Turtle;
 pub fn zero(turtle: &mut Turtle, font_size: f64) {
     turtle.right(90.0);
     turtle.pen_up();
-    turtle.forward(0.5 * font_size);
+    turtle.forward(font_size / 2.0);
     turtle.pen_down();
     for _ in 0..25 {
         turtle.forward(PI / 133.0 * font_size);
@@ -33,7 +33,7 @@ pub fn zero(turtle: &mut Turtle, font_size: f64) {
         turtle.left(3.6);
     }
     turtle.pen_up();
-    turtle.forward(font_size);
+    turtle.forward(font_size * 0.75);
     turtle.left(90.0);
 }
 
