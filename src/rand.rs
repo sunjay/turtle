@@ -516,10 +516,10 @@ impl<T> RandomSlice for Vec<T> {
 
 macro_rules! impl_random_slice {
     // Recursive, given at least one type parameter
-    {$n:expr, $t:ident, $($ts:ident,)*} => {
+    ($n:expr, $t:ident, $($ts:ident,)*) => {
         impl_random_slice!(($n - 1), $($ts,)*);
 
-        impl<T: Random> RandomSlice for [T; $n] {
+        impl<T> RandomSlice for [T; $n] {
             type Item = T;
 
             fn shuffle(&mut self) {
@@ -532,8 +532,8 @@ macro_rules! impl_random_slice {
         }
     };
     // Empty case (no type parameters left)
-    {$n:expr,} => {
-        impl<T: Random> RandomSlice for [T; $n] {
+    ($n:expr,) => {
+        impl<T> RandomSlice for [T; $n] {
             type Item = T;
 
             fn shuffle(&mut self) {
@@ -581,14 +581,14 @@ pub fn shuffle<S: RandomSlice + ?Sized>(slice: &mut S) {
 ///
 /// let mut turtle = Turtle::new();
 ///
-/// let mut pen_colors = [RED, BLUE, GREEN, YELLOW];
+/// let pen_colors = [RED, BLUE, GREEN, YELLOW];
 /// // Choose a random pen color
-/// let chosen_color = choose(&mut pen_colors).cloned().unwrap();
+/// let chosen_color = choose(&pen_colors).copied().unwrap();
 /// turtle.set_pen_color(chosen_color);
 ///
 /// // Even works with Vec
-/// let mut pen_colors = vec![RED, BLUE, GREEN, YELLOW];
-/// let chosen_color = choose(&mut pen_colors).cloned().unwrap();
+/// let pen_colors = vec![RED, BLUE, GREEN, YELLOW];
+/// let chosen_color = choose(&pen_colors).copied().unwrap();
 /// turtle.set_pen_color(chosen_color);
 /// ```
 pub fn choose<S: RandomSlice + ?Sized>(slice: &S) -> Option<&<S as RandomSlice>::Item> {
