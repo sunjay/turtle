@@ -20,8 +20,9 @@ fn main() {
     let mut wl = drawing.add_turtle();
     wl.hide();
 
+    use turtle::rand::RandomSlice;
     // the secret word that is to be guessed (the choose function method is part of the [`turtle::rand::RandomSlice`] Trait)
-    let secret = WORDS.choose().expect("Failed to choose a random word.");
+    let secret = rand::choose(WORDS).expect("Failed to choose a random word.");
 
     // this list stores all the steps of the hangman so that they can be drawn from a for loop or an index.
     let hangman_design = HangmanDesign::default();
@@ -72,6 +73,7 @@ fn main() {
         wl.arc_left(65.0, 90.0);
     } else {
         println!("You Lost!");
+        println!("The hidden word was: {}", secret);
         wl.left(45.0);
         wl.arc_right(65.0, 90.0);
     }
@@ -138,7 +140,7 @@ fn draw_lines(lines: &mut Turtle, secret: &str, all_guesses: &str) {
 }
 
 // A small word list to choose from
-const WORDS: &[&str; 28] = &[
+static WORDS: &[&str; 28] = &[
     "poetry",
     "formal",
     "type",
