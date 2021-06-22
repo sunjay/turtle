@@ -40,7 +40,7 @@ pathfinder_resources = "0.5"
 pathfinder_color = "0.5"
 pathfinder_geometry = "0.5"
 pathfinder_gl = "0.5"
-glutin = "0.26"
+glutin = "0.27"
 gl = "0.14"
 
 ipc-channel = "0.15"
