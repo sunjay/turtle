@@ -1,22 +1,13 @@
 use std::path::PathBuf;
 
-use crate::renderer_client::RendererClient;
-use crate::renderer_server::{TurtleId, ExportError};
 use crate::radians::Radians;
-use crate::{Distance, Point, Color, Speed, Event, Size, async_turtle::AngleUnit, debug};
+use crate::renderer_client::RendererClient;
+use crate::renderer_server::{ExportError, TurtleId};
+use crate::{async_turtle::AngleUnit, debug, Color, Distance, Event, Point, Size, Speed};
 
 use super::{
-    ConnectionError,
-    ClientRequest,
-    ServerResponse,
-    ExportFormat,
-    DrawingProp,
-    DrawingPropValue,
-    TurtleProp,
-    TurtlePropValue,
-    PenProp,
-    PenPropValue,
-    RotationDirection,
+    ClientRequest, ConnectionError, DrawingProp, DrawingPropValue, ExportFormat, PenProp, PenPropValue, RotationDirection, ServerResponse,
+    TurtleProp, TurtlePropValue,
 };
 
 /// A wrapper for `RendererClient` that encodes the the IPC protocol in a type-safe manner
@@ -26,7 +17,7 @@ pub struct ProtocolClient {
 
 impl From<RendererClient> for ProtocolClient {
     fn from(client: RendererClient) -> Self {
-        Self {client}
+        Self { client }
     }
 }
 
@@ -137,26 +128,37 @@ impl ProtocolClient {
     }
 
     pub fn drawing_set_background(&self, value: Color) {
-        debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
+        debug_assert!(
+            value.is_valid(),
+            "bug: colors should be validated before sending to renderer server"
+        );
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Background(value)))
     }
 
     pub fn drawing_set_center(&self, value: Point) {
-        debug_assert!(value.is_finite(), "bug: center should be validated before sending to renderer server");
+        debug_assert!(
+            value.is_finite(),
+            "bug: center should be validated before sending to renderer server"
+        );
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Center(value)))
     }
 
     pub fn drawing_set_size(&self, value: Size) {
-        debug_assert!(value.width > 0 && value.height > 0, "bug: size should be validated before sending to renderer server");
+        debug_assert!(
+            value.width > 0 && value.height > 0,
+            "bug: size should be validated before sending to renderer server"
+        );
         self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::Size(value)))
     }
 
     pub fn drawing_set_is_maximized(&self, value: bool) {
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::IsMaximized(value)))
+        self.client
+            .send(ClientRequest::SetDrawingProp(DrawingPropValue::IsMaximized(value)))
     }
 
     pub fn drawing_set_is_fullscreen(&self, value: bool) {
-        self.client.send(ClientRequest::SetDrawingProp(DrawingPropValue::IsFullscreen(value)))
+        self.client
+            .send(ClientRequest::SetDrawingProp(DrawingPropValue::IsFullscreen(value)))
     }
 
     pub fn drawing_reset_center(&self) {
@@ -175,7 +177,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::Pen(PenPropValue::IsEnabled(value))) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -188,7 +190,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::Pen(PenPropValue::Thickness(value))) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -201,7 +203,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::Pen(PenPropValue::Color(value))) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -214,7 +216,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::FillColor(value)) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -227,7 +229,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::IsFilling(value)) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -240,7 +242,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::Position(value)) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -253,7 +255,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::Heading(value)) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -266,7 +268,7 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::Speed(value)) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
@@ -279,28 +281,45 @@ impl ProtocolClient {
             ServerResponse::TurtleProp(recv_id, TurtlePropValue::IsVisible(value)) => {
                 debug_assert_eq!(id, recv_id, "bug: received data for incorrect turtle");
                 value
-            },
+            }
             _ => unreachable!("bug: expected to receive `TurtleProp` in response to `TurtleProp` request"),
         }
     }
 
     pub fn turtle_pen_set_is_enabled(&self, id: TurtleId, value: bool) {
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::IsEnabled(value))))
+        self.client.send(ClientRequest::SetTurtleProp(
+            id,
+            TurtlePropValue::Pen(PenPropValue::IsEnabled(value)),
+        ))
     }
 
     pub fn turtle_pen_set_thickness(&self, id: TurtleId, value: f64) {
-        debug_assert!(value >= 0.0 && value.is_finite(), "bug: pen size should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Thickness(value))))
+        debug_assert!(
+            value >= 0.0 && value.is_finite(),
+            "bug: pen size should be validated before sending to renderer server"
+        );
+        self.client.send(ClientRequest::SetTurtleProp(
+            id,
+            TurtlePropValue::Pen(PenPropValue::Thickness(value)),
+        ))
     }
 
     pub fn turtle_pen_set_color(&self, id: TurtleId, value: Color) {
-        debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Color(value))))
+        debug_assert!(
+            value.is_valid(),
+            "bug: colors should be validated before sending to renderer server"
+        );
+        self.client
+            .send(ClientRequest::SetTurtleProp(id, TurtlePropValue::Pen(PenPropValue::Color(value))))
     }
 
     pub fn turtle_set_fill_color(&self, id: TurtleId, value: Color) {
-        debug_assert!(value.is_valid(), "bug: colors should be validated before sending to renderer server");
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::FillColor(value)))
+        debug_assert!(
+            value.is_valid(),
+            "bug: colors should be validated before sending to renderer server"
+        );
+        self.client
+            .send(ClientRequest::SetTurtleProp(id, TurtlePropValue::FillColor(value)))
     }
 
     pub fn turtle_set_speed(&self, id: TurtleId, value: Speed) {
@@ -308,7 +327,8 @@ impl ProtocolClient {
     }
 
     pub fn turtle_set_is_visible(&self, id: TurtleId, value: bool) {
-        self.client.send(ClientRequest::SetTurtleProp(id, TurtlePropValue::IsVisible(value)))
+        self.client
+            .send(ClientRequest::SetTurtleProp(id, TurtlePropValue::IsVisible(value)))
     }
 
     pub fn turtle_reset_heading(&self, id: TurtleId) {
@@ -330,7 +350,7 @@ impl ProtocolClient {
         match response {
             ServerResponse::AnimationComplete(recv_id) => {
                 debug_assert_eq!(id, recv_id, "bug: notified of complete animation for incorrect turtle");
-            },
+            }
             _ => unreachable!("bug: expected to receive `AnimationComplete` in response to `MoveForward` request"),
         }
     }
@@ -346,7 +366,7 @@ impl ProtocolClient {
         match response {
             ServerResponse::AnimationComplete(recv_id) => {
                 debug_assert_eq!(id, recv_id, "bug: notified of complete animation for incorrect turtle");
-            },
+            }
             _ => unreachable!("bug: expected to receive `AnimationComplete` in response to `MoveTo` request"),
         }
     }
@@ -362,7 +382,7 @@ impl ProtocolClient {
         match response {
             ServerResponse::AnimationComplete(recv_id) => {
                 debug_assert_eq!(id, recv_id, "bug: notified of complete animation for incorrect turtle");
-            },
+            }
             _ => unreachable!("bug: expected to receive `AnimationComplete` in response to `RotateInPlace` request"),
         }
     }
@@ -372,7 +392,7 @@ impl ProtocolClient {
             return;
         }
 
-        let steps = 250;    // Arbitrary value for now.
+        let steps = 250; // Arbitrary value for now.
         let step = radius.abs() * extent.to_radians() / steps as f64;
         let rotation = radius.signum() * extent / steps as f64;
 
@@ -406,7 +426,7 @@ impl ProtocolClient {
             ServerResponse::DebugTurtle(recv_id, state) => {
                 debug_assert_eq!(id, recv_id, "bug: received debug turtle for incorrect turtle");
                 state
-            },
+            }
             _ => unreachable!("bug: expected to receive `DebugTurtle` in response to `DebugTurtle` request"),
         }
     }
@@ -416,10 +436,12 @@ impl ProtocolClient {
 
         let response = self.client.recv().await;
         match response {
-            ServerResponse::DebugDrawing(state) => {
-                state
-            },
+            ServerResponse::DebugDrawing(state) => state,
             _ => unreachable!("bug: expected to receive `DebugDrawing` in response to `DebugDrawing` request"),
         }
+    }
+
+    pub fn destroy(self) {
+        self.client.send(ClientRequest::DestroyDrawing);
     }
 }

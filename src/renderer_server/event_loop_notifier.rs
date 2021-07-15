@@ -27,6 +27,8 @@ pub enum MainThreadAction {
     SetIsMaximized(bool),
     /// Change the fullscreen state of the window
     SetIsFullscreen(bool),
+    /// Exit event loop (close window)
+    Exit,
 }
 
 /// Notifies the main loop when actions need to take place
@@ -37,7 +39,11 @@ pub struct EventLoopNotifier {
 
 impl EventLoopNotifier {
     pub fn new(event_loop: EventLoopProxy<MainThreadAction>) -> Self {
-        Self {event_loop}
+        Self { event_loop }
+    }
+
+    pub fn exit(&self) -> Result<(), EventLoopClosed> {
+        self.send_action(MainThreadAction::Exit)
     }
 
     pub fn request_redraw(&self) -> Result<(), EventLoopClosed> {
