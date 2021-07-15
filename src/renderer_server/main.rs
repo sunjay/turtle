@@ -1,41 +1,27 @@
-use std::time::{Instant, Duration};
 use std::future::Future;
+use std::time::{Duration, Instant};
 
 use glutin::{
-    GlProfile,
-    GlRequest,
-    ContextBuilder,
-    WindowedContext,
-    PossiblyCurrent,
     dpi::{LogicalSize, PhysicalPosition},
-    window::{WindowBuilder, Fullscreen},
-    event::{
-        Event as GlutinEvent,
-        StartCause,
-        WindowEvent,
-        KeyboardInput,
-        VirtualKeyCode,
-        ElementState,
-    },
+    event::{ElementState, Event as GlutinEvent, KeyboardInput, StartCause, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     platform::run_return::EventLoopExtRunReturn,
+    window::{Fullscreen, WindowBuilder},
+    ContextBuilder, GlProfile, GlRequest, PossiblyCurrent, WindowedContext,
 };
-use tokio::{
-    sync::mpsc,
-    runtime::Handle,
-};
+use tokio::{runtime::Handle, sync::mpsc};
 
+use crate::ipc_protocol::{ConnectionError, ServerReceiver, ServerSender};
 use crate::Event;
-use crate::ipc_protocol::{ServerSender, ServerReceiver, ConnectionError};
 
 use super::{
-    app::{SharedApp, App},
+    app::{App, SharedApp},
     coords::ScreenPoint,
-    renderer::{
-        Renderer,
-        display_list::{SharedDisplayList, DisplayList},
-    },
     event_loop_notifier::{EventLoopNotifier, MainThreadAction},
+    renderer::{
+        display_list::{DisplayList, SharedDisplayList},
+        Renderer,
+    },
 };
 
 /// The maximum rendering FPS allowed
@@ -77,7 +63,7 @@ pub fn run_main(
     handle: Handle,
 
     // Polled to establish the server connection
-    establish_connection: impl Future<Output=Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
+    establish_connection: impl Future<Output = Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
 ) {
     // The state of the drawing and the state/drawings associated with each turtle
     let app = SharedApp::default();
@@ -105,9 +91,10 @@ pub fn run_main(
     let window_builder = {
         let app = app.read();
         let drawing = app.drawing();
-        WindowBuilder::new()
-            .with_title(&drawing.title)
-            .with_inner_size(LogicalSize {width: drawing.width, height: drawing.height})
+        WindowBuilder::new().with_title(&drawing.title).with_inner_size(LogicalSize {
+            width: drawing.width,
+            height: drawing.height,
+        })
     };
 
     // Create an OpenGL 3.x context for Pathfinder to use
@@ -152,43 +139,47 @@ pub fn run_main(
                 establish_connection.take().expect("bug: init event should only occur once"),
                 server_shutdown_receiver.take().expect("bug: init event should only occur once"),
             );
-        },
+        }
 
-        GlutinEvent::NewEvents(StartCause::ResumeTimeReached {..}) => {
+        GlutinEvent::NewEvents(StartCause::ResumeTimeReached { .. }) => {
             // A render was delayed in the `RedrawRequested` so let's try to do it again now that
             // we have resumed
             gl_context.window().request_redraw();
-        },
+        }
 
         // Quit if the window is closed or if Esc is pressed and then released
         GlutinEvent::WindowEvent {
             event: WindowEvent::CloseRequested,
             ..
-        } | GlutinEvent::WindowEvent {
+        }
+        | GlutinEvent::WindowEvent {
             event: WindowEvent::Destroyed,
             ..
-        } | GlutinEvent::WindowEvent {
-            event: WindowEvent::KeyboardInput {
-                input: KeyboardInput {
-                    state: ElementState::Released,
-                    virtual_keycode: Some(VirtualKeyCode::Escape),
+        }
+        | GlutinEvent::WindowEvent {
+            event:
+                WindowEvent::KeyboardInput {
+                    input:
+                        KeyboardInput {
+                            state: ElementState::Released,
+                            virtual_keycode: Some(VirtualKeyCode::Escape),
+                            ..
+                        },
                     ..
                 },
-                ..
-            },
             ..
         } => {
             *control_flow = ControlFlow::Exit;
-        },
+        }
 
         GlutinEvent::WindowEvent {
-            event: WindowEvent::ScaleFactorChanged {scale_factor, ..},
+            event: WindowEvent::ScaleFactorChanged { scale_factor, .. },
             ..
         } => {
             renderer.set_scale_factor(scale_factor);
-        },
+        }
 
-        GlutinEvent::WindowEvent {event, ..} => {
+        GlutinEvent::WindowEvent { event, .. } => {
             let scale_factor = renderer.scale_factor();
             match event {
                 WindowEvent::Resized(size) => {
@@ -197,12 +188,11 @@ pub fn run_main(
                     let mut drawing = app.drawing_mut();
                     drawing.width = size.width;
                     drawing.height = size.height;
-                },
+                }
 
                 //TODO: There are currently no events for updating is_maximized, so that property
                 // should not be relied on. https://github.com/rust-windowing/glutin/issues/1298
-
-                _ => {},
+                _ => {}
             }
 
             // Converts to logical coordinates, only locking the drawing if this is actually called
@@ -228,32 +218,38 @@ pub fn run_main(
                 // main process ends. This is not a fatal error though so we just ignore it.
                 events_sender.send(event).unwrap_or(());
             }
-        },
+        }
 
         // Window events are currently sufficient for the turtle event API
-        GlutinEvent::DeviceEvent {..} => {},
+        GlutinEvent::DeviceEvent { .. } => {}
 
         GlutinEvent::UserEvent(MainThreadAction::Redraw) => {
             gl_context.window().request_redraw();
-        },
+        }
 
         GlutinEvent::UserEvent(MainThreadAction::SetTitle(title)) => {
             gl_context.window().set_title(&title);
-        },
+        }
 
         GlutinEvent::UserEvent(MainThreadAction::SetSize(size)) => {
             gl_context.window().set_inner_size(size);
-        },
+        }
 
         GlutinEvent::UserEvent(MainThreadAction::SetIsMaximized(is_maximized)) => {
             gl_context.window().set_maximized(is_maximized);
-        },
+        }
 
         GlutinEvent::UserEvent(MainThreadAction::SetIsFullscreen(is_fullscreen)) => {
             gl_context.window().set_fullscreen(if is_fullscreen {
                 Some(Fullscreen::Borderless(gl_context.window().current_monitor()))
-            } else { None });
-        },
+            } else {
+                None
+            });
+        }
+
+        GlutinEvent::UserEvent(MainThreadAction::Exit) => {
+            *control_flow = ControlFlow::Exit;
+        }
 
         GlutinEvent::RedrawRequested(_) => {
             // Check if we just rendered
@@ -273,24 +269,19 @@ pub fn run_main(
             //
             // This is why the window has 0 CPU usage when nothing is happening
             *control_flow = ControlFlow::Wait;
-        },
+        }
 
         GlutinEvent::LoopDestroyed => {
             // Notify the server that it should shutdown, ignoring the error if the channel has
             // been dropped since that just means that the server task has ended already
             handle.block_on(server_shutdown.send(())).unwrap_or(());
-        },
+        }
 
-        _ => {},
+        _ => {}
     });
 }
 
-fn redraw(
-    app: &App,
-    display_list: &DisplayList,
-    gl_context: &WindowedContext<PossiblyCurrent>,
-    renderer: &mut Renderer,
-) {
+fn redraw(app: &App, display_list: &DisplayList, gl_context: &WindowedContext<PossiblyCurrent>, renderer: &mut Renderer) {
     let draw_size = gl_context.window().inner_size();
     let drawing = app.drawing();
     let turtle_states = app.turtles().map(|(_, turtle)| &turtle.state);
@@ -305,12 +296,11 @@ fn spawn_async_server(
     display_list: SharedDisplayList,
     event_loop: EventLoopNotifier,
     events_receiver: mpsc::UnboundedReceiver<Event>,
-    establish_connection: impl Future<Output=Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
+    establish_connection: impl Future<Output = Result<(ServerSender, ServerReceiver), ConnectionError>> + Send + 'static,
     server_shutdown_receiver: mpsc::Receiver<()>,
 ) {
     handle.spawn(async {
-        let (conn_sender, conn_receiver) = establish_connection.await
-            .expect("unable to establish turtle server connection");
+        let (conn_sender, conn_receiver) = establish_connection.await.expect("unable to establish turtle server connection");
 
         super::serve(
             conn_sender,
@@ -320,6 +310,7 @@ fn spawn_async_server(
             event_loop,
             events_receiver,
             server_shutdown_receiver,
-        ).await;
+        )
+        .await;
     });
 }
