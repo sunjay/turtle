@@ -39,11 +39,7 @@ pub struct EventLoopNotifier {
 
 impl EventLoopNotifier {
     pub fn new(event_loop: EventLoopProxy<MainThreadAction>) -> Self {
-        Self { event_loop }
-    }
-
-    pub fn exit(&self) -> Result<(), EventLoopClosed> {
-        self.send_action(MainThreadAction::Exit)
+        Self {event_loop}
     }
 
     pub fn request_redraw(&self) -> Result<(), EventLoopClosed> {
@@ -64,6 +60,10 @@ impl EventLoopNotifier {
 
     pub fn set_is_fullscreen(&self, is_fullscreen: bool) -> Result<(), EventLoopClosed> {
         self.send_action(MainThreadAction::SetIsFullscreen(is_fullscreen))
+    }
+
+    pub fn exit(&self) -> Result<(), EventLoopClosed> {
+        self.send_action(MainThreadAction::Exit)
     }
 
     fn send_action(&self, action: MainThreadAction) -> Result<(), EventLoopClosed> {
