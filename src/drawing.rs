@@ -648,6 +648,8 @@ impl Drawing {
     /// // this will panic!
     /// // turtle.forward(100.0)
     /// ```
+    #[cfg(feature = "unstable")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unstable")))]
     pub fn destroy(self) {
         self.drawing.destroy();
     }
