@@ -1,5 +1,5 @@
-use glutin::dpi::LogicalSize;
 use thiserror::Error;
+use glutin::dpi::LogicalSize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 #[error("event loop closed while messages were still being sent to it")]
@@ -12,10 +12,6 @@ pub struct EventLoopNotifier {}
 impl EventLoopNotifier {
     pub fn new() -> Self {
         Self {}
-    }
-
-    pub fn exit(&self) -> Result<(), EventLoopClosed> {
-        Ok(())
     }
 
     pub fn request_redraw(&self) -> Result<(), EventLoopClosed> {
@@ -35,6 +31,10 @@ impl EventLoopNotifier {
     }
 
     pub fn set_is_fullscreen(&self, _is_fullscreen: bool) -> Result<(), EventLoopClosed> {
+        Ok(())
+    }
+
+    pub fn exit(&self) -> Result<(), EventLoopClosed> {
         Ok(())
     }
 }

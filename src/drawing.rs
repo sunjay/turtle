@@ -1,9 +1,9 @@
 use std::fmt::{self, Debug};
 use std::path::Path;
 
+use crate::{Turtle, Color, Point, Size, ExportError};
 use crate::async_drawing::AsyncDrawing;
 use crate::sync_runtime::block_on;
-use crate::{Color, ExportError, Point, Size, Turtle};
 
 /// Provides access to properties of the drawing that the turtle is creating
 ///
@@ -70,7 +70,7 @@ impl From<AsyncDrawing> for Drawing {
     fn from(drawing: AsyncDrawing) -> Self {
         //TODO: There is no way to set `turtles` properly here, but that's okay since it is going
         // to be removed soon.
-        Self { drawing, turtles: 1 }
+        Self {drawing, turtles: 1}
     }
 }
 
@@ -658,9 +658,7 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic(
-        expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information."
-    )]
+    #[should_panic(expected = "Invalid color: Color { red: NaN, green: 0.0, blue: 0.0, alpha: 0.0 }. See the color module documentation for more information.")]
     fn rejects_invalid_background_color() {
         let mut drawing = Drawing::new();
         drawing.set_background_color(Color {
@@ -681,7 +679,7 @@ mod tests {
 
     #[test]
     fn ignores_center_nan_inf() {
-        let center = Point { x: 5.0, y: 10.0 };
+        let center = Point {x: 5.0, y: 10.0};
 
         let mut drawing = Drawing::new();
         drawing.set_center(center);

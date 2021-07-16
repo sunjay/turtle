@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
-use crate::async_turtle::AsyncTurtle;
 use crate::ipc_protocol::ProtocolClient;
-use crate::{Color, Drawing, Event, ExportError, Point};
+use crate::async_turtle::AsyncTurtle;
+use crate::{Drawing, Point, Color, Event, ExportError};
 
 /// Represents a size
 ///
@@ -71,8 +71,9 @@ impl AsyncDrawing {
         // of many programs that use the turtle crate.
         crate::start();
 
-        let client = ProtocolClient::new().await.expect("unable to create renderer client");
-        Self { client }
+        let client = ProtocolClient::new().await
+            .expect("unable to create renderer client");
+        Self {client}
     }
 
     pub async fn add_turtle(&mut self) -> AsyncTurtle {
