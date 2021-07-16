@@ -1,18 +1,18 @@
 //! This is NOT a real example. This is a test designed to see if we can actually run the turtle
 //! process
+// To run, use the command: cargo run --features unstable --example runtest
+#[cfg(all(not(feature = "unstable")))]
+compile_error!("This example relies on unstable features. Run with `--features unstable`");
 
-use std::process;
-
-use turtle::Turtle;
+use turtle::Drawing;
 
 fn main() {
-    let mut turtle = Turtle::new();
+    let mut drawing = Drawing::new();
+    let mut turtle = drawing.add_turtle();
 
     turtle.set_speed(2);
     turtle.right(90.0);
     turtle.forward(50.0);
 
-    //TODO: Exiting the process currently doesn't cause the window to get closed. We should add a
-    // `close(self)` or `quit(self)` method to `Drawing` that closes the window explicitly.
-    process::exit(0);
+    drawing.destroy();
 }
