@@ -1,4 +1,6 @@
-#[derive(Copy, Clone, Debug, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ShipPosition {
     pub top_left: (u8, u8),
     pub bottom_right: (u8, u8),
@@ -11,7 +13,7 @@ impl ShipPosition {
 }
 
 // Based on https://en.wikipedia.org/wiki/Battleship_(game)#Description
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize, Serialize)]
 pub enum ShipKind {
     Carrier,
     Battleship,
@@ -38,7 +40,7 @@ pub enum Orientation {
     Veritcal,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Ship {
     pub kind: ShipKind,
     pub position: ShipPosition,
@@ -68,7 +70,7 @@ impl Ship {
         collinear && x_within_bounds && y_within_bounds
     }
     pub fn coordinates(&self) -> Vec<(u8, u8)> {
-        let orientation = self.orientation(); 
+        let orientation = self.orientation();
         let x = self.position.top_left.0;
         let y = self.position.top_left.1;
 
@@ -76,7 +78,8 @@ impl Ship {
             .map(|i| match orientation {
                 Orientation::Horizontal => (x + i, y),
                 Orientation::Veritcal => (x, y + i),
-            }).collect()
+            })
+            .collect()
     }
 }
 

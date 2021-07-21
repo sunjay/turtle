@@ -1,8 +1,7 @@
-use std::{convert::TryInto, fmt::Display, ops::Deref};
-
-use turtle::rand::{choose, random_range};
-
 use super::ship::*;
+use serde::{Deserialize, Serialize};
+use std::{convert::TryInto, fmt::Display, ops::Deref};
+use turtle::rand::{choose, random_range};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Cell {
@@ -35,14 +34,15 @@ impl ShipKind {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum AttackOutcome {
     Miss,
     Hit,
     Destroyed(Ship),
 }
 
-struct Grid([[Cell; 10]; 10]);
+#[derive(Debug, Copy, Clone)]
+pub struct Grid([[Cell; 10]; 10]);
 
 impl Deref for Grid {
     type Target = [[Cell; 10]; 10];
@@ -52,13 +52,13 @@ impl Deref for Grid {
 }
 
 impl Grid {
-    fn get(&self, pos: &(u8, u8)) -> Cell {
+    pub fn get(&self, pos: &(u8, u8)) -> Cell {
         self.0[pos.0 as usize][pos.1 as usize]
     }
-    fn get_mut(&mut self, pos: &(u8, u8)) -> &mut Cell {
+    pub fn get_mut(&mut self, pos: &(u8, u8)) -> &mut Cell {
         &mut self.0[pos.0 as usize][pos.1 as usize]
     }
-    fn count(&mut self, cell: &Cell) -> usize {
+    pub fn count(&mut self, cell: &Cell) -> usize {
         self.iter().flatten().filter(|&c| c == cell).count()
     }
 }
@@ -213,6 +213,12 @@ impl BattleState {
         }
 
         (ships.try_into().unwrap(), grid)
+    }
+    pub fn ship_grid(&self) -> Grid {
+        self.ship_grid
+    }
+    pub fn attack_grid(&self) -> Grid {
+        self.attack_grid
     }
 }
 
