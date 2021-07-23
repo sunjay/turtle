@@ -21,7 +21,7 @@ impl Channel {
     }
 
     pub fn server() -> Self {
-        let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to port");
+        let listener = TcpListener::bind("0.0.0.0:0").expect("Failed to bind to port");
         println!("Listening on: {:?}, Waiting for connection..", listener.local_addr());
         let (stream, _) = listener.accept().expect("Couldn't connect to the client");
         Self { stream }
