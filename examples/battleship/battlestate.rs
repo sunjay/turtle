@@ -214,11 +214,11 @@ impl BattleState {
 
         (ships.try_into().unwrap(), grid)
     }
-    pub fn ship_grid(&self) -> Grid {
-        self.ship_grid
+    pub fn ship_grid(&self) -> &'_ Grid {
+        &self.ship_grid
     }
-    pub fn attack_grid(&self) -> Grid {
-        self.attack_grid
+    pub fn attack_grid(&self) -> &'_ Grid {
+        &self.attack_grid
     }
 }
 
