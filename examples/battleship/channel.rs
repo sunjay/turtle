@@ -9,6 +9,12 @@ pub enum Message {
     AttackResult(AttackOutcome),
 }
 
+pub enum ChannelType<'a> {
+    Server,
+    Client(&'a str),
+    ServeOnPort(u16),
+}
+
 pub struct Channel {
     stream: TcpStream,
 }
@@ -22,7 +28,10 @@ impl Channel {
 
     pub fn server() -> Self {
         let listener = TcpListener::bind("0.0.0.0:0").expect("Failed to bind to port");
-        println!("Listening on: {:?}, Waiting for connection..", listener.local_addr());
+        println!(
+            "Listening on port: {}, Waiting for connection..",
+            listener.local_addr().unwrap().port()
+        );
         let (stream, _) = listener.accept().expect("Couldn't connect to the client");
         Self { stream }
     }

@@ -1,9 +1,10 @@
 use turtle::rand::random_range;
 
 use crate::{
-    battlestate::{AttackOutcome, BattleState, Cell},
+    battlestate::{AttackOutcome, BattleState},
     channel::{Channel, Message},
     game::Turn,
+    grid::Cell,
 };
 
 pub struct Bot {
@@ -41,15 +42,16 @@ impl Bot {
             .filter(|(_, &cell)| cell == Cell::Bombed)
             .map(|(loc, _)| ((loc as f32 / 10.0).floor() as i32, loc as i32 % 10));
 
+        // Check neighbours of bombed (successfully hit) locations and return if attackable
         for loc in bombed_locations {
-            let bombable = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+            let attackable = [(-1, 0), (1, 0), (0, -1), (0, 1)]
                 .iter()
                 .map(|n| (n.0 + loc.0, n.1 + loc.1))
                 .filter(|pos| matches!(pos.0, 0..=9) && matches!(pos.1, 0..=9))
                 .map(|pos| (pos.0 as u8, pos.1 as u8))
                 .find(|pos| self.state.can_bomb(&pos));
 
-            if let Some(pos) = bombable {
+            if let Some(pos) = attackable {
                 return pos;
             }
         }

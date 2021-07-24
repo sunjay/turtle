@@ -1,20 +1,19 @@
-use super::battlestate::Cell;
 use turtle::Color;
+
+use crate::grid::Cell;
 pub struct Config {}
 
 impl Config {
     pub const EMPTY_COLOR: &'static str = "#55dde0";
     pub const UNATTACKED_COLOR: &'static str = "#55dde0";
-    pub const CARRIER_COLOR: &'static str = "#f6ae2d";
+    pub const CARRIER_COLOR: &'static str = "#fde74c";
     pub const BATTLESHIP_COLOR: &'static str = "#f48923";
     pub const CRUISER_COLOR: &'static str = "#947757";
-    pub const SUBMARINE_COLOR: &'static str = "#2f4858";
+    pub const SUBMARINE_COLOR: &'static str = "#9bc53d";
     pub const DESTROYER_COLOR: &'static str = "#238cf4";
     pub const MISSED_COLOR: &'static str = "#33658a";
     pub const BOMBED_COLOR: &'static str = "#f26419";
     pub const DESTROYED_COLOR: &'static str = "#349c9e";
-    pub const CROSSHAIR_COLOR: &'static str = "#f26419";
-    pub const DISABLED_CROSSHAIR_COLOR: &'static str = "#000000";
 
     pub const CELL_SIZE: f64 = 40.0;
     pub const SPACE_BETWEEN_GRIDS: f64 = 50.0;
@@ -27,6 +26,8 @@ impl Config {
 
     pub const CROSSHAIR_SIZE: f64 = 0.2 * Self::CELL_SIZE;
     pub const CROSSHAIR_PEN_SIZE: f64 = 4.0;
+    pub const CROSSHAIR_COLOR: &'static str = "#f26419";
+    pub const DISABLED_CROSSHAIR_COLOR: &'static str = "#000000";
 
     pub fn cell_color(cell: &Cell) -> Color {
         match cell {

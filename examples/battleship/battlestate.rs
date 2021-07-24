@@ -1,38 +1,11 @@
-use super::ship::*;
 use serde::{Deserialize, Serialize};
-use std::{convert::TryInto, fmt::Display, ops::Deref};
+use std::{convert::TryInto, fmt::Display};
 use turtle::rand::{choose, random_range};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum Cell {
-    // ship grid
-    Carrier = 0,
-    Battleship = 1,
-    Cruiser = 2,
-    Submarine = 3,
-    Destroyer = 4,
-    Empty,
-
-    // attack grid
-    Unattacked,
-    Missed,
-
-    // common
-    Bombed,
-    Destroyed,
-}
-
-impl ShipKind {
-    fn to_cell(self) -> Cell {
-        match self {
-            ShipKind::Carrier => Cell::Carrier,
-            ShipKind::Battleship => Cell::Battleship,
-            ShipKind::Cruiser => Cell::Cruiser,
-            ShipKind::Submarine => Cell::Submarine,
-            ShipKind::Destroyer => Cell::Destroyer,
-        }
-    }
-}
+use crate::{
+    grid::{Cell, Grid},
+    ship::*,
+};
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum AttackOutcome {
@@ -41,25 +14,18 @@ pub enum AttackOutcome {
     Destroyed(Ship),
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct Grid([[Cell; 10]; 10]);
-
-impl Deref for Grid {
-    type Target = [[Cell; 10]; 10];
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
+#[derive(Copy, Clone)]
+pub enum Position {
+    ShipGrid((u8, u8)),
+    AttackGrid((u8, u8)),
 }
 
-impl Grid {
-    pub fn get(&self, pos: &(u8, u8)) -> Cell {
-        self.0[pos.0 as usize][pos.1 as usize]
-    }
-    pub fn get_mut(&mut self, pos: &(u8, u8)) -> &mut Cell {
-        &mut self.0[pos.0 as usize][pos.1 as usize]
-    }
-    pub fn count(&mut self, cell: &Cell) -> usize {
-        self.iter().flatten().filter(|&c| c == cell).count()
+impl Position {
+    pub fn get(self) -> (u8, u8) {
+        match self {
+            Self::ShipGrid(p) => p,
+            Self::AttackGrid(p) => p,
+        }
     }
 }
 
@@ -96,9 +62,7 @@ impl Display for BattleState {
 impl BattleState {
     #[allow(dead_code)]
     fn custom(ships: [Ship; 5]) -> Self {
-        let mut ship_grid = Grid {
-            0: [[Cell::Empty; 10]; 10],
-        };
+        let mut ship_grid = Grid::new(Cell::Empty);
         ships.iter().for_each(|ship| {
             ship.coordinates().iter().for_each(|pos| {
                 *ship_grid.get_mut(pos) = ship.kind.to_cell();
@@ -107,9 +71,7 @@ impl BattleState {
         Self {
             ships,
             ship_grid,
-            attack_grid: Grid {
-                0: [[Cell::Unattacked; 10]; 10],
-            },
+            attack_grid: Grid::new(Cell::Unattacked),
             destroyed_rival_ships: 0,
             ships_lost: 0,
         }
@@ -119,9 +81,7 @@ impl BattleState {
         Self {
             ships,
             ship_grid,
-            attack_grid: Grid {
-                0: [[Cell::Unattacked; 10]; 10],
-            },
+            attack_grid: Grid::new(Cell::Unattacked),
             destroyed_rival_ships: 0,
             ships_lost: 0,
         }
@@ -131,8 +91,8 @@ impl BattleState {
         match attacked_cell {
             Cell::Empty => AttackOutcome::Miss,
             Cell::Carrier | Cell::Battleship | Cell::Cruiser | Cell::Submarine | Cell::Destroyer => {
-                let count = self.ship_grid.count(&attacked_cell);
-                match count {
+                let standing_ship_parts = self.ship_grid.count(&attacked_cell);
+                match standing_ship_parts {
                     1 => {
                         let lost_ship = self.ships[attacked_cell as usize];
                         lost_ship
@@ -176,9 +136,7 @@ impl BattleState {
             ShipKind::Submarine,
             ShipKind::Destroyer,
         ];
-        let mut grid = Grid {
-            0: [[Cell::Empty; 10]; 10],
-        };
+        let mut grid = Grid::new(Cell::Empty);
         let mut ships = Vec::new();
 
         for kind in ship_types {
