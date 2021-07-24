@@ -139,6 +139,8 @@ impl Game {
                     }
                 }
             }
+            // reduce CPU usage
+            thread::sleep(Duration::from_millis(16));
         }
     }
 
