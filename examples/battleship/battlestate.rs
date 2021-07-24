@@ -23,7 +23,7 @@ pub enum Cell {
 }
 
 impl ShipKind {
-    fn to_cell(&self) -> Cell {
+    fn to_cell(self) -> Cell {
         match self {
             ShipKind::Carrier => Cell::Carrier,
             ShipKind::Battleship => Cell::Battleship,
@@ -94,7 +94,8 @@ impl Display for BattleState {
 }
 
 impl BattleState {
-    pub fn custom(ships: [Ship; 5]) -> Self {
+    #[allow(dead_code)]
+    fn custom(ships: [Ship; 5]) -> Self {
         let mut ship_grid = Grid {
             0: [[Cell::Empty; 10]; 10],
         };

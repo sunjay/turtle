@@ -12,8 +12,9 @@ impl Config {
     pub const DESTROYER_COLOR: &'static str = "#238cf4";
     pub const MISSED_COLOR: &'static str = "#33658a";
     pub const BOMBED_COLOR: &'static str = "#f26419";
-    pub const DESTROYED_COLOR: &'static str = "#000000";
-    pub const TARGET_COLOR: &'static str = "#f26419";
+    pub const DESTROYED_COLOR: &'static str = "#349c9e";
+    pub const CROSSHAIR_COLOR: &'static str = "#f26419";
+    pub const DISABLED_CROSSHAIR_COLOR: &'static str = "#000000";
 
     pub const CELL_SIZE: f64 = 40.0;
     pub const SPACE_BETWEEN_GRIDS: f64 = 50.0;
@@ -24,7 +25,7 @@ impl Config {
     pub const MISSED_CIRCLE_DIAMETER: f64 = 0.25 * Self::CELL_SIZE;
     pub const BOMBED_CIRCLE_DIAMETER: f64 = 0.75 * Self::CELL_SIZE;
 
-    pub const CROSSHAIR_SIZE: f64 = 0.4 * Self::CELL_SIZE;
+    pub const CROSSHAIR_SIZE: f64 = 0.2 * Self::CELL_SIZE;
     pub const CROSSHAIR_PEN_SIZE: f64 = 4.0;
 
     pub fn cell_color(cell: &Cell) -> Color {

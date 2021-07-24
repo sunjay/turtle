@@ -27,6 +27,12 @@ impl Channel {
         Self { stream }
     }
 
+    pub fn serve_on_port(port: u16) -> Self {
+        let listener = TcpListener::bind(&format!("0.0.0.0:{}", port)).expect("Failed to bind to port");
+        let (stream, _) = listener.accept().expect("Couldn't connect to the client");
+        Self { stream }
+    }
+
     pub fn send_message(&mut self, msg: &Message) {
         serde_json::to_writer(&self.stream, &msg).expect("Failed to send message");
     }

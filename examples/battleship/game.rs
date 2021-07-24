@@ -1,6 +1,5 @@
 use turtle::{
     event::{Key, PressedState},
-    rand::random_range,
     Drawing, Event, Turtle,
 };
 
@@ -12,13 +11,13 @@ use crate::{
 
 use std::f64::consts::PI;
 
-enum Turn {
+pub enum Turn {
     Me,
     Opponent,
 }
 
 impl Turn {
-    fn flip(&mut self) {
+    pub fn flip(&mut self) {
         match self {
             Turn::Me => *self = Turn::Opponent,
             Turn::Opponent => *self = Turn::Me,
@@ -35,6 +34,12 @@ pub struct Game {
 pub enum Player<'a> {
     Server,
     Client(&'a str),
+    ServeOnPort(u16),
+}
+
+enum CrosshairType {
+    LockTarget,
+    Disabled,
 }
 
 struct Crosshair<'a> {
@@ -44,19 +49,25 @@ struct Crosshair<'a> {
 }
 
 impl<'a> Crosshair<'a> {
-    fn random_attackable_location(state: &BattleState) -> (u8, u8) {
-        loop {
-            let x = random_range(0, 9);
-            let y = random_range(0, 9);
-            if state.can_bomb(&(x, y)) {
-                return (x, y);
-            }
+    fn new(state: &'a BattleState, turtle: &'a mut Turtle, last_bombed_pos: Option<(u8, u8)>) -> Self {
+        let pos;
+        if let Some(bombed_pos) = last_bombed_pos {
+            pos = bombed_pos;
+            Self::draw_crosshair(pos, turtle, CrosshairType::Disabled);
+        } else {
+            pos = (4, 4);
+            Self::draw_crosshair(pos, turtle, CrosshairType::LockTarget);
         }
+        Self { pos, state, turtle }
     }
 
-    fn draw_crosshair(pos: (u8, u8), turtle: &mut Turtle) {
+    fn draw_crosshair(pos: (u8, u8), turtle: &mut Turtle, crosshair: CrosshairType) {
         let (x, y) = Config::ATTACK_GRID_TOP_LEFT;
-        turtle.set_pen_color(Config::TARGET_COLOR);
+        turtle.set_pen_color(if matches!(crosshair, CrosshairType::Disabled) {
+            Config::DISABLED_CROSSHAIR_COLOR
+        } else {
+            Config::CROSSHAIR_COLOR
+        });
         turtle.set_pen_size(Config::CROSSHAIR_PEN_SIZE);
         let start = (
             x + Config::CELL_SIZE * (0.5 + pos.1 as f64),
@@ -77,64 +88,52 @@ impl<'a> Crosshair<'a> {
         turtle.set_pen_size(1.0);
     }
 
-    fn new(state: &'a BattleState, turtle: &'a mut Turtle) -> Self {
-        let pos = Self::random_attackable_location(state);
-        Self::draw_crosshair(pos, turtle);
-        Self { pos, state, turtle }
+    fn move_to(&mut self, pos: (u8, u8)) {
+        //remove crosshair by redrawing the cell
+        let cell = self.state.attack_grid().get(&self.pos);
+        Game::draw_cell(cell, Position::AttackGrid(self.pos), self.turtle);
+
+        let crosshair = match self.state.can_bomb(&pos) {
+            true => CrosshairType::LockTarget,
+            false => CrosshairType::Disabled,
+        };
+        Self::draw_crosshair(pos, self.turtle, crosshair);
+        self.pos = pos;
     }
 
     fn move_left(&mut self) {
-        // TODO: use inclusive range
-        let new_y = (0..self.pos.1).rev().find(|&y| self.state.can_bomb(&(self.pos.0, y)));
-        if let Some(y) = new_y {
-            let cell = self.state.attack_grid().get(&self.pos);
-            Game::draw_cell(cell, Position::AttackGrid(self.pos), &mut self.turtle);
-
-            let new_pos = (self.pos.0, y);
-            Self::draw_crosshair(new_pos, self.turtle);
-            self.pos = new_pos;
+        if self.pos.1 > 0 {
+            self.move_to((self.pos.0, self.pos.1 - 1));
         }
     }
+
     fn move_right(&mut self) {
-        let new_y = (self.pos.1 + 1..10).find(|&y| self.state.can_bomb(&(self.pos.0, y)));
-        if let Some(y) = new_y {
-            let cell = self.state.attack_grid().get(&self.pos);
-            Game::draw_cell(cell, Position::AttackGrid(self.pos), &mut self.turtle);
-
-            let new_pos = (self.pos.0, y);
-            Self::draw_crosshair(new_pos, self.turtle);
-            self.pos = new_pos;
+        if self.pos.1 < 9 {
+            self.move_to((self.pos.0, self.pos.1 + 1));
         }
     }
+
     fn move_up(&mut self) {
-        let new_x = (0..self.pos.0).rev().find(|&x| self.state.can_bomb(&(x, self.pos.1)));
-        if let Some(x) = new_x {
-            let cell = self.state.attack_grid().get(&self.pos);
-            Game::draw_cell(cell, Position::AttackGrid(self.pos), &mut self.turtle);
-
-            let new_pos = (x, self.pos.1);
-            Self::draw_crosshair(new_pos, self.turtle);
-            self.pos = new_pos;
+        if self.pos.0 > 0 {
+            self.move_to((self.pos.0 - 1, self.pos.1));
         }
     }
+
     fn move_down(&mut self) {
-        let new_x = (self.pos.0 + 1..10).find(|&x| self.state.can_bomb(&(x, self.pos.1)));
-        if let Some(x) = new_x {
-            let cell = self.state.attack_grid().get(&self.pos);
-            Game::draw_cell(cell, Position::AttackGrid(self.pos), &mut self.turtle);
-
-            let new_pos = (x, self.pos.1);
-            Self::draw_crosshair(new_pos, self.turtle);
-            self.pos = new_pos;
+        if self.pos.0 < 9 {
+            self.move_to((self.pos.0 + 1, self.pos.1));
         }
     }
-    fn lock_target(&mut self) -> (u8, u8) {
-        let cell = self.state.attack_grid().get(&self.pos);
-        Game::draw_cell(cell, Position::AttackGrid(self.pos), &mut self.turtle);
-        return self.pos;
+
+    fn try_bomb(&mut self) -> Option<(u8, u8)> {
+        if self.state.can_bomb(&self.pos) {
+            return Some(self.pos);
+        }
+        None
     }
 }
 
+#[derive(Copy, Clone)]
 enum Position {
     ShipGrid((u8, u8)),
     AttackGrid((u8, u8)),
@@ -155,17 +154,20 @@ impl Game {
         let channel = match player {
             Player::Server => Channel::server(),
             Player::Client(addr) => Channel::client(addr),
+            Player::ServeOnPort(port) => Channel::serve_on_port(port),
         };
         let turn = match player {
             Player::Client(_) => Turn::Opponent,
-            Player::Server => Turn::Me,
+            _ => Turn::Me,
         };
 
         Self { state, channel, turn }
     }
 
-    fn draw_cell(cell: Cell, pos: Position, turtle: &mut Turtle) {
+    fn draw_cell(cell: Cell, loc: Position, turtle: &mut Turtle) {
         fn draw_circle(turtle: &mut Turtle, diameter: f64) {
+            let pen_color = turtle.pen_color();
+            turtle.set_pen_color("transparent");
             turtle.set_heading(0.0);
             turtle.begin_fill();
             for _ in 0..360 {
@@ -173,6 +175,7 @@ impl Game {
                 turtle.right(1.0);
             }
             turtle.end_fill();
+            turtle.set_pen_color(pen_color);
         }
         fn draw_square(turtle: &mut Turtle, size: f64) {
             turtle.set_heading(0.0);
@@ -183,15 +186,16 @@ impl Game {
             }
             turtle.end_fill();
         }
-        let (x, y) = match pos {
+        let (x, y) = match loc {
             Position::ShipGrid(_) => Config::SHIP_GRID_TOP_LEFT,
             Position::AttackGrid(_) => Config::ATTACK_GRID_TOP_LEFT,
         };
 
-        let pos = pos.get();
+        let pos = loc.get();
 
         match cell {
             Cell::Missed | Cell::Bombed => {
+                Self::draw_cell(Cell::Empty, loc, turtle);
                 let diameter = if cell == Cell::Missed {
                     Config::MISSED_CIRCLE_DIAMETER
                 } else {
@@ -229,33 +233,25 @@ impl Game {
             }
         }
     }
-    fn random_attack_location(&self) -> (u8, u8) {
-        loop {
-            let x = random_range(0, 9);
-            let y = random_range(0, 9);
-            if self.state.can_bomb(&(x, y)) {
-                return (x, y);
-            }
-        }
-    }
 
-    fn get_attack_location(&self, drawing: &mut Drawing, turtle: &mut Turtle) -> (u8, u8) {
-        let mut crosshair = Crosshair::new(&self.state, turtle);
+    fn get_attack_location(&self, drawing: &mut Drawing, turtle: &mut Turtle, last_bombed_location: Option<(u8, u8)>) -> (u8, u8) {
+        let mut crosshair = Crosshair::new(&self.state, turtle, last_bombed_location);
         loop {
             while let Some(event) = drawing.poll_event() {
                 use Key::{DownArrow, LeftArrow, Return, RightArrow, UpArrow};
-                match event {
-                    Event::Key(key, PressedState::Pressed) => match key {
+                if let Event::Key(key, PressedState::Pressed) = event {
+                    match key {
                         LeftArrow => crosshair.move_left(),
                         RightArrow => crosshair.move_right(),
                         UpArrow => crosshair.move_up(),
                         DownArrow => crosshair.move_down(),
                         Return => {
-                            return crosshair.lock_target();
+                            if let Some(pos) = crosshair.try_bomb() {
+                                return pos;
+                            }
                         }
                         _ => {}
-                    },
-                    _ => {}
+                    }
                 }
             }
         }
@@ -264,6 +260,7 @@ impl Game {
     pub fn run(&mut self) {
         let mut drawing = Drawing::new();
         let mut turtle = drawing.add_turtle();
+        let mut last_bombed_location = None;
 
         turtle.hide();
         turtle.set_speed("instant");
@@ -272,7 +269,8 @@ impl Game {
         loop {
             match self.turn {
                 Turn::Me => {
-                    let attack_location = self.get_attack_location(&mut drawing, &mut turtle);
+                    let attack_location = self.get_attack_location(&mut drawing, &mut turtle, last_bombed_location);
+                    last_bombed_location = Some(attack_location);
                     self.channel.send_message(&Message::AttackCoordinates(attack_location));
                     match self.channel.receive_message() {
                         Message::AttackResult(outcome) => match outcome {
@@ -332,5 +330,7 @@ impl Game {
                 (_, _) => continue,
             }
         }
+
+        drawing.destroy();
     }
 }
