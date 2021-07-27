@@ -21,8 +21,8 @@ impl Config {
     pub const SHIP_GRID_TOP_LEFT: (f64, f64) = (-Self::SPACE_BETWEEN_GRIDS / 2.0 - 10.0 * Self::CELL_SIZE, 5.0 * Self::CELL_SIZE);
     pub const ATTACK_GRID_TOP_LEFT: (f64, f64) = (Self::SPACE_BETWEEN_GRIDS / 2.0, 5.0 * Self::CELL_SIZE);
 
-    pub const MISSED_CIRCLE_DIAMETER: f64 = 0.25 * Self::CELL_SIZE;
-    pub const BOMBED_CIRCLE_DIAMETER: f64 = 0.75 * Self::CELL_SIZE;
+    pub const MISSED_CIRCLE_RADIUS: f64 = 0.25 * Self::CELL_SIZE * 0.5;
+    pub const BOMBED_CIRCLE_RADIUS: f64 = 0.75 * Self::CELL_SIZE * 0.5;
 
     pub const CROSSHAIR_SIZE: f64 = 0.2 * Self::CELL_SIZE;
     pub const CROSSHAIR_PEN_SIZE: f64 = 4.0;

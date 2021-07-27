@@ -94,6 +94,8 @@ impl BattleState {
                 let standing_ship_parts = self.ship_grid.count(&attacked_cell);
                 match standing_ship_parts {
                     1 => {
+                        // If the attack is on the last standing ship part,
+                        // change all the Cells of the Ship to Destroyed
                         let lost_ship = self.ships[attacked_cell as usize];
                         lost_ship
                             .coordinates()
@@ -118,15 +120,17 @@ impl BattleState {
             _ => unreachable!(),
         }
     }
-    pub fn set_attack_outcome(&mut self, pos: &(u8, u8), cell: Cell) {
-        *self.attack_grid.get_mut(pos) = cell;
-    }
-    pub fn set_destroyed_ship(&mut self, ship: &Ship) {
-        ship.coordinates()
-            .into_iter()
-            .for_each(|pos| *self.attack_grid.get_mut(&pos) = Cell::Destroyed);
-
-        self.destroyed_rival_ships += 1;
+    pub fn set_attack_outcome(&mut self, attacked_pos: &(u8, u8), outcome: AttackOutcome) {
+        match outcome {
+            AttackOutcome::Miss => *self.attack_grid.get_mut(attacked_pos) = Cell::Missed,
+            AttackOutcome::Hit => *self.attack_grid.get_mut(attacked_pos) = Cell::Bombed,
+            AttackOutcome::Destroyed(ship) => {
+                for pos in ship.coordinates() {
+                    *self.attack_grid.get_mut(&pos) = Cell::Destroyed;
+                }
+                self.destroyed_rival_ships += 1;
+            }
+        }
     }
     fn random_ship_grid() -> ([Ship; 5], Grid) {
         let ship_types = [
@@ -139,31 +143,31 @@ impl BattleState {
         let mut grid = Grid::new(Cell::Empty);
         let mut ships = Vec::new();
 
+        // Randomly select a position and orientation for a ship type to create a Ship
+        // Check if the ship doesn't overlap with other ships already added to Grid
+        // Check if the ship is within the Grid bounds
+        // If the above two conditions are met, add the ship to the Grid
+        // And proceed with next ship type
         for kind in ship_types {
             loop {
                 let x: u8 = random_range(0, 9);
                 let y: u8 = random_range(0, 9);
                 let orient: Orientation = choose(&[Orientation::Horizontal, Orientation::Veritcal]).copied().unwrap();
 
-                let ship_coords = (0..kind.size())
-                    .map(|i| match orient {
-                        Orientation::Horizontal => (x + i, y),
-                        Orientation::Veritcal => (x, y + i),
-                    })
-                    .collect::<Vec<_>>();
+                let ship = Ship::new(kind, (x, y), orient);
 
                 let no_overlap = ships
                     .iter()
-                    .all(|ship: &Ship| ship_coords.iter().all(|pos| !ship.is_located_over(pos)));
-                let within_board = ship_coords.iter().all(|pos| matches!(pos.0, 0..=9) && matches!(pos.1, 0..=9));
+                    .all(|other: &Ship| other.coordinates().iter().all(|pos| !ship.is_located_over(pos)));
+
+                let within_board = ship
+                    .coordinates()
+                    .iter()
+                    .all(|pos| matches!(pos.0, 0..=9) && matches!(pos.1, 0..=9));
 
                 if no_overlap && within_board {
-                    let ship = Ship::new(
-                        kind,
-                        ShipPosition::new(ship_coords.first().copied().unwrap(), ship_coords.last().copied().unwrap()),
-                    );
                     ships.push(ship);
-                    ship_coords.iter().for_each(|pos| {
+                    ship.coordinates().iter().for_each(|pos| {
                         *grid.get_mut(pos) = kind.to_cell();
                     });
                     break;
@@ -237,7 +241,7 @@ mod test {
         // 9 . . . . . . . . . .   9 . . . . . . . . . .
         let mut state = BattleState::custom(ships);
         // turn 1: player attacks (2, 2) - misses
-        state.set_attack_outcome(&(2, 2), Cell::Missed);
+        state.set_attack_outcome(&(2, 2), AttackOutcome::Miss);
         assert_eq!(state.attack_grid.get(&(2, 2)), Cell::Missed);
         // turn 2: opponent attacks (6, 7) - hits
         let outcome = state.incoming_attack(&(6, 7));
@@ -250,16 +254,19 @@ mod test {
         assert_eq!(state.ship_grid.get(&(6, 7)), Cell::Destroyed);
         assert_eq!(state.ships_lost, 1);
         // turn 4: player attacks (7, 2) - hits
-        state.set_attack_outcome(&(7, 2), Cell::Bombed);
+        state.set_attack_outcome(&(7, 2), AttackOutcome::Hit);
         assert_eq!(state.attack_grid.get(&(7, 2)), Cell::Bombed);
         // turn 5: player attacks (6, 2) - destroys D
-        state.set_destroyed_ship(&Ship {
-            kind: ShipKind::Destroyer,
-            position: ShipPosition {
-                top_left: (6, 2),
-                bottom_right: (7, 2),
-            },
-        });
+        state.set_attack_outcome(
+            &(6, 2),
+            AttackOutcome::Destroyed(Ship {
+                kind: ShipKind::Destroyer,
+                position: ShipPosition {
+                    top_left: (6, 2),
+                    bottom_right: (7, 2),
+                },
+            }),
+        );
         assert_eq!(state.attack_grid.get(&(6, 2)), Cell::Destroyed);
         assert_eq!(state.attack_grid.get(&(7, 2)), Cell::Destroyed);
         assert_eq!(state.destroyed_rival_ships, 1);

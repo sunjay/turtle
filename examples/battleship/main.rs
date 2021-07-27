@@ -1,8 +1,25 @@
-//! Battleship board Game
-//! Usage:
-//! $> ./battleship # No arguments - outputs a TCP port waiting for the opponent to connect.
-//! $> ./battleship <ip:port> #  - connects to a server with the specified ip port
-//! $> ./battleship bot #  play with computer (single player).
+//! Battleship is a two-player strategic guessing game.
+//! There are two grids - let's call them - ShipGrid and AttackGrid.
+//! ShipGrid, located on the left hand side, is where the player's fleet of ships is situated and marked.
+//! AttackGrid, located on the right hand side, is where the opponent's fleet is situated but concealed.
+//! Players alternate turns calling "shots" at the other player's ships.
+//! You can use arrow keys (←, ↑, ↓, →) to move crosshair in AttackGrid and press `Enter ⏎` key to attack.
+//! The objective of the game is to destroy the opposing player's fleet.
+//!
+//! This game can be played in single player mode as well as multiplayer.
+//! To play in single player mode, you can pass `bot` as an argument to the program
+//! $> ./battleship bot
+//!
+//! To play in multiplayer mode, one player needs to acts as a server and the other as client.
+//! To act as a server, run the program without any arguments.
+//! $> ./battleship # No arguments
+//! This will output something like "Listening on port: <PORT>, Waiting for connection..".
+//!
+//! If the other player is also within the same LAN, you can share your private IP address and <PORT>
+//! which they can use to connect with you by running the program with these arguments:
+//! $> ./battleship <IP:PORT> #  eg: ./battleship 192.168.0.120:35765
+//!
+//! If not in same LAN, you can try DynamicDNS or a publicly routable IP address.
 
 // To run, use the command: cargo run --features unstable --example battleship
 #[cfg(all(not(feature = "unstable")))]
@@ -16,50 +33,40 @@ mod crosshair;
 mod game;
 mod grid;
 mod ship;
+mod utils;
 
 use bot::Bot;
 use channel::ChannelType;
 use game::Game;
-use std::{net::TcpListener, thread, time::Duration};
-
-pub fn get_available_tcp_port() -> u16 {
-    for port in 49152..=65535 {
-        if TcpListener::bind(&format!("127.0.0.1:{}", port)).is_ok() {
-            return port;
-        }
-    }
-    panic!("No ports available!");
-}
+use std::{thread, time::Duration};
+use utils::*;
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let config = match args.len() {
-        0 => unreachable!(),
-        1 => "",
-        _ => &args[1],
-    };
-
-    match config {
-        "" => {
+    let opt = parse_args();
+    match opt {
+        Opt::Server => {
             let mut game = Game::init(ChannelType::Server);
             game.run();
         }
-        "bot" => {
-            // May fail due to TOCTOU
-            let port = get_available_tcp_port();
+        Opt::Client(addr) => {
+            let mut game = Game::init(ChannelType::Client(addr));
+            game.run();
+        }
+        Opt::PlayWithBot => {
+            // Create a TCP listener on a free port and use it to make a game server.
+            // The game server will start listening on that port while we spawn
+            // a bot instance in a separate thread which would later connnect to the server.
+            let listener = get_tcp_listener();
+            let port = listener.local_addr().unwrap().port();
             let handle = thread::spawn(move || {
-                // delay to let game server bind to port
+                // delay to let the game server start listening on port
                 thread::sleep(Duration::from_millis(10));
                 let mut bot = Bot::new(port);
                 bot.play();
             });
-            let mut game = Game::init(ChannelType::ServeOnPort(port));
+            let mut game = Game::init(ChannelType::UseListener(listener));
             game.run();
             handle.join().unwrap();
-        }
-        addr => {
-            let mut game = Game::init(ChannelType::Client(addr));
-            game.run();
         }
     }
 }

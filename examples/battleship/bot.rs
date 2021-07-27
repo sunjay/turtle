@@ -1,3 +1,5 @@
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+
 use turtle::rand::random_range;
 
 use crate::{
@@ -16,7 +18,7 @@ pub struct Bot {
 impl Bot {
     pub fn new(port: u16) -> Self {
         Self {
-            channel: Channel::client(&format!("127.0.0.1:{}", port)),
+            channel: Channel::client(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port)),
             state: BattleState::new(),
             turn: Turn::Opponent,
         }
@@ -33,6 +35,7 @@ impl Bot {
     }
 
     fn get_attack_location(&self) -> (u8, u8) {
+        // Iterator on positions of all the bombed (Hit, not Destroyed) locations in AttackGrid
         let bombed_locations = self
             .state
             .attack_grid()
@@ -42,7 +45,8 @@ impl Bot {
             .filter(|(_, &cell)| cell == Cell::Bombed)
             .map(|(loc, _)| ((loc as f32 / 10.0).floor() as i32, loc as i32 % 10));
 
-        // Check neighbours of bombed (successfully hit) locations and return if attackable
+        // Iterate over each bombed location until an attackable position
+        // is found in the neighbourhood of the bombed location and return it
         for loc in bombed_locations {
             let attackable = [(-1, 0), (1, 0), (0, -1), (0, 1)]
                 .iter()
@@ -55,9 +59,11 @@ impl Bot {
                 return pos;
             }
         }
+        // Otherwise return a random attack location if no bombed locations are present
         self.random_attack_location()
     }
 
+    /// Similar to Game::run but without graphics
     pub fn play(&mut self) {
         loop {
             match self.turn {
@@ -65,19 +71,15 @@ impl Bot {
                     let attack_location = self.get_attack_location();
                     self.channel.send_message(&Message::AttackCoordinates(attack_location));
                     match self.channel.receive_message() {
-                        Message::AttackResult(outcome) => match outcome {
-                            AttackOutcome::Miss => {
-                                self.state.set_attack_outcome(&attack_location, Cell::Missed);
-                                self.turn.flip();
+                        Message::AttackResult(outcome) => {
+                            self.state.set_attack_outcome(&attack_location, outcome);
+                            match outcome {
+                                AttackOutcome::Miss | AttackOutcome::Destroyed(_) => {
+                                    self.turn.flip();
+                                }
+                                _ => (),
                             }
-                            AttackOutcome::Hit => {
-                                self.state.set_attack_outcome(&attack_location, Cell::Bombed);
-                            }
-                            AttackOutcome::Destroyed(ship) => {
-                                self.state.set_destroyed_ship(&ship);
-                                self.turn.flip();
-                            }
-                        },
+                        }
                         _ => panic!("Expected Message of AttackResult from Opponent."),
                     }
                 }
@@ -86,13 +88,10 @@ impl Bot {
                         let outcome = self.state.incoming_attack(&p);
                         self.channel.send_message(&Message::AttackResult(outcome));
                         match outcome {
-                            AttackOutcome::Miss => {
+                            AttackOutcome::Miss | AttackOutcome::Destroyed(_) => {
                                 self.turn.flip();
                             }
-                            AttackOutcome::Hit => {}
-                            AttackOutcome::Destroyed(_) => {
-                                self.turn.flip();
-                            }
+                            AttackOutcome::Hit => (),
                         }
                     }
                     _ => panic!("Expected Message of AttackCoordinates from Opponent"),

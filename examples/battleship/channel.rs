@@ -1,4 +1,4 @@
-use std::net::{TcpListener, TcpStream};
+use std::net::{SocketAddr, TcpListener, TcpStream};
 
 use crate::battlestate::AttackOutcome;
 use serde::{Deserialize, Serialize};
@@ -9,10 +9,10 @@ pub enum Message {
     AttackResult(AttackOutcome),
 }
 
-pub enum ChannelType<'a> {
+pub enum ChannelType {
     Server,
-    Client(&'a str),
-    ServeOnPort(u16),
+    Client(SocketAddr),
+    UseListener(TcpListener),
 }
 
 pub struct Channel {
@@ -20,24 +20,23 @@ pub struct Channel {
 }
 
 impl Channel {
-    pub fn client(ip_port: &str) -> Self {
+    pub fn client(socket_addr: SocketAddr) -> Self {
         Self {
-            stream: TcpStream::connect(ip_port).expect("Couldn't connect to the server"),
+            stream: TcpStream::connect(socket_addr).expect("Couldn't connect to the server"),
         }
     }
 
     pub fn server() -> Self {
         let listener = TcpListener::bind("0.0.0.0:0").expect("Failed to bind to port");
         println!(
-            "Listening on port: {}, Waiting for connection..",
+            "Listening on port: {}, Waiting for connection..(See help: -h, --help)",
             listener.local_addr().unwrap().port()
         );
         let (stream, _) = listener.accept().expect("Couldn't connect to the client");
         Self { stream }
     }
 
-    pub fn serve_on_port(port: u16) -> Self {
-        let listener = TcpListener::bind(&format!("0.0.0.0:{}", port)).expect("Failed to bind to port");
+    pub fn serve_using_listener(listener: TcpListener) -> Self {
         let (stream, _) = listener.accept().expect("Couldn't connect to the client");
         Self { stream }
     }

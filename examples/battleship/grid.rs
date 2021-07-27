@@ -8,10 +8,13 @@ pub enum Cell {
     Cruiser = 2,
     Submarine = 3,
     Destroyer = 4,
+    /// clear cell on ShipGrid
     Empty,
+    /// clear cell on AttackGrid
     Unattacked,
     Missed,
     Bombed,
+    /// Denotes a ship cell of a completely destroyed ship
     Destroyed,
 }
 

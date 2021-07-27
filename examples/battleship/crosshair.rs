@@ -17,11 +17,14 @@ pub struct Crosshair<'a> {
 }
 
 impl<'a> Crosshair<'a> {
-    pub fn new(state: &'a BattleState, turtle: &'a mut Turtle, last_bombed_pos: Option<(u8, u8)>) -> Self {
+    pub fn new(state: &'a BattleState, turtle: &'a mut Turtle, last_attacked_pos: Option<(u8, u8)>) -> Self {
         let pos;
-        if let Some(bombed_pos) = last_bombed_pos {
-            pos = bombed_pos;
+        // Draw crosshair in disabled mode on last attacked position
+        if let Some(attacked_pos) = last_attacked_pos {
+            pos = attacked_pos;
             Self::draw_crosshair(pos, turtle, CrosshairType::Disabled);
+        // There's no last attacked position -> player's first chance
+        // Draw crosshair in abled mode at the center.
         } else {
             pos = (4, 4);
             Self::draw_crosshair(pos, turtle, CrosshairType::LockTarget);
@@ -57,14 +60,17 @@ impl<'a> Crosshair<'a> {
     }
 
     fn move_to(&mut self, pos: (u8, u8), game: &Game) {
-        //remove crosshair by redrawing the cell
+        // Remove crosshair on previous pos by redrawing the Cell at that pos.
         let cell = self.state.attack_grid().get(&self.pos);
         game.draw_cell(cell, Position::AttackGrid(self.pos), self.turtle);
 
+        // Set Crosshair in disabled or abled mode based on new pos
         let crosshair = match self.state.can_bomb(&pos) {
             true => CrosshairType::LockTarget,
             false => CrosshairType::Disabled,
         };
+
+        // Draw Crosshair at new pos
         Self::draw_crosshair(pos, self.turtle, crosshair);
         self.pos = pos;
     }
@@ -93,6 +99,8 @@ impl<'a> Crosshair<'a> {
         }
     }
 
+    // Retuns Some(pos) if the crosshair pos is attackable
+    // None otherwise
     pub fn try_bomb(&mut self) -> Option<(u8, u8)> {
         if self.state.can_bomb(&self.pos) {
             return Some(self.pos);

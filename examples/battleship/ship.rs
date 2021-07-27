@@ -6,13 +6,8 @@ pub struct ShipPosition {
     pub bottom_right: (u8, u8),
 }
 
-impl ShipPosition {
-    pub fn new(top_left: (u8, u8), bottom_right: (u8, u8)) -> Self {
-        Self { top_left, bottom_right }
-    }
-}
-
-// Based on https://en.wikipedia.org/wiki/Battleship_(game)#Description
+// This implementation is based on 1990 Milton Bradley version of Battleship
+// https://en.wikipedia.org/wiki/Battleship_(game)#Description
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize, Serialize)]
 pub enum ShipKind {
     Carrier,
@@ -23,6 +18,7 @@ pub enum ShipKind {
 }
 
 impl ShipKind {
+    // returns the length of the ship
     pub fn size(&self) -> u8 {
         match self {
             Self::Carrier => 5,
@@ -34,6 +30,7 @@ impl ShipKind {
     }
 }
 
+// Specifies the alignment of a ship in the Grid
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Orientation {
     Horizontal,
@@ -47,7 +44,15 @@ pub struct Ship {
 }
 
 impl Ship {
-    pub fn new(kind: ShipKind, position: ShipPosition) -> Self {
+    pub fn new(kind: ShipKind, top_left: (u8, u8), orientation: Orientation) -> Self {
+        let position = ShipPosition {
+            top_left,
+            bottom_right: match orientation {
+                Orientation::Horizontal => (top_left.0 + kind.size(), top_left.1),
+                Orientation::Veritcal => (top_left.0, top_left.1 + kind.size()),
+            },
+        };
+
         Self { kind, position }
     }
     pub fn orientation(&self) -> Orientation {
@@ -107,6 +112,12 @@ mod test {
 
         assert_eq!(carrier.orientation(), Orientation::Veritcal);
         assert_eq!(battleship.orientation(), Orientation::Horizontal);
+
+        let cruiser = Ship::new(ShipKind::Cruiser, (3, 2), Orientation::Horizontal);
+        assert_eq!(cruiser.position.bottom_right, (6, 2));
+
+        let submarine = Ship::new(ShipKind::Submarine, (3, 2), Orientation::Veritcal);
+        assert_eq!(submarine.position.bottom_right, (3, 5));
     }
 
     #[test]
