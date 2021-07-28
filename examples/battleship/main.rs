@@ -1,27 +1,37 @@
 //! Battleship is a two-player strategic guessing game.
-//! There are two grids - let's call them - ShipGrid and AttackGrid.
-//! ShipGrid, located on the left hand side, is where the player's fleet of ships is situated and marked.
-//! AttackGrid, located on the right hand side, is where the opponent's fleet is situated but concealed.
-//! Players alternate turns calling "shots" at the other player's ships.
-//! You can use arrow keys (←, ↑, ↓, →) to move crosshair in AttackGrid and press `Enter ⏎` key to attack.
-//! The objective of the game is to destroy the opposing player's fleet.
+//! There are two grids - let's call them - ShipGrid (left) and AttackGrid (right).
+//! The ShipGrid, is where the player's fleet of ships is situated and marked.
+//! The AttackGrid, is where the opponent's fleet is situated but concealed.
+//! The goal is to destroy the opponents fleet by shooting(guessing all tiles) containing a ship of his fleet.
+//! Whenever a shot was fired the player gets a feedback: either miss (•) or hit (a red ⚫).
+//! That feedback enables some optimization strategies - to guess strategically optimal.
 //!
-//! This game can be played in single player mode as well as multiplayer.
+//! You can use the arrow keys (←, ↑, ↓, →) to move the cross-hair in AttackGrid and press the `Enter ⏎` key to attack.
+//!
 //! To play in single player mode, you can pass `bot` as an argument to the program
+//! 
 //! $> ./battleship bot
+//! $> cargo run --features unstable --example battleship bot # From within the turtle source-code.
 //!
-//! To play in multiplayer mode, one player needs to acts as a server and the other as client.
+//! To play in multiplayer mode, one player needs to act as the server and the other as client.
 //! To act as a server, run the program without any arguments.
+//! 
 //! $> ./battleship # No arguments
+//! $> cargo run --features unstable --example battleship # From within the turtle source-code.
+//! 
 //! This will output something like "Listening on port: <PORT>, Waiting for connection..".
+//! As soon as an opponent connects the game starts.
 //!
 //! If the other player is also within the same LAN, you can share your private IP address and <PORT>
-//! which they can use to connect with you by running the program with these arguments:
-//! $> ./battleship <IP:PORT> #  eg: ./battleship 192.168.0.120:35765
+//! which they can use to connect to your game by running the program with these arguments:
 //!
-//! If not in same LAN, you can try DynamicDNS or a publicly routable IP address.
+//! $> ./battleship <IP:PORT> #  eg: ./battleship 192.168.0.120:35765
+//! $> cargo run --features unstable --example battleship
+//!
+//! If not in same LAN, you can try DynamicDNS or a publicly routable IP address
+//! but there are many possible problems that could arise.
 
-// To run, use the command: cargo run --features unstable --example battleship
+// To run, use the command: cargo run --features unstable --example battleship bot
 #[cfg(all(not(feature = "unstable")))]
 compile_error!("This example relies on unstable features. Run with `--features unstable`");
 
