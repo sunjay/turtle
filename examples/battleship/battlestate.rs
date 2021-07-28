@@ -4,7 +4,7 @@ use turtle::rand::{choose, random_range};
 
 use crate::{
     grid::{Cell, Grid},
-    ship::*,
+    ship::{Orientation, Ship, ShipKind},
 };
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -60,22 +60,6 @@ impl Display for BattleState {
 }
 
 impl BattleState {
-    #[allow(dead_code)]
-    fn custom(ships: [Ship; 5]) -> Self {
-        let mut ship_grid = Grid::new(Cell::Empty);
-        ships.iter().for_each(|ship| {
-            ship.coordinates().iter().for_each(|pos| {
-                *ship_grid.get_mut(pos) = ship.kind.to_cell();
-            })
-        });
-        Self {
-            ships,
-            ship_grid,
-            attack_grid: Grid::new(Cell::Unattacked),
-            destroyed_rival_ships: 0,
-            ships_lost: 0,
-        }
-    }
     pub fn new() -> Self {
         let (ships, ship_grid) = Self::random_ship_grid();
         Self {
@@ -188,44 +172,31 @@ impl BattleState {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    fn custom_battlestate(ships: [Ship; 5]) -> BattleState {
+        let mut ship_grid = Grid::new(Cell::Empty);
+        ships.iter().for_each(|ship| {
+            ship.coordinates().iter().for_each(|pos| {
+                *ship_grid.get_mut(pos) = ship.kind.to_cell();
+            })
+        });
+        BattleState {
+            ships,
+            ship_grid,
+            attack_grid: Grid::new(Cell::Unattacked),
+            destroyed_rival_ships: 0,
+            ships_lost: 0,
+        }
+    }
+
     #[test]
     fn battle_actions() {
         let ships = [
-            Ship {
-                kind: ShipKind::Carrier,
-                position: ShipPosition {
-                    top_left: (2, 4),
-                    bottom_right: (2, 8),
-                },
-            },
-            Ship {
-                kind: ShipKind::Battleship,
-                position: ShipPosition {
-                    top_left: (1, 0),
-                    bottom_right: (4, 0),
-                },
-            },
-            Ship {
-                kind: ShipKind::Cruiser,
-                position: ShipPosition {
-                    top_left: (5, 2),
-                    bottom_right: (7, 2),
-                },
-            },
-            Ship {
-                kind: ShipKind::Submarine,
-                position: ShipPosition {
-                    top_left: (8, 4),
-                    bottom_right: (8, 6),
-                },
-            },
-            Ship {
-                kind: ShipKind::Destroyer,
-                position: ShipPosition {
-                    top_left: (6, 7),
-                    bottom_right: (9, 7),
-                },
-            },
+            Ship::new(ShipKind::Carrier, (2, 4), Orientation::Veritcal),
+            Ship::new(ShipKind::Battleship, (1, 0), Orientation::Horizontal),
+            Ship::new(ShipKind::Cruiser, (5, 2), Orientation::Horizontal),
+            Ship::new(ShipKind::Submarine, (8, 4), Orientation::Veritcal),
+            Ship::new(ShipKind::Destroyer, (6, 7), Orientation::Horizontal),
         ];
         // Player's ship grid      Opponent's ship grid
         //   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
@@ -239,7 +210,7 @@ mod test {
         // 7 . . C . . . D D . .   7 . . . R R R . . . .
         // 8 . . C . . . . . . .   8 . . . . . . . . . .
         // 9 . . . . . . . . . .   9 . . . . . . . . . .
-        let mut state = BattleState::custom(ships);
+        let mut state = custom_battlestate(ships);
         // turn 1: player attacks (2, 2) - misses
         state.set_attack_outcome(&(2, 2), AttackOutcome::Miss);
         assert_eq!(state.attack_grid.get(&(2, 2)), Cell::Missed);
@@ -259,13 +230,7 @@ mod test {
         // turn 5: player attacks (6, 2) - destroys D
         state.set_attack_outcome(
             &(6, 2),
-            AttackOutcome::Destroyed(Ship {
-                kind: ShipKind::Destroyer,
-                position: ShipPosition {
-                    top_left: (6, 2),
-                    bottom_right: (7, 2),
-                },
-            }),
+            AttackOutcome::Destroyed(Ship::new(ShipKind::Destroyer, (6, 2), Orientation::Horizontal)),
         );
         assert_eq!(state.attack_grid.get(&(6, 2)), Cell::Destroyed);
         assert_eq!(state.attack_grid.get(&(7, 2)), Cell::Destroyed);

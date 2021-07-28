@@ -3,11 +3,11 @@ use std::ops::Deref;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Cell {
-    Carrier = 0,
-    Battleship = 1,
-    Cruiser = 2,
-    Submarine = 3,
-    Destroyer = 4,
+    Carrier,
+    Battleship,
+    Cruiser,
+    Submarine,
+    Destroyer,
     /// clear cell on ShipGrid
     Empty,
     /// clear cell on AttackGrid

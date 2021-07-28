@@ -7,7 +7,7 @@ impl Config {
     pub const EMPTY_COLOR: &'static str = "#55dde0";
     pub const UNATTACKED_COLOR: &'static str = "#55dde0";
     pub const CARRIER_COLOR: &'static str = "#fde74c";
-    pub const BATTLESHIP_COLOR: &'static str = "#f48923";
+    pub const BATTLESHIP_COLOR: &'static str = "#f4d58d";
     pub const CRUISER_COLOR: &'static str = "#947757";
     pub const SUBMARINE_COLOR: &'static str = "#9bc53d";
     pub const DESTROYER_COLOR: &'static str = "#238cf4";
