@@ -6,19 +6,20 @@
 //! Whenever a shot was fired the player gets a feedback: either miss (•) or hit (a red ⚫).
 //! That feedback enables some optimization strategies - to guess strategically optimal.
 //!
-//! You can use the arrow keys (←, ↑, ↓, →) to move the cross-hair in AttackGrid and press the `Enter ⏎` key to attack.
+//! You can use the arrow keys (←, ↑, ↓, →) to move the cross-hair in AttackGrid
+//! and press the `Enter ⏎` or Space key to attack.
 //!
 //! To play in single player mode, you can pass `bot` as an argument to the program
-//! 
+//!
 //! $> ./battleship bot
 //! $> cargo run --features unstable --example battleship bot # From within the turtle source-code.
 //!
 //! To play in multiplayer mode, one player needs to act as the server and the other as client.
 //! To act as a server, run the program without any arguments.
-//! 
+//!
 //! $> ./battleship # No arguments
 //! $> cargo run --features unstable --example battleship # From within the turtle source-code.
-//! 
+//!
 //! This will output something like "Listening on port: <PORT>, Waiting for connection..".
 //! As soon as an opponent connects the game starts.
 //!

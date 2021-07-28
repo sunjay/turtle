@@ -125,14 +125,14 @@ impl Game {
             // TODO: Replace poll_event with blocking next_event after Events API is stabilized
             // https://github.com/sunjay/turtle/issues/178
             while let Some(event) = drawing.poll_event() {
-                use Key::{DownArrow, LeftArrow, Return, RightArrow, UpArrow};
+                use Key::{DownArrow, LeftArrow, Return, RightArrow, Space, UpArrow};
                 if let Event::Key(key, PressedState::Pressed) = event {
                     match key {
                         LeftArrow => crosshair.move_left(self),
                         RightArrow => crosshair.move_right(self),
                         UpArrow => crosshair.move_up(self),
                         DownArrow => crosshair.move_down(self),
-                        Return => {
+                        Return | Space => {
                             if let Some(pos) = crosshair.try_bomb() {
                                 return pos;
                             }

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{convert::TryInto, fmt::Display};
+use std::convert::TryInto;
 use turtle::rand::{choose, random_range};
 
 use crate::{
@@ -37,28 +37,6 @@ pub struct BattleState {
     pub ships_lost: u8,
 }
 
-impl Display for BattleState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let output = self
-            .ship_grid
-            .iter()
-            .map(|row| {
-                row.iter()
-                    .map(|cell| match cell {
-                        Cell::Carrier => 'C',
-                        Cell::Battleship => 'B',
-                        Cell::Cruiser => 'R',
-                        Cell::Submarine => 'S',
-                        Cell::Destroyer => 'D',
-                        _ => '.',
-                    })
-                    .collect::<String>()
-            })
-            .collect::<Vec<_>>();
-        write!(f, "{}", output.join("\n"))
-    }
-}
-
 impl BattleState {
     pub fn new() -> Self {
         let (ships, ship_grid) = Self::random_ship_grid();
@@ -74,13 +52,18 @@ impl BattleState {
         let attacked_cell = self.ship_grid.get(pos);
         match attacked_cell {
             Cell::Empty => AttackOutcome::Miss,
-            Cell::Carrier | Cell::Battleship | Cell::Cruiser | Cell::Submarine | Cell::Destroyer => {
+            Cell::Ship(_) => {
                 let standing_ship_parts = self.ship_grid.count(&attacked_cell);
                 match standing_ship_parts {
                     1 => {
                         // If the attack is on the last standing ship part,
                         // change all the Cells of the Ship to Destroyed
-                        let lost_ship = self.ships[attacked_cell as usize];
+                        let lost_ship = self
+                            .ships
+                            .iter()
+                            .find(|ship| ship.kind.to_cell() == attacked_cell)
+                            .copied()
+                            .unwrap();
                         lost_ship
                             .coordinates()
                             .into_iter()
@@ -94,14 +77,14 @@ impl BattleState {
                     }
                 }
             }
-            _ => unreachable!(),
+            Cell::Bombed | Cell::Missed | Cell::Destroyed | Cell::Unattacked => unreachable!(),
         }
     }
     pub fn can_bomb(&self, pos: &(u8, u8)) -> bool {
         match self.attack_grid.get(pos) {
             Cell::Bombed | Cell::Destroyed | Cell::Missed => false,
             Cell::Unattacked => true,
-            _ => unreachable!(),
+            Cell::Ship(_) | Cell::Empty => unreachable!(),
         }
     }
     pub fn set_attack_outcome(&mut self, attacked_pos: &(u8, u8), outcome: AttackOutcome) {

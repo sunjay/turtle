@@ -1,6 +1,6 @@
+use crate::{grid::Cell, ship::ShipKind};
 use turtle::Color;
 
-use crate::grid::Cell;
 pub struct Config {}
 
 impl Config {
@@ -31,11 +31,11 @@ impl Config {
 
     pub fn cell_color(cell: &Cell) -> Color {
         match cell {
-            Cell::Carrier => Self::CARRIER_COLOR.into(),
-            Cell::Battleship => Self::BATTLESHIP_COLOR.into(),
-            Cell::Cruiser => Self::CRUISER_COLOR.into(),
-            Cell::Submarine => Self::SUBMARINE_COLOR.into(),
-            Cell::Destroyer => Self::DESTROYER_COLOR.into(),
+            Cell::Ship(ShipKind::Carrier) => Self::CARRIER_COLOR.into(),
+            Cell::Ship(ShipKind::Battleship) => Self::BATTLESHIP_COLOR.into(),
+            Cell::Ship(ShipKind::Cruiser) => Self::CRUISER_COLOR.into(),
+            Cell::Ship(ShipKind::Submarine) => Self::SUBMARINE_COLOR.into(),
+            Cell::Ship(ShipKind::Destroyer) => Self::DESTROYER_COLOR.into(),
             Cell::Empty => Self::EMPTY_COLOR.into(),
             Cell::Unattacked => Self::UNATTACKED_COLOR.into(),
             Cell::Missed => Self::MISSED_COLOR.into(),
