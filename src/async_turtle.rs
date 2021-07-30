@@ -71,7 +71,11 @@ impl AsyncTurtle {
         Self {client, id, angle_unit}
     }
 
-    pub async fn forward(&mut self, distance: Distance) {
+    pub async fn forward<T>(&mut self, distance: T)
+    where
+        f64: From<T>,
+    {
+        let distance = f64::from(distance);
         self.client.move_forward(self.id, distance).await
     }
 
@@ -80,7 +84,11 @@ impl AsyncTurtle {
         self.client.move_forward(self.id, -distance).await
     }
 
-    pub async fn right(&mut self, angle: Angle) {
+    pub async fn right<Angle>(&mut self, angle: Angle)
+    where
+        f64: From<Angle>,
+    {
+        let angle = f64::from(angle);
         let angle = self.angle_unit.to_radians(angle);
         self.client.rotate_in_place(self.id, angle, RotationDirection::Clockwise).await
     }

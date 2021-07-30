@@ -90,7 +90,10 @@ impl Turtle {
     /// turtle.forward(-223.0);
     /// # assert_eq!(turtle.position().y.round(), -113.0);
     /// ```
-    pub fn forward(&mut self, distance: Distance) {
+    pub fn forward<Distance>(&mut self, distance: Distance)
+    where
+        f64: From<Distance>,
+    {
         block_on(self.turtle.forward(distance))
     }
 
@@ -154,7 +157,10 @@ impl Turtle {
     /// # let expected = (expected * 1e5).trunc();
     /// # assert_eq!((turtle.heading() * 1e5).trunc(), expected);
     /// ```
-    pub fn right(&mut self, angle: Angle) {
+    pub fn right<Angle>(&mut self, angle: Angle)
+    where
+        f64: From<Angle>,
+    {
         block_on(self.turtle.right(angle))
     }
 
