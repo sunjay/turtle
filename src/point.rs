@@ -334,8 +334,8 @@ impl Lerp for Point {
     #[inline(always)]
     fn lerp(&self, other: &Self, scalar: &Self::Scalar) -> Self {
         Self {
-            x: self.x.lerp(&other.x, &scalar),
-            y: self.y.lerp(&other.y, &scalar),
+            x: Lerp::lerp(&self.x, &other.x, &scalar),
+            y: Lerp::lerp(&self.y, &other.y, &scalar),
         }
     }
 }

@@ -81,7 +81,7 @@ impl Lerp for Radians {
 
     #[inline(always)]
     fn lerp(&self, other: &Self, scalar: &Self::Scalar) -> Self {
-        Radians(self.0.lerp(&other.0, &scalar))
+        Radians(Lerp::lerp(&self.0, &other.0, &scalar))
     }
 }
 
