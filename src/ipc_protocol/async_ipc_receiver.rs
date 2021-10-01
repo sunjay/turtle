@@ -30,7 +30,7 @@ impl<T: Serialize + DeserializeOwned + Send + 'static> AsyncIpcReceiver<T> {
                 // disconnected. This allows callers of `recv` to detect the disconnection.
                 let next_value = ipc_receiver.recv();
 
-                let value_sender: oneshot::Sender<_> = match handle.block_on(receiver.recv()) {
+                let value_sender: oneshot::Sender<_> = match receiver.blocking_recv() {
                     Some(value_sender) => value_sender,
                     // The sender for this channel only drops when the main thread has stopped,
                     // so it's pretty safe to stop here

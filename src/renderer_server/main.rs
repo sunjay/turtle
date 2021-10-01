@@ -282,7 +282,7 @@ pub fn run_main(
         GlutinEvent::LoopDestroyed => {
             // Notify the server that it should shutdown, ignoring the error if the channel has
             // been dropped since that just means that the server task has ended already
-            handle.block_on(server_shutdown.send(())).unwrap_or(());
+            server_shutdown.blocking_send(()).unwrap_or(());
         },
 
         _ => {},

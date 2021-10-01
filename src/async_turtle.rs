@@ -98,7 +98,7 @@ impl AsyncTurtle {
             return;
         }
 
-        time::delay_for(time::Duration::from_millis((secs * 1000.0) as u64)).await
+        time::sleep(time::Duration::from_millis((secs * 1000.0) as u64)).await
     }
 
     pub async fn arc_left(&mut self, radius: Distance, extent: Angle) {
